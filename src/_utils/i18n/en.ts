@@ -1,0 +1,421 @@
+import type { I18NInfo } from '@/types/i18n'
+
+const i18NInfo: I18NInfo = {
+  common: {
+    please: 'Please',
+    empty: 'None',
+    concluded: 'Concluded',
+    status: 'Status',
+    createTime: 'Creation Time',
+    updateTime: 'Update Time',
+    modifyTime: 'Modification Time',
+    unknown: 'Unknown',
+    creator: 'Creator',
+    yes: 'Yes',
+    no: 'No',
+    sourceData: 'Original Data',
+    approvalData: 'Approval Data',
+    zwEnergy: 'ZW United',
+    success: 'Success',
+    notEmpty: 'Cannot be empty',
+    error: 'Oops!',
+    welcome: 'Welcome Back',
+    or: 'or',
+    options: {
+      registerType: {
+        individualOrAgent: 'Individual/Agent',
+        legalRepresentative: 'Legal Representative',
+      },
+    },
+  },
+  actions: {
+    operate: 'Operate',
+    approve: 'Approve',
+    delete: 'Delete',
+    accept: 'Accept',
+    edit: 'Edit',
+    read: 'View',
+    add: 'Add',
+    reset: 'Reset',
+    search: 'Search',
+    modifyApproval: 'Modify Approval',
+    readApprovalItem: 'View Approval Item',
+    submit: 'Submit',
+    modify: 'Modify',
+    cancel: 'Cancel',
+    return: 'Return',
+    send: 'Send',
+    login: 'Login',
+    confirm: 'Confirm',
+    forgetPassword: 'Forgot Password?',
+    expand: 'Expand',
+    close: 'Collapse',
+    createAccount: 'Create today',
+    next: 'Next',
+    previous: 'Previous',
+  },
+  captcha: {
+    text: 'Captcha',
+    sms: {
+      prefix: 'Please try again in',
+      suffix: 'seconds',
+      empty: 'Continue to send code after input password',
+      success: {
+        title: 'Sms sending success',
+      },
+    },
+  },
+  exception: {
+    title: 'There were some issues',
+    ECONNABORTED: {
+      content: 'Server Exception',
+      meta: 'Server response timeout, please try again later...',
+    },
+    ERR_NETWORK: {
+      content: 'Service Exception',
+      meta: 'Disconnected from the server, please try again later',
+    },
+    default: {
+      content: 'Unknown Exception',
+      meta: 'Service temporarily unavailable, please try again later',
+    },
+    ERR_USER_NETWORK_NOTWORK: {
+      content: 'Your network is unavailable',
+      meta: 'Unable to connect to the server...',
+    },
+    403: {
+      title: '403 Insufficient Permissions',
+      description:
+        'You do not have permission to access this resource. Maybe you should contact the administrator?',
+    },
+    404: {
+      title: '404 Resource Not Found',
+      description: 'Oops, you have reached a dead end. Maybe you should contact the administrator?',
+    },
+    418: {
+      title: 'There were some issues',
+      description:
+        'Please access the internal system resources through the browser, not directly by typing the address',
+    },
+    incompatibility: {
+      title: 'Oops! Your browser is incompatible with the site',
+      description:
+        'You may try switching to another browser (Chrome, Edge, Android 9+, iOS 12+, or other modern browsers/WebView)',
+    },
+    unexpected: {
+      title: 'Oops! Unexpected Server Error Occurred',
+      message: 'Please try again later or contact the site administrator to resolve the issue.',
+      business: {
+        title: 'Oops! Unexpected business error occurred',
+      },
+    },
+  },
+  account: {
+    name: 'Your Name',
+    noAccount: "Don't have an account",
+    password: {
+      protect: '您的密码将使用PKCS1_OAEP技术加密',
+      level: {
+        high: 'Complex password',
+        medium: 'Average complexity',
+        low: 'Too Simple',
+      },
+      recovery: {
+        tab: {
+          step1: 'Input your phone',
+          step2: 'Verification',
+          step3: 'Change your password',
+          step4: 'Success',
+        },
+      },
+      placeholder: 'Enter a password',
+      text: 'Password',
+      change: 'Change Password',
+      previous: 'Old Password',
+      regular: 'Password should be 8~16 characters long',
+      minimum: 'Password must have at least 8 characters',
+      maximum: 'Password can be a maximum of 16 characters',
+      new: 'New Password',
+      confirm: {
+        normal: {
+          text: 'Please confirm your password',
+        },
+        new: {
+          text: 'Please confirm the new password',
+        },
+      },
+      dbCheck: {
+        normal: {
+          text: 'Confirm Password Again',
+          placeholder: 'Please confirm the password again',
+        },
+        new: {
+          text: 'Confirm New Password Again',
+          placeholder: 'Please confirm the new password again',
+        },
+        error: {
+          text: "Passwords don't match, please try again",
+        },
+      },
+    },
+    verification: {
+      text: 'Verification Code',
+      phone: 'Phone Verification Code',
+    },
+    invalidToken: {
+      text: 'Your login token has expired, please log in again',
+      meta: 'Returning to login page in 3 seconds...',
+    },
+    phone: {
+      text: 'Phone',
+      support: 'Currently only supports +86 Mainland China phone numbers',
+      verify: 'Please fill in your phone number before sending the verification code',
+      regular: 'The phone number must be a valid 11-digit number. Please verify.',
+    },
+    return: 'Return to Login',
+    login: {
+      text: 'Login',
+      signIn: "Don't have a CGC United account?",
+      signUp: 'Create an Account',
+      oauth2: {
+        error: {
+          title: 'Oauth2 authentication failed',
+          meta: 'Please try again later...',
+        },
+        success: {
+          title: 'Oauth2 authentication success',
+          meta: 'Redirecting to dashboard...',
+        },
+        callback: {
+          title: 'Login Successful. Redirecting to dashboard...',
+        },
+      },
+    },
+    refresh: 'Click the captcha image to refresh if you cannot read the code clearly',
+    register: {
+      text: 'Register',
+      type: {
+        text: 'Registration Type',
+        placeholder: 'Please select your registration type',
+      },
+      haveAccount: 'Already have an account?',
+      success: {
+        text: 'Success!',
+        meta: 'Complete your profile to continue with the service...',
+      },
+      tab: {
+        step1: 'Sign up',
+        step2: 'Authenticate',
+        step3: 'Success',
+      },
+      code: {
+        title: 'Authenticate Your Phone',
+        mark: 'Please enter the code sent to your phone',
+        actions: {
+          submit: 'Submit code',
+          resend: 'Resend code',
+        },
+      },
+    },
+    registerSuccess: 'Registration Successful!',
+    messages: 'My Messages',
+    theme: 'Theme Adjustment',
+    logout: 'Logout',
+    logoutCheck: 'Are you sure you want to log out?',
+    additionalInfo: {
+      bankName: 'Bank Name',
+      bankAccount: 'Account Number',
+      companyAddress: 'Company Address',
+      contractPerson: 'Contact',
+      contractPersonPhone: 'Phone',
+      usci: 'usci',
+      identity: 'identity card',
+      pca: 'location',
+      referrer: 'referrer',
+      referrerName: 'referrer name',
+      successTitle: 'Success!',
+      successMeta: 'Wait for our stuff inspection',
+      successinspection: 'Go to "My Approvals"',
+      successReturn: 'Home',
+      header1: 'Register Type',
+      header2: 'Detail Complete',
+      header3: 'Success',
+    },
+  },
+  permission: {
+    code: 'Permission Code',
+    description: 'Permission Description',
+  },
+  role: {
+    code: 'Role Code',
+    description: 'Role Description',
+    permission: 'Role Permissions',
+  },
+  menu: {
+    name: 'Menu Name',
+    type: 'Menu Type',
+    options: {
+      primary: 'Primary Menu',
+      sub: 'Sub Menu',
+      buttonOrPerm: 'Button/Permission',
+    },
+    path: 'Frontend Path',
+    component: 'Frontend Component Name',
+    parent: 'Parent Menu',
+    perms: 'Menu Permissions',
+    icon: 'Frontend Component Icon',
+    display: 'Menu Visibility',
+    active: 'Menu Activity',
+    sort: 'Menu Sort Order (lower numbers appear first, minimum 1)',
+    delete: {
+      includeSubMenu: 'Delete the submenu as well?',
+      default: 'Are you sure you want to delete this menu?',
+    },
+  },
+  notification: {
+    time: 'Notification Time',
+    placeholder: 'Please select the notification time range',
+    retrieval: {
+      text: 'Content Search',
+      placeholder: 'Please enter the content to search',
+    },
+    list: 'Message List',
+  },
+  dict: {
+    tabTitle: {
+      setting: 'Dictionary Settings',
+      itemsSetting: 'Dictionary Item Settings',
+    },
+    code: 'Dictionary Code',
+    description: 'Dictionary Name',
+    category: {
+      code: 'Dictionary Category Code',
+      description: 'Dictionary Category Description',
+    },
+    sortNo: 'Sort Number',
+    remark: 'Additional Notes',
+  },
+  sign: {
+    status: 'Signing Status',
+    recorded: 'Filed',
+    signed: 'Signed',
+    expired: 'Expired',
+    companyName: 'Company Name',
+    industry: 'Industry',
+    area: 'Area',
+    liaison: 'Contact Person',
+    liaisonPhone: 'Contact Person Phone',
+    allocation: 'Power Allocation',
+    expiration: 'Contract Expiration Time',
+    annual: 'Annual Power Consumption',
+    capacity: 'Transformer Capacity',
+    category: 'Electricity Type',
+    voltage: 'Voltage Level',
+    pricing: {
+      peakValley: {
+        enable: 'Is Peak-Valley Electricity Pricing Enabled?',
+        peak: 'Peak',
+        valley: 'Valley',
+        flat: 'Flat',
+        offPeak: 'Off-Peak',
+        maximum: 'Value cannot exceed 100',
+        minimum: 'Value cannot be less than 0',
+        sumLimit: 'The sum of other values cannot exceed 100%',
+      },
+      mode: 'Pricing Mode',
+      type: {
+        text: 'Pricing Type',
+        options: {
+          power: 'Power Plant Side',
+          user: 'User Side',
+          selling: 'Selling Company Side',
+        },
+      },
+      sort: {
+        type: 'Pricing Category',
+        options: {
+          split: 'Split Type',
+          minimum: 'Minimum Type',
+          minimumWithSplit: 'Minimum with Split Type',
+          other: 'Other',
+        },
+      },
+      split: 'Split Ratio',
+      settled: {
+        pricing: 'Fixed Price',
+        spread: 'Fixed Spread',
+        unit: 'Yuan/MWh',
+      },
+    },
+    remark: {
+      progress: 'Progress Notes',
+      other: 'Other (Remarks)',
+    },
+    file: {
+      scan: 'Contract Scan (PDF or Photo)',
+      bill: 'Electricity Bill for the Last Month',
+    },
+    tabs: {
+      baseInfo: 'Basic Information',
+      supplementaryInfoForSigned: 'Supplementary Info for Signed',
+      attachmentUpload: 'Attachment Upload',
+      viewApprovalProgress: 'View Approval Progress',
+    },
+    marketing: {
+      account: 'Marketing Account Number',
+      info: 'Marketing Account Information',
+      new: 'Add Marketing Account Information',
+    },
+    route: {
+      home: 'Home',
+      login: 'Sign in',
+      register: 'Sign up',
+      'password-recovery': 'Password Recovery',
+    },
+  },
+  unauth: {
+    login: {
+      header: {
+        title: 'Sign In',
+        meta: 'Please enter your details',
+      },
+      footer: {
+        text: 'Not registered?',
+        link: 'Create an Account :)',
+      },
+      actions: {
+        rememberMe: 'Remember Me',
+        forgotPassword: 'Forgot Password',
+        signIn: 'Sign in',
+        wechat: 'Sign in with Wechat',
+        qq: 'Sign in with QQ',
+        github: 'Sign in With Github',
+      },
+    },
+    register: {
+      header: {
+        title: 'Sign Up',
+        meta: 'Please enter your details',
+      },
+      footer: {
+        text: 'Existing user?',
+        link: 'Cancel and return to login',
+      },
+    },
+    'password-recovery': {
+      header: {
+        title: 'Recover Account',
+        meta: 'Password Recovery via SMS Verification',
+      },
+      footer: {
+        text: 'Remember your password?',
+        link: 'Sign in here',
+      },
+      success: {
+        text: 'Password reset successful',
+        meta: 'Sign in',
+      },
+    },
+  },
+}
+export default i18NInfo
