@@ -1,0 +1,38 @@
+@import 'tailwindcss';
+:root {
+  /* 基础间距系统 - 8点网格 */
+  --space-2: 8px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* 语义化间距 */
+  --spacing-content: var(--space-4); /* 内容区域内边距 */
+  --spacing-card: var(--space-4); /* 卡片内边距 */
+  --spacing-section: var(--space-12); /* 区块间距 */
+  --spacing-element: var(--space-4); /* 元素间距 */
+  --spacing-text: var(--space-2); /* 文本间距 */
+}
+
+@theme {
+  /* 扩展 spacing */
+  --spacing-content: var(--spacing-content);
+  --spacing-card: var(--spacing-card);
+  --spacing-section: var(--spacing-section);
+  --spacing-element: var(--spacing-element);
+  --spacing-text: var(--spacing-text);
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: calc(14px + 0.5vw); /* 移动端响应式字体大小 */
+  }
+  :root {
+    --spacing-content: var(--space-6);
+    --spacing-card: var(--space-6);
+    --spacing-section: var(--space-16);
+    --spacing-element: var(--space-6);
+  }
+}
