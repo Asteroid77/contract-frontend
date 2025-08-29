@@ -20,15 +20,26 @@ export default defineConfigWithVueTs(
 
   pluginVue.configs['flat/essential'],
   vueTsConfigs.recommended,
-  
+
   {
     ...pluginVitest.configs.recommended,
     files: ['src/**/__tests__/*'],
   },
-  
+
   {
     ...pluginPlaywright.configs['flat/recommended'],
     files: ['e2e/**/*.{test,spec}.{js,ts,jsx,tsx}'],
+  },
+  {
+    // @see https://github.com/typescript-eslint/typescript-eslint/issues/11530
+    // Related to Windows path handling in error messages. (Opened on August 24, 2025)
+    // N.b. #11532 tracks filling out that specific docs entry. In the meantime, https://typescript-eslint.io/getting-started/typed-linting has more information.
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
   },
   skipFormatting,
 )
