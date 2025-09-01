@@ -14,6 +14,9 @@
   --spacing-section: var(--space-12); /* 区块间距 */
   --spacing-element: var(--space-4); /* 元素间距 */
   --spacing-text: var(--space-2); /* 文本间距 */
+
+  --color-routelink: #bb501c;
+  --color-background: #fcfbfa;
 }
 
 @theme {
@@ -23,16 +26,37 @@
   --spacing-section: var(--spacing-section);
   --spacing-element: var(--spacing-element);
   --spacing-text: var(--spacing-text);
+  /** 拓展color */
+  --color-routelink: var(--color-routelink);
+  --color-background: var(--color-background);
 }
 
 @media (max-width: 768px) {
   html {
     font-size: calc(14px + 0.5vw); /* 移动端响应式字体大小 */
   }
-  :root {
+  /* :root {
     --spacing-content: var(--space-6);
     --spacing-card: var(--space-6);
     --spacing-section: var(--space-16);
     --spacing-element: var(--space-6);
+  } */
+}
+
+.hover-shake {
+  display: inline-block;
+  transition: transform 0.2s ease-in-out;
+  &:hover {
+    transform: scale(1.1) translateX(2px) rotate(3deg);
+  }
+  &:active {
+    transform: translateX(0) rotate(0);
+  }
+}
+.n-input {
+  transition: all 0.5s ease-in-out;
+  border-bottom: 2px solid #cbc5bf;
+  &:hover {
+    border-bottom: 2px solid var(--n-primary-color);
   }
 }
