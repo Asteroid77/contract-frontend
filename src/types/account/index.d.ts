@@ -1,5 +1,3 @@
-import type { ApprovalIsntanceRequest } from '../approval'
-
 /**
  * 用户信息
  */
@@ -82,6 +80,17 @@ export declare interface RegisterResponse {
   phone: string
   active: UserActive
   isDeleted: number
+}
+
+/**
+ * 忘记密码请求数据结构
+ */
+export declare interface PasswordRecoveryRequest {
+  phone: string
+  password: string
+  dbCheckPassword: string
+  code: string
+  bizId: string
 }
 
 /**

@@ -6,10 +6,10 @@ import type {
   UserAdditionalInfo,
   UserAdditionalInfoRequest,
 } from '@/types/account'
-import type { ApprovalIsntance } from '@/types/approval'
+import type { ApprovalIsntance } from '@/api/types/approval'
 
 import { useRequest } from '@/hooks/request/useRequest.ts'
-import { createPrefixedEndpoints } from '@/utils/api/api-prefix-generator.ts'
+import { createPrefixedEndpoints } from '@/api/api-prefix-generator.ts'
 
 export const ACCOUNT_API_ENDPOINTS = createPrefixedEndpoints('/user', {
   LOGIN: '/login',
@@ -21,7 +21,7 @@ const serverURL = import.meta.env.VITE_BACKEND_SERVER_URL
 export const OAUTH2_API_ENDPOINTS = createPrefixedEndpoints(serverURL + '/oauth2', {
   GET_OAUTH2_AUTHORIZATION_URL: `/authorization/`,
 })
-export const userService = {
+export const userApi = {
   login: (data: SignInRequest): Promise<SignInResponse> => {
     return useRequest<SignInResponse, SignInRequest>(
       {
