@@ -1,14 +1,10 @@
 import { useRequest } from '@/hooks/request/useRequest.ts'
-import type {
-  PasswordRecoveryRequest,
-  PasswordRecoveryResponse,
-} from '@/types/views/PasswordRecoveryView'
+import type { PasswordRecoveryRequest, PasswordRecoveryResponse } from '@/api/types/password'
 
 export const PASSWORD_API_ENDPOINT = {
-  RECOVERY_BY_SMS: '/user/changePwdBySMS',
-  RECOVERY_BY_OLD_PASSWORD: '/user/changePwd',
+  RECOVERY_BY_SMS: '/user/password/recovery',
 }
-export const passwordService = {
+export const passwordApi = {
   recoveryBySMS: (data: PasswordRecoveryRequest) => {
     return useRequest<PasswordRecoveryResponse, PasswordRecoveryRequest>({
       method: 'POST',
