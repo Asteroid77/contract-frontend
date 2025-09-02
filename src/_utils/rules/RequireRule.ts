@@ -114,7 +114,7 @@ export const requireRule = (
   field: string,
   value: unknown,
   options: Parameters<typeof isNotEmpty>[1] = {},
-): Error | undefined => {
+): Error | true => {
   // 使用 isNotEmpty 函数进行基础检查
   if (!isNotEmpty(value, options)) {
     return new Error(`${field}${$t('common.notEmpty')}`)
@@ -130,6 +130,7 @@ export const requireRule = (
         ) {
           return new Error(`${field}${$t('common.notEmpty')}`)
         }
+        return true
       })
       .with(P.number, (num) => {
         if (
@@ -138,21 +139,25 @@ export const requireRule = (
         ) {
           return new Error(`${field}${$t('common.notEmpty')}`)
         }
+        return true
       })
       .with(P.array(), (arr) => {
         if (options.treatEmptyArrayAsEmpty !== false && arr.length === 0) {
           return new Error(`${field}${$t('common.notEmpty')}`)
         }
+        return true
       })
       .with(P.instanceOf(Map), (map) => {
         if (map.size === 0) {
           return new Error(`${field}${$t('common.notEmpty')}`)
         }
+        return true
       })
       .with(P.instanceOf(Set), (set) => {
         if (set.size === 0) {
           return new Error(`${field}${$t('common.notEmpty')}`)
         }
+        return true
       })
       // 使用 P.not 和 P.union 组合检查普通对象
       .with(
@@ -174,8 +179,9 @@ export const requireRule = (
           ) {
             return new Error(`${field}${$t('common.notEmpty')}`)
           }
+          return true
         },
       )
-      .otherwise(() => undefined)
+      .otherwise(() => true)
   )
 }
