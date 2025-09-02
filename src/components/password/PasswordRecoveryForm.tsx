@@ -1,5 +1,4 @@
 import { defineComponent, ref, useTemplateRef, type PropType, type ShallowRef } from 'vue'
-import { loginFormRules } from '../login/rules/LoginFormRules'
 import { NButton, NForm, NFormItem, NInput } from 'naive-ui'
 import { $t } from '@/_utils/i18n'
 import {
@@ -15,6 +14,7 @@ import type { PasswordRecoveryRequest } from '@/types/account'
 import { RouterLink } from 'vue-router'
 import { useSMS } from '@/hooks/captcha/useSMS'
 import type { FormInst } from 'naive-ui/lib'
+import { passwordRecoveryFormRules } from '../login/rules/PasswordFormRules'
 const { getSendBtnLabelText, getSMSCoolDownSecond, sendSMSCode } = useSMS()
 export default defineComponent({
   props: {
@@ -35,7 +35,7 @@ export default defineComponent({
     if (props.initialValues) {
       formData.value = { ...props.initialValues }
     }
-    const rules = loginFormRules(formData)
+    const rules = passwordRecoveryFormRules(formData)
     const sendBtnClick = () => {
       useSMSCode.mutate(formData.value.phone as string)
     }
