@@ -1,6 +1,6 @@
 // src/types/vite-env.d.ts
 /// <reference types="vite/client" />
-
+import 'vue-router'
 // 为 Vite 定义的全局常量声明类型
 declare const __GIT_COMMIT_HASH__: string
 declare const __GIT_BRANCH__: string
@@ -20,3 +20,16 @@ type ValidatedFormData<T, N = null> = {
 }
 
 type ZwFormSubmit<T> = (valid: boolean, formData: boolean extends true ? T : FormInput<T>) => void
+
+declare module 'vue-router' {
+  interface RouteMeta {
+    // 如果设置，则会根据用户信息判断roles
+    roles?: string[]
+    // 如果设置，则会根据用户信息判断permission
+    permissions?: string[]
+    // 用于面包屑以及菜单展示
+    name?: string
+    // 用于面包屑路由展示
+    icon?: string
+  }
+}

@@ -99,3 +99,26 @@ export declare interface PasswordRecoveryRequest {
  * - 1 已激活
  */
 export type UserActive = 0 | 1
+
+/**
+ * 权限数据结构
+ */
+export declare interface Permission {
+  // 权限id
+  id: number
+  // 权限code
+  name: string
+  // 权限描述
+  description: string
+}
+/**
+ * 角色数据结构
+ */
+declare interface Role {
+  // 角色id
+  id: string
+  // 角色code
+  name: string
+  // 角色描述
+  description: string
+}
