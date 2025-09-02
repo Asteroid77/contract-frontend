@@ -1,9 +1,4 @@
-import {
-  createI18n,
-  type ComposerTranslation,
-  type LocaleMessages,
-  type VueMessageType,
-} from 'vue-i18n'
+import { createI18n } from 'vue-i18n'
 import { ref, type Ref } from 'vue'
 import zhCN from './zh.ts'
 import en from './en.ts'

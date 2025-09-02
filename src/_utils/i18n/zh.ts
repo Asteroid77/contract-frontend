@@ -368,6 +368,14 @@ export default {
       'password-recovery': '密码找回',
     },
   },
+  theme: {
+    modify: {
+      success: {
+        title: '修改成功',
+        content: '已应用当前主题',
+      },
+    },
+  },
   unauth: {
     login: {
       header: {
