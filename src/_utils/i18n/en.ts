@@ -1,6 +1,4 @@
-import type { I18NInfo } from '@/types/i18n'
-
-const i18NInfo: I18NInfo = {
+const i18NInfo = {
   common: {
     please: 'Please',
     empty: 'None',
@@ -371,6 +369,39 @@ const i18NInfo: I18NInfo = {
       login: 'Sign in',
       register: 'Sign up',
       'password-recovery': 'Password Recovery',
+      document: 'Document',
+      business: 'Business',
+      invitation: 'My inviatation',
+      sign: 'Sign/Contract',
+      user: 'User',
+      additional: 'Edit Additional Info',
+      'agent-list': 'Your Agents',
+    },
+  },
+  route: {
+    unauth: {
+      login: 'Login',
+      register: 'Register',
+      'password-recovery': 'Password Recovery',
+    },
+    auth: {
+      home: 'Home',
+      document: 'Documentation',
+      business: 'Business',
+      invitation: 'My Invitations',
+      sign: 'Filing/Signing',
+      user: 'User',
+      additional: 'Additional Info',
+      'agent-list': 'Agent List',
+      'my-sign': 'My Filings/Signings',
+      manage: 'Management',
+      'manager-user-list': 'User List',
+      approval: 'Approval',
+      'my-approval-task-list': 'My Approval Tasks',
+      'approval-my-task-list': 'Tasks Under Review',
+      'approval-process-list': 'Process List',
+      'approval-node-list': 'Node List',
+      'approval-task-list': 'Task List',
     },
   },
   unauth: {
