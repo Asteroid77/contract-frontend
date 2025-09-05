@@ -5,9 +5,9 @@ import type { Router } from 'vue-router'
 import { difference } from 'lodash'
 export function setupAuthGuards(router: Router) {
   const userInfoLoading = ref<boolean>(false)
-  const accountStore = useAccountStore()
   const token: string | null = localStorage.getItem('ACCESS_TOKEN')
   router.beforeEach(async (to) => {
+    const accountStore = useAccountStore()
     const requirePerms: string[] | undefined = to.meta.permissions
     const requireRoles: string[] | undefined = to.meta.roles
     if (_isUnAuthRoute(to.path)) {
