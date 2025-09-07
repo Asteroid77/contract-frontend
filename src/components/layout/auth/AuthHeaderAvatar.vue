@@ -5,7 +5,7 @@ import { NFlex, NAvatar, NBadge } from 'naive-ui'
 const badgeMessageCount = ref<number>(1)
 </script>
 <template>
-  <n-flex :class="clsx('zw-header--feature')">
+  <n-flex :class="clsx('zw-header--feature')" align="center">
     <n-badge :value="badgeMessageCount" dot processing>
       <n-avatar :class="clsx('text-background', 'bg-[var(--n-primary-color)]')"> N </n-avatar>
     </n-badge>

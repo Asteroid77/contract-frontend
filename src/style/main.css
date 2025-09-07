@@ -17,6 +17,10 @@
 
   --color-routelink: #bb501c;
   --color-background: #fcfbfa;
+
+  /** 布局 */
+  --side-bar-width--collapsed: 64;
+  --side-bar-width--expanded: 240;
 }
 
 @theme {
@@ -26,6 +30,8 @@
   --spacing-section: var(--spacing-section);
   --spacing-element: var(--spacing-element);
   --spacing-text: var(--spacing-text);
+  --spacing-sidebar-collapsed: calc(var(--side-bar-width--collapsed) * 1px);
+  --spacing-siderbar-expanded: calc(var(--side-bar-width--expanded) * 1px);
   /** 拓展color */
   --color-routelink: var(--color-routelink);
   --color-background: var(--color-background);

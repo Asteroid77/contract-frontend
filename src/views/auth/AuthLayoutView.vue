@@ -7,7 +7,7 @@ import AuthHeader from '@/components/layout/auth/AuthHeader.vue'
 <template>
   <div :class="clsx('zw-layout', 'w-full', 'h-full', 'flex', 'flex-col')">
     <AuthHeader></AuthHeader>
-    <div :class="clsx('zw-middle', 'grow', 'w-full', 'flex')">
+    <div :class="clsx('zw-middle', 'grow', 'w-full', 'flex', 'min-h-0')">
       <LayoutSideBar></LayoutSideBar>
       <n-scrollbar :class="clsx('zw-content', 'grow')" trigger="none">
         <router-view></router-view>

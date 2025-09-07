@@ -7,11 +7,26 @@ import AuthHeaderLogo from './AuthHeaderLogo.vue'
 <template>
   <div
     :class="
-      clsx('zw-header', 'w-full', 'h-14', 'p-text', 'flex', 'align-middle', 'gap-4', 'min-w-sm')
+      clsx(
+        'zw-header',
+        'w-full',
+        'h-14',
+        'p-text',
+        'flex',
+        'align-middle',
+        'gap-4',
+        'min-w-sm',
+        'border-b-background',
+        'border-b-2',
+      )
     "
   >
     <AuthHeaderLogo></AuthHeaderLogo>
-    <div :class="clsx('zw-header--breadcrumb', 'grow','max-sm:justify-center', 'align-middle', 'flex')">
+    <div
+      :class="
+        clsx('zw-header--breadcrumb', 'grow', 'max-sm:justify-center', 'items-center', 'flex')
+      "
+    >
       <BreadCrumb></BreadCrumb>
     </div>
     <AuthHeaderAvatar></AuthHeaderAvatar>
