@@ -9,7 +9,7 @@ const formLabelTextColor = generate('#70665E')
 const backgroundColor = generate('#fcfbfa')
 
 const storeThemeVariable = JSON.parse((localStorage[ThemeVariableStoreKey] as string) || '{}')
-function getCssVariable(variableName: string) {
+export function getCssVariable(variableName: string) {
   // 从根元素获取
   const rootStyles = getComputedStyle(document.documentElement)
   return rootStyles.getPropertyValue(variableName).trim()
