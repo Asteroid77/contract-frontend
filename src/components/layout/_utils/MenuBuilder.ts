@@ -2,7 +2,7 @@ import { RouterLink, type RouteLocationGeneric, type RouteRecordRaw } from 'vue-
 import { h } from 'vue'
 import { NEllipsis, type MenuOption } from 'naive-ui'
 import { renderIcon } from '@/_utils/widget/renderIcon'
-import { routeIcons as icons } from '@/components/layout/_constant/RouteIcons'
+import { routeIcons as icons } from '@/components/layout/constant/RouteIcons'
 
 export type IconNames = keyof typeof icons
 /**
