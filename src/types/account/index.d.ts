@@ -1,7 +1,7 @@
 /**
  * 用户信息
  */
-declare interface UserInfo {
+export declare interface UserInfo {
   // 主键
   id: string
   // 姓名
@@ -16,24 +16,26 @@ declare interface UserInfo {
 
 export type UserAdditionalInfoRequest = Omit<
   UserAdditionalInfo,
-  'discriminator' | 'userId' | 'referrerName' | 'createdTime' | 'updatedTime'
+  'discriminator' | 'userId' | 'referrerName' | 'createdTime' | 'updatedTime',
+  'referrer'
 >
 
-declare interface UserAdditionalInfo {
+export declare interface UserAdditionalInfo {
   id?: number
   registerType: RegisterType
   name: string
-  bankName?: string
-  bankAccount?: string
-  referrer?: number
+  bankName: string
+  bankAccount: string
+  invitationCode?: string
   companyAddress?: string
   pca: string
-  contractPerson?: string
-  contractPersonPhone?: string
+  contactPerson?: string
+  contactPersonPhone?: string
   identity: string
   discriminator: number
   userId: number
-  referrerName: string
+  referrer?: number
+  referrerName?: string
   createdTime: string
   updatedTime: string
 }
