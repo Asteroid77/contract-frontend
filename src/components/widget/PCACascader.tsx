@@ -3,7 +3,7 @@ import { NCascader, type CascaderProps, cascaderProps } from 'naive-ui'
 import { onMounted, ref } from 'vue'
 export default defineComponent({
   props: cascaderProps,
-  setup(_, { attrs, slots }) {
+  setup(props, { attrs, slots }) {
     const optionData = ref<CascaderProps['options']>([])
     const optionLoading = ref<boolean>(false)
     onMounted(async () => {
@@ -17,11 +17,12 @@ export default defineComponent({
     })
     return () => (
       <NCascader
+        {...props}
+        {...attrs}
         options={optionData.value}
         value-field={'key'}
         show-path
         checkStrategy={'child'}
-        {...attrs}
         v-slots={slots}
       ></NCascader>
     )

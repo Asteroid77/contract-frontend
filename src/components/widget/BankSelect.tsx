@@ -13,7 +13,7 @@ import { BankNameMap, BankOption } from './constant/BankConstant'
 export default defineComponent({
   name: 'bank-select',
   props: selectProps,
-  setup(_, { attrs, slots }) {
+  setup(props, { attrs, slots }) {
     const renderLabel: SelectRenderLabel = (option) => {
       return h(
         'div',
@@ -76,12 +76,13 @@ export default defineComponent({
     }
     return () => (
       <NSelect
+        {...props}
+        {...attrs}
+        {...slots}
         options={BankOption}
         render-label={renderLabel}
         render-tag={renderTag}
         clearable
-        {...attrs}
-        {...slots}
       />
     )
   },
