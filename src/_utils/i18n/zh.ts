@@ -241,6 +241,7 @@ export default {
       rules: {
         identity: '请输入正确的身份证号',
         usci: '请输入正确的社会统一信用代码',
+        bankAccount: '请输入正确的银行卡号',
       },
     },
   },

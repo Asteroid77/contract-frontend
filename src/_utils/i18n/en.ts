@@ -239,6 +239,11 @@ const i18NInfo = {
       header1: 'Register Type',
       header2: 'Detail Complete',
       header3: 'Success',
+      rules: {
+        identity: 'Please Input correct identity',
+        usci: 'Please Input correct USCI',
+        bankAccount: 'Please Input correct bank account',
+      },
     },
   },
   permission: {
