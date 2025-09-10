@@ -9,6 +9,7 @@ import Oauth2CallbackView from '@/views/unauth/Oauth2CallbackView.vue'
 import LayoutView from '@/views/LayoutView.vue'
 import AuthLayoutView from '@/views/auth/AuthLayoutView.vue'
 import DashboardView from '@/views/auth/DashboardView.vue'
+import UserAdditionalInfoView from '@/views/auth/UserAdditionalInfoView.vue'
 
 export const authRoutes = [
   {
@@ -72,7 +73,7 @@ export const authRoutes = [
   {
     path: 'user/additional-info',
     name: 'user-additional-info',
-    component: DashboardView,
+    component: UserAdditionalInfoView,
     meta: {
       name: $t('route.auth.additional'),
       icon: 'UserData',
