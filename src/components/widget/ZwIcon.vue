@@ -7,8 +7,8 @@ const props = defineProps<{
 </script>
 <template>
   <n-icon :size="props.size !== undefined ? props.size : 22">
-    <svg class="icon" aria-hidden="true">
-      <use :xlink:href="`#icon-${props.name}`"></use>
+    <svg class="zw-icon" aria-hidden="true">
+      <use :xlink:href="`#${props.name}`"></use>
     </svg>
   </n-icon>
 </template>
