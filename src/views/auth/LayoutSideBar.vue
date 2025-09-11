@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { NMenu, NIcon, NButton } from 'naive-ui'
+import { NMenu, NButton } from 'naive-ui'
 import { computed, ref } from 'vue'
 import { authRoutes } from '@/router'
 import { convertRoutesToMenuItems } from '@/components/layout/_utils/MenuBuilder'
 import clsx from 'clsx'
 import { getCssVariable } from '@/stores/useThemeStore'
-import { PanelLeftExpand20Filled, PanelRightExpand20Filled } from '@vicons/fluent'
 import ZwIcon from '@/components/widget/ZwIcon.vue'
 const menuOptions = convertRoutesToMenuItems(authRoutes)
 const sidebarCollapsedWidth = parseInt(getCssVariable('--side-bar-width--collapsed'))
