@@ -6,6 +6,7 @@ import { convertRoutesToMenuItems } from '@/components/layout/_utils/MenuBuilder
 import clsx from 'clsx'
 import { getCssVariable } from '@/stores/useThemeStore'
 import { PanelLeftExpand20Filled, PanelRightExpand20Filled } from '@vicons/fluent'
+import ZwIcon from '@/components/widget/ZwIcon.vue'
 const menuOptions = convertRoutesToMenuItems(authRoutes)
 const sidebarCollapsedWidth = parseInt(getCssVariable('--side-bar-width--collapsed'))
 const sidebarExpandedWidth = parseInt(getCssVariable('--side-bar-width--expanded'))
@@ -27,36 +28,48 @@ const toggle = () => {
         isExpanded ? '' : 'w-sidebar-collapsed',
         'border-r-background',
         'border-r-2',
-        'relative',
         'z-1',
         'transition-all',
       )
     "
   >
+    <div
+      :class="
+        clsx(
+          'w-full',
+          'flex',
+          'justify-center',
+          'border-y-2',
+          'border-background',
+          'h-14',
+          'items-center',
+          'relative',
+        )
+      "
+    >
+      <img :src="'/src/assert/logo.png'" alt="logo" :class="clsx(isExpanded ? 'w-16' : 'w-12')" />
+      <n-button
+        secondary
+        circle
+        :class="
+          clsx('absolute!', 'top-1/2', '-translate-y-1/2', '-translate-x-1/2', 'transition-all!')
+        "
+        :style="{
+          left: sidebarWidth,
+        }"
+        @click="toggle"
+      >
+        <template #icon>
+          <ZwIcon v-if="isExpanded" name="icon-expanded" :size="14"></ZwIcon>
+          <ZwIcon v-else name="icon-menu_collasped" :size="14"></ZwIcon>
+        </template>
+      </n-button>
+    </div>
     <n-menu
       :collapsed-width="sidebarCollapsedWidth"
       :collapsed-icon-size="22"
       :options="menuOptions"
       :collapsed="!isExpanded"
     />
-    <n-button
-      strong
-      secondary
-      circle
-      :class="
-        clsx('absolute!', 'top-1/2', '-translate-y-1/2', '-translate-x-1/2', 'transition-all!')
-      "
-      :style="{
-        left: sidebarWidth,
-      }"
-      @click="toggle"
-    >
-      <template #icon>
-        <n-icon>
-          <PanelLeftExpand20Filled v-if="isExpanded"></PanelLeftExpand20Filled>
-          <PanelRightExpand20Filled v-else></PanelRightExpand20Filled>
-        </n-icon>
-      </template>
-    </n-button>
   </div>
 </template>

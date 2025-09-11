@@ -22,11 +22,6 @@ const sideBarCollapsedWidth = parseInt(getCssVariable('--side-bar-width--collaps
       @click="drawerShowToggle"
       :class="clsx('sm:hidden', 'w-sidebar-collapsed')"
     />
-    <img
-      :src="'/src/assert/logo.png'"
-      alt="logo"
-      :class="clsx('max-sm:hidden', 'w-sidebar-collapsed')"
-    />
     <n-drawer v-model:show="drawerShow" :width="300" placement="left">
       <n-drawer-content>
         <n-menu
