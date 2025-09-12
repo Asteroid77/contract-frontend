@@ -256,6 +256,7 @@ const i18NInfo = {
     permission: 'Role Permissions',
   },
   menu: {
+    text: 'Menu',
     name: 'Menu Name',
     type: 'Menu Type',
     options: {

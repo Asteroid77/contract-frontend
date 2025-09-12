@@ -255,6 +255,7 @@ export default {
     permission: '角色权限',
   },
   menu: {
+    text: '菜单',
     name: '菜单名称',
     type: '菜单类型',
     options: {
