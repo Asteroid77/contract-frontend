@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { NMenu, NButton } from 'naive-ui'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { authRoutes } from '@/router'
 import { convertRoutesToMenuItems } from '@/components/layout/_utils/MenuBuilder'
 import clsx from 'clsx'
 import { getCssVariable } from '@/stores/useThemeStore'
 import ZwIcon from '@/components/widget/ZwIcon.vue'
+import { useTemplateRef } from 'vue'
+import { useRoute } from 'vue-router'
+const route = useRoute()
 const menuOptions = convertRoutesToMenuItems(authRoutes)
 const sidebarCollapsedWidth = parseInt(getCssVariable('--side-bar-width--collapsed'))
 const sidebarExpandedWidth = parseInt(getCssVariable('--side-bar-width--expanded'))
@@ -17,6 +20,19 @@ const sidebarWidth = computed(() => {
 const toggle = () => {
   isExpanded.value = !isExpanded.value
 }
+const selectedKey = ref<string>()
+const menuInstRef = useTemplateRef('menuInstRef')
+const selectAndExpand = (key: string) => {
+  selectedKey.value = key
+  menuInstRef.value?.showOption(key)
+}
+watch(
+  route,
+  (value) => {
+    selectAndExpand(value.name as string)
+  },
+  { immediate: true },
+)
 </script>
 <template>
   <div
@@ -69,6 +85,8 @@ const toggle = () => {
       :collapsed-icon-size="22"
       :options="menuOptions"
       :collapsed="!isExpanded"
+      ref="menuInstRef"
+      v-model:value="selectedKey"
     />
   </div>
 </template>
