@@ -36,6 +36,7 @@ export declare interface UserAdditionalInfo {
   userId: number
   referrer?: number
   referrerName?: string
+  invitationCode?: string
   createdTime: string
   updatedTime: string
 }
