@@ -95,13 +95,7 @@ export default defineComponent({
     )
     return () => (
       <>
-        <NForm
-          ref="formRef"
-          rules={UserAdditionalInfoFormRules(formValue)}
-          model={formValue.value}
-          require-mark-placement={'left'}
-          show-require-mark={true}
-        >
+        <NForm ref="formRef" rules={UserAdditionalInfoFormRules(formValue)} model={formValue.value}>
           <NFormItem label={$t('account.register.type.text')} path="registerType">
             <NSelect
               v-model:value={formValue.value.registerType}

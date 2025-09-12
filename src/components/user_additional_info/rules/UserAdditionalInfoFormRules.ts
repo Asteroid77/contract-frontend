@@ -14,7 +14,7 @@ export const UserAdditionalInfoFormRules: (
   return {
     registerType: [
       {
-        require: true,
+        required: true,
         trigger: ['blur'],
         validator: (rule: FormItemRule, value: string) =>
           requireRule(rule, $t('account.register.type.text'), value),
@@ -22,7 +22,7 @@ export const UserAdditionalInfoFormRules: (
     ],
     name: [
       {
-        require: true,
+        required: true,
         validator: (rule: FormItemRule, value: string) =>
           requireRule(
             rule,
@@ -36,7 +36,7 @@ export const UserAdditionalInfoFormRules: (
     ],
     pca: [
       {
-        require: true,
+        required: true,
         validator: (rule: FormItemRule, value: string) =>
           requireRule(rule, $t('account.additionalInfo.pca'), value),
         trigger: ['blur'],
@@ -44,7 +44,7 @@ export const UserAdditionalInfoFormRules: (
     ],
     identity: [
       {
-        require: true,
+        required: true,
         validator: (rule: FormItemRule, value: string) =>
           requireRule(
             rule,
@@ -67,7 +67,7 @@ export const UserAdditionalInfoFormRules: (
     ],
     bankName: [
       {
-        require: true,
+        required: true,
         validator: (rule: FormItemRule, value: string) =>
           requireRule(rule, $t('account.additionalInfo.bankName'), value),
         trigger: ['blur'],
@@ -75,6 +75,7 @@ export const UserAdditionalInfoFormRules: (
     ],
     bankAccount: [
       {
+        required: true,
         pattern: /^\d{10,19}$/,
         validator: (rule: FormItemRule, value: string) =>
           requireRule(rule, $t('account.additionalInfo.rules.bankAccount'), value),
@@ -83,7 +84,7 @@ export const UserAdditionalInfoFormRules: (
     ],
     companyAddress: [
       {
-        require: () => isLegalRepresentative,
+        required: isLegalRepresentative,
         validator: (rule: FormItemRule, value: string) =>
           requireRule(rule, $t('account.additionalInfo.companyAddress'), value),
         trigger: ['blur'],
@@ -91,7 +92,7 @@ export const UserAdditionalInfoFormRules: (
     ],
     contactPerson: [
       {
-        require: () => isLegalRepresentative,
+        required: isLegalRepresentative,
         validator: (rule: FormItemRule, value: string) =>
           requireRule(rule, $t('account.additionalInfo.contactPerson'), value),
         trigger: ['blur'],
@@ -99,7 +100,7 @@ export const UserAdditionalInfoFormRules: (
     ],
     contactPersonPhone: [
       {
-        require: () => isLegalRepresentative,
+        required: isLegalRepresentative,
         validator: (rule: FormItemRule, value: string) =>
           requireRule(rule, $t('account.additionalInfo.contactPersonPhone'), value),
         trigger: ['blur'],
