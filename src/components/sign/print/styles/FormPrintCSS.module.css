@@ -1,0 +1,8 @@
+.printable-approval-area {
+  display: none;
+}
+@media print {
+  .printable-approval-area {
+    display: block;
+  }
+}

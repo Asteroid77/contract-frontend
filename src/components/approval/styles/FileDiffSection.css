@@ -1,0 +1,17 @@
+.diff-section {
+  margin-bottom: 24px;
+}
+
+.diff-section:last-child {
+  margin-bottom: 0;
+}
+
+.diff-section__title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  padding-left: 8px;
+  border-left: 4px solid #2080f0; /* 主题色 */
+  color: #333;
+  line-height: 1.2;
+}

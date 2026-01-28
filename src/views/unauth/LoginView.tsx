@@ -13,10 +13,9 @@ export default defineComponent({
   setup() {
     const login = useLogin()
     const authWindowRef = ref<Window | null>(null)
+    const backendHost = window.location.hostname
     window.addEventListener('message', (event) => {
-      if (
-        event.origin !== `${import.meta.env.VITE_DOMAIN_URL}:${import.meta.env.VITE_CLIENT_PORT}`
-      ) {
+      if (event.origin !== `https://${backendHost}:${import.meta.env.VITE_CLIENT_PORT}`) {
         console.error(`未知origin发送的message:${event.origin},已拦截`)
         return
       }

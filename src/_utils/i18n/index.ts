@@ -28,4 +28,7 @@ const i18n = createI18n<MessageSchema, 'en' | 'zh-CN'>({
  * 获取i18n实例
  * @return {I18NComposerTranslation}
  */
-export const $t = (key: ObjectPaths<MessageSchema>) => i18n.global.t(key)
+export const $t = (key: ObjectPaths<MessageSchema>, params?: Record<string, unknown>) =>
+  params ? i18n.global.t(key, params) : i18n.global.t(key)
+
+export const $te = (key: string) => i18n.global.te(key)

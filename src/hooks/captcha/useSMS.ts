@@ -1,8 +1,8 @@
 import dexie from '@/_utils/dexie'
 import type { RestSmsCd } from '@/_utils/dexie/table/defineRestSMSCd'
 import { $t } from '@/_utils/i18n'
-import { captchaApi } from '@/api/captcha.api'
-import type { SMSSendResponse } from '@/api/types/captcha'
+import { captchaApi } from '@/components/captcha/api/captcha.api'
+import type { SMSSendResponse } from '@/components/captcha/api/captcha'
 import type { ServerResponse } from '@/types/request'
 import { useMutation } from '@tanstack/vue-query'
 import { match } from 'ts-pattern'
@@ -16,7 +16,7 @@ const timerStore: Record<string, number> = {}
  * @returns {Object} 验证码功能相关函数对象
  * @property {function(phoneNumber: string): ComputedRef<string>} getSendBtnLabelText 获取当前手机号对应的发送按钮文案
  * @property {function(phoneNumber: string): Ref<number>} getSMSCoolDownSecond 获取当前手机号对应的发送冷却时间
- * @property {function():UseMutationReturnType<SMSSendResponse,ServerResponse<unknown>,string,string>} sendSMSCode 发送手机验证码
+ * @property {function():UseMutationReturnType<ServerResponse<SMSSendResponse>,ServerResponse<unknown>,string,string>} sendSMSCode 发送手机验证码
  */
 export function useSMS() {
   return { getSendBtnLabelText, getSMSCoolDownSecond, sendSMSCode }
@@ -24,15 +24,15 @@ export function useSMS() {
 
 /**
  * 发送手机验证码
- * @return {UseMutationReturnType<SMSSendResponse,ServerResponse<unknown>,string,string>} mutation执行对象
+ * @return {UseMutationReturnType<ServerResponse<SMSSendResponse>,ServerResponse<unknown>,string,string>} mutation执行对象
  */
 function sendSMSCode() {
-  return useMutation<SMSSendResponse, ServerResponse<unknown>, string>({
+  return useMutation<ServerResponse<SMSSendResponse>, ServerResponse<unknown>, string>({
     mutationKey: ['sms'],
     mutationFn: (phone: string) => captchaApi.getSMSCode(phone),
-    onSuccess: async (data: SMSSendResponse, phone: string) => {
+    onSuccess: async (data: ServerResponse<SMSSendResponse>, phone: string) => {
       const result = await _querySMSInfoByPhoneNumber(phone)
-      const time = new Date(Date.now() - (COOL_DOWN_TIME - data.restSeconds) * 1000)
+      const time = new Date(Date.now() - (COOL_DOWN_TIME - data.data.restSeconds) * 1000)
       match(result)
         .with(undefined, () => {
           dexie.restcd.add({
@@ -47,7 +47,7 @@ function sendSMSCode() {
             time,
           })
         })
-      smsInfoStore[phone].value = data.restSeconds ? data.restSeconds : COOL_DOWN_TIME
+      smsInfoStore[phone].value = data.data.restSeconds ? data.data.restSeconds : COOL_DOWN_TIME
       coolDown(phone)
     },
   })

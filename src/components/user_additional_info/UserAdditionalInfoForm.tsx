@@ -1,17 +1,22 @@
 import { NFormItem, NInput, NSelect, NForm, type FormInst } from 'naive-ui'
 import type { UserAdditionalInfoRequest } from '@/types/account'
-import { computed, defineComponent, ref, useTemplateRef, type PropType, type Ref } from 'vue'
+import { computed, defineComponent, toRef, useTemplateRef, type PropType, type Ref } from 'vue'
 import { $t } from '@/_utils/i18n'
 import { RegisterType, RegisterTypeOption } from './constant/RegisterTypeEnum'
 import { UserAdditionalInfoFormRules } from './rules/UserAdditionalInfoFormRules'
 import PCACascader from '../widget/PCACascader'
 import BankSelect from '../widget/BankSelect'
 import type { FormValidate } from 'naive-ui/lib/form/src/interface'
+import { useSubscribeForm } from '@/hooks/form/useSubcribeForm'
 
 export const userAdditionalInfoFormProps = {
   initialValue: {
     type: Object as PropType<FormInput<UserAdditionalInfoRequest>>,
     required: false,
+  },
+  type: {
+    type: String as PropType<'edit' | 'detail'>,
+    default: 'edit',
   },
 }
 export type UserAdditionalInfoFormExpose = {
@@ -25,12 +30,15 @@ export default defineComponent({
   name: 'user-additional-info-form',
   props: userAdditionalInfoFormProps,
   setup(props, { expose }) {
-    const formValue = ref<FormInput<UserAdditionalInfoRequest>>({})
-    if (props.initialValue) formValue.value = props.initialValue
+    const { formValue } = useSubscribeForm<FormInput<UserAdditionalInfoRequest>>(
+      toRef(props, 'initialValue'),
+      props.type === 'detail',
+    )
     const isLegalRepresentative = computed(
       () => formValue.value.registerType === RegisterType.LEGAL_REPRESENTATIVE,
     )
     const isIndividual = computed(() => formValue.value.registerType === RegisterType.INDIVIDUAL)
+    const isNew = computed(() => !formValue.value.id)
     const formRef: Ref<FormInst | null> = useTemplateRef('formRef')
     const exposeDefined: UserAdditionalInfoFormExpose = {
       getFormInstance: () => {
@@ -88,9 +96,11 @@ export default defineComponent({
         <NFormItem label={$t('account.additionalInfo.bankAccount')} path="bankAccount">
           <NInput v-model:value={formValue.value.bankAccount}></NInput>
         </NFormItem>
-        <NFormItem label={$t('account.additionalInfo.invitationCode')} path="invitationCode">
-          <NInput v-model:value={formValue.value.invitationCode}></NInput>
-        </NFormItem>
+        {isNew.value && (
+          <NFormItem label={$t('account.additionalInfo.invitationCode')} path="invitationCode">
+            <NInput v-model:value={formValue.value.invitationCode}></NInput>
+          </NFormItem>
+        )}
       </>
     )
     return () => (

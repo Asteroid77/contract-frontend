@@ -22,7 +22,6 @@ import { $t } from '@/_utils/i18n'
 export function httpErrorHandle(
   config: CustomAxiosRequestConfig,
   err: AxiosError<ServerResponse<unknown>>,
-  stamp: RequestTimeStampRecorder,
 ) {
   //服务单返回的非严重错误处理
   minorErrFilter(config, err)
@@ -36,10 +35,9 @@ export function httpErrorHandle(
  * @param {ServerResponse<unknown>} result 服务端响应体
  * @param {RequestTimeStampRecorder} stamp 记录请求开始与结束的时间戳对象
  */
-export function businessErrorHandle<D = unknown, E = unknown, P = unknown>(
+export function businessErrorHandle<D = unknown, E = unknown>(
   config: CustomAxiosRequestConfig<D>,
   result: ServerResponse<E>,
-  stamp: RequestTimeStampRecorder,
 ) {
   // 业务异常时toast弹窗提示
   notificationService(config, 'error', result.message, $t('exception.unexpected.business.title'))

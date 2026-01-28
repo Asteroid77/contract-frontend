@@ -9,20 +9,14 @@ import {
 import { loginFormRules } from './rules/LoginFormRules'
 import { NButton, NDivider, NForm, NFormItem, NImage, NInput, NSpace, NSpin } from 'naive-ui'
 import { $t } from '@/_utils/i18n'
-import {
-  InfoCircleFilled,
-  IdcardOutlined,
-  KeyOutlined,
-  MailOutlined,
-  QqCircleFilled,
-  GithubFilled,
-} from '@vicons/antd'
+import { InfoCircleFilled, IdcardOutlined, KeyOutlined, MailOutlined } from '@vicons/antd'
 import { useCaptcha } from '@/hooks/captcha/useCaptcha'
 import { NTooltip, NIcon } from 'naive-ui'
 import clsx from 'clsx'
 import type { SignInRequest } from '@/types/account'
 import { RouterLink } from 'vue-router'
 import type { FormInst } from 'naive-ui/lib'
+
 export default defineComponent({
   props: {
     initialValues: {
@@ -66,11 +60,8 @@ export default defineComponent({
           ref="formRef"
           model={formData.value}
           rules={rules}
-          class={clsx('login-form', 'bg-background', 'p-section', 'sm:mb-content', 'sm:rounded-lg')}
+          class={clsx('flex', 'flex-col', 'sm:mb-content', 'sm:rounded-lg')}
         >
-          <h2
-            class={clsx('mb-content', 'text-center', 'text-3xl', 'font-medium', 'text-gray-800')}
-          >{`${$t('common.zwEnergy')} ${$t('unauth.login.header.title')}`}</h2>
           <NFormItem path="phone" label={$t('account.phone.text')}>
             <NInput
               clearable={true}
@@ -201,7 +192,7 @@ export default defineComponent({
             }
             {
               <RouterLink
-                to={{ name: 'password recovery' }}
+                to={{ name: 'password-recovery' }}
                 class="font-medium ml-2 text-center cursor-pointer text-routelink underline hover-shake"
               >
                 {$t('actions.forgetPassword')}

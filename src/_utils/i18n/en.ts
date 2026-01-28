@@ -1,5 +1,10 @@
 const i18NInfo = {
   common: {
+    placeholder: {
+      selectDynamic: 'Select {label}',
+      inputDynamic: 'Input {label}',
+    },
+    past: 'Past',
     please: 'Please',
     empty: 'None',
     concluded: 'Concluded',
@@ -25,12 +30,15 @@ const i18NInfo = {
         legalRepresentative: 'Legal Representative',
       },
     },
+    pageLoadError: 'Failed to load page',
+    pageLoadErrorMeta:
+      'Could not load the necessary data for this page. Please return to the previous page and try navigating to this page again.',
   },
   actions: {
     operate: 'Operate',
     approve: 'Approve',
     delete: 'Delete',
-    accept: 'Accept',
+    claim: 'Accept',
     edit: 'Edit',
     read: 'View',
     add: 'Add',
@@ -51,6 +59,10 @@ const i18NInfo = {
     createAccount: 'Create today',
     next: 'Next',
     previous: 'Previous',
+    assign: 'Assign',
+    save: 'Save',
+    print: 'Print',
+    preview: 'Preview',
   },
   captcha: {
     text: 'Captcha',
@@ -106,13 +118,21 @@ const i18NInfo = {
       business: {
         title: 'Oops! Unexpected business error occurred',
       },
+      unknown: {
+        title: 'Unknown Error Occurred',
+        content: 'A ticket for this error has been logged and is under review.',
+      },
+    },
+    routeQueryInvaild: {
+      title: 'Invalid route parameters, failed to display result page',
     },
   },
   account: {
     name: 'Your Name',
+    platform: 'Platform',
     noAccount: "Don't have an account",
     password: {
-      protect: '您的密码将使用PKCS1_OAEP技术加密',
+      protect: 'Encrypting your password with PKCS1_OAEP technology',
       level: {
         high: 'Complex password',
         medium: 'Average complexity',
@@ -221,6 +241,7 @@ const i18NInfo = {
     logout: 'Logout',
     logoutCheck: 'Are you sure you want to log out?',
     additionalInfo: {
+      registerType: 'Register Type',
       bankName: 'Bank Name',
       bankAccount: 'Account Number',
       companyAddress: 'Company Address',
@@ -244,6 +265,11 @@ const i18NInfo = {
         usci: 'Please Input correct USCI',
         bankAccount: 'Please Input correct bank account',
       },
+      approval: {
+        title: 'Information Submitted for Review',
+        content: 'Approval is in progress. Please wait patiently.',
+        btnText: 'View Approval Progressn',
+      },
     },
   },
   permission: {
@@ -254,6 +280,112 @@ const i18NInfo = {
     code: 'Role Code',
     description: 'Role Description',
     permission: 'Role Permissions',
+  },
+  userRole: {
+    assign: 'Role Assign',
+    assignConfirm: 'Assign the role to these users?',
+  },
+  approval: {
+    claim: {
+      success: 'Task claimed',
+      confirm: 'Claim the task #{id}?',
+      errors: {
+        taskNotExist: 'Approval task does not exist',
+        taskAlreadyApproved: 'This task has already been approved',
+        taskAlreadyRejected: 'This task has already been rejected',
+        taskAlreadyClaimed: 'This task has been claimed by another user',
+        instanceNotExist: 'Approval instance {instanceId} does not exist',
+        instanceStatusInvalid: 'Invalid approval instance status: {status}',
+        noRolePermission: 'You do not have the role permission to handle this task',
+        noRegionPermission: 'Your region ({userRegion}) is not in the allowed regions',
+        taskNotClaimed: 'Task has not been claimed',
+        notTaskAssignee: 'You are not the assignee of this task',
+        instanceNotPending: 'Approval instance is not in pending status',
+      },
+    },
+    handleTask: {
+      success: 'Task handled successfully',
+      title: 'Approval Opinion',
+      pass: 'Pass',
+      reject: 'Reject',
+      opinion: 'Opinion',
+      decision: 'Please Choose Pass or Reject',
+      currentNode: 'Current Approval Stage',
+      collapse: {
+        base: 'Basic Information',
+        content: 'Approval Content',
+        record: 'Approval Records',
+      },
+      cancel: 'Cancel this submission?',
+      action: 'Action',
+    },
+    instance: {
+      id: 'id',
+      currentNodeId: 'Node',
+      nodeName: 'Node Name',
+      status: 'Status',
+      applicantId: 'Applicant ID',
+      applicantName: 'Applicant',
+      assigneeId: 'Approver ID',
+      assigneeName: 'Approver',
+      approvalData: 'Pending Approval Data',
+      sourceData: 'Source Data',
+      processName: 'Process Name',
+    },
+    history: {
+      first: `Submission for Approval`,
+      withdrawn: 'Withdrawn',
+      fields: {
+        id: 'id',
+        instanceId: 'Instance ID',
+        taskId: 'Task ID',
+        nodeId: 'Node ID',
+        operatorId: 'Operator Id',
+        action: 'Action',
+        comment: 'Comment',
+        createdTime: 'Created Time',
+        operator: 'Operator',
+        nodeName: 'Stage',
+      },
+    },
+    message: {
+      claimSuccess: 'Task claimed successfully',
+      claimFailed: 'Failed to claim task: {reason}',
+      approveSuccess: 'Approved successfully',
+      rejectSuccess: 'Rejected successfully',
+      handleSuccess: 'You have approved this task.',
+    },
+    incompletedUserName: 'Incompleted User',
+    template: {
+      new: 'Pending Data',
+      old: 'Original Data',
+    },
+    print: {
+      noChange: 'No Change',
+    },
+  },
+  invitation: {
+    title: 'Invitation Code Management',
+    fields: {
+      id: 'ID',
+      code: 'Invitation Code',
+      creatorId: 'Creator ID',
+      remark: 'Remark',
+      status: 'Status',
+      usedCount: 'Times Used',
+      createdTime: 'Created Time',
+      updatedTime: 'Updated Time',
+      isDeleted: 'Deleted',
+    },
+    table: {
+      error: {
+        atLeast: 'Please choose one to execute at least',
+      },
+      operate: {
+        deleteConfirm: 'Delete {number} items?',
+        saveConfirm: 'Save {number} items?',
+      },
+    },
   },
   menu: {
     text: 'Menu',
@@ -299,6 +431,126 @@ const i18NInfo = {
     },
     sortNo: 'Sort Number',
     remark: 'Additional Notes',
+  },
+  serviceAgreement: {
+    id: 'ID',
+    companyName: 'Company Name',
+    companyArea: 'Company Area',
+    companyAddress: 'Company Address',
+    industry: 'Industry',
+    electricalAllocation: 'Electrical Allocation',
+    status: {
+      label: 'Status',
+      options: {
+        Filing: 'Filing',
+        Signing: 'Signing',
+        Invalid: 'Invalid',
+      },
+    },
+    liaisonName: 'Contact Person',
+    liaisonPosition: 'Contact Position',
+    liaisonPhone: 'Contact Phone',
+    yearUsableCharge: 'Annual Consumption (10k kWh)',
+    isTimeOfUsePricingEnabled: 'Enable TOU Pricing',
+    peakPercentage: 'Peak %',
+    superPeakPercentage: 'Super Peak %',
+    standardPercentage: 'Standard %',
+    valleyPercentage: 'Valley %',
+    timeOfUseValidation: {
+      mustBe100: 'Total must be 100%, but getting {total}%.',
+      range: '{field} must be between {min} and {max}',
+    },
+    comment: 'Progress Remark',
+    priceModel: {
+      label: 'Price Model',
+      options: {
+        revenueShare: 'Revenue Sharing',
+        guaranteed: 'Guaranteed',
+        guaranteedAndShare: 'Guaranteed & Sharing',
+        other: 'Other',
+      },
+    },
+    priceType: {
+      label: 'Price Type',
+      options: {
+        powerPlantSide: 'Power Plant Side',
+        userSide: 'User Side',
+        salesCompanySide: 'Electricity Sales Company Side',
+      },
+    },
+    priceCategory: {
+      label: 'Price Category',
+      options: {
+        fixedPrice: 'Fixed Price',
+        fixedSpread: 'Fixed Spread',
+        shareRatio: 'Revenue Share Ratio',
+      },
+    },
+    fixedPrice: 'Fixed Price',
+    fixedSpread: 'Fixed Spread',
+    revenueShareRatio: 'Revenue Share Ratio (%)',
+    expirationTime: 'Expiration Time',
+    creator: 'Creator',
+    createdTime: 'Created Time',
+    updatedTime: 'Updated Time',
+    tabs: {
+      baseInfo: 'Basic Information',
+      signingDetails: 'Signing Details',
+      attachments: 'Attachments',
+      approvalProgress: 'Approval Progress',
+    },
+    attachments: {
+      contractScans: 'Scanned Contracts', // Or "Contract Scans"
+      bills: 'Electricity Bills (Last Month)', // Being explicit about "Last Month" is helpful for users
+      supplementary: 'Supplementary Attachments', // Or "Other Attachments"
+      print: {
+        qrCode: 'Scan QR Code to view attachments',
+        type: 'Type',
+        name: 'File Name',
+        empty: 'No Attachments',
+        size: 'Size',
+        code: 'Access Code',
+      },
+    },
+    errorTips: 'Validation errors found in FormItem.',
+    result: {
+      filingSuccess: 'Filing submitted successfully.',
+      signSuccess: 'Contract submitted successfully, Please wait for approval.',
+    },
+    print: {
+      title: 'Power Grid Filing/Signing Agreement',
+      time: 'Print Time',
+      id: 'Agreement No.',
+    },
+  },
+  ServicePointSpecification: {
+    title: 'Service Account Information',
+    fields: {
+      serviceAccountNumber: 'Service Account Number',
+      transformerCapacity: 'Transformer Capacity',
+      usageCategory: 'Usage Category',
+      voltageLevel: 'Voltage Level',
+    },
+    usageCategoryOption: {
+      largeIndustrial: 'Large Industrial',
+      commercialAndIndustrial: 'Commercial and Industrial',
+    },
+    rules: {
+      serviceAccountNumber: {
+        invalid: 'Service Account Number must consist of digits',
+        long: 'The Service Account Number is typically 10 to 20 digits long. Please check your bill',
+        duplicate: 'Duplicate Service Account Number is already in use. Please check it again',
+      },
+    },
+    print: {
+      empty: 'No Data',
+    },
+  },
+  file: {
+    upload: {
+      onSuccess: 'File {name} uploaded successfully.',
+      onError: 'File {name} failed to upload',
+    },
   },
   sign: {
     status: 'Signing Status',
@@ -392,6 +644,33 @@ const i18NInfo = {
       entertainment: 'Culture, Sports and Entertainment',
       public_administration: 'Public Administration, Social Security and Social Organizations',
     },
+    approvalInstanceStatus: {
+      pending: 'Pending',
+      handling: 'Handling',
+      approved: 'Passed',
+      rejected: 'Rejected',
+      canceled: 'Canceled',
+    },
+    approvalTaskStatus: {
+      pending: 'Assigning',
+      handling: 'Handling',
+      approved: 'Passed',
+      rejected: 'Rejected',
+      transfer: 'Trasnferring',
+      finished: 'Finished',
+    },
+    approvalHistoryActions: {
+      submit: 'Submit',
+      approve: 'Approve',
+      reject: 'Reject',
+      transfer: 'Transfer',
+      claim: 'Claim',
+      cancel: 'Cancel',
+    },
+    invitationCodeStatus: {
+      active: 'Active',
+      inactive: 'Inactive',
+    },
     route: {
       home: 'Home',
       login: 'Sign in',
@@ -406,6 +685,19 @@ const i18NInfo = {
       'agent-list': 'Your Agents',
     },
   },
+  theme: {
+    modify: {
+      success: {
+        title: 'Modification Successful',
+        content: 'Current theme has been applied',
+      },
+    },
+    style: {
+      light: 'Light',
+      dark: 'Dark',
+      sakura: 'Sakura',
+    },
+  },
   route: {
     unauth: {
       login: 'Login',
@@ -418,6 +710,7 @@ const i18NInfo = {
       business: 'Business',
       invitation: 'My Invitations',
       sign: 'Filing/Signing',
+      signDetail: 'Filing/Signing Detail',
       user: 'User',
       additional: 'Additional Info',
       'agent-list': 'Agent List',
@@ -426,10 +719,14 @@ const i18NInfo = {
       'manager-user-list': 'User List',
       approval: 'Approval',
       'my-approval-task-list': 'My Approval Tasks',
+      'my-approval-instance-page': 'Approval Tasks',
+      'approval-instance-detail': 'Approval Detail',
       'approval-my-task-list': 'Tasks Under Review',
       'approval-process-list': 'Process List',
       'approval-node-list': 'Node List',
       'approval-task-list': 'Task List',
+      'sign-result': 'Filing / Signing Result',
+      'sign-page': 'Filing / Signing Page',
     },
   },
   unauth: {

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 // 模拟 IndexedDB 环境，要在使用dexie之前
 import 'fake-indexeddb/auto'
-import dexie from '@/utils/dexie'
+import dexie from '@/_utils/dexie'
 import type { ExceptionReport } from '@/types/exception'
 
 describe('测试dexie是否正常加载exceptions表', async () => {

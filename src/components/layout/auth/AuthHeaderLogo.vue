@@ -4,9 +4,9 @@ import { ref, useTemplateRef, watch } from 'vue'
 import { authRoutes } from '@/router'
 import { convertRoutesToMenuItems } from '../_utils/MenuBuilder'
 import clsx from 'clsx'
-import { getCssVariable } from '@/stores/useThemeStore'
 import { $t } from '@/_utils/i18n'
 import { useRoute } from 'vue-router'
+import { useCssVar } from '@/components/theme/hooks/useCssVar'
 const route = useRoute()
 
 const menuOptions = convertRoutesToMenuItems(authRoutes)
@@ -15,7 +15,7 @@ const drawerShow = ref<boolean>(false)
 const drawerShowToggle = () => {
   drawerShow.value = !drawerShow.value
 }
-const sideBarCollapsedWidth = parseInt(getCssVariable('--side-bar-width--collapsed'))
+const sideBarCollapsedWidth = parseInt(useCssVar('--sidebar-collapsed-width').value!)
 const selectedKey = ref<string>()
 const menuInstRef = useTemplateRef('menuInstRef')
 const selectAndExpand = (key: string) => {

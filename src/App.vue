@@ -1,23 +1,22 @@
 <script setup lang="ts">
-import 'vfonts/FiraCode.css'
-import { useThemeStore } from './stores/useThemeStore'
-import { zhCN, dateZhCN, NConfigProvider } from 'naive-ui'
-const themeOverrides = useThemeStore().themeOverrides
-;(function themeInitiate() {
-  // 启用主题编辑器并预设主题，主题编辑器默认会读取localStorage中的naive-ui-theme-overrides项的内容作为设置。
-  if (!localStorage.getItem('naive-ui-theme-overrides')) {
-    localStorage.setItem('naive-ui-theme-overrides', JSON.stringify(themeOverrides))
-  }
-})()
+import { zhCN, dateZhCN, NConfigProvider, darkTheme } from 'naive-ui'
+import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
+import { useTheme } from '@/components/theme/hooks/useTheme'
+import { computed } from 'vue'
+const { isDark, activeThemeOverrides } = useTheme()
+const naiveTheme = computed(() => (isDark.value ? darkTheme : null))
 </script>
 <template>
+  <!-- 设置移动端字体以及默认bg样式 text-sm md:text-base text-text-main bg-bg-body -->
   <n-config-provider
-    class="h-full"
     :locale="zhCN"
     :date-locale="dateZhCN"
-    :theme-overrides="themeOverrides"
+    :theme-overrides="activeThemeOverrides"
+    :theme="naiveTheme"
+    :class="'h-full'"
   >
     <RouterView></RouterView>
   </n-config-provider>
+  <VueQueryDevtools />
 </template>
 <style></style>

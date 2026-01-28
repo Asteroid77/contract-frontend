@@ -1,0 +1,97 @@
+@import 'tailwindcss';
+/*
+ * ==========================================================================
+ *  Tailwind CSS v4 主题配置
+ * ==========================================================================
+ */
+
+@import './generated-theme.css';
+
+/*
+ * ==========================================================================
+ *  全局基础样式 (@layer base)
+ * ==========================================================================
+ */
+@layer base {
+  body {
+    background-color: var(--color-bg-body);
+    color: var(--color-text-body); /* 默认正文颜色 */
+    /* 优化字体渲染 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 标题默认使用 main 颜色 */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--color-text-main);
+  }
+}
+
+/*
+ * ==========================================================================
+ *  组件样式以及路由切换动画 (@layer components)
+ * ==========================================================================
+ */
+@layer components {
+  /* 页面切换动效 */
+  .page-enter-active,
+  .page-leave-active {
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .page-enter-from {
+    opacity: 0;
+    transform: translateY(10px); /* 新页面从下方 10px 处进入 */
+  }
+
+  .page-leave-to {
+    opacity: 0;
+    /* transform: translateY(-10px); */
+    /* 建议：离开时不要位移，或者只轻微位移，避免页面“乱飞”的感觉 */
+  }
+}
+/*
+ * ==========================================================================
+ *  通用工具类 (@layer utilities)
+ * ==========================================================================
+ */
+@layer utilities {
+  /*
+   * 交互悬停抖动效果
+   */
+  .hover-shake {
+    @apply inline-block transition-transform duration-200 ease-in-out;
+    &:hover {
+      @apply scale-110 translate-x-0.5 rotate-3;
+    }
+    &:active {
+      @apply translate-x-0 rotate-0;
+    }
+  }
+  /*
+   * 交互按压效果
+   */
+  .active-scale {
+    @apply transition-transform duration-100 ease-out active:scale-95;
+  }
+
+  /* 更加细腻的按压 (适合大卡片) */
+  .active-scale-subtle {
+    @apply transition-transform duration-100 ease-out active:scale-[0.98];
+  }
+
+  .zw-icon {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.15em;
+    fill: currentColor;
+    overflow: hidden;
+  }
+}

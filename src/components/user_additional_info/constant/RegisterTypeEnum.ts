@@ -1,8 +1,8 @@
 import { $t } from '@/_utils/i18n'
 
 export const RegisterType = {
-  LEGAL_REPRESENTATIVE: '1',
-  INDIVIDUAL: '2',
+  LEGAL_REPRESENTATIVE: 1,
+  INDIVIDUAL: 2,
 }
 export const RegisterTypeOption = [
   {

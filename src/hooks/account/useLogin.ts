@@ -16,13 +16,18 @@ export type SignInMutate = { redirect?: RouteLocationRaw } & (
 )
 
 export function useLogin() {
-  return useMutation<SignInResponse, AxiosError<ServerResponse<unknown>>, SignInMutate, undefined>({
+  return useMutation<
+    ServerResponse<SignInResponse>,
+    AxiosError<ServerResponse<unknown>>,
+    SignInMutate,
+    undefined
+  >({
     mutationFn: (signInMutate: SignInMutate) =>
       signInMutate.mode === 'local'
         ? userApi.login(signInMutate.data)
         : userApi.getUserInfoByToken(signInMutate.token),
-    onSuccess: async (data: SignInResponse, variable: SignInMutate) => {
-      useAccountStore().login(data)
+    onSuccess: async (data: ServerResponse<SignInResponse>, variable: SignInMutate) => {
+      useAccountStore().login(data.data)
       router.push(variable.redirect || { name: 'dashboard' })
     },
   })

@@ -1,0 +1,120 @@
+/* 用于定义 A4 页面和边距 */
+@page {
+  size: A4;
+  margin: 0mm; /* 设置页边距 */
+}
+
+/* 打印容器的样式 */
+#print-container {
+  width: 100%; /* 在A4减去边距后的可用宽度内撑满 */
+}
+
+/* 你可能还想重置一些样式，确保干净 */
+body,
+html {
+  background: #fff;
+  color: #000;
+}
+.native-approval-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  color: #333;
+}
+.native-approval-table th,
+.native-approval-table td {
+  border: 1px solid #e0e0e6;
+  padding: 6px 8px;
+  text-align: left;
+}
+.native-approval-table thead th {
+  background-color: #fafafc;
+  font-weight: 600;
+}
+.expand-icon-cell {
+  text-align: center;
+  color: #999;
+  font-size: 12px;
+}
+
+.expand-content-cell {
+  /* 移除内边距，让内部的 div 来控制 */
+  padding: 0;
+  /* 移除边框，或者只保留底部边框，使其看起来像一个整体 */
+  border: 0;
+  border-bottom: 1px solid #e0e0e6;
+}
+
+.expand-content-cell .ml-section {
+  padding: 12px 16px 12px 0; /* 左侧增加内边距，与上方内容对齐 */
+  background-color: #fafafc; /* 使用表头背景色，突出显示 */
+}
+
+.comment-label {
+  font-weight: 600;
+}
+
+.loading-placeholder,
+.empty-placeholder {
+  padding: 40px;
+  text-align: center;
+  color: #999;
+  border: 1px dashed #e0e0e6;
+}
+/* 模拟 NFlex */
+.native-flex-container {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+/* 模拟 NCard */
+.native-card {
+  background-color: #fff;
+  border-radius: 3px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.native-card-header {
+  padding: 12px 20px;
+  border-bottom: 1px solid #e0e0e6;
+}
+
+.native-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e1e1e;
+}
+
+.native-card-content {
+  padding: 10px;
+}
+
+/* 模拟 NFormItem */
+.native-form-item {
+  display: flex;
+  margin-bottom: 12px;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.native-form-item:last-child {
+  margin-bottom: 0;
+}
+
+.native-form-label {
+  color: #333;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.native-form-value {
+  color: #555;
+  word-break: break-all;
+}

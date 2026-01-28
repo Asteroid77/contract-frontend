@@ -11,7 +11,7 @@ export const usePassword = () => {
 
 function recoveryBySMS() {
   return useMutation<
-    PasswordRecoveryResponse,
+    ServerResponse<PasswordRecoveryResponse>,
     ServerResponse<unknown>,
     PasswordRecoveryRequest,
     PasswordRecoveryRequest

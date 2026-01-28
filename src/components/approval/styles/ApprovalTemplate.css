@@ -1,0 +1,49 @@
+/* 默认情况下，隐藏打印版本 */
+.print-only {
+  display: none;
+}
+#printable-approval-area {
+  display: none;
+}
+@media print {
+  /* 关键的第一步：确保所有元素的尺寸计算都包含边框和内边距 */
+  * {
+    box-sizing: border-box;
+  }
+
+  /* 定义纸张大小和页边距，这为你的内容提供了明确的边界 */
+  @page {
+    size: A4; /* portrait is default */
+    margin: 10mm;
+  }
+
+  /* 重置 body，移除屏幕上可能存在的背景色或大边距 */
+  body {
+    background-color: #fff !important;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* 强制让你的打印容器和父级元素充满可用宽度 */
+  .printable-approval-area,
+  #app,
+  body,
+  html {
+    width: 100% !important;
+    height: auto !important;
+    position: static !important; /* 覆盖可能存在的 absolute/fixed 定位 */
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: auto !important;
+  }
+  .printable-approval-area {
+    /* 打印时，隐藏屏幕版本 */
+    .screen-only {
+      display: none !important;
+    }
+    /* 打印时，显示打印版本 */
+    .print-only {
+      display: block !important;
+    }
+  }
+}

@@ -4,14 +4,14 @@ import { computed, ref, watch } from 'vue'
 import { authRoutes } from '@/router'
 import { convertRoutesToMenuItems } from '@/components/layout/_utils/MenuBuilder'
 import clsx from 'clsx'
-import { getCssVariable } from '@/stores/useThemeStore'
 import ZwIcon from '@/components/widget/ZwIcon.vue'
 import { useTemplateRef } from 'vue'
 import { useRoute } from 'vue-router'
+import { useCssVar } from '@/components/theme/hooks/useCssVar'
 const route = useRoute()
 const menuOptions = convertRoutesToMenuItems(authRoutes)
-const sidebarCollapsedWidth = parseInt(getCssVariable('--side-bar-width--collapsed'))
-const sidebarExpandedWidth = parseInt(getCssVariable('--side-bar-width--expanded'))
+const sidebarCollapsedWidth = parseInt(useCssVar('--sidebar-collapsed-width').value!)
+const sidebarExpandedWidth = parseInt(useCssVar('--sidebar-expanded-width').value!)
 
 const isExpanded = ref<boolean>(true)
 const sidebarWidth = computed(() => {

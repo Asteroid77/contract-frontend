@@ -41,7 +41,10 @@ const breadcrumbData = computed(() => {
       :key="index"
       :clickable="item.isRoute"
     >
-      <component :is="renderIcon(resolveIcon(item.icon as IconNames))" v-if="item.icon"></component>
+      <component
+        :is="renderIcon(resolveIcon(item.icon as IconNames), item.icon)"
+        v-if="item.icon"
+      ></component>
       <RouterLink v-if="item.isRoute" :to="{ name: item.name }">
         {{ item.label }}
       </RouterLink>

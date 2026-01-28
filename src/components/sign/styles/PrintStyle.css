@@ -1,0 +1,338 @@
+/* 打印容器：模拟 A4 纸 */
+.print-container {
+  width: 100%;
+  max-width: 210mm; /* A4 宽度 */
+  margin: 0 auto;
+  font-family: 'SimSun', 'Songti SC', serif; /* 宋体打印最清晰 */
+  color: #000;
+  padding: 20px;
+  background: #fff;
+}
+
+/* 标题 */
+.print-header {
+  text-align: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #000;
+  padding-bottom: 10px;
+}
+.print-header h1 {
+  font-size: 24px;
+  margin: 0 0 10px 0;
+}
+.print-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+/* 模块 */
+.print-section {
+  margin-bottom: 25px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  border-left: 4px solid #000;
+  padding-left: 8px;
+  margin-bottom: 10px;
+  background: #f0f0f0; /* 屏幕上看有底色 */
+  -webkit-print-color-adjust: exact; /* 强制打印背景色 */
+  print-color-adjust: exact;
+}
+
+.sub-section-title {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 15px 0 5px 0;
+}
+
+/* 基础信息表格 (Key-Value) */
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.info-table td {
+  border: 1px solid #000;
+  padding: 6px 8px;
+}
+.info-table .label {
+  background: #fafafa;
+  font-weight: bold;
+  width: 15%;
+  white-space: nowrap;
+}
+.info-table .value {
+  width: 35%;
+}
+
+/* 列表表格 (List) */
+.list-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-top: 5px;
+}
+.list-table th,
+.list-table td {
+  border: 1px solid #000;
+  padding: 5px;
+  text-align: left;
+}
+.list-table th {
+  background: #eee;
+  font-weight: bold;
+}
+
+/* 分时电价小网格 */
+.tou-grid {
+  display: flex;
+  gap: 15px;
+}
+
+/* 1. 附件区域头部容器 */
+.section-header-with-qr {
+  display: flex;
+  justify-content: space-between;
+  /* 关键：改为底部对齐，这样二维码底部和标题底部在一条线上，视觉更稳 */
+  align-items: flex-end;
+  /* 关键：增加底部间距，让二维码和下面的表格保持距离 */
+  margin-bottom: 15px;
+  /* 确保容器内有内容时会有高度 */
+  min-height: 80px;
+}
+
+/* 2. 左侧标题区域 (如果有单独的包裹层可以加，没有就针对 .section-title) */
+.section-header-with-qr .section-title {
+  margin-bottom: 0; /* 去掉原本可能有的 margin，由父容器控制 */
+  /* 让标题占据剩余宽度，防止二维码挤压标题 */
+  flex: 1;
+  height: 80px; /** 与qrcode的size一致 */
+  display: flex;
+  align-items: center;
+}
+
+/* 3. 右侧二维码容器 */
+.qr-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 二维码和下方的文字居中对齐 */
+  font-size: 10px;
+  color: #666;
+
+  /* 关键：删掉之前的 margin-top: -30px */
+  margin-top: 0;
+  margin-left: 20px; /* 给左边留点空隙 */
+
+  /* 确保二维码在打印时不会被切断 */
+  page-break-inside: avoid;
+}
+
+/* 4. 微调 NQrCode 的外层 wrapper (如果有的话) */
+.qr-box .n-qr-code {
+  /* 强制无边框，紧凑一点 */
+  border: none !important;
+  margin-bottom: 4px; /* 二维码和提示文字的间距 */
+}
+.attachment-print {
+  visibility: hidden;
+}
+/* 打印时的特殊控制 */
+@media print {
+  .print-container,
+  .print-container * {
+    visibility: visible;
+  }
+  .print-container {
+    width: 100%;
+    max-width: 190mm; /* A4 宽度 */
+    margin: 0 auto;
+    font-family: 'SimSun', 'Songti SC', serif; /* 宋体打印最清晰 */
+    color: #000;
+    padding: 20px;
+    background: #fff;
+  }
+}
+/* Diff 容器 */
+.diff-container {
+  display: inline;
+}
+
+/* 新值：加粗，深色，或者用红色突出 */
+.diff-new {
+  font-weight: bold;
+  color: #d03050; /* 红色在新版合同中常用于表示修订 */
+  background-color: #ffe6e6; /* 浅红背景 */
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+/* 旧值：灰色，删除线，缩小 */
+.diff-old {
+  color: #999;
+  text-decoration: line-through;
+  font-size: 0.9em;
+  margin-left: 4px;
+}
+
+/* 块级变更（如列表变化） */
+.diff-block-changed {
+  background-color: #fff7e6; /* 浅黄背景 */
+  outline: 1px dashed #faad14;
+  padding: 5px;
+}
+
+.diff-badge {
+  display: inline-block;
+  font-size: 10px;
+  color: #fff;
+  background: #ff4d4f;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+/* 新增行：浅绿背景 */
+.row-added {
+  background-color: #f6ffed !important; /* 屏幕显示 */
+}
+.row-added td {
+  color: #389e0d;
+}
+
+/* 删除行：浅红背景 + 全行删除线 */
+.row-removed {
+  background-color: #fff1f0 !important;
+  text-decoration: line-through;
+  color: #cf1322;
+}
+
+/* 强制打印背景色 */
+@media print {
+  .print-container {
+    display: block;
+  }
+  .diff-new,
+  .diff-block-changed,
+  .row-added,
+  .row-removed {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* 打印时，为了不让旧值太抢眼，可以考虑只显示新值，或者保留删除线 */
+  /* 如果不想打印旧值，解开下面这行 */
+  /* .diff-old { display: none; } */
+}
+/* =========================================
+   移动端屏幕适配 (不影响打印效果)
+   针对宽度小于 768px 的设备
+   ========================================= */
+@media screen and (max-width: 768px) {
+  /* 1. 容器重置：填满屏幕，去掉固定宽度 */
+  .print-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 12px 16px !important; /* 留出左右间距 */
+    margin: 0 !important;
+    box-shadow: none !important;
+    box-sizing: border-box;
+  }
+
+  /* 2. 头部调整 */
+  .print-header h1 {
+    font-size: 18px !important; /* 标题改小 */
+    line-height: 1.4;
+  }
+  .print-meta {
+    flex-direction: column; /* 元数据换行显示 */
+    gap: 4px;
+    color: #666;
+  }
+
+  /* 3. 核心大招：将 Info-Table (基础信息表) 拆解为“卡片列表” */
+
+  /* 强制表格元素变成块级元素，不再维持表格结构 */
+  .info-table,
+  .info-table tbody,
+  .info-table tr,
+  .info-table td {
+    display: block !important;
+    width: 100% !important;
+    border: none !important; /* 去掉原本的表格边框 */
+    box-sizing: border-box;
+  }
+
+  /* 每一行变成一个小的上下结构 */
+  .info-table tr {
+    margin-bottom: 12px;
+    border-bottom: 1px solid #eee; /* 用底边框做分隔 */
+    padding-bottom: 8px;
+  }
+
+  /* 去掉最后一行的分割线 */
+  .info-table tr:last-child {
+    border-bottom: none;
+  }
+
+  /* Label (字段名): 变灰，变小，单独占一行 */
+  .info-table .label {
+    background: transparent !important; /* 去掉灰色背景 */
+    color: #888;
+    font-size: 12px !important;
+    padding: 0 0 4px 0 !important;
+    font-weight: normal;
+  }
+
+  /* Value (字段值): 变大，变黑，单独占一行 */
+  .info-table .value {
+    font-size: 15px !important;
+    color: #333;
+    padding: 0 !important;
+    font-weight: 500;
+    word-break: break-all; /* 防止长地址撑破屏幕 */
+  }
+
+  /* 4. 列表表格 (List-Table, 如营销户号) */
+  /* 这种多列数据很难拆成卡片，建议保留表格，但允许横向滚动 */
+  .list-table {
+    display: block;
+    width: 100%;
+    overflow-x: auto; /* 允许横向滚动 */
+    -webkit-overflow-scrolling: touch; /* iOS 滚动回弹 */
+    white-space: nowrap; /* 强制不换行，保持表格形状 */
+    border: 1px solid #eee;
+  }
+
+  /* 调整一下内边距 */
+  .list-table th,
+  .list-table td {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  /* 5. 分时电价 Grid 调整 */
+  .tou-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 两列显示 */
+    gap: 8px;
+  }
+
+  /* 6. 附件区域头部 (二维码和标题) */
+  .section-header-with-qr {
+    flex-direction: column; /* 上下排列 */
+    align-items: flex-start;
+  }
+
+  .qr-box {
+    margin-left: 0 !important;
+    margin-top: 16px !important;
+    align-self: center; /* 二维码居中 */
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    width: 100%;
+  }
+}

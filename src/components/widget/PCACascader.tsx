@@ -1,29 +1,20 @@
 import { defineComponent } from 'vue'
-import { NCascader, type CascaderProps, cascaderProps } from 'naive-ui'
-import { onMounted, ref } from 'vue'
+import { NCascader, cascaderProps } from 'naive-ui'
+import areaData from '@/components/widget/constant/PCA.json'
 export default defineComponent({
+  name: 'PCACascader',
   props: cascaderProps,
   setup(props, { attrs, slots }) {
-    const optionData = ref<CascaderProps['options']>([])
-    const optionLoading = ref<boolean>(false)
-    onMounted(async () => {
-      try {
-        optionLoading.value = true
-        const { default: areaData } = await import('@/components/widget/constant/PCA.json')
-        optionData.value = areaData
-      } finally {
-        optionLoading.value = false
-      }
-    })
     return () => (
       <NCascader
         {...props}
         {...attrs}
-        options={optionData.value}
+        options={areaData}
         value-field={'key'}
         show-path
         checkStrategy={'child'}
         v-slots={slots}
+        value={props.value || undefined}
       ></NCascader>
     )
   },

@@ -39,7 +39,10 @@ export function convertRoutesToMenuItems(routes: RouteRecordRaw[]) {
       _rawRoute: route,
     }
     if (route.meta.icon) {
-      menuItem['icon'] = renderIcon(resolveIcon(route.meta.icon as keyof typeof icons))
+      menuItem.icon = renderIcon(
+        resolveIcon(route.meta.icon as keyof typeof icons),
+        route.meta.icon,
+      )
     }
 
     menuMap.set(route.name, menuItem)

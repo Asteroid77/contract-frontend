@@ -19,3 +19,7 @@ type ValidatedFormData<T, N = null> = {
 }
 
 type ZwFormSubmit<T> = (valid: boolean, formData: boolean extends true ? T : FormInput<T>) => void
+interface ErrorConstructor {
+  // eslint-disable-next-line
+  captureStackTrace?(targetObject: object, constructorOpt?: Function): void
+}

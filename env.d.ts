@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+/// <reference types="vite-svg-loader" />
 interface ImportMetaEnv {
   /**
    * 根地址
@@ -10,9 +11,14 @@ interface ImportMetaEnv {
   readonly VITE_ENV: 'dev' | 'prod'
 
   /**
-   * 后端服务器地址
+   * 后端服务器地址(如需设置)
    */
   readonly VITE_BACKEND_SERVER_URL: string
+
+  /**
+   * 后端服务器端口
+   */
+  readonly VITE_BACKEND_SERVER_PORT: string
 
   /**
    * sourceMap转换的服务器地址

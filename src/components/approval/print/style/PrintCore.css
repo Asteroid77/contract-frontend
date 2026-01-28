@@ -1,0 +1,290 @@
+/* --- 打印基础设置 --- */
+@media print {
+  @page {
+    size: A4;
+    margin: 0mm; /* 将打印页边距设为0，强制隐藏页眉页脚 */
+  }
+  body {
+    background-color: #fff !important;
+    padding: 10mm;
+    margin: 0mm;
+  }
+  * {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* 隐藏屏幕专用元素 */
+  .screen-only,
+  .n-button,
+  .n-popconfirm__trigger {
+    display: none !important;
+  }
+  /* 显示打印专用元素 */
+  .print-only {
+    display: block !important;
+  }
+
+  /* Document Section CSS START */
+  .document-section-header {
+    border-left: 4px solid #000 !important;
+    background-color: transparent !important;
+    padding-left: 8px !important;
+    cursor: default !important;
+  }
+
+  /* 无视屏幕折叠状态，打印时必须显示内容 */
+  .screen-hidden {
+    display: block !important;
+  }
+
+  /* 允许跨页，但尽量保持完整 */
+  .document-section {
+    page-break-inside: auto;
+  }
+  /* Document Section CSS END */
+
+  .diff-old {
+    opacity: 0.7;
+  }
+
+  .section-header-with-qr {
+    /* 确保头部不被分页切断 */
+    break-inside: avoid;
+  }
+  .qr-box span {
+    /* 打印机通常打不出浅灰色，强制加深一点或者允许灰度 */
+    color: #333;
+  }
+
+  .section-header-with-qr .sub-section-title {
+    /* 打印时可能需要显式指定宽度以防万一，但通常 flex: 1 足够 */
+    width: 100%;
+  }
+
+  /* 强制展开所有容器 */
+  html,
+  body,
+  #app,
+  .printable-approval-area {
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+}
+
+/* --- 屏幕模拟 A4 纸效果 --- */
+.printable-approval-area {
+  background: white;
+  margin: 0 auto;
+  padding: 20px;
+  width: 100%;
+  max-width: 210mm; /* A4 */
+  font-family: 'SimSun', 'Songti SC', serif; /* 衬线体打印更正式 */
+  color: #000;
+}
+
+/* --- 通用打印组件 --- */
+/* 标题 */
+.print-header {
+  text-align: center;
+  border-bottom: 2px solid #000;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+}
+.print-header h1 {
+  margin: 0 0 10px;
+  font-size: 24px;
+}
+.print-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+/* 区块 */
+.print-section {
+  margin-bottom: 20px;
+  page-break-inside: avoid;
+}
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  border-left: 4px solid #000;
+  padding-left: 8px;
+  margin-bottom: 10px;
+  background: #f0f0f0;
+  flex: 1;
+}
+.sub-section-title {
+  font-size: 14px; /* 二级title，比 section-title 小 */
+  font-weight: bold;
+  color: #333; /* 深灰，不完全黑 */
+
+  margin-top: 16px; /* 上方留白，区分上一块内容 */
+  margin-bottom: 8px; /* 下方留白 */
+
+  padding-bottom: 4px; /* 文字和线的距离 */
+  border-bottom: 1px solid #e0e0e6; /* 底部细灰线，或者用 dashed 虚线 */
+
+  /* 打印时保证线条可见 */
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* 标准键值对表格 (KV Table) */
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  table-layout: fixed;
+}
+.info-table td {
+  border: 1px solid #000;
+  padding: 6px 8px;
+  word-wrap: break-word;
+}
+.info-table .label {
+  background: #fafafa;
+  font-weight: bold;
+  width: 18%;
+}
+.info-table .value {
+  width: 32%;
+}
+
+/* 列表表格 (List Table) */
+.list-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-top: 8px;
+}
+.list-table th,
+.list-table td {
+  border: 1px solid #000;
+  padding: 5px;
+  text-align: left;
+}
+.list-table th {
+  background: #eee;
+  font-weight: bold;
+}
+
+/* --- 统一 Diff 样式标准 --- */
+
+.diff-container {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap; /* 如果内容太长，允许换行 */
+  gap: 8px; /* 新旧值之间的间距 */
+  line-height: 1.4;
+}
+
+/* 新值：醒目，红色 (代表修订)，加粗 */
+.diff-new {
+  color: #d03050;
+  font-weight: 600;
+  /* 打印时强制保留背景色/颜色 */
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* 旧值：退后，灰色，删除线，稍微缩小 */
+.diff-old {
+  color: #999;
+  text-decoration: line-through;
+  font-size: 0.9em;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* --- ApprovalSection 样式 --- */
+
+/* 整体容器 */
+.document-section {
+  margin-bottom: 24px;
+  page-break-inside: avoid; /* 尽可能不把一个chapter切断 */
+}
+
+/* 标题栏 */
+.document-section-header {
+  font-size: 16px;
+  font-weight: bold;
+  border-left: 4px solid #2080f0; /* 屏幕上用主题色 */
+  padding: 8px 12px;
+  background-color: #f5f7fa; /* 屏幕上给个浅灰背景区分 */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+
+.toggle-icon {
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+  color: #666;
+}
+
+/* 内容区域 */
+.document-section-content {
+  padding-top: 12px;
+}
+
+/* 屏幕交互：隐藏 */
+.screen-hidden {
+  display: none;
+}
+
+/* =======================================================
+   附件区域：带二维码的标题头
+   ======================================================= */
+
+.section-header-with-qr {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end; /* 底部对齐，保证标题下划线和二维码底部协调 */
+  margin-bottom: 12px;
+  page-break-inside: avoid;
+}
+
+/* 核心修复：针对内部的 sub-section-title */
+.section-header-with-qr .sub-section-title {
+  /* ：flex: 1 让标题 div 自动撑满左侧剩余空间 */
+  flex: 1;
+
+  /* 重置 margin，避免和父容器冲突 */
+  margin-top: 0;
+  margin-bottom: 0;
+
+  /* 稍微给右边留点空隙，防止横线直接插进二维码里 */
+  margin-right: 16px;
+
+  /* 确保它是 block 级显示，这样 border-bottom 才会延伸 */
+  display: block;
+  width: auto;
+}
+
+/* 右侧二维码盒子 (微调) */
+.qr-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0; /* 防止被挤压 */
+  margin-left: 0;
+}
+
+.qr-box span {
+  font-size: 9px;
+  color: #666;
+  margin-top: 2px;
+  transform: scale(0.9);
+  white-space: nowrap;
+}
+
+.qr-box .n-qr-code {
+  background-color: transparent;
+  display: block;
+}
