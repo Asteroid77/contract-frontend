@@ -10,16 +10,16 @@ import {
   NInput,
 } from 'naive-ui'
 import { computed, h, ref } from 'vue'
-import { formatted } from '@/_utils/time'
-import type { InvitationCode } from '@/components/invitation/api/invitation'
+import { formatted } from '@/modules/shared/presentation/time'
+import type { InvitationCode } from '@/modules/invitation/application/models'
 import {
   useCreateInvitationCodeMutation,
   useDeleteInvitationCodeMutation,
   useInvitationCodeListQuery,
   useUpdateInvitationCodeMutation,
-} from '@/hooks/account/useInvitationService'
+} from '@/modules/invitation/application/hooks/useInvitationService'
 import clsx from 'clsx'
-import { invitationCodeStatus } from './constant'
+import { invitationCodeStatus } from '@/modules/invitation/application/constants'
 const invitationListQuery = useInvitationCodeListQuery()
 function createColumns(): DataTableColumns<InvitationCode> {
   return [
