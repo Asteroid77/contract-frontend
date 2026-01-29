@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { zhCN, dateZhCN, NConfigProvider, darkTheme } from 'naive-ui'
 import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
-import { useTheme } from '@/components/theme/hooks/useTheme'
+import { useTheme } from '@/app/presentation/theme/hooks/useTheme'
 import { computed } from 'vue'
 const { isDark, activeThemeOverrides } = useTheme()
 const naiveTheme = computed(() => (isDark.value ? darkTheme : null))

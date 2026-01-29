@@ -1,8 +1,9 @@
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import type { ViteDevServer } from 'vite'
 
-import { commonTokens, colorTokens } from '../src/components/theme/ThemeToken'
+import { commonTokens, colorTokens } from '../src/app/presentation/theme/ThemeToken'
 
 // 获取当前文件路径 (ESM 环境下替代 __dirname)
 const __filename = fileURLToPath(import.meta.url)
@@ -86,7 +87,7 @@ function writeThemeCss() {
     // 在 Vite 插件中执行时，process.cwd() 通常是项目根目录
     const outputPath = path.resolve(
       process.cwd(),
-      'src/components/theme/styles/generated-theme.css',
+      'src/app/presentation/theme/styles/generated-theme.css',
     )
 
     fs.writeFileSync(outputPath, css, 'utf-8')
@@ -103,7 +104,7 @@ export const themeGeneratorPlugin = () => {
       writeThemeCss()
     },
     // 热更新处理
-    handleHotUpdate({ file, server }) {
+    handleHotUpdate({ file, server }: { file: string; server: ViteDevServer }) {
       // 监听 ThemeToken.ts 文件的变化
       if (file.includes('ThemeToken.ts')) {
         writeThemeCss()
