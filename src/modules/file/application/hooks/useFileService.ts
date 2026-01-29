@@ -1,6 +1,5 @@
-import { fileApi } from '@/components/file/api/file.api'
-import type { FileStorage, OssCallbackDTO } from '@/components/file/api/file-storage'
-import type { ServerResponse } from '@/types/request'
+import type { FileStorage, FileResponse } from '@/modules/file/domain/types'
+import { fileService } from '@/modules/file/application/file-service'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import type { AxiosError } from 'axios'
 import type { Ref } from 'vue'
@@ -30,18 +29,13 @@ export const fileKeys = {
  * @param fileId 文件 ID
  */
 export const useFileDetailQuery = (fileId: number | undefined) => {
-  return useQuery<
-    ServerResponse<OssCallbackDTO>,
-    AxiosError<ServerResponse<unknown>>,
-    OssCallbackDTO
-  >({
+  return useQuery<FileResponse, AxiosError<unknown>, FileResponse>({
     queryKey: fileKeys.detail(fileId),
     queryFn: () => {
       if (!fileId) return Promise.reject(new Error('File ID is required for fileDetailQuery'))
-      return fileApi.getFileById(fileId)
+      return fileService.getFileById(fileId)
     },
     enabled: !!fileId,
-    select: (response) => response.data,
     staleTime: Infinity, // 由useFilesDetailQuery更新缓存，这个仅为缓存获取器
     gcTime: 1000 * 60 * 60 * 24,
   })
@@ -55,41 +49,28 @@ export const useFileDetailQuery = (fileId: number | undefined) => {
  */
 export const useFilesDetailQuery = (fileIds: Ref<number[]>) => {
   const queryClient = useQueryClient()
-  return useQuery<
-    ServerResponse<OssCallbackDTO[]>,
-    AxiosError<ServerResponse<unknown>>,
-    OssCallbackDTO[]
-  >({
+  return useQuery<FileResponse[], AxiosError<unknown>, FileResponse[]>({
     queryKey: fileKeys.batchDetail(fileIds.value),
     queryFn: async () => {
       if (!fileIds.value || !fileIds.value.length)
         return Promise.reject(new Error('File ID is required for fileDetailQuery'))
-      const response = await fileApi.getFileByIds(fileIds.value)
-      const files = response.data
+      const files = await fileService.getFilesByIds(fileIds.value)
       if (files && files.length > 0) {
         //  遍历数据并填充单个缓存
         for (const file of files) {
           const individualQueryKey = fileKeys.detail(file.id)
-          queryClient.setQueryData(
-            individualQueryKey,
-            { data: file, message: response.message, code: response.code, status: response.status },
-            { updatedAt: Date.now() },
-          )
+          queryClient.setQueryData(individualQueryKey, file, { updatedAt: Date.now() })
         }
       }
-      return response
+      return files
     },
     enabled: !!fileIds.value && !!fileIds.value.length,
     staleTime: (data) => {
-      const serverResponse = data.state.data as ServerResponse<OssCallbackDTO[]> | undefined
-      if (
-        !serverResponse?.data ||
-        !Array.isArray(serverResponse.data) ||
-        serverResponse.data.length === 0
-      ) {
+      const files = data.state.data as FileResponse[] | undefined
+      if (!files || !Array.isArray(files) || files.length === 0) {
         return 0 // 立即 stale
       }
-      const expireTime = data?.state.data?.data[0].expireTime
+      const expireTime = files[0]?.expireTime
       if (!expireTime) return 0 // 没有过期时间，立即 stale
       const buffer = 60 * 1000 // 提前 1 分钟标记为 stale
       const staleIn = expireTime - Date.now() - buffer
@@ -105,29 +86,20 @@ export const useFilesDetailQuery = (fileIds: Ref<number[]>) => {
  */
 export const useFilesMetaDetailQuery = (fileIds: Ref<number[]>) => {
   const queryClient = useQueryClient()
-  return useQuery<
-    ServerResponse<FileStorage[]>,
-    AxiosError<ServerResponse<unknown>>,
-    FileStorage[]
-  >({
+  return useQuery<FileStorage[], AxiosError<unknown>, FileStorage[]>({
     queryKey: fileKeys.batchMetaDetail(fileIds.value),
     queryFn: async () => {
       if (!fileIds.value || !fileIds.value.length)
         return Promise.reject(new Error('File ID is required for fileDetailQuery'))
-      const response = await fileApi.getFileMetaByIds(fileIds.value)
-      const files = response.data
+      const files = await fileService.getFilesMetaByIds(fileIds.value)
       if (files && files.length > 0) {
         //  遍历数据并填充单个缓存
         for (const file of files) {
           const individualQueryKey = fileKeys.metaDetail(file.id)
-          queryClient.setQueryData(
-            individualQueryKey,
-            { data: file, message: response.message, code: response.code, status: response.status },
-            { updatedAt: Date.now() },
-          )
+          queryClient.setQueryData(individualQueryKey, file, { updatedAt: Date.now() })
         }
       }
-      return response
+      return files
     },
     enabled: !!fileIds.value && !!fileIds.value.length,
     gcTime: 1000 * 60 * 60 * 24,

@@ -1,4 +1,4 @@
-import type { OssCallbackDTO } from '@/components/file/api/file-storage'
+import type { OssCallbackDTO } from '@/modules/file/application/models'
 import type { UploadFileInfo } from 'naive-ui'
 
 export interface AgreementUploadFileInfo extends UploadFileInfo {
