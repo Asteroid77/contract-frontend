@@ -1,9 +1,9 @@
 import Dexie from 'dexie'
 import type { EntityTable } from 'dexie'
-import type { ExceptionReport } from '@/types/exception'
-import type { RestSmsCd } from './table/defineRestSMSCd.ts'
-import type { SignInResponse } from '@/types/account'
-import type { QueryCacheEntry } from './table/types/QueryCache'
+import type { ExceptionReport } from '@/modules/shared/application/exception/types'
+import type { RestSmsCd } from './defineRestSMSCd'
+import type { SignInResponse } from '@/modules/user/application/models'
+import type { QueryCacheEntry } from './QueryCache'
 
 /**
  * Dexie管理的indexedDB 数据表类型

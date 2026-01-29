@@ -1,4 +1,4 @@
-import type { DexieDB } from '../types'
+import type { DexieDB } from './types'
 export declare interface RestSmsCd {
   id?: number
   phone: string //手机号

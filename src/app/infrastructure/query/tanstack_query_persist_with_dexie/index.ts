@@ -1,4 +1,4 @@
-import db from '@/_utils/dexie'
+import db from '@/app/infrastructure/storage/dexie'
 import { experimental_createQueryPersister } from '@tanstack/query-persist-client-core'
 export const queryPersister = experimental_createQueryPersister({
   // storage 对象需要实现 getItem, setItem, 和 removeItem 三个异步方法,key为用户token

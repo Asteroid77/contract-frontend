@@ -2,11 +2,11 @@
 import { NDrawerContent, NDrawer, NMenu, NCard } from 'naive-ui'
 import { ref, useTemplateRef, watch } from 'vue'
 import { authRoutes } from '@/router'
-import { convertRoutesToMenuItems } from '../_utils/MenuBuilder'
+import { convertRoutesToMenuItems } from '@/app/presentation/layout/utils/MenuBuilder'
 import clsx from 'clsx'
 import { $t } from '@/_utils/i18n'
 import { useRoute } from 'vue-router'
-import { useCssVar } from '@/components/theme/hooks/useCssVar'
+import { useCssVar } from '@/app/presentation/theme/hooks/useCssVar'
 const route = useRoute()
 
 const menuOptions = convertRoutesToMenuItems(authRoutes)

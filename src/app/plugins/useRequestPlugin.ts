@@ -11,10 +11,10 @@ import { notification, showUniqueErrorNotification } from '@/_utils/discrete_nai
 import { $t } from '@/_utils/i18n'
 import { match } from 'ts-pattern'
 import type { NotificationOptions } from 'naive-ui'
-import type { ServerResponse } from '@/types/request'
+import type { ServerResponse } from '@/modules/shared/application/request/types'
 import type { AxiosError, AxiosResponse } from 'axios'
 import axios from 'axios'
-import { queryPersister } from '@/_utils/tanstack_query_persist_with_dexie'
+import { queryPersister } from '@/app/infrastructure/query/tanstack_query_persist_with_dexie'
 /**
  * 错误信息接口
  */

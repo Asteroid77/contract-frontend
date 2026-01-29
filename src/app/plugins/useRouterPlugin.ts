@@ -1,5 +1,5 @@
 import router from '@/router'
-import type { ToBeInstalledPlugin } from '@/plugins/index'
+import type { ToBeInstalledPlugin } from '@/app/plugins/index'
 
 export function useRouterPlugin(): ToBeInstalledPlugin {
   return {

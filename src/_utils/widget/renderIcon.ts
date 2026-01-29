@@ -1,4 +1,4 @@
-import ZwIcon from '@/components/widget/ZwIcon.vue'
+import ZwIcon from '@/modules/shared/presentation/widget/ZwIcon.vue'
 import { NIcon } from 'naive-ui'
 import { h, type Component } from 'vue'
 

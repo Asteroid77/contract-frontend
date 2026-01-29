@@ -1,4 +1,4 @@
-import type { DexieDB } from '../types'
+import type { DexieDB } from './types'
 /**
  * 声明queryCache表
  * @param db Dexie实例

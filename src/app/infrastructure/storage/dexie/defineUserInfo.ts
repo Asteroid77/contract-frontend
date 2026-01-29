@@ -1,4 +1,4 @@
-import type { DexieDB } from '../types'
+import type { DexieDB } from './types'
 
 /**
  * 声明userInfo表

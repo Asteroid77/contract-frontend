@@ -1,9 +1,9 @@
 import Dexie from 'dexie'
-import type { DexieDB } from './types.ts'
-import { defineExceptions } from './table/defineExceptions.ts'
-import { defineRestSMSCd } from './table/defineRestSMSCd.ts'
-import { defineUserInfo } from './table/defineUserInfo.ts'
-import { defineQueryCache } from './table/defineQueryCache.ts'
+import type { DexieDB } from './types'
+import { defineExceptions } from './defineExceptions'
+import { defineRestSMSCd } from './defineRestSMSCd'
+import { defineUserInfo } from './defineUserInfo'
+import { defineQueryCache } from './defineQueryCache'
 
 const db: DexieDB = new Dexie('Database') as DexieDB
 

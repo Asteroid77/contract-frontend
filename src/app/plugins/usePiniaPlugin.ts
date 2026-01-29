@@ -1,5 +1,5 @@
 import { createPinia } from 'pinia'
-import type { ToBeInstalledPlugin } from '@/plugins'
+import type { ToBeInstalledPlugin } from '@/app/plugins'
 
 /**
  * 初始化pinia

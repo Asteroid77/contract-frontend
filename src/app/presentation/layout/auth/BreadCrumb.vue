@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { RouterLink, useRoute } from 'vue-router'
-import { findAllParents } from '../_utils/BreadCrumbBuilder'
+import { findAllParents } from '@/app/presentation/layout/utils/BreadCrumbBuilder'
 import { computed } from 'vue'
 import { authRoutes } from '@/router'
 import { NBreadcrumb, NBreadcrumbItem } from 'naive-ui'
 import type { RouteRecordRaw } from 'vue-router'
 import { renderIcon } from '@/_utils/widget/renderIcon'
-import { resolveIcon, type IconNames } from '../_utils/MenuBuilder'
+import { resolveIcon, type IconNames } from '@/app/presentation/layout/utils/MenuBuilder'
 const routeInfoMap: { [key: string]: RouteRecordRaw } = {}
 authRoutes.map((item) => {
   routeInfoMap[item.name] = item

@@ -1,14 +1,15 @@
 import { describe, it, expect } from 'vitest'
 // 模拟 IndexedDB 环境，要在使用dexie之前
 import 'fake-indexeddb/auto'
-import dexie from '@/_utils/dexie'
-import type { ExceptionReport } from '@/types/exception'
+import dexie from '@/app/infrastructure/storage/dexie'
+import type { ExceptionReport } from '@/modules/shared/application/exception/types'
 
 describe('测试dexie是否正常加载exceptions表', async () => {
   const exceptionDB = dexie.exceptions
-  const data = {
+  const data: Omit<ExceptionReport<unknown>, 'id'> = {
     type: 'server',
     message: 'test',
+    level: 'error',
     timestamp: new Date().getTime(),
   }
   const id: string | undefined = await dexie.exceptions.add(data)
