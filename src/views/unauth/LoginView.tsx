@@ -48,7 +48,7 @@ export default defineComponent({
       }
     }
     return () => (
-      <template>
+      <div>
         <LoginForm
           isSubmitBtnLoading={login.isPending.value}
           onSubmit={onSubmit}
@@ -80,7 +80,7 @@ export default defineComponent({
             ),
           }}
         ></LoginForm>
-      </template>
+      </div>
     )
   },
 })

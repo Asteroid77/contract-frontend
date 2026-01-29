@@ -18,12 +18,12 @@ export default defineComponent({
       }
     }
     return () => (
-      <template>
+      <div>
         <RegisterForm
           isSubmitBtnLoading={register.isPending.value}
           onSubmit={onSubmit}
         ></RegisterForm>
-      </template>
+      </div>
     )
   },
 })

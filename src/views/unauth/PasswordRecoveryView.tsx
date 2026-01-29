@@ -19,9 +19,9 @@ export default defineComponent({
       }
     }
     return () => (
-      <template>
+      <div>
         <PasswordRecoveryForm onSubmit={onSubmit}></PasswordRecoveryForm>
-      </template>
+      </div>
     )
   },
 })
