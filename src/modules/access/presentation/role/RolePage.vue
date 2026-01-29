@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { $t } from '@/_utils/i18n'
-import type { RolePageDTO, RoleVO } from '@/api/types/role'
-import { useRolePage } from '@/hooks/account/useRoleService'
-import type { BasePageRequest } from '@/types/request'
+import type { RolePageDTO, RoleVO } from '@/modules/access/application/models'
+import { useRolePage } from '@/modules/access/application/hooks/useRoleService'
+import type { BasePageRequest } from '@/modules/shared/application/request/types'
 import {
   NButton,
   NSpace,
