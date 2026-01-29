@@ -1,10 +1,10 @@
 import { $t } from '@/_utils/i18n'
-import type { PreviewType } from '@/components/sign/api/sign'
-import AttachmentApprovalDiff from '@/components/sign/AttachmentApprovalDiff'
-import { PreviewTypeEnum } from '@/components/sign/constant/enum'
-import { usePreviewAttachments } from '@/components/sign/hooks/useSignService'
-import { previewAttachmentsRule } from '@/components/sign/rules'
-import AppFormItem from '@/components/widget/AppFormItem'
+import type { PreviewType } from '@/modules/service-agreement/application/models'
+import AttachmentApprovalDiff from '@/modules/service-agreement/presentation/sign/AttachmentApprovalDiff'
+import { PreviewTypeEnum } from '@/modules/service-agreement/application/constants'
+import { usePreviewAttachments } from '@/modules/service-agreement/application/hooks/useSignService'
+import { previewAttachmentsRule } from '@/modules/service-agreement/application/validation'
+import AppFormItem from '@/modules/shared/presentation/widget/AppFormItem'
 import clsx from 'clsx'
 import { NButton, NForm, NInput, NResult, type FormInst } from 'naive-ui'
 import { computed, ref, type PropType } from 'vue'
@@ -37,10 +37,8 @@ export default defineComponent({
     }
     const hasValue = computed(() => !!preview.data.value)
     const filesMap = computed(() => {
-      if (!hasValue.value) return null
-
       return {
-        new: preview.data.value?.newFiles,
+        new: preview.data.value?.newFiles ?? null,
         old: preview.data.value?.oldFiles
           ? preview.data.value.oldFiles
           : props.type === PreviewTypeEnum.FORM_VIEW

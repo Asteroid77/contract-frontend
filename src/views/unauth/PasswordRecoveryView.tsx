@@ -1,6 +1,6 @@
-import type { PasswordRecoveryRequest } from '@/api/types/password'
-import PasswordRecoveryForm from '@/components/password/PasswordRecoveryForm'
-import { usePassword } from '@/hooks/account/usePassword'
+import type { PasswordRecoveryRequest } from '@/modules/user/application/models'
+import PasswordRecoveryForm from '@/modules/user/presentation/password/PasswordRecoveryForm'
+import { usePassword } from '@/modules/user/application/hooks/usePassword'
 import { defineComponent } from 'vue'
 export default defineComponent({
   name: 'password-recovery-view',

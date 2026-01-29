@@ -1,4 +1,4 @@
-import { useAccountStore } from '@/stores/useAccountStore'
+import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
 import type { Directive, DirectiveBinding } from 'vue'
 
 // 确保在 setup 之外使用 pinia store

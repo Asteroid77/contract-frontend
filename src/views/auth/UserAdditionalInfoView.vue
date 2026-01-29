@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import UserAdditionalInfoForm, {
   type UserAdditionalInfoFormExpose,
-} from '@/components/user_additional_info/UserAdditionalInfoForm'
+} from '@/modules/user/presentation/user_additional_info/UserAdditionalInfoForm'
 import { computed, useTemplateRef } from 'vue'
 import { NFlex, NButton, NSkeleton, NResult } from 'naive-ui'
 import { $t } from '@/_utils/i18n'
 import type { Ref } from 'vue'
-import type { UserAdditionalInfoRequest } from '@/types/account'
-import { useUserAdditionalInfoRequest } from '@/hooks/account/useUserAdditionalInfoRequest'
-import { useLatestAdditionalInfoInstanceStatus } from '@/hooks/approval/useApprovalService'
+import type { UserAdditionalInfoRequest } from '@/modules/user/application/models'
+import { useUserAdditionalInfoRequest } from '@/modules/user/application/hooks/useUserAdditionalInfoRequest'
+import { useLatestAdditionalInfoInstanceStatus } from '@/modules/approval/application/hooks/useApprovalService'
 import { useRouter } from 'vue-router'
-import { useAccountStore } from '@/stores/useAccountStore'
-import { useLoadUserInfo } from '@/hooks/account/useLoadUserInfo'
+import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
+import { useLoadUserInfo } from '@/modules/user/application/hooks/useLoadUserInfo'
 const $form: Ref<UserAdditionalInfoFormExpose | null> =
   useTemplateRef<UserAdditionalInfoFormExpose>('formRef')
 const req = useUserAdditionalInfoRequest(() => {})
@@ -19,6 +19,10 @@ const status = useLatestAdditionalInfoInstanceStatus()
 const router = useRouter()
 const account = useAccountStore()
 const loadUserInfo = useLoadUserInfo(account.token as string)
+const formInitialValue = computed<FormInput<UserAdditionalInfoRequest> | undefined>(() => {
+  const profile = loadUserInfo.data.value?.profile
+  return (profile ?? undefined) as FormInput<UserAdditionalInfoRequest> | undefined
+})
 const pageStatus = computed(() => {
   if (!status.data.value || loadUserInfo.isLoading.value) {
     return 'loading'
@@ -69,7 +73,7 @@ const handleClick = () => {
   <UserAdditionalInfoForm
     ref="formRef"
     v-if="pageStatus === 'visible'"
-    :initial-value="loadUserInfo.data.value?.profile"
+    :initial-value="formInitialValue"
   ></UserAdditionalInfoForm>
   <n-flex v-if="pageStatus === 'visible'">
     <n-button @click="submit" :loading="submitBtnLoading">{{ $t('actions.confirm') }}</n-button>

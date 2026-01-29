@@ -1,6 +1,6 @@
-import RegisterForm from '@/components/register/RegisterForm'
-import { useRegister } from '@/hooks/account/useRegister'
-import type { RegisterRequest } from '@/types/account'
+import RegisterForm from '@/modules/user/presentation/register/RegisterForm'
+import { useRegister } from '@/modules/user/application/hooks/useRegister'
+import type { RegisterRequest } from '@/modules/user/application/models'
 import { defineComponent } from 'vue'
 export default defineComponent({
   name: 'register-view',

@@ -1,22 +1,22 @@
-import { pruneEmpty } from '@/_utils/form'
+import { pruneEmpty } from '@/modules/shared/application/form'
 import { $t } from '@/_utils/i18n'
-import type { ServiceAgreementRequestDTO, ServiceAgreementUIMap } from '@/components/sign/api/sign'
-import { ServiceAgreementStatusEnum } from '@/components/sign/constant/enum'
-import { convertUIToRequestDTO } from '@/components/sign/model'
-import ServiceAgreementForm from '@/components/sign/ServiceAgreementForm'
+import type { ServiceAgreementRequestDTO, ServiceAgreementUIMap } from '@/modules/service-agreement/application/models'
+import { ServiceAgreementStatusEnum } from '@/modules/service-agreement/application/constants'
+import { convertUIToRequestDTO } from '@/modules/service-agreement/application/ui-mappers'
+import ServiceAgreementForm from '@/modules/service-agreement/presentation/sign/ServiceAgreementForm'
 import {
   useServiceAgreementDetail,
   useSubmitRecordMutation,
   useSubmitSignMutation,
-} from '@/components/sign/hooks/useSignService'
+} from '@/modules/service-agreement/application/hooks/useSignService'
 import { NButton, NSpace } from 'naive-ui'
 import { match } from 'ts-pattern'
 import { computed, defineComponent } from 'vue'
 import { useRouter } from 'vue-router'
-import ServiceAgreementPrint from '@/components/sign/print/ServiceAgreementPrint'
-import ServiceAgreementAttachmentPrint from '@/components/sign/print/ServiceAgreementAttachmentPrint'
-import { usePrint } from '@/components/approval/hook/usePrint'
-import printStyle from '@/components/sign/print/styles/FormPrintCSS.module.css'
+import ServiceAgreementPrint from '@/modules/service-agreement/presentation/print/ServiceAgreementPrint'
+import ServiceAgreementAttachmentPrint from '@/modules/service-agreement/presentation/print/ServiceAgreementAttachmentPrint'
+import { usePrint } from '@/modules/approval/application/hooks/usePrint'
+import printStyle from '@/modules/service-agreement/presentation/print/styles/FormPrintCSS.module.css'
 export default defineComponent({
   name: 'ServiceAgreementDetail',
   props: {
@@ -39,7 +39,7 @@ export default defineComponent({
       router.push({
         path: '/auth/sign/result',
         query: {
-          id: String(resp.data.id),
+          id: String(resp.id),
           status: String(ServiceAgreementStatusEnum.Record),
         },
       })
@@ -50,7 +50,7 @@ export default defineComponent({
       router.push({
         path: '/auth/sign/result',
         query: {
-          id: String(resp.data.id),
+          id: String(resp.id),
           status: String(ServiceAgreementStatusEnum.Sign),
         },
       })

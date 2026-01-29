@@ -2,12 +2,12 @@
 import { NMenu, NButton } from 'naive-ui'
 import { computed, ref, watch } from 'vue'
 import { authRoutes } from '@/router'
-import { convertRoutesToMenuItems } from '@/components/layout/_utils/MenuBuilder'
+import { convertRoutesToMenuItems } from '@/app/presentation/layout/utils/MenuBuilder'
 import clsx from 'clsx'
-import ZwIcon from '@/components/widget/ZwIcon.vue'
+import ZwIcon from '@/modules/shared/presentation/widget/ZwIcon.vue'
 import { useTemplateRef } from 'vue'
 import { useRoute } from 'vue-router'
-import { useCssVar } from '@/components/theme/hooks/useCssVar'
+import { useCssVar } from '@/app/presentation/theme/hooks/useCssVar'
 const route = useRoute()
 const menuOptions = convertRoutesToMenuItems(authRoutes)
 const sidebarCollapsedWidth = parseInt(useCssVar('--sidebar-collapsed-width').value!)

@@ -1,11 +1,10 @@
-import { userKeys } from '@/hooks/account/useLoadUserInfo'
-import { useAccountStore } from '@/stores/useAccountStore'
+import { userKeys } from '@/modules/user/application/hooks/useLoadUserInfo'
+import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
 import type { Router } from 'vue-router'
 import { difference } from 'lodash'
 import { useQueryClient } from '@tanstack/vue-query'
-import type { SignInResponse } from '@/types/account'
-import { userApi } from '@/api/user.api'
-import type { ServerResponse } from '@/types/request'
+import type { SignInResponse } from '@/modules/user/application/models'
+import { userService } from '@/modules/user/application/service'
 import type { AxiosError } from 'axios'
 export function setupAuthGuards(router: Router) {
   router.beforeEach(async (to) => {
@@ -40,14 +39,14 @@ export function setupAuthGuards(router: Router) {
         const queryClient = useQueryClient()
         // 这里 await 会导致路由暂停，你的全局进度条应该在这里转圈
         const data = await queryClient.ensureQueryData<
-          ServerResponse<SignInResponse>,
-          AxiosError<ServerResponse<unknown>>
+          SignInResponse,
+          AxiosError<unknown>
         >({
           queryKey: userKeys.INFO(token),
-          queryFn: () => userApi.getUserInfoByToken(token),
+          queryFn: () => userService.getUserInfoByToken(token),
           staleTime: 1000 * 60 * 5, // 5分钟内不重复请求
         })
-        accountStore.login(data.data)
+        accountStore.login(data)
       } catch (error) {
         // Token 过期或网络错误，清除状态并去登录页
         console.error('Auth Guard Error:', error)

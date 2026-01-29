@@ -1,10 +1,10 @@
 import { defineComponent, ref, computed, reactive } from 'vue'
 import { NSpace, NInput, NSelect, NButton, type PaginationProps } from 'naive-ui'
-import ServiceAgreementPage from '@/components/sign/ServiceAgreementPage' // 假设子组件在这个路径
-import { useServiceAgreementPage } from '@/components/sign/hooks/useSignService' // 替换为实际 hook 路径
-import { ServiceAgreementStatusOption } from '@/components/sign/constant/enum' // 假设枚举路径
-import type { BasePageRequest } from '@/types/request'
-import type { ServiceAgreementPageDTO, ServiceAgreementPageVo } from '@/components/sign/api/sign'
+import ServiceAgreementPage from '@/modules/service-agreement/presentation/sign/ServiceAgreementPage'
+import { useServiceAgreementPage } from '@/modules/service-agreement/application/hooks/useSignService' // 替换为实际 hook 路径
+import { ServiceAgreementStatusOption } from '@/modules/service-agreement/application/constants' // 假设枚举路径
+import type { BasePageRequest } from '@/modules/shared/application/request/types'
+import type { ServiceAgreementPageDTO, ServiceAgreementPageVo } from '@/modules/service-agreement/application/models'
 import { $t } from '@/_utils/i18n'
 import { useRouter } from 'vue-router'
 import type { RouteLocationAsRelativeGeneric } from 'vue-router'

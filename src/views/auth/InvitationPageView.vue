@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import InvitationCodePage from '@/components/invitation/InvitationCodePage.vue'
+import InvitationCodePage from '@/modules/invitation/presentation/invitation/InvitationCodePage.vue'
 </script>
 <template>
   <InvitationCodePage></InvitationCodePage>

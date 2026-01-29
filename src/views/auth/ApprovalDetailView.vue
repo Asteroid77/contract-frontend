@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { ApprovalProcessName } from '@/components/approval/api/approval'
-import ApprovalTemplate from '@/components/approval/ApprovalTemplate'
+import type { ApprovalProcessName } from '@/modules/approval/application/models'
+import ApprovalTemplate from '@/modules/approval/presentation/approval/ApprovalTemplate'
 import { computed, type Ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { NResult, NButton } from 'naive-ui'

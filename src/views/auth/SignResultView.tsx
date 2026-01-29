@@ -2,12 +2,12 @@ import { $t } from '@/_utils/i18n'
 import { NButton, NFlex, NResult } from 'naive-ui'
 import { computed, defineComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ApprovalProcessNameEnum } from '@/components/approval/constant/enum'
+import { ApprovalProcessNameEnum } from '@/modules/approval/application/constants'
 import { match } from 'ts-pattern'
-import { ServiceAgreementStatusEnum } from '@/components/sign/constant/enum'
+import { ServiceAgreementStatusEnum } from '@/modules/service-agreement/application/constants'
 import { message } from '@/_utils/discrete_naive_api'
 import type { PropType } from 'vue'
-import type { ServiceAgreementStatus } from '@/components/sign/api/sign'
+import type { ServiceAgreementStatus } from '@/modules/service-agreement/application/models'
 
 export default defineComponent({
   name: 'sign-result',
@@ -21,7 +21,7 @@ export default defineComponent({
     const initialSuccess = computed(() => route.query.status && route.query.id)
     const successTitle = computed(() => {
       return match(props.status)
-        .with(ServiceAgreementStatusEnum.Record, () => $t('serviceAgreement.result.fillingSuccess'))
+        .with(ServiceAgreementStatusEnum.Record, () => $t('serviceAgreement.result.filingSuccess'))
         .with(ServiceAgreementStatusEnum.Sign, () => $t('serviceAgreement.result.signSuccess'))
         .otherwise(() => '')
     })

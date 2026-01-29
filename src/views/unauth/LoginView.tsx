@@ -1,13 +1,13 @@
-import LoginForm from '@/components/login/LoginForm'
-import type { SignInRequest } from '@/types/account'
+import LoginForm from '@/modules/user/presentation/login/LoginForm'
+import type { SignInRequest } from '@/modules/user/application/models'
 import { defineComponent, ref } from 'vue'
-import { useLogin } from '@/hooks/account/useLogin'
+import { useLogin } from '@/modules/user/application/hooks/useLogin'
 import { notification } from '@/_utils/discrete_naive_api'
 import { $t } from '@/_utils/i18n'
 import { NButton, NIcon } from 'naive-ui'
 import clsx from 'clsx'
 import { GithubFilled, QqCircleFilled } from '@vicons/antd'
-import { useOauth2AuthorizationUrl } from '@/hooks/account/useOauth2AuthorizationUrl'
+import { useOauth2AuthorizationUrl } from '@/modules/user/application/hooks/useOauth2AuthorizationUrl'
 export default defineComponent({
   name: 'login-view',
   setup() {

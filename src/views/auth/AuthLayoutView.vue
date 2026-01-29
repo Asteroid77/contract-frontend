@@ -2,7 +2,7 @@
 import clsx from 'clsx'
 import LayoutSideBar from './LayoutSideBar.vue'
 import { NScrollbar, NCard } from 'naive-ui'
-import AuthHeader from '@/components/layout/auth/AuthHeader.vue'
+import AuthHeader from '@/app/presentation/layout/auth/AuthHeader.vue'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 import { match } from 'ts-pattern'
