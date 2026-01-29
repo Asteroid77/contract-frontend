@@ -1,22 +1,21 @@
-import dexie from '@/_utils/dexie'
-import type { RestSmsCd } from '@/_utils/dexie/table/defineRestSMSCd'
+import dexie from '@/app/infrastructure/storage/dexie'
+import type { RestSmsCd } from '@/app/infrastructure/storage/dexie/defineRestSMSCd'
 import { $t } from '@/_utils/i18n'
-import { captchaApi } from '@/components/captcha/api/captcha.api'
-import type { SMSSendResponse } from '@/components/captcha/api/captcha'
-import type { ServerResponse } from '@/types/request'
+import { captchaService } from '@/modules/captcha/application/service'
+import type { SMSSendResponse } from '@/modules/captcha/application/models'
 import { useMutation } from '@tanstack/vue-query'
 import { match } from 'ts-pattern'
 import { computed, ref, type ComputedRef, type Ref } from 'vue'
 
 const COOL_DOWN_TIME = 60
 const smsInfoStore: { [key: string]: Ref<number> } = {}
-const timerStore: Record<string, number> = {}
+const timerStore: Record<string, ReturnType<typeof setInterval>> = {}
 /**
  * SMS相关复用逻辑
  * @returns {Object} 验证码功能相关函数对象
  * @property {function(phoneNumber: string): ComputedRef<string>} getSendBtnLabelText 获取当前手机号对应的发送按钮文案
  * @property {function(phoneNumber: string): Ref<number>} getSMSCoolDownSecond 获取当前手机号对应的发送冷却时间
- * @property {function():UseMutationReturnType<ServerResponse<SMSSendResponse>,ServerResponse<unknown>,string,string>} sendSMSCode 发送手机验证码
+ * @property {function():UseMutationReturnType<SMSSendResponse,unknown,string,string>} sendSMSCode 发送手机验证码
  */
 export function useSMS() {
   return { getSendBtnLabelText, getSMSCoolDownSecond, sendSMSCode }
@@ -24,15 +23,16 @@ export function useSMS() {
 
 /**
  * 发送手机验证码
- * @return {UseMutationReturnType<ServerResponse<SMSSendResponse>,ServerResponse<unknown>,string,string>} mutation执行对象
+ * @return {UseMutationReturnType<SMSSendResponse,unknown,string,string>} mutation执行对象
  */
 function sendSMSCode() {
-  return useMutation<ServerResponse<SMSSendResponse>, ServerResponse<unknown>, string>({
+  return useMutation<SMSSendResponse, unknown, string>({
     mutationKey: ['sms'],
-    mutationFn: (phone: string) => captchaApi.getSMSCode(phone),
-    onSuccess: async (data: ServerResponse<SMSSendResponse>, phone: string) => {
+    mutationFn: (phone: string) => captchaService.sendSmsCode(phone),
+    onSuccess: async (_data: SMSSendResponse, phone: string) => {
       const result = await _querySMSInfoByPhoneNumber(phone)
-      const time = new Date(Date.now() - (COOL_DOWN_TIME - data.data.restSeconds) * 1000)
+      const restSeconds = COOL_DOWN_TIME
+      const time = new Date(Date.now() - (COOL_DOWN_TIME - restSeconds) * 1000)
       match(result)
         .with(undefined, () => {
           dexie.restcd.add({
@@ -47,7 +47,7 @@ function sendSMSCode() {
             time,
           })
         })
-      smsInfoStore[phone].value = data.data.restSeconds ? data.data.restSeconds : COOL_DOWN_TIME
+      smsInfoStore[phone].value = restSeconds
       coolDown(phone)
     },
   })
