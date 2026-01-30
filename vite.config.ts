@@ -8,8 +8,6 @@ import { execSync } from 'child_process'
 import tailwindcss from '@tailwindcss/vite'
 import { themeGeneratorPlugin } from './vite-plugin/ThemeGeneratorVitePlugin.js'
 import svgLoader from 'vite-svg-loader'
-import fs from 'fs'
-import path from 'path'
 
 // 构建时获取当前git info
 const getGitInfo = () => {
@@ -52,14 +50,11 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: Number(env.VITE_CLIENT_PORT) || 9098,
-      https: {
-        key: fs.readFileSync(path.resolve(__dirname, 'src/assets/ssl/key.pem')),
-        cert: fs.readFileSync(path.resolve(__dirname, 'src/assets/ssl/cert.pem')),
-      },
+      // SSL 由 Nginx 代理处理，开发服务器使用 HTTP
       hmr: {
-        host: env.VITE_DOMAIN_URL, // 强制告诉浏览器连接 'dev.astro777.cfd'
-        port: Number(env.VITE_CLIENT_PORT) || 9098,
-        // protocol: 'wss', // 通常 Vite 会自动识别 HTTPS 而使用 wss，如果还不行可以解注这一行
+        host: env.VITE_DOMAIN_URL,
+        clientPort: 443, // 必须：让浏览器连接 Nginx 的 443 端口
+        protocol: 'wss', // 必须：使用安全 WebSocket
       },
     },
     plugins: [vue(), vueJsx(), svgLoader(), vueDevTools(), tailwindcss(), themeGeneratorPlugin()],
