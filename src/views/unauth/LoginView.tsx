@@ -1,6 +1,6 @@
 import LoginForm from '@/modules/user/presentation/login/LoginForm'
 import type { SignInRequest } from '@/modules/user/application/models'
-import { defineComponent, ref } from 'vue'
+import { defineComponent, onMounted, onUnmounted, ref } from 'vue'
 import { useLogin } from '@/modules/user/application/hooks/useLogin'
 import { notification } from '@/_utils/discrete_naive_api'
 import { $t } from '@/_utils/i18n'
@@ -8,14 +8,17 @@ import { NButton, NIcon } from 'naive-ui'
 import clsx from 'clsx'
 import { GithubFilled, QqCircleFilled } from '@vicons/antd'
 import { useOauth2AuthorizationUrl } from '@/modules/user/application/hooks/useOauth2AuthorizationUrl'
+import { buildSubmitData } from '@/modules/shared/application/form'
+import { getFrontendOrigin } from '@/app/infrastructure/request/get-frontend-url'
+
 export default defineComponent({
   name: 'login-view',
   setup() {
     const login = useLogin()
     const authWindowRef = ref<Window | null>(null)
-    const backendHost = window.location.hostname
-    window.addEventListener('message', (event) => {
-      if (event.origin !== `https://${backendHost}:${import.meta.env.VITE_CLIENT_PORT}`) {
+    const handleMessage = (event: MessageEvent) => {
+      // 校验消息来源是否为当前应用的前端 Origin
+      if (event.origin !== getFrontendOrigin()) {
         console.error(`未知origin发送的message:${event.origin},已拦截`)
         return
       }
@@ -32,6 +35,12 @@ export default defineComponent({
         }
       }
       if (authWindowRef.value) authWindowRef.value.close()
+    }
+    onMounted(() => {
+      window.addEventListener('message', handleMessage)
+    })
+    onUnmounted(() => {
+      window.removeEventListener('message', handleMessage)
     })
     const oauth2BtnClick = (platform: string) => {
       authWindowRef.value = useOauth2AuthorizationUrl(platform)
@@ -39,12 +48,16 @@ export default defineComponent({
     const onSubmit = ({
       valid,
       formData,
+      requiredKeys,
     }: {
       valid: boolean
       formData: boolean extends true ? SignInRequest : FormInput<SignInRequest>
+      requiredKeys: readonly (keyof SignInRequest)[]
     }) => {
       if (valid) {
-        login.mutate({ mode: 'local', data: formData as SignInRequest })
+        const submitData = buildSubmitData<SignInRequest>(formData, requiredKeys)
+        if (!submitData) return
+        login.mutate({ mode: 'local', data: submitData })
       }
     }
     return () => (

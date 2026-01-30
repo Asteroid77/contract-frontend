@@ -2,17 +2,19 @@
 import { useRoute } from 'vue-router'
 import { $t } from '@/_utils/i18n/'
 import { ref } from 'vue'
+import { getFrontendLoginUrl } from '@/app/infrastructure/request/get-frontend-url'
+
 const token: string | undefined = useRoute().query.token?.toString()
 const error: string | undefined = useRoute().query.error?.toString()
 const title = ref<string>($t('account.login.oauth2.callback.title'))
 if (token) {
-  const host = window.location.hostname
   window.opener.postMessage(
     {
       token,
       url: useRoute().fullPath,
     },
-    `https://${host}:${import.meta.env.VITE_CLIENT_PORT}/unauth/login`,
+    // 指定接收消息的窗口必须位于登录页 URL（实际上通常只需要匹配 Origin，但保持原有逻辑更安全）
+    getFrontendLoginUrl(),
   )
 }
 if (error) {
