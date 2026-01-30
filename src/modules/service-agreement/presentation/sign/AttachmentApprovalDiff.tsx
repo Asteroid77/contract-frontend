@@ -1,6 +1,6 @@
 import { $t } from '@/_utils/i18n'
 import { computed, defineComponent, type PropType } from 'vue'
-import FileDiffSection from '@/modules/approval/application/print/ApprovalPrintFileDiffSection'
+import FileDiffSection from '@/modules/approval/presentation/print/ApprovalPrintFileDiffSection'
 import { NEmpty } from 'naive-ui'
 import '@/modules/approval/presentation/approval/styles/AttachmentApprovalDiff.css'
 import type { OssCallbackDTO } from '@/modules/file/application/models'

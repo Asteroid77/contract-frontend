@@ -3,7 +3,10 @@ import type { UserAdditionalInfoRequest } from '@/modules/user/application/model
 import { computed, defineComponent, toRef, useTemplateRef, type PropType, type Ref } from 'vue'
 import { $t } from '@/_utils/i18n'
 import { RegisterType, RegisterTypeOption } from '@/modules/user/application/constants'
-import { UserAdditionalInfoFormRules } from '@/modules/user/application/validation'
+import {
+  UserAdditionalInfoFormValidation,
+  getUserAdditionalInfoRequiredKeys,
+} from '@/modules/user/application/validation'
 import PCACascader from '@/modules/shared/presentation/widget/PCACascader'
 import BankSelect from '@/modules/shared/presentation/widget/BankSelect'
 import type { FormValidate } from 'naive-ui/lib/form/src/interface'
@@ -25,6 +28,7 @@ export type UserAdditionalInfoFormExpose = {
     restoreValidation: (() => void) | undefined
     values: FormInput<UserAdditionalInfoRequest>
   }
+  getRequiredKeys: () => (keyof UserAdditionalInfoRequest)[]
 }
 export default defineComponent({
   name: 'user-additional-info-form',
@@ -40,6 +44,7 @@ export default defineComponent({
     const isIndividual = computed(() => formValue.value.registerType === RegisterType.INDIVIDUAL)
     const isNew = computed(() => !formValue.value.id)
     const formRef: Ref<FormInst | null> = useTemplateRef('formRef')
+    const validation = UserAdditionalInfoFormValidation(formValue)
     const exposeDefined: UserAdditionalInfoFormExpose = {
       getFormInstance: () => {
         return {
@@ -48,6 +53,7 @@ export default defineComponent({
           values: formValue.value,
         }
       },
+      getRequiredKeys: () => getUserAdditionalInfoRequiredKeys(formValue.value),
     }
     expose(exposeDefined)
     const legalRepresentativeGroup = () => (
@@ -105,7 +111,7 @@ export default defineComponent({
     )
     return () => (
       <>
-        <NForm ref="formRef" rules={UserAdditionalInfoFormRules(formValue)} model={formValue.value}>
+        <NForm ref="formRef" rules={validation.rules} model={formValue.value}>
           <NFormItem label={$t('account.register.type.text')} path="registerType">
             <NSelect
               v-model:value={formValue.value.registerType}

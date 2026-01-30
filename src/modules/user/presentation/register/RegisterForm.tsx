@@ -1,5 +1,5 @@
 import { defineComponent, ref, useTemplateRef, type PropType, type ShallowRef } from 'vue'
-import { loginFormRules } from '@/modules/access/application/validation'
+import { registerFormValidation } from '@/modules/access/application/validation'
 import { NButton, NForm, NFormItem, NInput } from 'naive-ui'
 import { $t } from '@/_utils/i18n'
 import {
@@ -32,18 +32,19 @@ export default defineComponent({
     const useSMSCode = sendSMSCode()
     const formData = ref<FormInput<RegisterRequest>>({})
     const formRef: Readonly<ShallowRef<FormInst | null>> = useTemplateRef<FormInst>('formRef')
+    const validation = registerFormValidation(formData)
     const onSubmit = () => {
       formRef.value?.validate((errors) => {
         emit('submit', {
           valid: !errors?.length,
           formData: { ...formData.value, bizId: useSMSCode.data.value?.bizId },
+          requiredKeys: validation.requiredKeys,
         })
       })
     }
     if (props.initialValues) {
       formData.value = { ...props.initialValues }
     }
-    const rules = loginFormRules(formData)
     const useSMSSend = sendSMSCode()
     const sendBtnClick = () => {
       useSMSSend.mutate(formData.value.phone as string)
@@ -62,7 +63,7 @@ export default defineComponent({
         <NForm
           ref="formRef"
           model={formData.value}
-          rules={rules}
+          rules={validation.rules}
           class={clsx('login-form', 'bg-background', 'p-section', 'sm:mb-section', 'sm:rounded-lg')}
         >
           <h2

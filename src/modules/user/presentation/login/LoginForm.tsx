@@ -6,7 +6,7 @@ import {
   type PropType,
   type ShallowRef,
 } from 'vue'
-import { loginFormRules } from '@/modules/access/application/validation'
+import { loginFormValidation } from '@/modules/access/application/validation'
 import { NButton, NDivider, NForm, NFormItem, NImage, NInput, NSpace, NSpin } from 'naive-ui'
 import { $t } from '@/_utils/i18n'
 import { InfoCircleFilled, IdcardOutlined, KeyOutlined, MailOutlined } from '@vicons/antd'
@@ -33,12 +33,13 @@ export default defineComponent({
     const { isLoading: captchaLoading, data: captchaData, refetch: captchaRefetch } = useCaptcha()
     const formRef: Readonly<ShallowRef<FormInst | null>> = useTemplateRef<FormInst>('formRef')
     const formData = ref<FormInput<SignInRequest>>({})
-    const rules = loginFormRules(formData)
+    const validation = loginFormValidation(formData)
     const onSubmit = () => {
       formRef.value?.validate((errors) => {
         emit('submit', {
           valid: !errors?.length,
           formData: { ...formData.value, captchaKey: captchaData.value?.id },
+          requiredKeys: validation.requiredKeys,
         })
       })
     }
@@ -59,7 +60,7 @@ export default defineComponent({
         <NForm
           ref="formRef"
           model={formData.value}
-          rules={rules}
+          rules={validation.rules}
           class={clsx('flex', 'flex-col', 'sm:mb-content', 'sm:rounded-lg')}
         >
           <NFormItem path="phone" label={$t('account.phone.text')}>

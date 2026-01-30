@@ -93,4 +93,22 @@ export function cleanProps<T extends Record<string, unknown>>(props: T): Partial
   ) as Partial<T>
 }
 
+/**
+ * 将表单草稿数据转换为提交数据（清洗空值）
+ * - requiredKeys 为空时，只做清洗
+ * - requiredKeys 提供时，缺失则返回 null
+ */
+export function buildSubmitData<T extends object, K extends keyof T = keyof T>(
+  formData: FormInput<T>,
+  requiredKeys: readonly K[] = [],
+): (ValidatedFormData<T> & Required<Pick<T, K>>) | null {
+  const cleaned = pruneEmpty(formData)
+  const submitData = (cleaned ?? {}) as Record<string, unknown>
+  if (requiredKeys.length > 0) {
+    const missing = requiredKeys.filter((key) => submitData[key as string] === undefined)
+    if (missing.length > 0) return null
+  }
+  return submitData as ValidatedFormData<T> & Required<Pick<T, K>>
+}
+
 export { useSubscribeForm } from './useSubscribeForm'

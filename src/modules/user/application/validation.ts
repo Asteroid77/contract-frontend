@@ -5,6 +5,11 @@ import type { Ref } from 'vue'
 import { RegisterType } from '@/modules/user/application/constants'
 import { requireRule } from '@/modules/shared/application/rules/RequireRule'
 
+type FormValidationResult<T> = {
+  rules: FormRules
+  requiredKeys: readonly (keyof T)[]
+}
+
 export const UserAdditionalInfoFormRules: (
   formValue: Ref<FormInput<UserAdditionalInfoRequest>>,
 ) => FormRules = (formValue) => {
@@ -106,5 +111,33 @@ export const UserAdditionalInfoFormRules: (
         trigger: ['blur'],
       },
     ],
+  }
+}
+
+export const getUserAdditionalInfoRequiredKeys = (
+  formValue: FormInput<UserAdditionalInfoRequest>,
+): (keyof UserAdditionalInfoRequest)[] => {
+  const isLegalRepresentative =
+    formValue.registerType && formValue.registerType === RegisterType.LEGAL_REPRESENTATIVE
+  const requiredKeys: (keyof UserAdditionalInfoRequest)[] = [
+    'registerType',
+    'name',
+    'pca',
+    'identity',
+    'bankName',
+    'bankAccount',
+  ]
+  if (isLegalRepresentative) {
+    requiredKeys.push('companyAddress', 'contactPerson', 'contactPersonPhone')
+  }
+  return requiredKeys
+}
+
+export const UserAdditionalInfoFormValidation = (
+  formValue: Ref<FormInput<UserAdditionalInfoRequest>>,
+): FormValidationResult<UserAdditionalInfoRequest> => {
+  return {
+    rules: UserAdditionalInfoFormRules(formValue),
+    requiredKeys: getUserAdditionalInfoRequiredKeys(formValue.value),
   }
 }

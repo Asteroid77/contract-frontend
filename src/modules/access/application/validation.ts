@@ -5,6 +5,11 @@ import type { PasswordRecoveryRequest, RegisterRequest, SignInRequest } from '@/
 import type { FormRules, FormItemRule } from 'naive-ui'
 import type { Ref } from 'vue'
 
+type FormValidationResult<T> = {
+  rules: FormRules
+  requiredKeys: readonly (keyof T)[]
+}
+
 export const loginFormRules: (formValue: Ref<FormInput<SignInRequest>>) => FormRules = () => {
   return {
     phone: [
@@ -54,6 +59,15 @@ export const loginFormRules: (formValue: Ref<FormInput<SignInRequest>>) => FormR
         trigger: ['blur'],
       },
     ],
+  }
+}
+
+export const loginFormValidation = (
+  formValue: Ref<FormInput<SignInRequest>>,
+): FormValidationResult<SignInRequest> => {
+  return {
+    rules: loginFormRules(formValue),
+    requiredKeys: ['phone', 'password', 'captcha', 'captchaKey'],
   }
 }
 
@@ -120,6 +134,23 @@ export const RegisterStep1FormRule: (formValue: Ref<FormInput<RegisterRequest>>)
         },
       },
     ],
+    code: [
+      {
+        required: true,
+        validator: (rule: FormItemRule, value: string) =>
+          requireRule(rule, $t('captcha.text'), value),
+        trigger: ['blur'],
+      },
+    ],
+  }
+}
+
+export const registerFormValidation = (
+  formValue: Ref<FormInput<RegisterRequest>>,
+): FormValidationResult<RegisterRequest> => {
+  return {
+    rules: RegisterStep1FormRule(formValue),
+    requiredKeys: ['phone', 'password', 'dbCheckPassword', 'code', 'bizId'],
   }
 }
 
@@ -207,5 +238,14 @@ export const passwordRecoveryFormRules: (
         trigger: ['blur'],
       },
     ],
+  }
+}
+
+export const passwordRecoveryFormValidation = (
+  formValue: Ref<FormInput<PasswordRecoveryRequest>>,
+): FormValidationResult<PasswordRecoveryRequest> => {
+  return {
+    rules: passwordRecoveryFormRules(formValue),
+    requiredKeys: ['phone', 'password', 'dbCheckPassword', 'code', 'bizId'],
   }
 }

@@ -12,6 +12,7 @@ import { useLatestAdditionalInfoInstanceStatus } from '@/modules/approval/applic
 import { useRouter } from 'vue-router'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
 import { useLoadUserInfo } from '@/modules/user/application/hooks/useLoadUserInfo'
+import { buildSubmitData } from '@/modules/shared/application/form'
 const $form: Ref<UserAdditionalInfoFormExpose | null> =
   useTemplateRef<UserAdditionalInfoFormExpose>('formRef')
 const req = useUserAdditionalInfoRequest(() => {})
@@ -39,8 +40,11 @@ const submit = () => {
     if (formInstance.validate) {
       formInstance.validate((errors) => {
         if (!errors?.length) {
-          const formData = formInstance.values as UserAdditionalInfoRequest
-          req.mutate(formData)
+          const formData = formInstance.values as FormInput<UserAdditionalInfoRequest>
+          const requiredKeys = $form.value?.getRequiredKeys?.() ?? []
+          const submitData = buildSubmitData<UserAdditionalInfoRequest>(formData, requiredKeys)
+          if (!submitData) return
+          req.mutate(submitData)
         }
       })
     }

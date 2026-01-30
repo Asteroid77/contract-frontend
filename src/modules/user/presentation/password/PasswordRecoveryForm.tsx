@@ -14,7 +14,7 @@ import type { PasswordRecoveryRequest } from '@/modules/user/application/models'
 import { RouterLink } from 'vue-router'
 import { useSMS } from '@/modules/captcha/application/hooks/useSMS'
 import type { FormInst } from 'naive-ui/lib'
-import { passwordRecoveryFormRules } from '@/modules/access/application/validation'
+import { passwordRecoveryFormValidation } from '@/modules/access/application/validation'
 const { getSendBtnLabelText, getSMSCoolDownSecond, sendSMSCode } = useSMS()
 export default defineComponent({
   props: {
@@ -32,10 +32,10 @@ export default defineComponent({
     const useSMSCode = sendSMSCode()
     const formRef: Readonly<ShallowRef<FormInst | null>> = useTemplateRef<FormInst>('formRef')
     const formData = ref<FormInput<PasswordRecoveryRequest>>({})
+    const validation = passwordRecoveryFormValidation(formData)
     if (props.initialValues) {
       formData.value = { ...props.initialValues }
     }
-    const rules = passwordRecoveryFormRules(formData)
     const sendBtnClick = () => {
       useSMSCode.mutate(formData.value.phone as string)
     }
@@ -44,6 +44,7 @@ export default defineComponent({
         emit('submit', {
           valid: !errors?.length,
           formData: { ...formData.value, bizId: useSMSCode.data.value?.bizId },
+          requiredKeys: validation.requiredKeys,
         })
       })
     }
@@ -61,7 +62,7 @@ export default defineComponent({
         <NForm
           ref="formRef"
           model={formData.value}
-          rules={rules}
+          rules={validation.rules}
           class={clsx('login-form', 'bg-background', 'p-section', 'sm:mb-section', 'sm:rounded-lg')}
         >
           <h2
