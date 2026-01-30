@@ -27,9 +27,9 @@ export default defineComponent({
         )
         if (isSelectLike) {
           // 如果是选择类组件
-          return $t('common.placeholder.selectDynamic', { label: props.label })
+          return $t('common.placeholder.select', { label: props.label })
         } else {
-          return $t('common.placeholder.inputDynamic', { label: props.label })
+          return $t('common.placeholder.input', { label: props.label })
         }
       }
       return undefined

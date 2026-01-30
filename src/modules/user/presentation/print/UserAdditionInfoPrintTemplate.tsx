@@ -1,11 +1,8 @@
 import { defineComponent, type PropType, computed } from 'vue'
-import { $t, $te } from '@/_utils/i18n'
+import { $t } from '@/_utils/i18n'
 import type { ApprovalInstance } from '@/modules/approval/application/models'
 import type { UserAdditionalInfo } from '@/modules/user/application/models'
-import {
-  RegisterType,
-  RegisterTypeOption,
-} from '@/modules/user/application/constants'
+import { RegisterType, RegisterTypeOption } from '@/modules/user/application/constants'
 import { BankOption } from '@/modules/shared/application/constants/BankConstant'
 import areaData from '@/modules/shared/application/constants/PCA.json'
 import { match } from 'ts-pattern'
@@ -82,15 +79,24 @@ export default defineComponent({
       data: UserAdditionalInfo | null | undefined,
     ) => {
       if (!data) return ''
-      return match(itemKey)
-        .with('name', () => {
-          return `${
-            RegisterType.INDIVIDUAL === data['registerType']
-              ? $t('account.additionalInfo.name')
-              : $t('account.additionalInfo.usci')
-          }:`
-        })
-        .otherwise(() => `${$t(`account.additionalInfo.${itemKey}`)}:`)
+
+      const labelMap: Record<string, string> = {
+        name:
+          RegisterType.INDIVIDUAL === data['registerType']
+            ? 'domain.user.field.name'
+            : 'domain.user.field.usci',
+        registerType: 'domain.user.field.registerType',
+        pca: 'domain.user.field.region',
+        companyAddress: 'domain.user.field.companyAddress',
+        contactPerson: 'domain.user.field.contactPerson',
+        contactPersonPhone: 'domain.user.field.contactPhone',
+        identity: 'domain.user.field.identity',
+        bankName: 'domain.user.field.bankName',
+        bankAccount: 'domain.user.field.bankAccount',
+      }
+
+      const key = labelMap[itemKey] || 'common.label.unknown'
+      return `${$t(key as any)}:`
     }
 
     const shouldRenderItem = (
@@ -99,7 +105,9 @@ export default defineComponent({
     ): boolean => {
       if (!data) return false
       const value = data[itemKey]
-      return !!value && $te(`account.additionalInfo.${itemKey}`)
+      // Map to new keys for checking existence, or just check value existence since we know keys exist
+      // Simplified: if value exists, we render. Keys in orderItems are guaranteed to have translations now.
+      return !!value
     }
 
     // --- 3. 核心 Diff 逻辑 (适配 computed) ---
@@ -149,7 +157,7 @@ export default defineComponent({
       <div class="print-section">
         {visibleRows.value.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '20px', border: '1px solid #000' }}>
-            {$t('common.empty')}
+            {$t('common.label.none')}
           </div>
         ) : (
           <table class="info-table">

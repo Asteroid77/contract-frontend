@@ -22,13 +22,13 @@ export default defineComponent({
     const approvalData: ServiceAgreementRequestDTO = props.data.approvalData
     const sourceData = props.data.sourceData
     const rules = [
-      { title: $t('serviceAgreement.attachments.bills'), key: 'billIds' },
+      { title: $t('domain.agreement.file.bill'), key: 'billIds' },
       {
-        title: $t('serviceAgreement.attachments.contractScans'),
+        title: $t('domain.agreement.file.contract'),
         key: 'contractScanIds',
       },
       {
-        title: $t('serviceAgreement.attachments.supplementary'),
+        title: $t('domain.agreement.file.other'),
         key: 'supplementaryAttachmentIds',
       },
     ]
@@ -74,13 +74,13 @@ export default defineComponent({
                     supplementaryAttachmentFiles: filesMap.value.old['supplementaryAttachmentIds'],
                   }}
                   rules={[
-                    { title: $t('serviceAgreement.attachments.bills'), key: 'billFiles' },
+                    { title: $t('domain.agreement.file.bill'), key: 'billFiles' },
                     {
-                      title: $t('serviceAgreement.attachments.contractScans'),
+                      title: $t('domain.agreement.file.contract'),
                       key: 'contractScanFiles',
                     },
                     {
-                      title: $t('serviceAgreement.attachments.supplementary'),
+                      title: $t('domain.agreement.file.other'),
                       key: 'supplementaryAttachmentFiles',
                     },
                   ]}

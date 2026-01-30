@@ -41,7 +41,7 @@ export default defineComponent({
 
         {/* 合同到期时间 */}
         <NFormItem
-          label={$t('serviceAgreement.expirationTime')}
+          label={$t('domain.agreement.field.expiryDate')}
           path={`${props.path}.expirationTime`}
         >
           <NDatePicker

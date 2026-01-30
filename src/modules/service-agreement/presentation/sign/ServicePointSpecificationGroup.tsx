@@ -29,7 +29,7 @@ export default defineComponent({
       })
 
       if (index !== -1) {
-        message.error($t('servicePointSpecification.serviceAccountNumber.duplicate'))
+        message.error($t('domain.servicePoint.validation.duplicate'))
         return true
       }
       return false
@@ -40,15 +40,15 @@ export default defineComponent({
         type: 'selection',
       },
       {
-        title: $t('servicePointSpecification.fields.serviceAccountNumber'),
+        title: $t('domain.servicePoint.field.accountNo'),
         key: 'serviceAccount',
       },
       {
-        title: $t('servicePointSpecification.fields.transformerCapacity'),
+        title: $t('domain.servicePoint.field.capacity'),
         key: 'transformerCapacity',
       },
       {
-        title: $t('servicePointSpecification.fields.usageCategory'),
+        title: $t('domain.servicePoint.field.category'),
         key: 'electricityConsumptionType',
         render: (rowData) => {
           console.log('electricityConsumptionType', rowData?.electricityConsumptionType)
@@ -58,11 +58,11 @@ export default defineComponent({
         },
       },
       {
-        title: $t('servicePointSpecification.fields.voltageLevel'),
+        title: $t('domain.servicePoint.field.voltage'),
         key: 'voltageClass',
       },
       {
-        title: $t('actions.operate'),
+        title: $t('common.action.operate'),
         key: 'action',
         render: (rowData, rowIndex) => (
           <NFlex>
@@ -86,7 +86,7 @@ export default defineComponent({
                 }, rowData)
               }}
             >
-              {$t('actions.edit')}
+              {$t('common.action.edit')}
             </NButton>
             <NButton
               size="small"
@@ -97,7 +97,7 @@ export default defineComponent({
                 updateList(newList)
               }}
             >
-              {$t('actions.delete')}
+              {$t('common.action.delete')}
             </NButton>
           </NFlex>
         ),
@@ -120,7 +120,7 @@ export default defineComponent({
     return () => (
       <div>
         <NButton size="small" onClick={handleAdd} type="primary">
-          {$t('actions.add')}
+          {$t('common.action.add')}
         </NButton>
         <NDataTable
           class={'mt-2'}

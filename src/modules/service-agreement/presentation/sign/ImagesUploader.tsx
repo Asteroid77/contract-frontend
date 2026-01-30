@@ -127,7 +127,7 @@ export default defineComponent({
         {
           onSuccess: (response) => {
             const uploadedFileData: OssCallbackDTO = response
-            message.success(`${$t('file.upload.onSuccess', { name: file.name })}`)
+            message.success(`${$t('common.file.uploadSuccess', { name: file.name })}`)
             // 1. 先调用 onFinish()。通知 NUpload 组件上传已完成。
             onFinish()
 
@@ -147,7 +147,7 @@ export default defineComponent({
           },
           onError: (error) => {
             console.error('Upload failed:', error)
-            message.error($t('file.upload.onError', { name: file.name }))
+            message.error($t('common.file.uploadError', { name: file.name }))
             onError()
           },
         },

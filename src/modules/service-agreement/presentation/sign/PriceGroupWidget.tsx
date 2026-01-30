@@ -74,7 +74,7 @@ export default defineComponent({
     return () => (
       <>
         <AppFormItem
-          label={$t('serviceAgreement.priceModel.label')}
+          label={$t('domain.agreement.field.priceModel')}
           path={`${props.path}.priceModel`}
         >
           <NSelect
@@ -89,7 +89,7 @@ export default defineComponent({
         {showPriceTypeAndCategory.value && (
           <>
             <AppFormItem
-              label={$t('serviceAgreement.priceType.label')}
+              label={$t('domain.agreement.field.priceType')}
               path={`${props.path}.priceType`}
             >
               <NSelect
@@ -102,7 +102,7 @@ export default defineComponent({
             </AppFormItem>
 
             <AppFormItem
-              label={$t('serviceAgreement.priceCategory.label')}
+              label={$t('domain.agreement.field.priceCategory')}
               path={`${props.path}.priceCategory`}
             >
               <NSelect
@@ -118,7 +118,7 @@ export default defineComponent({
 
         {showShareRatio.value && (
           <AppFormItem
-            label={$t('serviceAgreement.revenueShareRatio')}
+            label={$t('domain.agreement.field.shareRatio')}
             path={`${props.path}.revenueShareRatio`}
           >
             <NInputNumber
@@ -134,7 +134,7 @@ export default defineComponent({
         )}
 
         {showFixedPrice.value && (
-          <AppFormItem label={$t('serviceAgreement.fixedPrice')} path={`${props.path}.fixedPrice`}>
+          <AppFormItem label={$t('domain.agreement.field.fixedPrice')} path={`${props.path}.fixedPrice`}>
             <NInputNumber
               class="w-full"
               value={Number(props.modelValue.fixedPrice)}
@@ -147,7 +147,7 @@ export default defineComponent({
 
         {showFixedSpread.value && (
           <AppFormItem
-            label={$t('serviceAgreement.fixedSpread')}
+            label={$t('domain.agreement.field.fixedSpread')}
             path={`${props.path}.fixedSpread`}
           >
             <NInputNumber
@@ -160,7 +160,7 @@ export default defineComponent({
           </AppFormItem>
         )}
         {showComment.value && (
-          <AppFormItem label={$t('serviceAgreement.comment')} path={`${props.path}.comment`}>
+          <AppFormItem label={$t('common.field.remark')} path={`${props.path}.comment`}>
             <NInput
               value={props.modelValue.comment}
               onUpdate:value={(val) => updateModel({ comment: val })}

@@ -147,13 +147,13 @@ export default defineComponent({
         <div class="print-container">
           {!props.compareData && (
             <div class="print-header">
-              <h1>{$t('serviceAgreement.print.title')}</h1>
+              <h1>{$t('domain.agreement.print.title')}</h1>
               <div class="print-meta">
                 <span>
-                  {$t('serviceAgreement.print.time')}: {dayjs().format('YYYY-MM-DD HH:mm')}
+                  {$t('common.action.print')}: {dayjs().format('YYYY-MM-DD HH:mm')}
                 </span>
                 <span>
-                  {$t('serviceAgreement.print.id')}: {props.data.id || '-'}
+                  {$t('common.field.id')}: {props.data.id || '-'}
                 </span>
               </div>
             </div>
@@ -161,35 +161,35 @@ export default defineComponent({
 
           {/*  基础信息  */}
           <section class="print-section">
-            <div class={sectionTitleClass}>{$t('serviceAgreement.tabs.baseInfo')}</div>
+            <div class={sectionTitleClass}>{$t('domain.agreement.tab.base')}</div>
             <table class="info-table">
               <tbody>
                 <tr>
-                  <td class="label">{$t('serviceAgreement.companyName')}</td>
+                  <td class="label">{$t('domain.agreement.field.companyName')}</td>
                   <td class="value" colspan={3}>
                     {renderDiffItem('companyName')}
                   </td>
                 </tr>
                 <tr>
-                  <td class="label">{$t('serviceAgreement.status.label')}</td>
+                  <td class="label">{$t('common.label.status')}</td>
                   <td class="value">{renderDiffItem('status', formatters.status)}</td>
-                  <td class="label">{$t('serviceAgreement.industry')}</td>
+                  <td class="label">{$t('domain.agreement.field.industry')}</td>
                   <td class="value">{renderDiffItem('industry')}</td>
                 </tr>
                 <tr>
-                  <td class="label">{$t('serviceAgreement.companyArea')}</td>
+                  <td class="label">{$t('domain.agreement.field.area')}</td>
                   <td class="value">{renderDiffItem('companyArea', formatters.area)}</td>
-                  <td class="label">{$t('serviceAgreement.companyAddress')}</td>
+                  <td class="label">{$t('domain.agreement.field.address')}</td>
                   <td class="value">{renderDiffItem('companyAddress')}</td>
                 </tr>
                 <tr>
-                  <td class="label">{$t('serviceAgreement.liaisonName')}</td>
+                  <td class="label">{$t('domain.agreement.field.contact')}</td>
                   <td class="value">{renderDiffItem('liaisonName')}</td>
-                  <td class="label">{$t('serviceAgreement.liaisonPhone')}</td>
+                  <td class="label">{$t('domain.agreement.field.phone')}</td>
                   <td class="value">{renderDiffItem('liaisonPhone')}</td>
                 </tr>
                 <tr>
-                  <td class="label">{$t('serviceAgreement.liaisonPosition')}</td>
+                  <td class="label">{$t('domain.agreement.field.position')}</td>
                   <td class="value" colspan={3}>
                     {renderDiffItem('liaisonPosition')}
                   </td>
@@ -203,41 +203,41 @@ export default defineComponent({
                    可以简单地渲染当前的（假设分时电价很少改细节），或者手动写新旧对比块。
                 */}
                 <tr>
-                  <td class="label">{$t('serviceAgreement.isTimeOfUsePricingEnabled')}</td>
+                  <td class="label">{$t('domain.agreement.field.touEnabled')}</td>
                   <td class="value" colspan={3}>
                     {isTimeOfUsePricingEnabled ? (
                       <div class="tou-grid">
                         {/* 这里如果需要 Diff，建议针对每个百分比字段单独调 renderDiffItem */}
                         <span>
-                          {$t('serviceAgreement.superPeakPercentage')}：
+                          {$t('domain.agreement.field.superPeak')}：
                           {renderDiffItem('superPeakPercentage', formatters.percentage)}
                         </span>
                         <span>
-                          {$t('serviceAgreement.peakPercentage')}：
+                          {$t('domain.agreement.field.peak')}：
                           {renderDiffItem('peakPercentage', formatters.percentage)}
                         </span>
                         <span>
-                          {$t('serviceAgreement.standardPercentage')}：
+                          {$t('domain.agreement.field.standard')}：
                           {renderDiffItem('standardPercentage', formatters.percentage)}
                         </span>
                         <span>
-                          {$t('serviceAgreement.valleyPercentage')}：
+                          {$t('domain.agreement.field.valley')}：
                           {renderDiffItem('valleyPercentage', formatters.percentage)}
                         </span>
                       </div>
                     ) : (
-                      $t('serviceAgreement.isTimeOfUserPricingDisabled')
+                      $t('domain.agreement.message.touDisabled')
                     )}
                   </td>
                 </tr>
                 <tr>
-                  <td class="label">{$t('serviceAgreement.yearUsableCharge')}</td>
+                  <td class="label">{$t('domain.agreement.field.annualUsage')}</td>
                   <td class="value" colspan={3}>
                     {renderDiffItem('yearUsableCharge')}
                   </td>
                 </tr>
                 <tr>
-                  <td class="label">{$t('serviceAgreement.comment')}</td>
+                  <td class="label">{$t('common.field.remark')}</td>
                   <td class="value" colspan={3}>
                     {renderDiffItem('comment')}
                   </td>
@@ -249,21 +249,21 @@ export default defineComponent({
           {/* --- 签约详情 --- */}
           {isSign && (
             <section class="print-section">
-              <div class={sectionTitleClass}>{$t('serviceAgreement.tabs.signingDetails')}</div>
+              <div class={sectionTitleClass}>{$t('domain.agreement.tab.details')}</div>
               <table class="info-table">
                 <tbody>
                   <tr>
-                    <td class="label">{$t('serviceAgreement.priceModel.label')}</td>
+                    <td class="label">{$t('domain.agreement.field.priceModel')}</td>
                     <td class="value">{renderDiffItem('priceModel', formatters.priceModel)}</td>
-                    <td class="label">{$t('serviceAgreement.expirationTime')}</td>
+                    <td class="label">{$t('domain.agreement.field.expiryDate')}</td>
                     <td class="value">{renderDiffItem('expirationTime', formatters.date)}</td>
                   </tr>
 
                   {priceModel !== PriceModelEnum.Other && (
                     <tr>
-                      <td class="label">{$t('serviceAgreement.priceType.label')}</td>
+                      <td class="label">{$t('domain.agreement.field.priceType')}</td>
                       <td class="value">{renderDiffItem('priceType', formatters.priceType)}</td>
-                      <td class="label">{$t('serviceAgreement.priceCategory.label')}</td>
+                      <td class="label">{$t('domain.agreement.field.priceCategory')}</td>
                       <td class="value">
                         {renderDiffItem('priceCategory', formatters.priceCategory)}
                       </td>
@@ -272,7 +272,7 @@ export default defineComponent({
 
                   {priceCategory === PriceCategoryEnum.FixedPrice && (
                     <tr>
-                      <td class="label">{$t('serviceAgreement.fixedPrice')}</td>
+                      <td class="label">{$t('domain.agreement.field.fixedPrice')}</td>
                       <td class="value" colspan={3}>
                         {renderDiffItem('fixedPrice')}
                       </td>
@@ -280,7 +280,7 @@ export default defineComponent({
                   )}
                   {priceCategory === PriceCategoryEnum.FixedSpread && (
                     <tr>
-                      <td class="label">{$t('serviceAgreement.fixedSpread')}</td>
+                      <td class="label">{$t('domain.agreement.field.fixedSpread')}</td>
                       <td class="value" colspan={3}>
                         {renderDiffItem('fixedSpread')}
                       </td>
@@ -288,7 +288,7 @@ export default defineComponent({
                   )}
                   {priceCategory === PriceCategoryEnum.ShareRatio && (
                     <tr>
-                      <td class="label">{$t('serviceAgreement.revenueShareRatio')}</td>
+                      <td class="label">{$t('domain.agreement.field.shareRatio')}</td>
                       <td class="value" colspan={3}>
                         {renderDiffItem('revenueShareRatio', formatters.percentage)}
                       </td>
@@ -296,7 +296,7 @@ export default defineComponent({
                   )}
                   {priceModel === PriceModelEnum.Other && (
                     <tr>
-                      <td class="label">{$t('sign.remark.other')}</td>
+                      <td class="label">{$t('common.field.remark')}</td>
                       <td class="value" colspan={3}>
                         {renderDiffItem('comment')}
                       </td>
@@ -306,14 +306,14 @@ export default defineComponent({
               </table>
 
               {/* --- 列表 Diff (使用 renderListCell) --- */}
-              <div class="sub-section-title">{$t('servicePointSpecification.title')}</div>
+              <div class="sub-section-title">{$t('domain.servicePoint.title')}</div>
               <table class="list-table">
                 <thead>
                   <tr>
-                    <th>{$t('servicePointSpecification.fields.serviceAccountNumber')}</th>
-                    <th>{$t('servicePointSpecification.fields.transformerCapacity')}</th>
-                    <th>{$t('servicePointSpecification.fields.usageCategory')}</th>
-                    <th>{$t('servicePointSpecification.fields.voltageLevel')}</th>
+                    <th>{$t('domain.servicePoint.field.accountNo')}</th>
+                    <th>{$t('domain.servicePoint.field.capacity')}</th>
+                    <th>{$t('domain.servicePoint.field.category')}</th>
+                    <th>{$t('domain.servicePoint.field.voltage')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -329,8 +329,8 @@ export default defineComponent({
                         {/* 营销户号 (Key) */}
                         <td>
                           {row.data.serviceAccount}
-                          {row.status === 'added' ? ` (${$t('actions.add')})` : ''}
-                          {row.status === 'removed' ? ` (${$t('actions.delete')})` : ''}
+                          {row.status === 'added' ? ` (${$t('common.action.add')})` : ''}
+                          {row.status === 'removed' ? ` (${$t('common.action.delete')})` : ''}
                         </td>
 
                         {/* 容量 */}
@@ -352,7 +352,7 @@ export default defineComponent({
                   ) : (
                     <tr>
                       <td colspan={4} style={{ textAlign: 'center', color: '#999' }}>
-                        {$t('servicePointSpecification.print.empty')}
+                        {$t('common.label.noData')}
                       </td>
                     </tr>
                   )}

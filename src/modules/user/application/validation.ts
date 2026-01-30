@@ -22,7 +22,7 @@ export const UserAdditionalInfoFormRules: (
         required: true,
         trigger: ['blur'],
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('account.register.type.text'), value),
+          requireRule(rule, $t('auth.register.type'), value),
       },
     ],
     name: [
@@ -32,8 +32,8 @@ export const UserAdditionalInfoFormRules: (
           requireRule(
             rule,
             isLegalRepresentative
-              ? $t('account.additionalInfo.companyName')
-              : $t('account.additionalInfo.name'),
+              ? $t('domain.user.field.companyName')
+              : $t('domain.user.field.name'),
             value,
           ),
         trigger: ['blur'],
@@ -43,7 +43,7 @@ export const UserAdditionalInfoFormRules: (
       {
         required: true,
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('account.additionalInfo.pca'), value),
+          requireRule(rule, $t('domain.user.field.region'), value),
         trigger: ['blur'],
       },
     ],
@@ -54,8 +54,8 @@ export const UserAdditionalInfoFormRules: (
           requireRule(
             rule,
             isLegalRepresentative
-              ? $t('account.additionalInfo.usci')
-              : $t('account.additionalInfo.identity'),
+              ? $t('domain.user.field.usci')
+              : $t('domain.user.field.identity'),
             value,
           ),
         trigger: ['blur'],
@@ -65,8 +65,8 @@ export const UserAdditionalInfoFormRules: (
           ? /^[0-9A-Z]{18}$/
           : /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/,
         message: isLegalRepresentative
-          ? $t('account.additionalInfo.rules.usci')
-          : $t('account.additionalInfo.rules.identity'),
+          ? $t('domain.user.validation.usci')
+          : $t('domain.user.validation.identity'),
         trigger: ['blur'],
       },
     ],
@@ -74,7 +74,7 @@ export const UserAdditionalInfoFormRules: (
       {
         required: true,
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('account.additionalInfo.bankName'), value),
+          requireRule(rule, $t('domain.user.field.bankName'), value),
         trigger: ['blur'],
       },
     ],
@@ -83,7 +83,7 @@ export const UserAdditionalInfoFormRules: (
         required: true,
         pattern: /^\d{10,19}$/,
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('account.additionalInfo.rules.bankAccount'), value),
+          requireRule(rule, $t('domain.user.validation.bankAccount'), value),
         trigger: ['blur'],
       },
     ],
@@ -91,7 +91,7 @@ export const UserAdditionalInfoFormRules: (
       {
         required: isLegalRepresentative,
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('account.additionalInfo.companyAddress'), value),
+          requireRule(rule, $t('domain.user.field.companyAddress'), value),
         trigger: ['blur'],
       },
     ],
@@ -99,7 +99,7 @@ export const UserAdditionalInfoFormRules: (
       {
         required: isLegalRepresentative,
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('account.additionalInfo.contactPerson'), value),
+          requireRule(rule, $t('domain.user.field.contactPerson'), value),
         trigger: ['blur'],
       },
     ],
@@ -107,7 +107,7 @@ export const UserAdditionalInfoFormRules: (
       {
         required: isLegalRepresentative,
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('account.additionalInfo.contactPersonPhone'), value),
+          requireRule(rule, $t('domain.user.field.contactPhone'), value),
         trigger: ['blur'],
       },
     ],

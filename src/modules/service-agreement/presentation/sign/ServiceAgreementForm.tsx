@@ -77,7 +77,7 @@ export default defineComponent({
                 </NIcon>
               </NText>
             ),
-            default: () => $t('serviceAgreement.errorTips'),
+            default: () => $t('common.error.validation'),
           }}
         ></NPopover>
       )
@@ -88,12 +88,12 @@ export default defineComponent({
         <NForm model={formValue.value} ref={formRef} rules={formRule.value}>
           <NCollapse defaultExpandedNames={['baseInfo', 'signingDetails', 'attachments']}>
             <NCollapseItem
-              title={$t('serviceAgreement.tabs.baseInfo')}
+              title={$t('domain.agreement.tab.base')}
               name="baseInfo"
               v-slots={{
                 header: () => (
                   <span>
-                    {$t('serviceAgreement.tabs.baseInfo')}
+                    {$t('domain.agreement.tab.base')}
                     {renderErrorIcon(checkHasError('customerInfo'))}
                   </span>
                 ),
@@ -110,12 +110,12 @@ export default defineComponent({
             </NCollapseItem>
             {isSign.value && (
               <NCollapseItem
-                title={$t('serviceAgreement.tabs.signingDetails')}
+                title={$t('domain.agreement.tab.details')}
                 name="signingDetails"
                 v-slots={{
                   header: () => (
                     <span>
-                      {$t('serviceAgreement.tabs.signingDetails')}
+                      {$t('domain.agreement.tab.details')}
                       {renderErrorIcon(checkHasError('signInfo'))}
                     </span>
                   ),
@@ -133,12 +133,12 @@ export default defineComponent({
             )}
             {isSign.value && (
               <NCollapseItem
-                title={$t('serviceAgreement.tabs.attachments')}
+                title={$t('domain.agreement.tab.files')}
                 name="attachments"
                 v-slots={{
                   header: () => (
                     <span>
-                      {$t('serviceAgreement.tabs.attachments')}
+                      {$t('domain.agreement.tab.files')}
                       {renderErrorIcon(checkHasError('attachmentInfo'))}
                     </span>
                   ),

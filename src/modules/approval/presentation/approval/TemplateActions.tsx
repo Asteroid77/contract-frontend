@@ -61,9 +61,9 @@ export default defineComponent({
         comment: '',
       }
       dialog.create({
-        title: $t('approval.handleTask.title'),
-        positiveText: $t('actions.submit'),
-        negativeText: $t('actions.cancel'),
+        title: $t('domain.approval.section.opinion'),
+        positiveText: $t('common.action.submit'),
+        negativeText: $t('common.action.cancel'),
         maskClosable: true,
         onPositiveClick: () => {
           approvalOptionFormRef.value?.validate((errors) => {
@@ -77,12 +77,12 @@ export default defineComponent({
             <NFormItem>
               <NRadioGroup v-model:value={approvalOptionData.value.approved} name="radiogroup">
                 <NSpace>
-                  <NRadio value={true}>{$t('approval.handleTask.pass')}</NRadio>
-                  <NRadio value={false}>{$t('approval.handleTask.reject')}</NRadio>
+                  <NRadio value={true}>{$t('domain.approval.action.pass')}</NRadio>
+                  <NRadio value={false}>{$t('domain.approval.action.reject')}</NRadio>
                 </NSpace>
               </NRadioGroup>
             </NFormItem>
-            <NFormItem label={$t('approval.handleTask.title')}>
+            <NFormItem label={$t('domain.approval.section.opinion')}>
               <NInput
                 v-model:value={approvalOptionData.value.comment}
                 type={'textarea'}
@@ -114,33 +114,33 @@ export default defineComponent({
           <NPopconfirm
             onPositiveClick={() => claimBtnClick()}
             v-slots={{
-              trigger: () => <NButton type="info">{$t('actions.claim')}</NButton>,
-              default: () => $t('approval.claim.confirm', { id: props.data?.taskId }),
+              trigger: () => <NButton type="info">{$t('common.action.claim')}</NButton>,
+              default: () => $t('domain.approval.message.claimConfirm', { id: props.data?.taskId }),
             }}
           />
         )}
         {isApprovalBtnAccess.value && (
           <NButton type="info" onClick={approveBtnClick}>
-            {$t('actions.approve')}
+            {$t('common.action.approve')}
           </NButton>
         )}
         <NButton type="primary" onClick={printBtnClick}>
-          {$t('actions.print')}
+          {$t('common.action.print')}
         </NButton>
         {isCancelAccess.value && (
           <NPopconfirm
             onPositiveClick={cancelBtnClick}
-            positiveText={$t('actions.confirm')}
-            negativeText={$t('actions.cancel')}
+            positiveText={$t('common.action.confirm')}
+            negativeText={$t('common.action.cancel')}
             v-slots={{
-              trigger: () => <NButton type="error">{$t('actions.cancel')}</NButton>,
+              trigger: () => <NButton type="error">{$t('common.action.cancel')}</NButton>,
             }}
           >
-            {$t('approval.handleTask.cancel')}
+            {$t('domain.approval.message.cancelConfirm')}
           </NPopconfirm>
         )}
         <NButton type="warning" onClick={returnBtnClick}>
-          {$t('actions.return')}
+          {$t('common.action.back')}
         </NButton>
       </NSpace>
     )

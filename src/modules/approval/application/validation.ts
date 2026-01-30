@@ -9,7 +9,7 @@ export const approvalOpinionRequestRule = () => {
         required: true,
         trigger: ['blur'],
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('approval.handleTask.opinion'), value),
+          requireRule(rule, $t('domain.approval.field.opinion'), value),
       },
     ],
     approve: [
@@ -18,7 +18,7 @@ export const approvalOpinionRequestRule = () => {
         trigger: ['blur'],
         validator: (rule: FormItemRule, value: boolean | undefined | null) => {
           if (value === undefined || value === null) {
-            return new Error(`${$t('approval.handleTask.decision')}`)
+            return new Error(`${$t('domain.approval.placeholder.decision')}`)
           }
           return true
         },

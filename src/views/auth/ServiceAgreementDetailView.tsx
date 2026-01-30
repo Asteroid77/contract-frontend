@@ -100,14 +100,14 @@ export default defineComponent({
                   onClick={() => handleClick(formValue, handleValidate)}
                   loading={submitRecord.isPending.value || submitSign.isPending.value}
                 >
-                  {$t('actions.submit')}
+                  {$t('common.action.submit')}
                 </NButton>
                 <NButton
                   onClick={() => {
                     handlePrint()
                   }}
                 >
-                  {$t('actions.print')}
+                  {$t('common.action.print')}
                 </NButton>
               </NSpace>
             ),
@@ -129,13 +129,13 @@ export default defineComponent({
                           initialData.value?.supplementaryAttachmentFiles,
                       }}
                       rules={[
-                        { title: $t('serviceAgreement.attachments.bills'), key: 'billFiles' },
+                        { title: $t('domain.agreement.file.bill'), key: 'billFiles' },
                         {
-                          title: $t('serviceAgreement.attachments.contractScans'),
+                          title: $t('domain.agreement.file.contract'),
                           key: 'contractScanFiles',
                         },
                         {
-                          title: $t('serviceAgreement.attachments.supplementary'),
+                          title: $t('domain.agreement.file.other'),
                           key: 'supplementaryAttachmentFiles',
                         },
                       ]}

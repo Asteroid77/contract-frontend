@@ -59,11 +59,11 @@ function sendSMSCode() {
  */
 function getSendBtnLabelText(phoneNumber: string): ComputedRef<string> {
   if (!phoneNumber) {
-    return computed(() => $t('captcha.sms.empty'))
+    return computed(() => $t('auth.validation.phoneRequired'))
   }
   const cooldownSecond: Ref<number> = getSMSCoolDownSecond(phoneNumber)
-  const prefix = $t('captcha.sms.prefix')
-  const suffix = $t('captcha.sms.suffix')
+  const prefix = $t('auth.sms.resendPrefix')
+  const suffix = $t('auth.sms.resendSuffix')
 
   return computed(() => {
     // 冷却时间直接有值时，返回获取到的冷却时间。
@@ -71,7 +71,7 @@ function getSendBtnLabelText(phoneNumber: string): ComputedRef<string> {
       return `${prefix}${cooldownSecond.value}${suffix}`
     }
     // 直接返回发送文案
-    return $t('actions.send')
+    return $t('common.action.send')
   })
 }
 

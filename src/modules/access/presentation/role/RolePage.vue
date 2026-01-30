@@ -26,15 +26,15 @@ function createColumns({
 }): DataTableColumns<RoleVO> {
   return [
     {
-      title: $t('role.code'),
+      title: $t('system.role.field.code'),
       key: 'name',
     },
     {
-      title: $t('role.description'),
+      title: $t('system.role.field.desc'),
       key: 'description',
     },
     {
-      title: $t('actions.operate'),
+      title: $t('common.action.operate'),
       key: 'operate',
       render(row) {
         return h(
@@ -45,12 +45,12 @@ function createColumns({
               h(
                 NButton,
                 { size: 'small', onClick: () => edit(row) },
-                { default: () => $t('actions.edit') },
+                { default: () => $t('common.action.edit') },
               ),
               h(
                 NButton,
                 { size: 'small', onClick: () => assign(row) },
-                { default: () => $t('actions.assign') },
+                { default: () => $t('common.action.assign') },
               ),
             ],
           },

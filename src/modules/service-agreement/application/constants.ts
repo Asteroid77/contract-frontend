@@ -40,68 +40,68 @@ export const ServiceAgreementStatusEnum = {
 } as const
 
 export const ServiceAgreementStatusOption = [
-  { label: $t('serviceAgreement.status.options.recorded'), value: 1 },
-  { label: $t('serviceAgreement.status.options.signed'), value: 2 },
-  { label: $t('serviceAgreement.status.options.invalid'), value: 3, disabled: true },
+  { label: $t('domain.agreement.status.filing'), value: 1 },
+  { label: $t('domain.agreement.status.signing'), value: 2 },
+  { label: $t('domain.agreement.status.invalid'), value: 3, disabled: true },
 ]
 
 export const PriceModelOption = [
   {
-    label: $t('serviceAgreement.priceModel.options.revenueShare'),
+    label: $t('domain.agreement.option.revenueShare'),
     value: PriceModelEnum.RevenueShare,
   },
   {
-    label: $t('serviceAgreement.priceModel.options.guaranteed'),
+    label: $t('domain.agreement.option.guaranteed'),
     value: PriceModelEnum.Guaranteed,
   },
   {
-    label: $t('serviceAgreement.priceModel.options.guaranteedAndShare'),
+    label: $t('domain.agreement.option.guaranteedShare'),
     value: PriceModelEnum.GuaranteedAndShare,
   },
   {
-    label: $t('serviceAgreement.priceModel.options.other'),
+    label: $t('domain.agreement.option.other'),
     value: PriceModelEnum.Other,
   },
 ]
 export const PriceTypeOption = (priceModel: Ref<PriceModel | null>) => [
   {
-    label: $t('serviceAgreement.priceType.options.powerPlantSide'),
+    label: $t('domain.agreement.option.powerPlant'),
     value: PriceTypeEnum.PowerPlantSide,
   },
   {
-    label: $t('serviceAgreement.priceType.options.userSide'),
+    label: $t('domain.agreement.option.userSide'),
     value: PriceTypeEnum.UserSide,
   },
   {
-    label: $t('serviceAgreement.priceType.options.salesCompanySide'),
+    label: $t('domain.agreement.option.salesSide'),
     value: PriceTypeEnum.SalesCompanySide,
     disabled: priceModel.value !== PriceModelEnum.Guaranteed,
   },
 ]
 export const PriceCategoryOption = (priceModel: Ref<PriceModel | null>) => [
   {
-    label: $t('serviceAgreement.priceCategory.options.fixedPrice'),
+    label: $t('domain.agreement.option.fixedPrice'),
     value: PriceCategoryEnum.FixedPrice,
     disabled: priceModel.value == PriceModelEnum.RevenueShare,
   },
   {
-    label: $t('serviceAgreement.priceCategory.options.fixedSpread'),
+    label: $t('domain.agreement.option.fixedSpread'),
     value: PriceCategoryEnum.FixedSpread,
     disabled: priceModel.value == PriceModelEnum.RevenueShare,
   },
   {
-    label: $t('serviceAgreement.priceCategory.options.shareRatio'),
+    label: $t('domain.agreement.option.shareRatio'),
     value: PriceCategoryEnum.ShareRatio,
     disabled: priceModel.value !== PriceModelEnum.RevenueShare,
   },
 ]
 export const UsageCategoryOption = [
   {
-    label: $t('servicePointSpecification.usageCategoryOption.largeIndustrial'),
+    label: $t('domain.servicePoint.option.largeInd'),
     value: UsageCategoryEnum.LargeIndustrial,
   },
   {
-    label: $t('servicePointSpecification.usageCategoryOption.commercialAndIndustrial'),
+    label: $t('domain.servicePoint.option.commInd'),
     value: UsageCategoryEnum.CommercialAndIndustrial,
   },
 ]

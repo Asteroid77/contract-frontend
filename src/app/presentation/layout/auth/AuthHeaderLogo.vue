@@ -40,7 +40,7 @@ watch(
     />
     <n-drawer v-model:show="drawerShow" :width="300" placement="left">
       <n-drawer-content>
-        <n-card :title="$t('menu.text')" :bordered="false">
+        <n-card :title="$t('layout.menu.title')" :bordered="false">
           <n-menu
             :collapsed-width="sideBarCollapsedWidth"
             :collapsed-icon-size="22"

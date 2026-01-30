@@ -86,9 +86,9 @@ export const renderAttachmentRows = (
 
     // 状态文本
     let statusText = ''
-    if (file._status === 'added') statusText = `${$t('actions.add')}`
-    if (file._status === 'removed') statusText = `${$t('actions.delete')}`
-    if (file._status === 'modified') statusText = `${$t('actions.modify')}`
+    if (file._status === 'added') statusText = `${$t('common.action.add')}`
+    if (file._status === 'removed') statusText = `${$t('common.action.delete')}`
+    if (file._status === 'modified') statusText = `${$t('common.action.modify')}`
 
     // 文件大小显示逻辑
     const sizeDisplay =

@@ -66,7 +66,7 @@ export default defineComponent({
           rules={validation.rules}
           class={clsx('flex', 'flex-col', 'sm:mb-content', 'sm:rounded-lg')}
         >
-          <NFormItem path="phone" label={$t('account.phone.text')}>
+          <NFormItem path="phone" label={$t('auth.field.phone')}>
             <NInput
               clearable={true}
               v-model:value={formData.value.phone}
@@ -86,14 +86,14 @@ export default defineComponent({
                           <InfoCircleFilled></InfoCircleFilled>
                         </NIcon>
                       ),
-                      default: () => $t('account.phone.support'),
+                      default: () => $t('auth.hint.phoneSupport'),
                     }}
                   ></NTooltip>
                 ),
               }}
             ></NInput>
           </NFormItem>
-          <NFormItem path="password" label={$t('account.password.text')}>
+          <NFormItem path="password" label={$t('auth.field.password')}>
             <NInput
               type="password"
               show-password-on="mousedown"
@@ -120,14 +120,14 @@ export default defineComponent({
                           <InfoCircleFilled></InfoCircleFilled>
                         </NIcon>
                       ),
-                      default: () => $t('account.password.regular'),
+                      default: () => $t('auth.validation.passwordLength'),
                     }}
                   ></NTooltip>
                 ),
               }}
             ></NInput>
           </NFormItem>
-          <NFormItem path="captcha" label={$t('captcha.text')}>
+          <NFormItem path="captcha" label={$t('auth.field.captcha')}>
             <NInput
               type="text"
               v-model:value={formData.value.captcha}
@@ -153,7 +153,7 @@ export default defineComponent({
                           <InfoCircleFilled></InfoCircleFilled>
                         </NIcon>
                       ),
-                      default: () => $t('account.refresh'),
+                      default: () => $t('auth.captcha.refreshHint'),
                     }}
                   ></NTooltip>
                 ),
@@ -191,7 +191,7 @@ export default defineComponent({
                 onClick={onSubmit}
                 loading={props.isSubmitBtnLoading}
               >
-                <div class={clsx('p-content', 'text-xl')}>{$t('account.login.text')}</div>
+                <div class={clsx('p-content', 'text-xl')}>{$t('auth.login.title')}</div>
               </NButton>
             }
             {
@@ -199,7 +199,7 @@ export default defineComponent({
                 to={{ name: 'password-recovery' }}
                 class="font-medium ml-2 text-center cursor-pointer text-routelink underline hover-shake"
               >
-                {$t('actions.forgetPassword')}
+                {$t('auth.action.forgotPassword')}
               </RouterLink>
             }
           </div>
@@ -218,7 +218,7 @@ export default defineComponent({
           )}
         >
           <h2 class={clsx('mb-content', 'text-center', 'text-2xl', 'font-medium', 'text-gray-800')}>
-            {$t('account.login.signIn')}
+            {$t('auth.login.noAccount')}
           </h2>
           {
             <RouterLink
@@ -235,7 +235,7 @@ export default defineComponent({
                 'h-12',
               )}
             >
-              {<p class={clsx('text-xl', 'font-medium')}>{$t('account.login.signUp')}</p>}
+              {<p class={clsx('text-xl', 'font-medium')}>{$t('auth.register.title')}</p>}
             </RouterLink>
           }
         </div>

@@ -28,8 +28,8 @@ export default defineComponent({
       } else {
         if (event.data.url && event.data.url.includes('callback')) {
           notification['error']({
-            title: $t('account.login.oauth2.error.title'),
-            content: $t('account.login.oauth2.error.meta'),
+            title: $t('auth.oauth.error'),
+            content: $t('auth.oauth.errorMeta'),
             duration: 2500,
           })
         }
@@ -64,7 +64,7 @@ export default defineComponent({
                         <QqCircleFilled></QqCircleFilled>
                       </NIcon>
                     ),
-                    default: () => $t('unauth.login.actions.qq'),
+                    default: () => $t('auth.login.qq'),
                   }}
                 ></NButton>
                 <NButton
@@ -75,7 +75,7 @@ export default defineComponent({
                         <GithubFilled></GithubFilled>
                       </NIcon>
                     ),
-                    default: () => $t('unauth.login.actions.github'),
+                    default: () => $t('auth.login.github'),
                   }}
                 ></NButton>
               </div>

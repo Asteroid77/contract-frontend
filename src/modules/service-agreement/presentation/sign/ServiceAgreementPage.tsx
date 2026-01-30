@@ -28,35 +28,35 @@ export default defineComponent({
     function createColumns(): DataTableColumns<ServiceAgreementPageVo> {
       const baseColumn = [
         {
-          title: $t('serviceAgreement.companyName'),
+          title: $t('domain.agreement.field.companyName'),
           key: 'companyName',
         },
         {
-          title: $t('serviceAgreement.companyArea'),
+          title: $t('domain.agreement.field.area'),
           key: 'companyArea',
           render: (row: ServiceAgreementPageVo) => {
             return treeLookup.getFullPath(row.companyArea)
           },
         },
         {
-          title: $t('serviceAgreement.status.label'),
+          title: $t('common.label.status'),
           key: 'status',
           render: (row: ServiceAgreementPageVo) => {
             return selectLookup.getLabel(row.status)
           },
         },
         {
-          title: $t('serviceAgreement.yearUsableCharge'),
+          title: $t('domain.agreement.field.annualUsage'),
           key: 'yearUsableCharge',
         },
         {
-          title: $t('serviceAgreement.expirationTime'),
+          title: $t('domain.agreement.field.expiryDate'),
           key: 'expirationTime',
         },
       ] as DataTableColumns<ServiceAgreementPageVo>
       if (slots.actions) {
         baseColumn.push({
-          title: $t('actions.operate'),
+          title: $t('common.action.operate'),
           key: 'operate',
           fixed: 'right',
           render: (row) => slots.actions!(row),

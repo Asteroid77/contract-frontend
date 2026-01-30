@@ -10,7 +10,7 @@ export const approvalRoutes: AppRouteRecord[] = [
     name: 'approval',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
-      name: $t('route.auth.approval'),
+      name: $t('layout.menu.approval'),
       icon: 'ApprovalsApp16Regular',
       isTransition: true,
     },
@@ -20,7 +20,7 @@ export const approvalRoutes: AppRouteRecord[] = [
     name: 'approval-my-approval-instance-page',
     component: () => import('@/views/auth/ApprovalInstancePageView.vue'),
     meta: {
-      name: $t('route.auth.my-approval-instance-page'),
+      name: $t('layout.menu.allTasks'),
       icon: 'ApprovalFilled',
       parent: 'approval',
     },
@@ -30,7 +30,7 @@ export const approvalRoutes: AppRouteRecord[] = [
     name: 'approval-instance-detail',
     component: () => import('@/views/auth/ApprovalDetailView.vue'),
     meta: {
-      name: $t('route.auth.approval-instance-detail'),
+      name: $t('layout.menu.taskDetail'),
       icon: 'icon-shenpi',
       parent: 'approval-my-approval-instance-page',
       hideInMenu: true,
@@ -41,7 +41,7 @@ export const approvalRoutes: AppRouteRecord[] = [
     name: 'approval-my-task-list',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
-      name: $t('route.auth.approval-my-task-list'),
+      name: $t('layout.menu.reviewing'),
       icon: 'TaskComplete',
       parent: 'approval',
     },
@@ -51,7 +51,7 @@ export const approvalRoutes: AppRouteRecord[] = [
     name: 'approval-process-list',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
-      name: $t('route.auth.approval-process-list'),
+      name: $t('layout.menu.process'),
       icon: 'Fluid20Regular',
       parent: 'approval',
     },
@@ -61,7 +61,7 @@ export const approvalRoutes: AppRouteRecord[] = [
     name: 'approval-node-list',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
-      name: $t('route.auth.approval-node-list'),
+      name: $t('layout.menu.nodes'),
       icon: 'NodeIndexOutlined',
       parent: 'approval-process-list',
       hideInMenu: true,
@@ -72,7 +72,7 @@ export const approvalRoutes: AppRouteRecord[] = [
     name: 'approval-task-list',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
-      name: $t('route.auth.approval-task-list'),
+      name: $t('layout.menu.tasks'),
       icon: 'FeaturedPlayListOutlined',
       parent: 'approval-node-list',
       hideInMenu: true,

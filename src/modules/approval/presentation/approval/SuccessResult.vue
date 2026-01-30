@@ -10,11 +10,11 @@ const handleReturn = () => {
 <template>
   <n-result
     status="success"
-    :title="$t('common.success')"
+    :title="$t('common.status.success')"
     :description="$t('approval.messages.approveSuccess')"
   >
     <template #footer>
-      <n-button @click="handleReturn">{{ $t('actions.return') }}</n-button>
+      <n-button @click="handleReturn">{{ $t('common.action.back') }}</n-button>
     </template>
   </n-result>
 </template>

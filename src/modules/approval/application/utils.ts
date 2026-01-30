@@ -156,9 +156,9 @@ export function checkTasksClaimable(
  * @returns string 完整用户名
  */
 export function showIncompletedUserName(name: string | null | undefined): string {
-  if (typeof name !== 'string') return $t('common.empty')
+  if (typeof name !== 'string') return $t('common.label.none')
   if (/^-?\d+(\.\d+)?$/.test(name.trim())) {
-    return `${$t('approval.incompletedUserName')}#${name}`
+    return `${$t('domain.approval.label.incompleteUser')}#${name}`
   }
   return name
 }

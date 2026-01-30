@@ -16,7 +16,7 @@ export const loginFormRules: (formValue: Ref<FormInput<SignInRequest>>) => FormR
       {
         required: true,
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('account.phone.text'), value),
+          requireRule(rule, $t('auth.field.phone'), value),
         trigger: ['blur'],
       },
       {
@@ -24,7 +24,7 @@ export const loginFormRules: (formValue: Ref<FormInput<SignInRequest>>) => FormR
           if (!value) return true
           return chinaMobilePhoneVerify(value)
         },
-        message: $t('account.phone.regular'),
+        message: $t('auth.validation.phoneFormat'),
         trigger: ['blur'],
       },
     ],
@@ -32,7 +32,7 @@ export const loginFormRules: (formValue: Ref<FormInput<SignInRequest>>) => FormR
       {
         required: true,
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('account.password.text'), value),
+          requireRule(rule, $t('auth.field.password'), value),
         trigger: ['blur'],
       },
       {
@@ -41,10 +41,10 @@ export const loginFormRules: (formValue: Ref<FormInput<SignInRequest>>) => FormR
             return true
           }
           if (value.length < 8) {
-            return new Error($t('account.password.minimum'))
+            return new Error($t('auth.validation.passwordMin'))
           }
           if (value.length > 16) {
-            return new Error($t('account.password.maximum'))
+            return new Error($t('auth.validation.passwordMax'))
           }
           return true
         },
@@ -55,7 +55,7 @@ export const loginFormRules: (formValue: Ref<FormInput<SignInRequest>>) => FormR
       {
         required: true,
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('captcha.text'), value),
+          requireRule(rule, $t('auth.field.captcha'), value),
         trigger: ['blur'],
       },
     ],
@@ -79,31 +79,31 @@ export const RegisterStep1FormRule: (formValue: Ref<FormInput<RegisterRequest>>)
       {
         required: true,
         validator(rule: FormItemRule, value: string) {
-          requireRule(rule, $t('account.phone.text'), value)
+          requireRule(rule, $t('auth.field.phone'), value)
           return true
         },
         trigger: ['blur'],
       },
       {
         validator: (rule: FormItemRule, value: string) => chinaMobilePhoneVerify(value),
-        message: $t('account.phone.regular'),
+        message: $t('auth.validation.phoneFormat'),
       },
     ],
     password: [
       {
         required: true,
         validator(rule: FormItemRule, value: string) {
-          requireRule(rule, $t('account.password.text'), value)
+          requireRule(rule, $t('auth.field.password'), value)
           return true
         },
       },
       {
         validator(rule: FormItemRule, value: string) {
           if (value.length < 8) {
-            return new Error($t('account.password.minimum'))
+            return new Error($t('auth.validation.passwordMin'))
           }
           if (value.length > 16) {
-            return new Error($t('account.password.maximum'))
+            return new Error($t('auth.validation.passwordMax'))
           }
         },
       },
@@ -112,24 +112,24 @@ export const RegisterStep1FormRule: (formValue: Ref<FormInput<RegisterRequest>>)
       {
         required: true,
         validator(rule: FormItemRule, value: string) {
-          requireRule(rule, $t('account.password.dbCheck.normal.text'), value)
+          requireRule(rule, $t('auth.field.confirmPassword'), value)
           return true
         },
       },
       {
         validator(rule: FormItemRule, value: string) {
           if (value.length < 8) {
-            return new Error($t('account.password.minimum'))
+            return new Error($t('auth.validation.passwordMin'))
           }
           if (value.length > 16) {
-            return new Error($t('account.password.maximum'))
+            return new Error($t('auth.validation.passwordMax'))
           }
         },
       },
       {
         validator(rule: FormItemRule, value: string) {
           if (formValue.value.password && formValue.value.password !== value) {
-            return new Error($t('account.password.dbCheck.error.text'))
+            return new Error($t('auth.validation.passwordMismatch'))
           }
         },
       },
@@ -138,7 +138,7 @@ export const RegisterStep1FormRule: (formValue: Ref<FormInput<RegisterRequest>>)
       {
         required: true,
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('captcha.text'), value),
+          requireRule(rule, $t('auth.field.captcha'), value),
         trigger: ['blur'],
       },
     ],
@@ -162,7 +162,7 @@ export const passwordRecoveryFormRules: (
       {
         required: true,
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('account.phone.text'), value),
+          requireRule(rule, $t('auth.field.phone'), value),
         trigger: ['blur'],
       },
       {
@@ -170,7 +170,7 @@ export const passwordRecoveryFormRules: (
           if (!value) return true
           return chinaMobilePhoneVerify(value)
         },
-        message: $t('account.phone.regular'),
+        message: $t('auth.validation.phoneFormat'),
         trigger: ['blur'],
       },
     ],
@@ -178,7 +178,7 @@ export const passwordRecoveryFormRules: (
       {
         required: true,
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('account.password.new'), value),
+          requireRule(rule, $t('auth.field.newPassword'), value),
         trigger: ['blur'],
       },
       {
@@ -187,10 +187,10 @@ export const passwordRecoveryFormRules: (
             return true
           }
           if (value.length < 8) {
-            return new Error($t('account.password.minimum'))
+            return new Error($t('auth.validation.passwordMin'))
           }
           if (value.length > 16) {
-            return new Error($t('account.password.maximum'))
+            return new Error($t('auth.validation.passwordMax'))
           }
           return true
         },
@@ -201,7 +201,7 @@ export const passwordRecoveryFormRules: (
       {
         required: true,
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('account.password.dbCheck.new.text'), value),
+          requireRule(rule, $t('auth.field.confirmNewPassword'), value),
         trigger: ['blur'],
       },
       {
@@ -210,10 +210,10 @@ export const passwordRecoveryFormRules: (
             return true
           }
           if (value.length < 8) {
-            return new Error($t('account.password.minimum'))
+            return new Error($t('auth.validation.passwordMin'))
           }
           if (value.length > 16) {
-            return new Error($t('account.password.maximum'))
+            return new Error($t('auth.validation.passwordMax'))
           }
           return true
         },
@@ -223,7 +223,7 @@ export const passwordRecoveryFormRules: (
         validator(rule: FormItemRule, value: string) {
           if (!value) return true
           if (value !== formValue.value.password) {
-            return new Error($t('account.password.dbCheck.error.text'))
+            return new Error($t('auth.validation.passwordMismatch'))
           }
           return true
         },
@@ -234,7 +234,7 @@ export const passwordRecoveryFormRules: (
       {
         required: true,
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('captcha.text'), value),
+          requireRule(rule, $t('auth.field.captcha'), value),
         trigger: ['blur'],
       },
     ],

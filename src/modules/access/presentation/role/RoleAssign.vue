@@ -43,13 +43,13 @@ const submit = () => {
 }
 </script>
 <template>
-  <n-card :title="$t('userRole.assign')">
+  <n-card :title="$t('system.role.action.assign')">
     <n-transfer v-model:value="selectedUserIds" :options="options" :virtual-scroll="true" />
     <template #action>
       <n-space justify="end">
         <n-popconfirm @positive-click="submit">
           <template #trigger>
-            <n-button> {{ $t('actions.submit') }}</n-button>
+            <n-button> {{ $t('common.action.submit') }}</n-button>
           </template>
           {{}}
         </n-popconfirm>

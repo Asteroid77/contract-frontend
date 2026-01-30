@@ -47,13 +47,13 @@ export default defineComponent({
       }
     })
     const rules = [
-      { title: $t('serviceAgreement.attachments.bills'), key: 'billFiles' },
+      { title: $t('domain.agreement.file.bill'), key: 'billFiles' },
       {
-        title: $t('serviceAgreement.attachments.contractScans'),
+        title: $t('domain.agreement.file.contract'),
         key: 'contractScanFiles',
       },
       {
-        title: $t('serviceAgreement.attachments.supplementary'),
+        title: $t('domain.agreement.file.other'),
         key: 'supplementaryAttachmentFiles',
       },
     ]
@@ -68,7 +68,7 @@ export default defineComponent({
             v-slots={{
               footer: () => (
                 <NForm model={formData.value} rules={previewAttachmentsRule} ref={formRef}>
-                  <AppFormItem label={$t('serviceAgreement.attachments.print.code')} path={'code'}>
+                  <AppFormItem label={$t('domain.agreement.print.code')} path={'code'}>
                     <NInput
                       value={formData.value.code}
                       onUpdateValue={(e) => (formData.value.code = e)}

@@ -32,7 +32,7 @@ export class ApprovalPrintFieldRenderUtil<T> {
       <span class="diff-container">
         <span class="diff-new">{displayNew}</span>
         <span class="diff-old">
-          ({$t('common.past')}: {displayOld})
+          ({$t('common.label.original')}: {displayOld})
         </span>
       </span>
     )

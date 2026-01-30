@@ -28,8 +28,8 @@ export default defineComponent({
     const detail = useApprovalInstanceDetail(computed(() => props.instanceId))
     const contentTitle = detail.data.value
       ? detail.data.value.sourceData
-        ? `：${$t('actions.modify')}`
-        : `：${$t('actions.add')}`
+        ? `：${$t('common.action.modify')}`
+        : `：${$t('common.action.add')}`
       : ''
     return () => (
       <div>
@@ -50,8 +50,8 @@ export default defineComponent({
         {!detail.isLoading.value && detail.data.value === undefined && (
           <NResult
             status="500"
-            title={$t('common.pageLoadError')}
-            description={$t('common.pageLoad500Error')}
+            title={$t('common.error.pageLoad')}
+            description={$t('common.error.server')}
             v-slots={{
               footer: () => (
                 <NButton
@@ -59,7 +59,7 @@ export default defineComponent({
                     router.go(-1)
                   }}
                 >
-                  {$t('actions.return')}
+                  {$t('common.action.back')}
                 </NButton>
               ),
             }}
@@ -70,12 +70,12 @@ export default defineComponent({
             <div class={'printable-approval-area'} id={'printable-approval-area'}>
               {/* current node information */}
               <div>
-                <div class="section-title">{$t('approval.handleTask.collapse.base')}</div>
+                <div class="section-title">{$t('domain.approval.section.baseInfo')}</div>
                 {<TemplateNode data={detail.data.value}></TemplateNode>}
               </div>
               {/* content */}
               <div>
-                <div class="section-title">{`${$t('approval.handleTask.collapse.content')}${contentTitle}`}</div>
+                <div class="section-title">{`${$t('domain.approval.section.content')}${contentTitle}`}</div>
                 {h(templateSwitch, {
                   data: detail.data.value,
                   name: detail.data.value.processName,
@@ -83,13 +83,13 @@ export default defineComponent({
               </div>
               {/* record */}
               <div>
-                <div class="section-title">{$t('approval.handleTask.collapse.record')}</div>
+                <div class="section-title">{$t('domain.approval.section.history')}</div>
                 {<TemplateRecord data={detail.data.value}></TemplateRecord>}
               </div>
               {/* actions(approve,reject,transfer,cancel,print) */}
               {
                 <div class={clsx('screen-only')}>
-                  <div class="section-title">{$t('approval.handleTask.action')}</div>
+                  <div class="section-title">{$t('common.action.operate')}</div>
                   {
                     <TemplateActions
                       class={clsx('mb-content')}

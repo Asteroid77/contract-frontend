@@ -10,7 +10,7 @@ export const userRoutes: AppRouteRecord[] = [
     name: 'user',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
-      name: $t('route.auth.user'),
+      name: $t('layout.menu.profile'),
       icon: 'UserSwitchOutlined',
       isTransition: true,
     },
@@ -20,7 +20,7 @@ export const userRoutes: AppRouteRecord[] = [
     name: 'user-additional-info',
     component: () => import('@/views/auth/UserAdditionalInfoView.vue'),
     meta: {
-      name: $t('route.auth.additional'),
+      name: $t('layout.menu.additional'),
       icon: 'UserData',
       parent: 'user',
     },
@@ -30,7 +30,7 @@ export const userRoutes: AppRouteRecord[] = [
     name: 'user-agent-list',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
-      name: $t('route.auth.agent-list'),
+      name: $t('layout.menu.agents'),
       icon: 'RealEstateAgentOutlined',
       parent: 'user',
     },
@@ -40,7 +40,7 @@ export const userRoutes: AppRouteRecord[] = [
     name: 'my-sign',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
-      name: $t('route.auth.my-sign'),
+      name: $t('layout.menu.mySign'),
       icon: 'AssignmentIndOutlined',
       parent: 'user',
     },

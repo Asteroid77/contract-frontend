@@ -69,12 +69,12 @@ const handleClick = () => {
   </n-flex>
   <n-result
     status="info"
-    :title="$t('account.additionalInfo.approval.title')"
-    :description="$t('account.additionalInfo.approval.content')"
+    :title="$t('domain.user.approval.title')"
+    :description="$t('domain.user.approval.content')"
     v-if="pageStatus === 'approving'"
   >
     <template #footer>
-      <n-button @click="handleClick">{{ $t('account.additionalInfo.approval.btnText') }}</n-button>
+      <n-button @click="handleClick">{{ $t('domain.user.approval.btn') }}</n-button>
     </template>
   </n-result>
   <UserAdditionalInfoForm
@@ -83,6 +83,6 @@ const handleClick = () => {
     :initial-value="formInitialValue"
   ></UserAdditionalInfoForm>
   <n-flex v-if="pageStatus === 'visible'">
-    <n-button @click="submit" :loading="submitBtnLoading">{{ $t('actions.confirm') }}</n-button>
+    <n-button @click="submit" :loading="submitBtnLoading">{{ $t('common.action.confirm') }}</n-button>
   </n-flex>
 </template>

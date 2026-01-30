@@ -35,19 +35,19 @@ export default defineComponent({
         <table class="info-table">
           <tbody>
             <tr>
-              <td class="label">{$t('approval.instance.processName')}</td>
+              <td class="label">{$t('domain.approval.field.process')}</td>
               <td class="value">{props.data.processName}</td>
-              <td class="label">{$t('approval.handleTask.currentNode')}</td>
+              <td class="label">{$t('domain.approval.field.currentNode')}</td>
               <td class="value">{props.data.nodeName}</td>
             </tr>
             <tr>
-              <td class="label">{$t('approval.instance.applicantName')}</td>
+              <td class="label">{$t('domain.approval.field.applicant')}</td>
               <td class="value">{showIncompletedUserName(props.data.applicantName)}</td>
-              <td class="label">{$t('approval.instance.assigneeName')}</td>
+              <td class="label">{$t('domain.approval.field.approver')}</td>
               <td class="value">{showIncompletedUserName(props.data.assigneeName)}</td>
             </tr>
             <tr>
-              <td class="label">{$t('common.status')}</td>
+              <td class="label">{$t('common.label.status')}</td>
               <td class="value" colspan={3}>
                 {statusText.value}
               </td>

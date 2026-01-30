@@ -65,7 +65,7 @@ export async function useRequest<T, D = unknown>(
       return _unWrapperResponseData<T>(config, data)
     }
     // 业务失败，但HTTP成功。主动创建BusinessError并抛出。
-    throw new BusinessError(resp.message || $t('common.error'), resp.code)
+    throw new BusinessError(resp.message || $t('common.status.error'), resp.code)
   } catch (err) {
     console.error(err)
     // const error = err as AxiosError<ServerResponse<unknown>>

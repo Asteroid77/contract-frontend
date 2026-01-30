@@ -19,7 +19,7 @@ export const businessRoutes: AppRouteRecord[] = [
     name: 'business',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
-      name: $t('route.auth.business'),
+      name: $t('layout.menu.business'),
       icon: 'BusinessCenterOutlined',
       isTransition: true,
     },
@@ -29,7 +29,7 @@ export const businessRoutes: AppRouteRecord[] = [
     name: 'invitation',
     component: () => import('@/views/auth/InvitationPageView.vue'),
     meta: {
-      name: $t('route.auth.invitation'),
+      name: $t('layout.menu.invitation'),
       icon: 'InsertInvitationOutlined',
       parent: 'business',
     },
@@ -39,7 +39,7 @@ export const businessRoutes: AppRouteRecord[] = [
     name: 'sign',
     component: () => import('@/views/auth/ServiceAgreementDetailView'),
     meta: {
-      name: $t('route.auth.sign'),
+      name: $t('layout.menu.sign'),
       icon: 'icon-qianyue',
       parent: 'sign-page',
     },
@@ -52,7 +52,7 @@ export const businessRoutes: AppRouteRecord[] = [
     name: 'sign-page',
     component: () => import('@/views/auth/ServiceAgreementPageView'),
     meta: {
-      name: $t('route.auth.sign-page'),
+      name: $t('layout.menu.signList'),
       icon: 'icon-qianyueliebiao',
       parent: 'business',
     },
@@ -62,7 +62,7 @@ export const businessRoutes: AppRouteRecord[] = [
     name: 'sign-result',
     component: () => import('@/views/auth/SignResultView'),
     meta: {
-      name: $t('route.auth.sign-result'),
+      name: $t('layout.menu.signResult'),
       icon: 'icon-qianyueliebiao',
       parent: 'sign',
       hideInMenu: true,

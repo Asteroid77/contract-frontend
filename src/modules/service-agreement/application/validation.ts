@@ -20,19 +20,15 @@ export const serviceAccountRule: FormItemRule[] = [
     required: true,
     trigger: ['blur'],
     validator: (rule: FormItemRule, value: string) => {
-      const result = requireRule(
-        rule,
-        $t('servicePointSpecification.fields.serviceAccountNumber'),
-        value,
-      )
+      const result = requireRule(rule, $t('domain.servicePoint.field.accountNo'), value)
       if (result !== true) return result
       // 正则表达式：检查是否为纯数字
       if (!/^\d+$/.test(value)) {
-        return new Error($t('servicePointSpecification.serviceAccountNumber.invalid'))
+        return new Error($t('domain.servicePoint.validation.digits'))
       }
       // 长度检查
       if (value.length < 10 || value.length > 20) {
-        return new Error($t('servicePointSpecification.serviceAccountNumber.long'))
+        return new Error($t('domain.servicePoint.validation.length'))
       }
       return true
     },
@@ -43,7 +39,7 @@ export const voltageLevelRule: FormItemRule[] = [
     required: true,
     trigger: ['blur'],
     validator: (rule: FormItemRule, value: number) => {
-      return requireRule(rule, $t('servicePointSpecification.fields.voltageLevel'), value)
+      return requireRule(rule, $t('domain.servicePoint.field.voltage'), value)
     },
   },
 ]
@@ -52,7 +48,7 @@ export const usageCategoryRule: FormItemRule[] = [
     required: true,
     trigger: ['blur'],
     validator: (rule: FormItemRule, value: number) => {
-      return requireRule(rule, $t('servicePointSpecification.fields.usageCategory'), value)
+      return requireRule(rule, $t('domain.servicePoint.field.category'), value)
     },
   },
 ]
@@ -61,12 +57,21 @@ export const transformerCapacityRule: FormItemRule[] = [
     required: true,
     trigger: ['blur'],
     validator: (rule: FormItemRule, value: number) => {
-      return requireRule(rule, $t('servicePointSpecification.fields.transformerCapacity'), value)
+      return requireRule(rule, $t('domain.servicePoint.field.capacity'), value)
     },
   },
 ]
 
 // 单个比例的校验规则（0-100之间的数字）
+// 映射 dynamic keys
+const pricingFieldMap: Record<string, string> = {
+  isTimeOfUsePricingEnabled: 'domain.agreement.field.touEnabled',
+  peakPercentage: 'domain.agreement.field.peak',
+  superPeakPercentage: 'domain.agreement.field.superPeak',
+  standardPercentage: 'domain.agreement.field.standard',
+  valleyPercentage: 'domain.agreement.field.valley',
+}
+
 export const percentageRule: (
   path: keyof TimeOfUsePricingValue,
   formValue: Ref<FormInput<TimeOfUsePricingValue>>,
@@ -76,17 +81,18 @@ export const percentageRule: (
   formValue: Ref<FormInput<TimeOfUsePricingValue>>,
   formItemsRef: Ref<(FormItemInst | null)[]>,
 ) => {
+  const fieldKey = pricingFieldMap[path] || 'common.label.unknown'
   return {
     type: 'number',
     required: true,
     validator(rule: FormItemRule, value: number) {
       if (value === null || value === undefined) {
-        return requireRule(rule, $t(`serviceAgreement.${path}`), value)
+        return requireRule(rule, $t(fieldKey as any), value)
       }
       if (value < 0 || value > 100) {
         return new Error(
-          $t('serviceAgreement.timeOfUseValidation.range', {
-            field: $t(`serviceAgreement.${path}`),
+          $t('domain.agreement.validation.touRange', {
+            field: $t(fieldKey as any),
             min: 0,
             max: 100,
           }),
@@ -116,7 +122,7 @@ export const percentageRule: (
           (formValue.value.valleyPercentage ?? 0)
         if (total !== 100) {
           formItemsRef.value.forEach((e) => e?.restoreValidation())
-          return new Error($t('serviceAgreement.timeOfUseValidation.mustBe100', { total }))
+          return new Error($t('domain.agreement.validation.touTotal', { total }))
         }
       }
       return true
@@ -133,45 +139,47 @@ export const createServiceAgreementRules = (model: Ref<ServiceAgreementUIMap>): 
         required: true,
         trigger: ['blur'],
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('serviceAgreement.companyName'), value),
+          requireRule(rule, $t('domain.agreement.field.companyName'), value),
       },
       companyArea: {
         required: true,
         trigger: ['blur', 'change'],
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('serviceAgreement.companyArea'), value),
+          requireRule(rule, $t('domain.agreement.field.area'), value),
       },
       companyAddress: {
         required: true,
         trigger: ['blur'],
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('serviceAgreement.companyAddress'), value),
+          requireRule(rule, $t('domain.agreement.field.address'), value),
       },
       industry: {
         required: true,
         trigger: ['blur'],
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('serviceAgreement.industry'), value),
+          requireRule(rule, $t('domain.agreement.field.industry'), value),
       },
       liaisonName: {
         required: true,
         trigger: ['blur'],
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('serviceAgreement.liaisonName'), value),
+          requireRule(rule, $t('domain.agreement.field.contact'), value),
       },
       liaisonPhone: [
         {
           required: true,
           trigger: ['blur'],
           validator: (rule: FormItemRule, value: string) =>
-            requireRule(rule, $t('serviceAgreement.liaisonPhone'), value),
+            requireRule(rule, $t('domain.agreement.field.phone'), value),
         },
         {
           trigger: ['blur'],
           validator: (_rule: FormItemRule, value: string) => {
             if (!value) return true
             // 假设 chinaMobilePhoneVerify 返回 boolean，需要转为 Error
-            return chinaMobilePhoneVerify(value) ? true : new Error($t('account.phone.regular'))
+            return chinaMobilePhoneVerify(value)
+              ? true
+              : new Error($t('auth.validation.phoneFormat'))
           },
         },
       ],
@@ -179,19 +187,19 @@ export const createServiceAgreementRules = (model: Ref<ServiceAgreementUIMap>): 
         required: true,
         trigger: ['blur'],
         validator: (rule: FormItemRule, value: string) =>
-          requireRule(rule, $t('serviceAgreement.liaisonPosition'), value),
+          requireRule(rule, $t('domain.agreement.field.position'), value),
       },
       yearUsableCharge: {
         required: true,
         trigger: ['blur'],
         validator: (rule: FormItemRule, value: number) =>
-          requireRule(rule, $t('serviceAgreement.yearUsableCharge'), value),
+          requireRule(rule, $t('domain.agreement.field.annualUsage'), value),
       },
       status: {
         required: true,
         trigger: ['change'],
         validator: (rule: FormItemRule, value: number) =>
-          requireRule(rule, $t('serviceAgreement.status.label'), value),
+          requireRule(rule, $t('common.label.status'), value),
       },
     } as FormRules,
 
@@ -204,13 +212,13 @@ export const createServiceAgreementRules = (model: Ref<ServiceAgreementUIMap>): 
             required: true,
             trigger: ['change', 'update:value'], // 数组变动通常是 change 或 update:value
             validator: (rule: FormItemRule, value: ServicePointSpecification[]) =>
-              requireRule(rule, $t('servicePointSpecification.title'), value),
+              requireRule(rule, $t('domain.servicePoint.title'), value),
           },
           expirationTime: {
             required: true,
             trigger: ['change'],
             validator: (rule: FormItemRule, value: string) =>
-              requireRule(rule, $t('serviceAgreement.expirationTime'), value),
+              requireRule(rule, $t('domain.agreement.field.expiryDate'), value),
           },
         }
       : {}) as FormRules,
@@ -222,7 +230,7 @@ export const createServiceAgreementRules = (model: Ref<ServiceAgreementUIMap>): 
             required: true,
             trigger: ['change', 'update:value'],
             validator: (rule: FormItemRule, value: number[]) =>
-              requireRule(rule, $t('serviceAgreement.attachments.bills'), value),
+              requireRule(rule, $t('domain.agreement.file.bill'), value),
           },
           // 注意：补充附件通常是选填，如果你确定要必填则保留 required: true
           supplementaryAttachmentIds: {
@@ -230,14 +238,14 @@ export const createServiceAgreementRules = (model: Ref<ServiceAgreementUIMap>): 
             required: true,
             trigger: ['change', 'update:value'],
             validator: (rule: FormItemRule, value: number[]) =>
-              requireRule(rule, $t('serviceAgreement.attachments.supplementary'), value),
+              requireRule(rule, $t('domain.agreement.file.other'), value),
           },
           contractScanIds: {
             type: 'array',
             required: true,
             trigger: ['change', 'update:value'],
             validator: (rule: FormItemRule, value: number[]) =>
-              requireRule(rule, $t('serviceAgreement.attachments.contractScans'), value),
+              requireRule(rule, $t('domain.agreement.file.contract'), value),
           },
         }
       : {}) as FormRules, // 关键：强制断言
@@ -255,7 +263,7 @@ export const createPriceGroupRules = (model: SignInfoDataForUI): FormRules => {
       required: true,
       trigger: ['change'], // Select 用 change
       validator: (rule: FormItemRule, value: number) => {
-        return requireRule(rule, $t('serviceAgreement.priceModel.label'), value)
+        return requireRule(rule, $t('domain.agreement.field.priceModel'), value)
       },
     },
 
@@ -264,7 +272,7 @@ export const createPriceGroupRules = (model: SignInfoDataForUI): FormRules => {
       trigger: ['change'],
       validator: (rule: FormItemRule, value: number) => {
         if (model.priceModel === PriceModelEnum.Other) return true
-        return requireRule(rule, $t('serviceAgreement.priceType.label'), value)
+        return requireRule(rule, $t('domain.agreement.field.priceType'), value)
       },
     },
 
@@ -273,7 +281,7 @@ export const createPriceGroupRules = (model: SignInfoDataForUI): FormRules => {
       trigger: ['change'],
       validator: (rule: FormItemRule, value: number) => {
         if (model.priceModel === PriceModelEnum.Other) return true
-        return requireRule(rule, $t('serviceAgreement.priceCategory.label'), value)
+        return requireRule(rule, $t('domain.agreement.field.priceCategory'), value)
       },
     },
 
@@ -281,7 +289,7 @@ export const createPriceGroupRules = (model: SignInfoDataForUI): FormRules => {
       trigger: ['blur'],
       validator: (rule: FormItemRule, value: string) => {
         if (model.priceCategory !== PriceCategoryEnum.FixedPrice) return true
-        return requireRule(rule, $t('serviceAgreement.fixedPrice'), value)
+        return requireRule(rule, $t('domain.agreement.field.fixedPrice'), value)
       },
     },
 
@@ -289,7 +297,7 @@ export const createPriceGroupRules = (model: SignInfoDataForUI): FormRules => {
       trigger: ['blur'],
       validator: (rule: FormItemRule, value: string) => {
         if (model.priceCategory !== PriceCategoryEnum.FixedSpread) return true
-        return requireRule(rule, $t('serviceAgreement.fixedSpread'), value)
+        return requireRule(rule, $t('domain.agreement.field.fixedSpread'), value)
       },
     },
 
@@ -298,7 +306,7 @@ export const createPriceGroupRules = (model: SignInfoDataForUI): FormRules => {
       trigger: ['blur'],
       validator: (rule: FormItemRule, value: number) => {
         if (model.priceCategory !== PriceCategoryEnum.ShareRatio) return true
-        return requireRule(rule, $t('serviceAgreement.revenueShareRatio'), value)
+        return requireRule(rule, $t('domain.agreement.field.shareRatio'), value)
       },
     },
 
@@ -306,7 +314,7 @@ export const createPriceGroupRules = (model: SignInfoDataForUI): FormRules => {
       trigger: ['blur'],
       validator: (rule: FormItemRule, value: string) => {
         if (model.priceModel !== PriceModelEnum.Other) return true
-        return requireRule(rule, $t('serviceAgreement.comment'), value)
+        return requireRule(rule, $t('common.field.remark'), value)
       },
     },
   } as FormRules
@@ -316,6 +324,6 @@ export const previewAttachmentsRule = {
     trigger: ['blur'],
     required: true,
     validator: (rule: FormItemRule, value: string) =>
-      requireRule(rule, $t('serviceAgreement.attachments.print.code'), value),
+      requireRule(rule, $t('domain.agreement.print.code'), value),
   },
 }

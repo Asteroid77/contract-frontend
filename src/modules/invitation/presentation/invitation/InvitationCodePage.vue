@@ -27,20 +27,20 @@ function createColumns(): DataTableColumns<InvitationCode> {
       type: 'selection',
     },
     {
-      title: $t('invitation.fields.code'),
+      title: $t('domain.invitation.field.code'),
       key: 'code',
     },
     {
-      title: $t('invitation.fields.status'),
+      title: $t('common.label.status'),
       key: 'status',
       render(row) {
         return row.status === invitationCodeStatus.active
-          ? $t('invitationCodeStatus.active')
-          : $t('invitationCodeStatus.inactive')
+          ? $t('domain.invitation.status.active')
+          : $t('domain.invitation.status.inactive')
       },
     },
     {
-      title: $t('invitation.fields.remark'),
+      title: $t('common.field.remark'),
       key: 'remark',
       render(row) {
         return h(NInput, {
@@ -53,7 +53,7 @@ function createColumns(): DataTableColumns<InvitationCode> {
       },
     },
     {
-      title: $t('invitation.fields.createdTime'),
+      title: $t('common.time.created'),
       key: 'createdTime',
       render: (rowData: InvitationCode) => {
         return formatted(rowData.createdTime).standard
@@ -97,7 +97,7 @@ const columns = createColumns()
 <template>
   <n-space :class="clsx('my-content')">
     <n-button @click="() => createMutation.mutate()" :loading="createMutation.isPending.value">{{
-      $t('actions.add')
+      $t('common.action.add')
     }}</n-button>
     <n-popconfirm @positive-click="update">
       <template #trigger>
@@ -105,10 +105,10 @@ const columns = createColumns()
           :disabled="isDelOrSaveBtnDisabled"
           type="primary"
           :loading="updateMutation.isPending.value"
-          >{{ $t('actions.save') }}</n-button
+          >{{ $t('common.action.save') }}</n-button
         >
       </template>
-      {{ $t('invitation.table.operate.saveConfirm') }}
+      {{ $t('common.message.saveConfirm') }}
     </n-popconfirm>
     <n-popconfirm @positive-click="deleteFn">
       <template #trigger>
@@ -116,10 +116,10 @@ const columns = createColumns()
           :disabled="isDelOrSaveBtnDisabled"
           type="error"
           :loading="deleteMutation.isPending.value"
-          >{{ $t('actions.delete') }}</n-button
+          >{{ $t('common.action.delete') }}</n-button
         >
       </template>
-      {{ $t('invitation.table.operate.deleteConfirm') }}
+      {{ $t('common.message.deleteConfirm') }}
     </n-popconfirm>
   </n-space>
   <n-data-table

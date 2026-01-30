@@ -56,7 +56,7 @@ export default defineComponent({
 
     return () => (
       <>
-        <NFormItem label={$t('serviceAgreement.isTimeOfUsePricingEnabled')}>
+        <NFormItem label={$t('domain.agreement.field.touEnabled')}>
           <NSwitch
             value={props.modelValue.isTimeOfUsePricingEnabled}
             onUpdate:value={(val) => handleUpdate('isTimeOfUsePricingEnabled', val)}
@@ -67,10 +67,10 @@ export default defineComponent({
           <NGrid x-gap="12 m:24" cols="1 s:2 l:4">
             {(
               [
-                { key: 'superPeakPercentage', label: 'serviceAgreement.superPeakPercentage' },
-                { key: 'peakPercentage', label: 'serviceAgreement.peakPercentage' },
-                { key: 'standardPercentage', label: 'serviceAgreement.standardPercentage' },
-                { key: 'valleyPercentage', label: 'serviceAgreement.valleyPercentage' },
+                { key: 'superPeakPercentage', label: 'domain.agreement.field.superPeak' },
+                { key: 'peakPercentage', label: 'domain.agreement.field.peak' },
+                { key: 'standardPercentage', label: 'domain.agreement.field.standard' },
+                { key: 'valleyPercentage', label: 'domain.agreement.field.valley' },
               ] as const
             ).map((item) => (
               <NFormItemGi

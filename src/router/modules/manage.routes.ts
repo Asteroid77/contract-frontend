@@ -10,7 +10,7 @@ export const manageRoutes: AppRouteRecord[] = [
     name: 'manage',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
-      name: $t('route.auth.manage'),
+      name: $t('layout.menu.manage'),
       icon: 'ManageAccountsOutlined',
       isTransition: true,
     },
@@ -20,7 +20,7 @@ export const manageRoutes: AppRouteRecord[] = [
     name: 'manage-user-list',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
-      name: $t('route.auth.manager-user-list'),
+      name: $t('layout.menu.users'),
       icon: 'UserMultiple',
       parent: 'manage',
     },

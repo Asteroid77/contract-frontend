@@ -15,17 +15,17 @@ export default defineComponent({
 
     // 样式映射
     const styleMap = {
-      added: { borderColor: '#18a058', tagType: 'success', tagText: $t('actions.add'), opacity: 1 },
+      added: { borderColor: '#18a058', tagType: 'success', tagText: $t('common.action.add'), opacity: 1 },
       removed: {
         borderColor: '#d03050',
         tagType: 'error',
-        tagText: $t('actions.delete'),
+        tagText: $t('common.action.delete'),
         opacity: 0.6,
       },
       kept: {
         borderColor: '#e0e0e6',
         tagType: 'default',
-        tagText: $t('approval.print.noChange'),
+        tagText: $t('domain.approval.label.noChange'),
         opacity: 1,
       },
       normal: {
@@ -74,7 +74,7 @@ export default defineComponent({
               <NIcon size="40" color="#ff4d4f">
                 <FilePdfOutlined />
               </NIcon>
-              <span class="click-tip">{$t('actions.preview')}</span>
+              <span class="click-tip">{$t('common.action.preview')}</span>
             </div>
           )}
         </div>

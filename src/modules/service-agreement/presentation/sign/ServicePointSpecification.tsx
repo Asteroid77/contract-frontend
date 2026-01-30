@@ -32,22 +32,22 @@ export function motivateSPS(
     }
   }
   dialog.create({
-    title: `${$t('servicePointSpecification.fields.serviceAccountNumber')}: ${Object.keys(formData.value).length ? $t('actions.edit') : $t('actions.add')}`,
-    negativeText: $t('actions.cancel'),
-    positiveText: $t('actions.confirm'),
+    title: `${$t('domain.servicePoint.field.accountNo')}: ${Object.keys(formData.value).length ? $t('common.action.edit') : $t('common.action.add')}`,
+    negativeText: $t('common.action.cancel'),
+    positiveText: $t('common.action.confirm'),
     maskClosable: true,
     onPositiveClick: handlePositiveClick,
     content: () => (
       <NForm model={formData.value} ref={formRef}>
         <AppFormItem
           rule={serviceAccountRule}
-          label={$t('servicePointSpecification.fields.serviceAccountNumber')}
+          label={$t('domain.servicePoint.field.accountNo')}
           path={`serviceAccount`}
         >
           <NInput v-model:value={formData.value.serviceAccount} />
         </AppFormItem>
         <AppFormItem
-          label={$t('servicePointSpecification.fields.transformerCapacity')}
+          label={$t('domain.servicePoint.field.capacity')}
           path={`transformerCapacity`}
           rule={transformerCapacityRule}
         >
@@ -59,7 +59,7 @@ export function motivateSPS(
           />
         </AppFormItem>
         <AppFormItem
-          label={$t('servicePointSpecification.fields.usageCategory')}
+          label={$t('domain.servicePoint.field.category')}
           path={`electricityConsumptionType`}
           rule={usageCategoryRule}
         >
@@ -69,7 +69,7 @@ export function motivateSPS(
           ></NSelect>
         </AppFormItem>
         <AppFormItem
-          label={$t('servicePointSpecification.fields.voltageLevel')}
+          label={$t('domain.servicePoint.field.voltage')}
           path={`voltageClass`}
           rule={voltageLevelRule}
         >

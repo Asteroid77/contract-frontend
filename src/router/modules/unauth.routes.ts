@@ -20,7 +20,7 @@ export const unauthRoutes: AppRouteRecord[] = [
     name: 'login',
     component: LoginView,
     meta: {
-      name: $t('account.login.signIn'),
+      name: $t('auth.login.noAccount'),
     },
   },
   {
@@ -28,7 +28,7 @@ export const unauthRoutes: AppRouteRecord[] = [
     name: 'register',
     component: () => import('@/views/unauth/RegisterView'),
     meta: {
-      name: $t('account.register.text'),
+      name: $t('auth.register.submit'),
     },
   },
   {
@@ -36,7 +36,7 @@ export const unauthRoutes: AppRouteRecord[] = [
     name: 'password-recovery',
     component: () => import('@/views/unauth/PasswordRecoveryView'),
     meta: {
-      name: $t('sign.route.password-recovery'),
+      name: $t('layout.menu.recovery'),
     },
   },
   {
@@ -44,7 +44,7 @@ export const unauthRoutes: AppRouteRecord[] = [
     name: 'oauth2-callback',
     component: () => import('@/views/unauth/Oauth2CallbackView.vue'),
     meta: {
-      name: $t('account.login.oauth2.callback.title'),
+      name: $t('auth.oauth.callback'),
     },
   },
   {

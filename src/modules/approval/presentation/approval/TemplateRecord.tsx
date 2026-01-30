@@ -4,6 +4,7 @@ import type { ApprovalInstance } from '@/modules/approval/application/models'
 import { useApprovalHistoryQuery } from '@/modules/approval/application/hooks/useApprovalService'
 import { formatted } from '@/modules/shared/presentation/time'
 import { showIncompletedUserName } from '@/modules/approval/application/utils'
+import { match } from 'ts-pattern'
 
 export default defineComponent({
   name: 'PrintHistoryList',
@@ -21,9 +22,9 @@ export default defineComponent({
       const result = [...historyData.value]
       if (result.length) {
         // 处理第一条和撤回逻辑
-        result[result.length - 1].nodeName = $t('approval.history.first')
+        result[result.length - 1].nodeName = $t('domain.approval.history.submit')
         if (result[0].action === 'cancel') {
-          result[0].nodeName = $t('approval.history.withdrawn')
+          result[0].nodeName = $t('domain.approval.history.withdraw')
         }
       }
       return result
@@ -34,11 +35,11 @@ export default defineComponent({
         <table class="list-table">
           <thead>
             <tr>
-              <th style={{ width: '15%' }}>{$t('approval.history.fields.nodeName')}</th>
-              <th style={{ width: '15%' }}>{$t('approval.history.fields.operator')}</th>
-              <th style={{ width: '10%' }}>{$t('approval.history.fields.action')}</th>
-              <th style={{ width: '20%' }}>{$t('approval.history.fields.createdTime')}</th>
-              <th style={{ width: '40%' }}>{$t('approval.history.fields.comment')}</th>
+              <th style={{ width: '15%' }}>{$t('domain.approval.field.nodeName')}</th>
+              <th style={{ width: '15%' }}>{$t('domain.approval.field.operator')}</th>
+              <th style={{ width: '10%' }}>{$t('common.label.action')}</th>
+              <th style={{ width: '20%' }}>{$t('common.time.created')}</th>
+              <th style={{ width: '40%' }}>{$t('domain.approval.field.comment')}</th>
             </tr>
           </thead>
           <tbody>
@@ -47,7 +48,21 @@ export default defineComponent({
                 <tr key={row.id}>
                   <td>{row.nodeName}</td>
                   <td>{showIncompletedUserName(row.operator)}</td>
-                  <td>{$t(`approvalHistoryActions.${row.action}`)}</td>
+                  <td>
+                    {
+                      // Map actions to new common or domain keys
+                      $t(
+                        match(row.action)
+                          .with('approve', () => 'common.action.approve')
+                          .with('reject', () => 'common.action.reject')
+                          .with('claim', () => 'common.action.claim')
+                          .with('submit', () => 'common.action.submit')
+                          .with('transfer', () => 'common.action.transfer')
+                          .with('cancel', () => 'common.action.cancel')
+                          .otherwise(() => 'common.label.action') as any,
+                      )
+                    }
+                  </td>
                   <td>{formatted(row.createdTime).standard}</td>
                   <td>
                     {/* 打印时，评论不为空则显示，为空显示 - */}
@@ -59,7 +74,7 @@ export default defineComponent({
               <tr>
                 <td colspan={5} style={{ textAlign: 'center', color: '#999' }}>
                   {/* 避免打印出 loading 状态，如果没数据就显示空 */}
-                  {$t('common.empty')}
+                  {$t('common.label.none')}
                 </td>
               </tr>
             )}

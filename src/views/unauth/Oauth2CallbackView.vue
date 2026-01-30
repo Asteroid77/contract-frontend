@@ -6,7 +6,7 @@ import { getFrontendLoginUrl } from '@/app/infrastructure/request/get-frontend-u
 
 const token: string | undefined = useRoute().query.token?.toString()
 const error: string | undefined = useRoute().query.error?.toString()
-const title = ref<string>($t('account.login.oauth2.callback.title'))
+const title = ref<string>($t('auth.oauth.callback'))
 if (token) {
   window.opener.postMessage(
     {

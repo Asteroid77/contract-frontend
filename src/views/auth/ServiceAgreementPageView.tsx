@@ -95,9 +95,9 @@ export default defineComponent({
           />
 
           <NButton type="primary" onClick={handleSearch} loading={isPending.value}>
-            {$t('actions.search')}
+            {$t('common.action.search')}
           </NButton>
-          <NButton onClick={handleReset}>{$t('actions.reset')}</NButton>
+          <NButton onClick={handleReset}>{$t('common.action.reset')}</NButton>
         </NSpace>
 
         {/* ----- 子组件调用 ----- */}
@@ -114,10 +114,10 @@ export default defineComponent({
                     handleActions(row, 'edit')
                   }}
                 >
-                  {$t('actions.edit')}
+                  {$t('common.action.edit')}
                 </NButton>
                 <NButton size="tiny" onClick={() => handleActions(row, 'detail')}>
-                  {$t('actions.read')}
+                  {$t('common.action.view')}
                 </NButton>
               </NSpace>
             ),

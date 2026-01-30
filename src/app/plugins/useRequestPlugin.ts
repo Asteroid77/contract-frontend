@@ -34,7 +34,7 @@ function processApiError(error: Error | undefined): ProcessedError | undefined {
   // 1. 处理主动抛出的、带有 isBusinessError 标志的业务错误
   if (error?.hasOwnProperty('isBusinessError')) {
     return {
-      title: $t('exception.unexpected.business.title'), // "业务异常"
+      title: $t('common.error.businessFail'), // "业务异常"
       content: error.message,
       originalError,
     }
@@ -49,8 +49,8 @@ function processApiError(error: Error | undefined): ProcessedError | undefined {
       // 尝试从响应体中获取后端定义的错误信息
       const serverMessage = axiosError.response.data?.message
       return {
-        title: $t('exception.ECONNABORTED.content'), // "请求失败"
-        content: serverMessage || $t('exception.ECONNABORTED.meta'),
+        title: $t('common.error.timeout'), // "请求失败"
+        content: serverMessage || $t('common.error.timeoutMeta'),
         originalError,
       }
     }
@@ -58,8 +58,8 @@ function processApiError(error: Error | undefined): ProcessedError | undefined {
     // 2b. 服务器无响应（网络错误、超时等）
     if (axiosError.request) {
       return {
-        title: $t('exception.ERR_USER_NETWORK_NOTWORK.content'),
-        content: $t('exception.ERR_USER_NETWORK_NOTWORK.meta'),
+        title: $t('common.error.networkUnavailable'),
+        content: $t('common.error.networkUnavailableMeta'),
         originalError,
       }
     }
@@ -73,16 +73,16 @@ function processApiError(error: Error | undefined): ProcessedError | undefined {
       //  return { title: $t('exception.CANCELEDERROR.title'), content: $t('exception.CANCELEDERROR.content'), originalError }
     }
     return {
-      title: $t('exception.unexpected.title'),
-      content: error.message || $t('exception.unexpected.message'),
+      title: $t('common.error.unexpected'),
+      content: error.message || $t('common.error.contactAdmin'),
       originalError,
     }
   }
 
   // 4. 降级处理：错误不是一个 Error 对象
   return {
-    title: $t('exception.unexpected.unknown.title'), // "未知错误"
-    content: $t('exception.unexpected.unknown.content'), // "发生了一个未知错误"
+    title: $t('common.error.unknown'), // "未知错误"
+    content: $t('common.error.reported'), // "发生了一个未知错误"
     originalError,
   }
 }
@@ -216,7 +216,7 @@ const globalSuccessHandler = (
       .otherwise(() => {
         if (toastOnErrorConfig) {
           notification.success({
-            title: $t('common.success'),
+            title: $t('common.status.success'),
             content: data.hasOwnProperty('config')
               ? (data as AxiosResponse<ServerResponse<unknown>>).data.message
               : (data as ServerResponse<unknown>).message,

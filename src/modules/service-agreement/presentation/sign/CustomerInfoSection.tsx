@@ -34,7 +34,7 @@ export default defineComponent({
     return () => (
       <>
         {/* 签约状态 */}
-        <AppFormItem label={$t('serviceAgreement.status.label')} path={`${props.path}.status`}>
+        <AppFormItem label={$t('common.label.status')} path={`${props.path}.status`}>
           <NSelect
             value={props.modelValue.status}
             onUpdate:value={(val) => updateModel({ status: val })}
@@ -43,7 +43,7 @@ export default defineComponent({
         </AppFormItem>
 
         {/* 企业名称 */}
-        <AppFormItem label={$t('serviceAgreement.companyName')} path={`${props.path}.companyName`}>
+        <AppFormItem label={$t('domain.agreement.field.companyName')} path={`${props.path}.companyName`}>
           <NInput
             value={props.modelValue.companyName}
             onUpdate:value={(val) => updateModel({ companyName: val })}
@@ -51,7 +51,7 @@ export default defineComponent({
         </AppFormItem>
 
         {/* 行业 */}
-        <AppFormItem label={$t('serviceAgreement.industry')} path={`${props.path}.industry`}>
+        <AppFormItem label={$t('domain.agreement.field.industry')} path={`${props.path}.industry`}>
           <IndustriesSelect
             value={props.modelValue.industry}
             onUpdate:value={(val: string | null) => updateModel({ industry: val })}
@@ -59,7 +59,7 @@ export default defineComponent({
         </AppFormItem>
 
         {/* 公司地区 */}
-        <AppFormItem label={$t('serviceAgreement.companyArea')} path={`${props.path}.companyArea`}>
+        <AppFormItem label={$t('domain.agreement.field.area')} path={`${props.path}.companyArea`}>
           <ChinaAreaCascader
             value={props.modelValue.companyArea}
             onUpdate:value={(val: string) => updateModel({ companyArea: val })}
@@ -68,7 +68,7 @@ export default defineComponent({
 
         {/* 企业详细地址 */}
         <AppFormItem
-          label={$t('serviceAgreement.companyAddress')}
+          label={$t('domain.agreement.field.address')}
           path={`${props.path}.companyAddress`}
         >
           <NInput
@@ -78,7 +78,7 @@ export default defineComponent({
         </AppFormItem>
 
         {/* 联系人 */}
-        <AppFormItem label={$t('serviceAgreement.liaisonName')} path={`${props.path}.liaisonName`}>
+        <AppFormItem label={$t('domain.agreement.field.contact')} path={`${props.path}.liaisonName`}>
           <NInput
             value={props.modelValue.liaisonName}
             onUpdate:value={(val) => updateModel({ liaisonName: val })}
@@ -87,7 +87,7 @@ export default defineComponent({
 
         {/* 联系人电话 */}
         <AppFormItem
-          label={$t('serviceAgreement.liaisonPhone')}
+          label={$t('domain.agreement.field.phone')}
           path={`${props.path}.liaisonPhone`}
         >
           <NInput
@@ -98,7 +98,7 @@ export default defineComponent({
 
         {/* 联系人职务 */}
         <AppFormItem
-          label={$t('serviceAgreement.liaisonPosition')}
+          label={$t('domain.agreement.field.position')}
           path={`${props.path}.liaisonPosition`}
         >
           <NInput
@@ -122,7 +122,7 @@ export default defineComponent({
 
         {/** 年用电量 */}
         <AppFormItem
-          label={$t('serviceAgreement.yearUsableCharge')}
+          label={$t('domain.agreement.field.annualUsage')}
           path={`${props.path}.yearUsableCharge`}
         >
           <NInputNumber
@@ -135,7 +135,7 @@ export default defineComponent({
           ></NInputNumber>
         </AppFormItem>
         {/* 进展备注 */}
-        <AppFormItem label={$t('serviceAgreement.comment')} path={`${props.path}.comment`}>
+        <AppFormItem label={$t('common.field.remark')} path={`${props.path}.comment`}>
           <NInput
             value={props.modelValue.comment}
             onUpdate:value={(val) => updateModel({ comment: val })}

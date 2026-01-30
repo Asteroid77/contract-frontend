@@ -21,8 +21,8 @@ export default defineComponent({
     const initialSuccess = computed(() => route.query.status && route.query.id)
     const successTitle = computed(() => {
       return match(props.status)
-        .with(ServiceAgreementStatusEnum.Record, () => $t('serviceAgreement.result.filingSuccess'))
-        .with(ServiceAgreementStatusEnum.Sign, () => $t('serviceAgreement.result.signSuccess'))
+        .with(ServiceAgreementStatusEnum.Record, () => $t('domain.agreement.message.filingSuccess'))
+        .with(ServiceAgreementStatusEnum.Sign, () => $t('domain.agreement.message.signSuccess'))
         .otherwise(() => '')
     })
     function returnBtnClick() {
@@ -48,15 +48,15 @@ export default defineComponent({
           })
         })
         .otherwise(() => {
-          message.error($t('exception.routeQueryInvaild.title'))
+          message.error($t('common.error.invalidParams'))
         })
     }
     return () => (
       <>
         {!initialSuccess.value && (
-          <NResult size="huge" status={'error'} title={$t('exception.routeQueryInvaild.title')}>
+          <NResult size="huge" status={'error'} title={$t('common.error.invalidParams')}>
             <NButton size="large" onClick={returnBtnClick}>
-              {$t('actions.return')}
+              {$t('common.action.back')}
             </NButton>
           </NResult>
         )}
@@ -64,10 +64,10 @@ export default defineComponent({
           <NResult status={'success'} title={successTitle.value} size="huge">
             <NFlex justify="center">
               <NButton size="large" onClick={returnBtnClick}>
-                {$t('actions.return')}
+                {$t('common.action.back')}
               </NButton>
               <NButton size="large" onClick={seeDetailBtnClick}>
-                {$t('actions.read')}
+                {$t('common.action.view')}
               </NButton>
             </NFlex>
           </NResult>

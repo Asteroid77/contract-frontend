@@ -24,11 +24,11 @@ const template = route.query.template as ApprovalProcessName[keyof ApprovalProce
   <n-result
     v-if="!instanceId || !template"
     status="418"
-    :title="$t('common.pageLoadError')"
-    :description="$t('common.pageLoadErrorMeta')"
+    :title="$t('common.error.pageLoad')"
+    :description="$t('common.error.pageLoadMeta')"
   >
     <template #footer>
-      <n-button>{{ $t('actions.return') }}</n-button>
+      <n-button>{{ $t('common.action.back') }}</n-button>
     </template>
   </n-result>
   <ApprovalTemplate v-else :instanceId="instanceId" :template="template"></ApprovalTemplate>

@@ -62,19 +62,19 @@ export default defineComponent({
           >
             <div class="section-header-with-qr">
               <div class={clsx(`${inApprovalMode.value ? 'sub-section-title' : 'section-title'}`)}>
-                {$t('serviceAgreement.tabs.attachments')}
+                {$t('domain.agreement.tab.files')}
               </div>
               {/* 打印专用二维码 */}
               <div class="qr-box">
                 <NQrCode value={previewUrl.value} size={60} padding={0} />
-                <span>{$t('serviceAgreement.attachments.print.qrCode')}</span>
+                <span>{$t('domain.agreement.print.qr')}</span>
               </div>
             </div>
             <table class="list-table attachment-list">
               <thead>
                 <tr>
-                  <th style={{ width: '25%' }}>{$t('serviceAgreement.attachments.print.type')}</th>
-                  <th>{$t('serviceAgreement.attachments.print.name')}</th>
+                  <th style={{ width: '25%' }}>{$t('common.field.type')}</th>
+                  <th>{$t('common.field.name')}</th>
                   <th style={{ width: '20%' }}> 大小</th>
                 </tr>
               </thead>
@@ -91,7 +91,7 @@ export default defineComponent({
                 {!noEmpty.value && (
                   <tr>
                     <td colspan={3} style={{ textAlign: 'center' }}>
-                      {$t('serviceAgreement.attachments.print.empty')}
+                      {$t('common.label.noData')}
                     </td>
                   </tr>
                 )}

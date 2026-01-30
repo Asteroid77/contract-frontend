@@ -13,9 +13,9 @@ export interface ThemeOption {
 }
 
 export const themes: ThemeOption[] = [
-  { key: 'light', label: $t('theme.style.light') },
-  { key: 'dark', label: $t('theme.style.dark') },
-  { key: 'sakura', label: $t('theme.style.sakura') },
+  { key: 'light', label: $t('layout.theme.light') },
+  { key: 'dark', label: $t('layout.theme.dark') },
+  { key: 'sakura', label: $t('layout.theme.sakura') },
 ]
 const createThemeBridge = (colors: ColorTokens): GlobalThemeOverrides => ({
   common: {

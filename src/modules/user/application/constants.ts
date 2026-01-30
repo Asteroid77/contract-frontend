@@ -6,11 +6,11 @@ export const RegisterType = {
 }
 export const RegisterTypeOption = [
   {
-    label: $t('common.options.registerType.legalRepresentative'),
+    label: $t('common.options.registerType.company'),
     value: RegisterType.LEGAL_REPRESENTATIVE,
   },
   {
-    label: $t('common.options.registerType.individualOrAgent'),
+    label: $t('common.options.registerType.individual'),
     value: RegisterType.INDIVIDUAL,
   },
 ]

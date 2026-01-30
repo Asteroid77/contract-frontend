@@ -117,7 +117,7 @@ export const requireRule = (
 ): Error | true => {
   // 使用 isNotEmpty 函数进行基础检查
   if (!isNotEmpty(value, options)) {
-    return new Error(`${field}${$t('common.notEmpty')}`)
+    return new Error(`${field}${$t('common.validation.required')}`)
   }
 
   // 使用 ts-pattern 进行更精细的类型检查
@@ -128,7 +128,7 @@ export const requireRule = (
           (options.treatEmptyStringAsEmpty !== false && str === '') ||
           (options.treatWhitespaceAsEmpty !== false && str.trim() === '')
         ) {
-          return new Error(`${field}${$t('common.notEmpty')}`)
+          return new Error(`${field}${$t('common.validation.required')}`)
         }
         return true
       })
@@ -137,25 +137,25 @@ export const requireRule = (
           (options.treatZeroAsEmpty && num === 0) ||
           (options.treatNaNAsEmpty !== false && Number.isNaN(num))
         ) {
-          return new Error(`${field}${$t('common.notEmpty')}`)
+          return new Error(`${field}${$t('common.validation.required')}`)
         }
         return true
       })
       .with(P.array(), (arr) => {
         if (options.treatEmptyArrayAsEmpty !== false && arr.length === 0) {
-          return new Error(`${field}${$t('common.notEmpty')}`)
+          return new Error(`${field}${$t('common.validation.required')}`)
         }
         return true
       })
       .with(P.instanceOf(Map), (map) => {
         if (map.size === 0) {
-          return new Error(`${field}${$t('common.notEmpty')}`)
+          return new Error(`${field}${$t('common.validation.required')}`)
         }
         return true
       })
       .with(P.instanceOf(Set), (set) => {
         if (set.size === 0) {
-          return new Error(`${field}${$t('common.notEmpty')}`)
+          return new Error(`${field}${$t('common.validation.required')}`)
         }
         return true
       })
@@ -177,7 +177,7 @@ export const requireRule = (
             options.treatEmptyObjectAsEmpty !== false &&
             Object.keys(obj as object).length === 0
           ) {
-            return new Error(`${field}${$t('common.notEmpty')}`)
+            return new Error(`${field}${$t('common.validation.required')}`)
           }
           return true
         },

@@ -55,7 +55,7 @@ export default defineComponent({
 
         {/* 如果三个都空 */}
         {isAllEmpty.value && (
-          <NEmpty description={$t('serviceAgreement.attachments.print.empty')} />
+          <NEmpty description={$t('common.label.noData')} />
         )}
       </div>
     )

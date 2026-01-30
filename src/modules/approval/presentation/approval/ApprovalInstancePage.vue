@@ -61,50 +61,50 @@ function createColumns({
 }): DataTableColumns<ApprovalInstance<Record<string, unknown>>> {
   return [
     {
-      title: $t('approval.instance.processName'),
+      title: $t('domain.approval.field.process'),
       key: 'processName',
     },
     {
-      title: $t('approval.instance.nodeName'),
+      title: $t('domain.approval.field.nodeName'),
       key: 'nodeName',
     },
     {
-      title: $t('approval.instance.status'),
+      title: $t('common.label.status'),
       key: 'status',
       render: (row) => {
         return h(StatusTag(row.status, 'Instance'))
       },
     },
     {
-      title: $t('approval.instance.taskStatus'),
+      title: $t('common.label.status'),
       key: 'taskStatus',
       render: (row) => {
         return h(StatusTag(row.taskStatus, 'Task', isApprovalFinish(row.status)))
       },
     },
     {
-      title: $t('approval.instance.assigneeName'),
+      title: $t('domain.approval.field.approver'),
       key: 'assigneeName',
       render: (row) => {
         return showIncompletedUserName(row.assigneeName)
       },
     },
     {
-      title: $t('approval.instance.applicantName'),
+      title: $t('domain.approval.field.applicant'),
       key: 'applicantName',
       render: (row) => {
         return showIncompletedUserName(row.applicantName)
       },
     },
     {
-      title: $t('common.createTime'),
+      title: $t('common.time.created'),
       key: 'createTime',
       render: (row) => {
         return formatted(row.createdTime).standard
       },
     },
     {
-      title: $t('actions.operate'),
+      title: $t('common.action.operate'),
       key: 'operate',
       render(row) {
         return h(
@@ -121,7 +121,7 @@ function createColumns({
                   { size: 'small', onClick: () => approve(row) },
                   {
                     default: () =>
-                      isApproveBtnVisible(row.status) ? $t('actions.approve') : $t('actions.read'),
+                      isApproveBtnVisible(row.status) ? $t('common.action.approve') : $t('common.action.view'),
                   },
                 ),
               )
@@ -136,8 +136,8 @@ function createColumns({
                     },
                     {
                       trigger: () =>
-                        h(NButton, { size: 'small' }, { default: () => $t('actions.claim') }),
-                      default: () => $t('approval.claim.confirm', { id: row.taskId }),
+                        h(NButton, { size: 'small' }, { default: () => $t('common.action.claim') }),
+                      default: () => $t('domain.approval.message.claimConfirm', { id: row.taskId }),
                     },
                   ),
                 )

@@ -68,8 +68,8 @@ export default defineComponent({
         >
           <h2
             class={clsx('mb-content', 'text-center', 'text-3xl', 'font-medium', 'text-gray-800')}
-          >{`${$t('common.zwEnergy')} ${$t('unauth.password-recovery.header.title')}`}</h2>
-          <NFormItem path="phone" label={$t('account.phone.text')}>
+          >{`${$t('common.brand.name')} ${$t('auth.recovery.title')}`}</h2>
+          <NFormItem path="phone" label={$t('auth.field.phone')}>
             <NInput
               clearable={true}
               v-model:value={formData.value.phone}
@@ -89,14 +89,14 @@ export default defineComponent({
                           <InfoCircleFilled></InfoCircleFilled>
                         </NIcon>
                       ),
-                      default: () => $t('account.phone.support'),
+                      default: () => $t('auth.hint.phoneSupport'),
                     }}
                   ></NTooltip>
                 ),
               }}
             ></NInput>
           </NFormItem>
-          <NFormItem path="password" label={$t('account.password.new')}>
+          <NFormItem path="password" label={$t('auth.field.newPassword')}>
             <NInput
               type="password"
               show-password-on="mousedown"
@@ -123,7 +123,7 @@ export default defineComponent({
                           <InfoCircleFilled></InfoCircleFilled>
                         </NIcon>
                       ),
-                      default: () => $t('account.password.regular'),
+                      default: () => $t('auth.validation.passwordLength'),
                     }}
                   ></NTooltip>
                 ),
@@ -132,7 +132,7 @@ export default defineComponent({
           </NFormItem>
           <NFormItem
             path="dbCheckPassword"
-            label={$t('account.password.dbCheck.new.text')}
+            label={$t('auth.field.confirmNewPassword')}
             required={true}
           >
             <NInput
@@ -161,14 +161,14 @@ export default defineComponent({
                           <InfoCircleFilled></InfoCircleFilled>
                         </NIcon>
                       ),
-                      default: () => $t('account.password.regular'),
+                      default: () => $t('auth.validation.passwordLength'),
                     }}
                   ></NTooltip>
                 ),
               }}
             ></NInput>
           </NFormItem>
-          <NFormItem path="code" label={$t('captcha.text')} required={true}>
+          <NFormItem path="code" label={$t('auth.field.captcha')} required={true}>
             <NInput
               type="text"
               v-model:value={formData.value.code}
@@ -200,7 +200,7 @@ export default defineComponent({
             >
               {formData.value.phone
                 ? getSendBtnLabelText(formData.value.phone).value
-                : $t('actions.send')}
+                : $t('common.action.send')}
             </NButton>
           </NFormItem>
           <div class={clsx('flex', 'flex-col', 'justify-center', 'align-middle', 'gap-content')}>
@@ -213,7 +213,7 @@ export default defineComponent({
                 onClick={onSubmit}
                 loading={props.isSubmitBtnLoading}
               >
-                <div class={clsx('p-content', 'text-xl')}>{$t('account.password.change')}</div>
+                <div class={clsx('p-content', 'text-xl')}>{$t('auth.action.changePassword')}</div>
               </NButton>
             }
             {
@@ -221,7 +221,7 @@ export default defineComponent({
                 to={{ name: 'login' }}
                 class="font-medium ml-2 text-center cursor-pointer text-routelink underline hover-shake"
               >
-                {$t('account.register.haveAccount')}
+                {$t('auth.register.hasAccount')}
               </RouterLink>
             }
           </div>

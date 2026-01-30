@@ -11,7 +11,7 @@ export const dashboardRoutes: AppRouteRecord[] = [
     name: 'dashboard',
     component: DashboardView,
     meta: {
-      name: $t('sign.route.home'),
+      name: $t('layout.menu.home'),
       icon: 'MapsHomeWorkOutlined',
     },
   },
@@ -20,7 +20,7 @@ export const dashboardRoutes: AppRouteRecord[] = [
     name: 'document',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
-      name: $t('sign.route.document'),
+      name: $t('layout.menu.docs'),
       icon: 'MenuBookTwotone',
     },
   },

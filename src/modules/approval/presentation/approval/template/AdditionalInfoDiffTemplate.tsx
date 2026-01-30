@@ -29,7 +29,7 @@ export default defineComponent({
             direction={'horizontal'}
             v-slots={{
               '1': () => (
-                <NCard title={$t('approval.template.new')}>
+                <NCard title={$t('domain.approval.label.newData')}>
                   <UserAdditionalInfoForm
                     initialValue={approvalData}
                     type={'detail'}
@@ -37,7 +37,7 @@ export default defineComponent({
                 </NCard>
               ),
               '2': () => (
-                <NCard title={$t('approval.template.old')}>
+                <NCard title={$t('domain.approval.label.oldData')}>
                   <UserAdditionalInfoForm
                     initialValue={sourceData}
                     type={'detail'}

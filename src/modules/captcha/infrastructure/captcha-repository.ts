@@ -24,7 +24,7 @@ export const captchaRepository = {
       url: CAPTCHA_ENDPOINTS.SMS_SEND,
       data: phone,
       notify: {
-        success: { title: $t('captcha.sms.success.title'), type: 'notification' },
+        success: { title: $t('auth.sms.sentSuccess'), type: 'notification' },
       },
     }).then((resp) => resp.data),
 }
