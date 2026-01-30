@@ -95,6 +95,15 @@ export const createServiceAgreementModel = (
 /**
  * 将 UI 状态树转换为后端所需的 DTO
  */
+const trimOrNull = (val: string | null | undefined): string | null => {
+  if (val === null || val === undefined) return null
+  const trimmed = val.trim()
+  return trimmed === '' ? null : trimmed
+}
+
+/**
+ * 将 UI 状态树转换为后端所需的 DTO
+ */
 export const convertUIToRequestDTO = (
   uiModel: ServiceAgreementUIMap,
 ): ServiceAgreementRequestDTO => {
@@ -102,20 +111,20 @@ export const convertUIToRequestDTO = (
   return {
     id: customerInfo.id,
     status: customerInfo.status,
-    companyName: customerInfo.companyName,
-    companyArea: customerInfo.companyArea,
-    companyAddress: customerInfo.companyAddress,
-    industry: customerInfo.industry || '',
-    liaisonName: customerInfo.liaisonName,
-    liaisonPosition: customerInfo.liaisonPosition,
-    liaisonPhone: customerInfo.liaisonPhone,
+    companyName: trimOrNull(customerInfo.companyName),
+    companyArea: trimOrNull(customerInfo.companyArea),
+    companyAddress: trimOrNull(customerInfo.companyAddress),
+    industry: trimOrNull(customerInfo.industry),
+    liaisonName: trimOrNull(customerInfo.liaisonName),
+    liaisonPosition: trimOrNull(customerInfo.liaisonPosition),
+    liaisonPhone: trimOrNull(customerInfo.liaisonPhone),
     yearUsableCharge: customerInfo.yearUsableCharge || 0,
     isTimeOfUsePricingEnabled: customerInfo.isTimeOfUsePricingEnabled,
     peakPercentage: customerInfo.peakPercentage,
     superPeakPercentage: customerInfo.superPeakPercentage,
     standardPercentage: customerInfo.standardPercentage,
     valleyPercentage: customerInfo.valleyPercentage,
-    comment: customerInfo.comment,
+    comment: trimOrNull(customerInfo.comment),
     priceModel: signInfo.priceModel,
     priceType: signInfo.priceType,
     priceCategory: signInfo.priceCategory,

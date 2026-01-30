@@ -1,6 +1,8 @@
-import { pruneEmpty } from '@/modules/shared/application/form'
 import { $t } from '@/_utils/i18n'
-import type { ServiceAgreementRequestDTO, ServiceAgreementUIMap } from '@/modules/service-agreement/application/models'
+import type {
+  ServiceAgreementRequestDTO,
+  ServiceAgreementUIMap,
+} from '@/modules/service-agreement/application/models'
 import { ServiceAgreementStatusEnum } from '@/modules/service-agreement/application/constants'
 import { convertUIToRequestDTO } from '@/modules/service-agreement/application/ui-mappers'
 import ServiceAgreementForm from '@/modules/service-agreement/presentation/sign/ServiceAgreementForm'
@@ -65,9 +67,7 @@ export default defineComponent({
       if (!isValid) return
 
       const converter = convertUIToRequestDTO(formValue)
-      const payload = pruneEmpty<ServiceAgreementRequestDTO>(
-        converter,
-      ) as ServiceAgreementRequestDTO
+      const payload = converter
 
       match(formValue.customerInfo.status)
         .with(ServiceAgreementStatusEnum.Record, () => {
