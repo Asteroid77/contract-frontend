@@ -12,7 +12,7 @@ import { useLatestAdditionalInfoInstanceStatus } from '@/modules/approval/applic
 import { useRouter } from 'vue-router'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
 import { useLoadUserInfo } from '@/modules/user/application/hooks/useLoadUserInfo'
-import { buildSubmitData } from '@/modules/shared/application/form'
+
 const $form: Ref<UserAdditionalInfoFormExpose | null> =
   useTemplateRef<UserAdditionalInfoFormExpose>('formRef')
 const req = useUserAdditionalInfoRequest(() => {})
@@ -34,6 +34,8 @@ const pageStatus = computed(() => {
   return 'approving'
 })
 const submitBtnLoading = computed(() => req.isPending.value)
+import { convertUIToUserAdditionalInfoRequest } from '@/modules/user/application/ui-mappers'
+
 const submit = () => {
   if ($form.value) {
     const formInstance = $form.value?.getFormInstance()
@@ -41,9 +43,10 @@ const submit = () => {
       formInstance.validate((errors) => {
         if (!errors?.length) {
           const formData = formInstance.values as FormInput<UserAdditionalInfoRequest>
-          const requiredKeys = $form.value?.getRequiredKeys?.() ?? []
-          const submitData = buildSubmitData<UserAdditionalInfoRequest>(formData, requiredKeys)
-          if (!submitData) return
+          // 在这里进行转换
+          const submitData = convertUIToUserAdditionalInfoRequest(
+            formData as UserAdditionalInfoRequest,
+          )
           req.mutate(submitData)
         }
       })

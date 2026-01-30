@@ -8,7 +8,7 @@ import { NButton, NIcon } from 'naive-ui'
 import clsx from 'clsx'
 import { GithubFilled, QqCircleFilled } from '@vicons/antd'
 import { useOauth2AuthorizationUrl } from '@/modules/user/application/hooks/useOauth2AuthorizationUrl'
-import { buildSubmitData } from '@/modules/shared/application/form'
+import { convertUIToSignInRequest } from '@/modules/user/application/ui-mappers'
 import { getFrontendOrigin } from '@/app/infrastructure/request/get-frontend-url'
 
 export default defineComponent({
@@ -45,20 +45,9 @@ export default defineComponent({
     const oauth2BtnClick = (platform: string) => {
       authWindowRef.value = useOauth2AuthorizationUrl(platform)
     }
-    const onSubmit = ({
-      valid,
-      formData,
-      requiredKeys,
-    }: {
-      valid: boolean
-      formData: boolean extends true ? SignInRequest : FormInput<SignInRequest>
-      requiredKeys: readonly (keyof SignInRequest)[]
-    }) => {
-      if (valid) {
-        const submitData = buildSubmitData<SignInRequest>(formData, requiredKeys)
-        if (!submitData) return
-        login.mutate({ mode: 'local', data: submitData })
-      }
+    const onSubmit = (formData: SignInRequest) => {
+      const submitData = convertUIToSignInRequest(formData)
+      login.mutate({ mode: 'local', data: submitData })
     }
     return () => (
       <div>

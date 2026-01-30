@@ -16,6 +16,7 @@ import clsx from 'clsx'
 import type { SignInRequest } from '@/modules/user/application/models'
 import { RouterLink } from 'vue-router'
 import type { FormInst } from 'naive-ui/lib'
+import { createSignInModel } from '@/modules/user/application/ui-mappers'
 
 export default defineComponent({
   props: {
@@ -32,19 +33,21 @@ export default defineComponent({
   setup(props, { emit, slots }) {
     const { isLoading: captchaLoading, data: captchaData, refetch: captchaRefetch } = useCaptcha()
     const formRef: Readonly<ShallowRef<FormInst | null>> = useTemplateRef<FormInst>('formRef')
-    const formData = ref<FormInput<SignInRequest>>({})
+    // 使用 Factory Function 初始化表单模型
+    const formData = ref<SignInRequest>(createSignInModel(props.initialValues))
     const validation = loginFormValidation(formData)
     const onSubmit = () => {
       formRef.value?.validate((errors) => {
-        emit('submit', {
-          valid: !errors?.length,
-          formData: { ...formData.value, captchaKey: captchaData.value?.id },
-          requiredKeys: validation.requiredKeys,
-        })
+        if (!errors) {
+          emit('submit', {
+            ...formData.value,
+            captchaKey: captchaData.value?.id || '',
+          })
+        }
       })
     }
     if (props.initialValues) {
-      formData.value = { ...props.initialValues }
+      formData.value = createSignInModel(props.initialValues)
     }
     return () => (
       <div

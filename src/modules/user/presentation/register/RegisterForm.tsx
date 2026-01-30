@@ -35,11 +35,12 @@ export default defineComponent({
     const validation = registerFormValidation(formData)
     const onSubmit = () => {
       formRef.value?.validate((errors) => {
-        emit('submit', {
-          valid: !errors?.length,
-          formData: { ...formData.value, bizId: useSMSCode.data.value?.bizId },
-          requiredKeys: validation.requiredKeys,
-        })
+        if (!errors) {
+          emit('submit', {
+            ...formData.value,
+            bizId: useSMSCode.data.value?.bizId,
+          } as RegisterRequest)
+        }
       })
     }
     if (props.initialValues) {

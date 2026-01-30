@@ -10,7 +10,7 @@ import {
 import PCACascader from '@/modules/shared/presentation/widget/PCACascader'
 import BankSelect from '@/modules/shared/presentation/widget/BankSelect'
 import type { FormValidate } from 'naive-ui/lib/form/src/interface'
-import { useSubscribeForm } from '@/modules/shared/application/form'
+import { useSubscribeForm } from '@/modules/shared/application/form/useSubscribeForm'
 
 export const userAdditionalInfoFormProps = {
   initialValue: {
