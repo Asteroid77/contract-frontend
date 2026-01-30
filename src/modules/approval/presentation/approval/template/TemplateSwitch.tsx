@@ -4,7 +4,7 @@ import { defineComponent } from 'vue'
 import type { PropType } from 'vue'
 import SignDiffTemplate from '@/modules/service-agreement/presentation/print/SignDiffTemplate'
 import UserAdditionInfoPrintTemplate from '@/modules/user/presentation/print/UserAdditionInfoPrintTemplate'
-import '@/modules/approval/application/print/style/PrintCore.css'
+import '@/modules/approval/presentation/print/style/PrintCore.css'
 import type { ServiceAgreementRequestDTO } from '@/modules/service-agreement/application/models'
 export const templateSwitch = defineComponent({
   props: {

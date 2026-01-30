@@ -1,5 +1,5 @@
 import printJS from 'print-js'
-import { getPrintStyles } from '@/modules/approval/application/print/style'
+import { getPrintStyles } from '@/modules/approval/presentation/print/style'
 
 export const usePrint = (filename?: string) => {
   const print = (elementId: string = 'printable-approval-area') => {
