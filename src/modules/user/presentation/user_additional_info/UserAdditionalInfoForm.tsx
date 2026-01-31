@@ -1,5 +1,5 @@
 import { NFormItem, NInput, NSelect, NForm, type FormInst } from 'naive-ui'
-import type { UserAdditionalInfoRequest } from '@/modules/user/application/models'
+import type { UserAdditionalInfoForm } from '@/modules/user/application/models'
 import { computed, defineComponent, toRef, useTemplateRef, type PropType, type Ref } from 'vue'
 import { $t } from '@/_utils/i18n'
 import { RegisterType, RegisterTypeOption } from '@/modules/user/application/constants'
@@ -14,7 +14,7 @@ import { useSubscribeForm } from '@/modules/shared/application/form/useSubscribe
 
 export const userAdditionalInfoFormProps = {
   initialValue: {
-    type: Object as PropType<FormInput<UserAdditionalInfoRequest>>,
+    type: Object as PropType<FormInput<UserAdditionalInfoForm>>,
     required: false,
   },
   type: {
@@ -26,15 +26,15 @@ export type UserAdditionalInfoFormExpose = {
   getFormInstance: () => {
     validate: FormValidate | undefined
     restoreValidation: (() => void) | undefined
-    values: FormInput<UserAdditionalInfoRequest>
+    values: FormInput<UserAdditionalInfoForm>
   }
-  getRequiredKeys: () => (keyof UserAdditionalInfoRequest)[]
+  getRequiredKeys: () => (keyof UserAdditionalInfoForm)[]
 }
 export default defineComponent({
   name: 'user-additional-info-form',
   props: userAdditionalInfoFormProps,
   setup(props, { expose }) {
-    const { formValue } = useSubscribeForm<FormInput<UserAdditionalInfoRequest>>(
+    const { formValue } = useSubscribeForm<FormInput<UserAdditionalInfoForm>>(
       toRef(props, 'initialValue'),
       props.type === 'detail',
     )
@@ -53,7 +53,8 @@ export default defineComponent({
           values: formValue.value,
         }
       },
-      getRequiredKeys: () => getUserAdditionalInfoRequiredKeys(formValue.value),
+      getRequiredKeys: () =>
+        getUserAdditionalInfoRequiredKeys(formValue.value) as (keyof UserAdditionalInfoForm)[],
     }
     expose(exposeDefined)
     const legalRepresentativeGroup = () => (
@@ -70,10 +71,7 @@ export default defineComponent({
         <NFormItem label={$t('domain.user.field.contactPerson')} path="contactPerson">
           <NInput v-model:value={formValue.value.contactPerson} />
         </NFormItem>
-        <NFormItem
-          label={$t('domain.user.field.contactPhone')}
-          path="contactPersonPhone"
-        >
+        <NFormItem label={$t('domain.user.field.contactPhone')} path="contactPersonPhone">
           <NInput v-model:value={formValue.value.contactPersonPhone} />
         </NFormItem>
         <NFormItem label={$t('domain.user.field.usci')} path="identity">

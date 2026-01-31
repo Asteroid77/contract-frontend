@@ -1,5 +1,5 @@
 import LoginForm from '@/modules/user/presentation/login/LoginForm'
-import type { SignInRequest } from '@/modules/user/application/models'
+import type { SignInForm } from '@/modules/user/application/models'
 import { defineComponent, onMounted, onUnmounted, ref } from 'vue'
 import { useLogin } from '@/modules/user/application/hooks/useLogin'
 import { notification } from '@/_utils/discrete_naive_api'
@@ -8,7 +8,7 @@ import { NButton, NIcon } from 'naive-ui'
 import clsx from 'clsx'
 import { GithubFilled, QqCircleFilled } from '@vicons/antd'
 import { useOauth2AuthorizationUrl } from '@/modules/user/application/hooks/useOauth2AuthorizationUrl'
-import { convertUIToSignInRequest } from '@/modules/user/application/ui-mappers'
+import { convertUIToSignInForm } from '@/modules/user/application/ui-mappers'
 import { getFrontendOrigin } from '@/app/infrastructure/request/get-frontend-url'
 
 export default defineComponent({
@@ -45,8 +45,8 @@ export default defineComponent({
     const oauth2BtnClick = (platform: string) => {
       authWindowRef.value = useOauth2AuthorizationUrl(platform)
     }
-    const onSubmit = (formData: SignInRequest) => {
-      const submitData = convertUIToSignInRequest(formData)
+    const onSubmit = (formData: SignInForm) => {
+      const submitData = convertUIToSignInForm(formData)
       login.mutate({ mode: 'local', data: submitData })
     }
     return () => (

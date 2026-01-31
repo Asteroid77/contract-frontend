@@ -11,7 +11,7 @@ import {
 } from '@vicons/antd'
 import { NTooltip, NIcon } from 'naive-ui'
 import clsx from 'clsx'
-import type { RegisterRequest, SignInRequest } from '@/modules/user/application/models'
+import type { RegisterForm, SignInForm } from '@/modules/user/application/models'
 import { RouterLink } from 'vue-router'
 import { useSMS } from '@/modules/captcha/application/hooks/useSMS'
 import type { FormInst } from 'naive-ui/lib'
@@ -19,7 +19,7 @@ const { getSendBtnLabelText, getSMSCoolDownSecond, sendSMSCode } = useSMS()
 export default defineComponent({
   props: {
     initialValues: {
-      type: Object as PropType<SignInRequest>,
+      type: Object as PropType<SignInForm>,
     },
     isSubmitBtnLoading: {
       type: Boolean,
@@ -30,7 +30,7 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const useSMSCode = sendSMSCode()
-    const formData = ref<FormInput<RegisterRequest>>({})
+    const formData = ref<FormInput<RegisterForm>>({})
     const formRef: Readonly<ShallowRef<FormInst | null>> = useTemplateRef<FormInst>('formRef')
     const validation = registerFormValidation(formData)
     const onSubmit = () => {
@@ -39,7 +39,7 @@ export default defineComponent({
           emit('submit', {
             ...formData.value,
             bizId: useSMSCode.data.value?.bizId,
-          } as RegisterRequest)
+          } as RegisterForm)
         }
       })
     }

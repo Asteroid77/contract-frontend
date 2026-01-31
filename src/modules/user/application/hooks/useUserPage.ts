@@ -1,5 +1,5 @@
 import { userService } from '@/modules/user/application/service'
-import type { UserPageDTO, UserPageVO } from '@/modules/user/application/models'
+import type { UserPageQuery, UserPageItem } from '@/modules/user/application/models'
 import type { BasePageRequest, IPage } from '@/modules/shared/application/request/types'
 import { keepPreviousData, useQuery } from '@tanstack/vue-query'
 import type { AxiosError } from 'axios'
@@ -8,14 +8,14 @@ import { computed, unref, type Ref } from 'vue'
 export const userQueryKeys = {
   all: ['users'] as const,
   lists: () => [...userQueryKeys.all, 'list'] as const,
-  list: (params: BasePageRequest<UserPageDTO>) => [...userQueryKeys.lists(), params] as const,
+  list: (params: BasePageRequest<UserPageQuery>) => [...userQueryKeys.lists(), params] as const,
 }
 
 /**
  * 获取用户分页数据
  */
 export const useUserPage = (
-  pageRequest: Ref<BasePageRequest<UserPageDTO>> | BasePageRequest<UserPageDTO>,
+  pageRequest: Ref<BasePageRequest<UserPageQuery>> | BasePageRequest<UserPageQuery>,
   options?: {
     enabled?: Ref<boolean> | boolean
     staleTime?: number
@@ -23,7 +23,7 @@ export const useUserPage = (
     refetchOnWindowFocus?: boolean
   },
 ) => {
-  return useQuery<IPage<UserPageVO>, AxiosError<unknown>, IPage<UserPageVO>>({
+  return useQuery<IPage<UserPageItem>, AxiosError<unknown>, IPage<UserPageItem>>({
     queryKey: computed(() => userQueryKeys.list(unref(pageRequest))),
     queryFn: () => userService.getUserPage(unref(pageRequest)),
     placeholderData: keepPreviousData, // 分页时保持旧数据

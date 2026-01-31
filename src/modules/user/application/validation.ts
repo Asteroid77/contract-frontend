@@ -1,5 +1,5 @@
 import { $t } from '@/_utils/i18n'
-import type { UserAdditionalInfoRequest } from '@/modules/user/application/models'
+import type { UserAdditionalInfoForm } from '@/modules/user/application/models'
 import type { FormItemRule, FormRules } from 'naive-ui'
 import type { Ref } from 'vue'
 import { RegisterType } from '@/modules/user/application/constants'
@@ -11,7 +11,7 @@ type FormValidationResult<T> = {
 }
 
 export const UserAdditionalInfoFormRules: (
-  formValue: Ref<FormInput<UserAdditionalInfoRequest>>,
+  formValue: Ref<FormInput<UserAdditionalInfoForm>>,
 ) => FormRules = (formValue) => {
   const isLegalRepresentative =
     formValue.value.registerType &&
@@ -53,9 +53,7 @@ export const UserAdditionalInfoFormRules: (
         validator: (rule: FormItemRule, value: string) =>
           requireRule(
             rule,
-            isLegalRepresentative
-              ? $t('domain.user.field.usci')
-              : $t('domain.user.field.identity'),
+            isLegalRepresentative ? $t('domain.user.field.usci') : $t('domain.user.field.identity'),
             value,
           ),
         trigger: ['blur'],
@@ -115,11 +113,11 @@ export const UserAdditionalInfoFormRules: (
 }
 
 export const getUserAdditionalInfoRequiredKeys = (
-  formValue: FormInput<UserAdditionalInfoRequest>,
-): (keyof UserAdditionalInfoRequest)[] => {
+  formValue: FormInput<UserAdditionalInfoForm>,
+): (keyof UserAdditionalInfoForm)[] => {
   const isLegalRepresentative =
     formValue.registerType && formValue.registerType === RegisterType.LEGAL_REPRESENTATIVE
-  const requiredKeys: (keyof UserAdditionalInfoRequest)[] = [
+  const requiredKeys: (keyof UserAdditionalInfoForm)[] = [
     'registerType',
     'name',
     'pca',
@@ -134,8 +132,8 @@ export const getUserAdditionalInfoRequiredKeys = (
 }
 
 export const UserAdditionalInfoFormValidation = (
-  formValue: Ref<FormInput<UserAdditionalInfoRequest>>,
-): FormValidationResult<UserAdditionalInfoRequest> => {
+  formValue: Ref<FormInput<UserAdditionalInfoForm>>,
+): FormValidationResult<UserAdditionalInfoForm> => {
   return {
     rules: UserAdditionalInfoFormRules(formValue),
     requiredKeys: getUserAdditionalInfoRequiredKeys(formValue.value),

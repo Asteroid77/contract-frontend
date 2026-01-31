@@ -1,15 +1,15 @@
 import type {
-  PasswordRecoveryRequest,
-  RegisterRequest,
-  SignInRequest,
-  UserAdditionalInfoRequest,
+  PasswordRecoveryForm,
+  RegisterForm,
+  SignInForm,
+  UserAdditionalInfoForm,
 } from './models'
 
 /**
  * 创建登录表单的初始 UI 模型
  * 确保所有字段都有默认值，避免 controlled/uncontrolled 切换警告
  */
-export const createSignInModel = (initialPartial: Partial<SignInRequest> = {}): SignInRequest => {
+export const createSignInModel = (initialPartial: Partial<SignInForm> = {}): SignInForm => {
   return {
     phone: initialPartial.phone ?? '',
     password: initialPartial.password ?? '',
@@ -23,10 +23,10 @@ export const createSignInModel = (initialPartial: Partial<SignInRequest> = {}): 
  * 将 UI 模型转换为提交给 Service 的请求对象
  * 在这里进行最后的数据清洗（如 trim）
  */
-export const convertUIToSignInRequest = (uiModel: SignInRequest): SignInRequest => {
+export const convertUIToSignInForm = (uiModel: SignInForm): SignInForm => {
   // 对于登录，通常需要 trim 手机号和验证码，密码一般不 trim（虽然用户可能无意输入空格）
   // 这里做简单的 trim
-  const request: SignInRequest = {
+  const request: SignInForm = {
     phone: uiModel.phone?.trim(),
     password: uiModel.password, // 密码保留原始输入
     captcha: uiModel.captcha?.trim(),
@@ -39,7 +39,7 @@ export const convertUIToSignInRequest = (uiModel: SignInRequest): SignInRequest 
   return request
 }
 
-export const convertUIToRegisterRequest = (uiModel: RegisterRequest): RegisterRequest => {
+export const convertUIToRegisterForm = (uiModel: RegisterForm): RegisterForm => {
   return {
     phone: uiModel.phone?.trim(),
     password: uiModel.password,
@@ -49,9 +49,9 @@ export const convertUIToRegisterRequest = (uiModel: RegisterRequest): RegisterRe
   }
 }
 
-export const convertUIToPasswordRecoveryRequest = (
-  uiModel: PasswordRecoveryRequest,
-): PasswordRecoveryRequest => {
+export const convertUIToPasswordRecoveryForm = (
+  uiModel: PasswordRecoveryForm,
+): PasswordRecoveryForm => {
   return {
     phone: uiModel.phone?.trim(),
     password: uiModel.password,
@@ -61,9 +61,9 @@ export const convertUIToPasswordRecoveryRequest = (
   }
 }
 
-export const convertUIToUserAdditionalInfoRequest = (
-  uiModel: UserAdditionalInfoRequest,
-): UserAdditionalInfoRequest => {
+export const convertUIToUserAdditionalInfoForm = (
+  uiModel: UserAdditionalInfoForm,
+): UserAdditionalInfoForm => {
   return {
     // 必填项，不做空检查，交给 Validation 处理
     registerType: uiModel.registerType,

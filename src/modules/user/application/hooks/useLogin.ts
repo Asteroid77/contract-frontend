@@ -1,4 +1,4 @@
-import type { SignInRequest, SignInResponse } from '@/modules/user/application/models'
+import type { SignInForm, SignInResponse } from '@/modules/user/application/models'
 import { useMutation } from '@tanstack/vue-query'
 import type { AxiosError } from 'axios'
 import { userService } from '@/modules/user/application/service'
@@ -9,18 +9,13 @@ import type { RouteLocationRaw } from 'vue-router'
 export type SignInMutate = { redirect?: RouteLocationRaw } & (
   | {
       mode: 'local'
-      data: SignInRequest
+      data: SignInForm
     }
   | { mode: 'oauth2'; token: string; redirect?: RouteLocationRaw }
 )
 
 export function useLogin() {
-  return useMutation<
-    SignInResponse,
-    AxiosError<unknown>,
-    SignInMutate,
-    undefined
-  >({
+  return useMutation<SignInResponse, AxiosError<unknown>, SignInMutate, undefined>({
     mutationFn: (signInMutate: SignInMutate) =>
       signInMutate.mode === 'local'
         ? userService.login(signInMutate.data)

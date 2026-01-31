@@ -1,21 +1,20 @@
-import type { PasswordRecoveryRequest } from '@/modules/user/application/models'
-import PasswordRecoveryForm from '@/modules/user/presentation/password/PasswordRecoveryForm'
-import { usePassword } from '@/modules/user/application/hooks/usePassword'
+import type { PasswordRecoveryForm } from '@/modules/user/application/models'
+import PasswordRecoveryUiForm from '@/modules/user/presentation/password/PasswordRecoveryForm'
+import { usePasswordRecovery } from '@/modules/user/application/hooks/usePassword'
 import { defineComponent } from 'vue'
-import { convertUIToPasswordRecoveryRequest } from '@/modules/user/application/ui-mappers'
+import { convertUIToPasswordRecoveryForm } from '@/modules/user/application/ui-mappers'
 
 export default defineComponent({
   name: 'password-recovery-view',
   setup() {
-    const { recoveryBySMS } = usePassword()
-    const useRecoveryBySMS = recoveryBySMS()
-    const onSubmit = (formData: PasswordRecoveryRequest) => {
-      const submitData = convertUIToPasswordRecoveryRequest(formData)
-      useRecoveryBySMS.mutate(submitData)
+    const recoveryMutation = usePasswordRecovery()
+    const onSubmit = (formData: PasswordRecoveryForm) => {
+      const submitData = convertUIToPasswordRecoveryForm(formData)
+      recoveryMutation.mutate(submitData)
     }
     return () => (
       <div>
-        <PasswordRecoveryForm onSubmit={onSubmit}></PasswordRecoveryForm>
+        <PasswordRecoveryUiForm onSubmit={onSubmit}></PasswordRecoveryUiForm>
       </div>
     )
   },

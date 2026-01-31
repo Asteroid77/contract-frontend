@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import UserAdditionalInfoForm, {
+import UserAdditionalInfoUiForm, {
   type UserAdditionalInfoFormExpose,
 } from '@/modules/user/presentation/user_additional_info/UserAdditionalInfoForm'
 import { computed, useTemplateRef } from 'vue'
 import { NFlex, NButton, NSkeleton, NResult } from 'naive-ui'
 import { $t } from '@/_utils/i18n'
 import type { Ref } from 'vue'
-import type { UserAdditionalInfoRequest } from '@/modules/user/application/models'
+import type { UserAdditionalInfoForm } from '@/modules/user/application/models'
 import { useUserAdditionalInfoRequest } from '@/modules/user/application/hooks/useUserAdditionalInfoRequest'
 import { useLatestAdditionalInfoInstanceStatus } from '@/modules/approval/application/hooks/useApprovalService'
 import { useRouter } from 'vue-router'
@@ -20,9 +20,9 @@ const status = useLatestAdditionalInfoInstanceStatus()
 const router = useRouter()
 const account = useAccountStore()
 const loadUserInfo = useLoadUserInfo(account.token as string)
-const formInitialValue = computed<FormInput<UserAdditionalInfoRequest> | undefined>(() => {
+const formInitialValue = computed<FormInput<UserAdditionalInfoForm> | undefined>(() => {
   const profile = loadUserInfo.data.value?.profile
-  return (profile ?? undefined) as FormInput<UserAdditionalInfoRequest> | undefined
+  return (profile ?? undefined) as FormInput<UserAdditionalInfoForm> | undefined
 })
 const pageStatus = computed(() => {
   if (!status.data.value || loadUserInfo.isLoading.value) {
@@ -34,7 +34,7 @@ const pageStatus = computed(() => {
   return 'approving'
 })
 const submitBtnLoading = computed(() => req.isPending.value)
-import { convertUIToUserAdditionalInfoRequest } from '@/modules/user/application/ui-mappers'
+import { convertUIToUserAdditionalInfoForm } from '@/modules/user/application/ui-mappers'
 
 const submit = () => {
   if ($form.value) {
@@ -42,11 +42,9 @@ const submit = () => {
     if (formInstance.validate) {
       formInstance.validate((errors) => {
         if (!errors?.length) {
-          const formData = formInstance.values as FormInput<UserAdditionalInfoRequest>
+          const formData = formInstance.values as FormInput<UserAdditionalInfoForm>
           // 在这里进行转换
-          const submitData = convertUIToUserAdditionalInfoRequest(
-            formData as UserAdditionalInfoRequest,
-          )
+          const submitData = convertUIToUserAdditionalInfoForm(formData as UserAdditionalInfoForm)
           req.mutate(submitData)
         }
       })
@@ -77,12 +75,14 @@ const handleClick = () => {
       <n-button @click="handleClick">{{ $t('domain.user.approval.btn') }}</n-button>
     </template>
   </n-result>
-  <UserAdditionalInfoForm
+  <UserAdditionalInfoUiForm
     ref="formRef"
     v-if="pageStatus === 'visible'"
     :initial-value="formInitialValue"
-  ></UserAdditionalInfoForm>
+  ></UserAdditionalInfoUiForm>
   <n-flex v-if="pageStatus === 'visible'">
-    <n-button @click="submit" :loading="submitBtnLoading">{{ $t('common.action.confirm') }}</n-button>
+    <n-button @click="submit" :loading="submitBtnLoading">{{
+      $t('common.action.confirm')
+    }}</n-button>
   </n-flex>
 </template>

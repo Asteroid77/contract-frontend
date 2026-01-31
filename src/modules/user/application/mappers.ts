@@ -6,26 +6,26 @@ import type {
 } from '../domain/dto'
 import type { UserAdditionalInfoVo, UserInfoVo, UserPageVo } from '../domain/types'
 import type {
-  PasswordRecoveryRequest,
-  RegisterRequest,
+  PasswordRecoveryForm,
+  RegisterForm,
   RegisterResponse,
-  SignInRequest,
+  SignInForm,
   SignInResponse,
   UserAdditionalInfo,
-  UserAdditionalInfoRequest,
+  UserAdditionalInfoForm,
   UserInfo,
-  UserPageVO,
+  UserPageItem,
 } from './models'
 import type { ApprovalInstance } from '@/modules/approval/domain/types'
 
-export const toDomainLoginRequest = (view: SignInRequest): LoginRequestDTO => ({
+export const toDomainLoginRequest = (view: SignInForm): LoginRequestDTO => ({
   phone: view.phone,
   password: view.password,
   captcha: view.captcha,
   captchaKey: view.captchaKey,
 })
 
-export const toDomainRegisterRequest = (view: RegisterRequest): RegisterRequestDTO => ({
+export const toDomainRegisterRequest = (view: RegisterForm): RegisterRequestDTO => ({
   phone: view.phone,
   password: view.password,
   code: view.code,
@@ -33,7 +33,7 @@ export const toDomainRegisterRequest = (view: RegisterRequest): RegisterRequestD
 })
 
 export const toDomainPasswordRecoveryRequest = (
-  view: PasswordRecoveryRequest,
+  view: PasswordRecoveryForm,
 ): ForgetPasswordRequestDTO => ({
   phone: view.phone,
   password: view.password,
@@ -42,7 +42,7 @@ export const toDomainPasswordRecoveryRequest = (
 })
 
 export const toDomainAdditionalInfoRequest = (
-  view: UserAdditionalInfoRequest,
+  view: UserAdditionalInfoForm,
 ): UserAdditionalInfoRequestDTO => ({
   id: view.id,
   registerType: view.registerType,
@@ -67,7 +67,9 @@ const toViewUserInfo = (info: UserInfoVo): UserInfo => ({
   platform: 'NATIVE',
 })
 
-export const toViewAdditionalInfo = (info: UserAdditionalInfoVo | null): UserAdditionalInfo | null => {
+export const toViewAdditionalInfo = (
+  info: UserAdditionalInfoVo | null,
+): UserAdditionalInfo | null => {
   if (!info) return null
   return {
     id: info.id,
@@ -105,7 +107,7 @@ export const toViewRegisterResponse = (userId: number): RegisterResponse => ({
   userId,
 })
 
-export const toViewUserPage = (row: UserPageVo): UserPageVO => ({
+export const toViewUserPage = (row: UserPageVo): UserPageItem => ({
   id: row.id,
   phone: row.phone,
   deleted: row.deleted,

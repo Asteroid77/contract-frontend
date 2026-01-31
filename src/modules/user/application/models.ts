@@ -39,7 +39,7 @@ export interface UserAdditionalInfo {
   updatedTime: string
 }
 
-export interface UserAdditionalInfoRequest {
+export interface UserAdditionalInfoForm {
   id?: number
   registerType: RegisterType
   name: string
@@ -58,7 +58,7 @@ export interface UserAdditionalInfoRequest {
 /**
  * 登录请求数据结构
  */
-export interface SignInRequest {
+export interface SignInForm {
   phone: string
   password: string
   captchaKey: string
@@ -81,7 +81,7 @@ export interface SignInResponse {
 /**
  * 注册请求数据结构
  */
-export interface RegisterRequest {
+export interface RegisterForm {
   phone: string
   password: string
   code: string
@@ -103,7 +103,7 @@ export interface RegisterResponse {
 /**
  * 忘记密码请求数据结构
  */
-export interface PasswordRecoveryRequest {
+export interface PasswordRecoveryForm {
   phone: string
   password: string
   dbCheckPassword?: string
@@ -112,9 +112,9 @@ export interface PasswordRecoveryRequest {
 }
 
 /**
- * 用户分页数据视图对象
+ * 用户分页数据视图对象 (UI List Item)
  */
-export interface UserPageVO {
+export interface UserPageItem {
   id: number
   phone: string
   deleted: boolean
@@ -127,9 +127,9 @@ export interface UserPageVO {
 }
 
 /**
- * 用户分页查询DTO
+ * 用户分页查询参数 (UI Query State)
  */
-export interface UserPageDTO extends BaseQuery {
+export interface UserPageQuery extends BaseQuery {
   name?: ConditionWrapper<string>
   phone?: ConditionWrapper<string>
   registerType?: ConditionWrapper<number>

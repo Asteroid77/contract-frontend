@@ -10,7 +10,7 @@ import {
 } from '@vicons/antd'
 import { NTooltip, NIcon } from 'naive-ui'
 import clsx from 'clsx'
-import type { PasswordRecoveryRequest } from '@/modules/user/application/models'
+import type { PasswordRecoveryForm } from '@/modules/user/application/models'
 import { RouterLink } from 'vue-router'
 import { useSMS } from '@/modules/captcha/application/hooks/useSMS'
 import type { FormInst } from 'naive-ui/lib'
@@ -19,7 +19,7 @@ const { getSendBtnLabelText, getSMSCoolDownSecond, sendSMSCode } = useSMS()
 export default defineComponent({
   props: {
     initialValues: {
-      type: Object as PropType<PasswordRecoveryRequest>,
+      type: Object as PropType<PasswordRecoveryForm>,
     },
     isSubmitBtnLoading: {
       type: Boolean,
@@ -31,7 +31,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const useSMSCode = sendSMSCode()
     const formRef: Readonly<ShallowRef<FormInst | null>> = useTemplateRef<FormInst>('formRef')
-    const formData = ref<FormInput<PasswordRecoveryRequest>>({})
+    const formData = ref<FormInput<PasswordRecoveryForm>>({})
     const validation = passwordRecoveryFormValidation(formData)
     if (props.initialValues) {
       formData.value = { ...props.initialValues }
@@ -45,7 +45,7 @@ export default defineComponent({
           emit('submit', {
             ...formData.value,
             bizId: useSMSCode.data.value?.bizId,
-          } as PasswordRecoveryRequest)
+          } as PasswordRecoveryForm)
         }
       })
     }

@@ -13,7 +13,7 @@ import { InfoCircleFilled, IdcardOutlined, KeyOutlined, MailOutlined } from '@vi
 import { useCaptcha } from '@/modules/captcha/application/hooks/useCaptcha'
 import { NTooltip, NIcon } from 'naive-ui'
 import clsx from 'clsx'
-import type { SignInRequest } from '@/modules/user/application/models'
+import type { SignInForm } from '@/modules/user/application/models'
 import { RouterLink } from 'vue-router'
 import type { FormInst } from 'naive-ui/lib'
 import { createSignInModel } from '@/modules/user/application/ui-mappers'
@@ -21,7 +21,7 @@ import { createSignInModel } from '@/modules/user/application/ui-mappers'
 export default defineComponent({
   props: {
     initialValues: {
-      type: Object as PropType<SignInRequest>,
+      type: Object as PropType<SignInForm>,
     },
     isSubmitBtnLoading: {
       type: Boolean,
@@ -34,7 +34,7 @@ export default defineComponent({
     const { isLoading: captchaLoading, data: captchaData, refetch: captchaRefetch } = useCaptcha()
     const formRef: Readonly<ShallowRef<FormInst | null>> = useTemplateRef<FormInst>('formRef')
     // 使用 Factory Function 初始化表单模型
-    const formData = ref<SignInRequest>(createSignInModel(props.initialValues))
+    const formData = ref<SignInForm>(createSignInModel(props.initialValues))
     const validation = loginFormValidation(formData)
     const onSubmit = () => {
       formRef.value?.validate((errors) => {
