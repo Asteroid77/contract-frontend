@@ -1,8 +1,10 @@
-import type { CustomAxiosRequestConfig, ServerResponse } from '@/modules/shared/application/request/types'
+import type {
+  CustomAxiosRequestConfig,
+  ServerResponse,
+} from '@/modules/shared/application/request/types'
 import { type AxiosResponse } from 'axios'
 import { apiClient } from '@/app/infrastructure/request/http-client'
 import { ResponseCode } from '@/modules/shared/application/constants/response-code'
-import { $t } from '@/_utils/i18n'
 import { BusinessError } from '@/modules/shared/domain/errors'
 /**
  * 用于项目的请求封装(unWrapper为true时)
@@ -65,7 +67,7 @@ export async function useRequest<T, D = unknown>(
       return _unWrapperResponseData<T>(config, data)
     }
     // 业务失败，但HTTP成功。主动创建BusinessError并抛出。
-    throw new BusinessError(resp.message || $t('common.status.error'), resp.code)
+    throw new BusinessError(resp.message || 'error', resp.code)
   } catch (err) {
     console.error(err)
     // const error = err as AxiosError<ServerResponse<unknown>>

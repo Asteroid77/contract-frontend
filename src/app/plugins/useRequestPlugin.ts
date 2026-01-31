@@ -35,7 +35,7 @@ function processApiError(error: Error | undefined): ProcessedError | undefined {
   if (error?.hasOwnProperty('isBusinessError')) {
     return {
       title: $t('common.error.businessFail'), // "业务异常"
-      content: error.message,
+      content: error.message === 'error' ? $t('common.status.error') : error.message,
       originalError,
     }
   }
