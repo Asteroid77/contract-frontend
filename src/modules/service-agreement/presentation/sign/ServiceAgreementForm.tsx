@@ -1,4 +1,7 @@
-import type { ServiceAgreementUIMap, ServiceAgreementVo } from '@/modules/service-agreement/application/models'
+import type {
+  ServiceAgreementUIMap,
+  ServiceAgreementDetail,
+} from '@/modules/service-agreement/application/models'
 import { NCollapse, NCollapseItem, NForm, NIcon, NPopover, NText, type FormInst } from 'naive-ui'
 import { defineComponent, computed, ref, type PropType, watch } from 'vue'
 import CustomerInfoSection from './CustomerInfoSection'
@@ -15,7 +18,7 @@ import FormSkeleton from '@/modules/shared/presentation/widget/FormSkeleton'
 export default defineComponent({
   props: {
     initialValue: {
-      type: Object as PropType<ServiceAgreementVo>,
+      type: Object as PropType<ServiceAgreementDetail>,
       default: null,
     },
     loading: {

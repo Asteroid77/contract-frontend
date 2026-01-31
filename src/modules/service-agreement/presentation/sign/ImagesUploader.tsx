@@ -1,6 +1,6 @@
 import { computed, defineComponent, h, ref, type PropType, watchEffect } from 'vue'
 import { NUpload, type UploadCustomRequestOptions, type UploadFileInfo, NIcon } from 'naive-ui'
-import type { OssCallbackDTO } from '@/modules/file/application/models'
+import type { OssCallbackView } from '@/modules/file/application/models'
 import type { FileCategory } from '@/modules/service-agreement/domain/enums'
 import { message } from '@/_utils/discrete_naive_api'
 import { useUploadFileMutation } from '@/modules/service-agreement/application/hooks/useSignService'
@@ -16,7 +16,7 @@ export default defineComponent({
       default: () => [],
     },
     initialFileList: {
-      type: Array as PropType<OssCallbackDTO[]>,
+      type: Array as PropType<OssCallbackView[]>,
       default: () => [],
     },
     fileCategory: {
@@ -126,7 +126,7 @@ export default defineComponent({
         { file: file.file, fileCategory: props.fileCategory, onProgress },
         {
           onSuccess: (response) => {
-            const uploadedFileData: OssCallbackDTO = response
+            const uploadedFileData: OssCallbackView = response
             message.success(`${$t('common.file.uploadSuccess', { name: file.name })}`)
             // 1. 先调用 onFinish()。通知 NUpload 组件上传已完成。
             onFinish()

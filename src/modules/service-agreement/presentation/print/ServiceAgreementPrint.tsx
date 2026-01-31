@@ -7,7 +7,7 @@ import { $t } from '@/_utils/i18n'
 import type {
   PriceModel,
   PriceType,
-  ServiceAgreementBaseVO,
+  ServiceAgreementData,
   ServicePointSpecification,
 } from '@/modules/service-agreement/application/models'
 
@@ -41,13 +41,13 @@ export default defineComponent({
   props: {
     data: {
       type: Object as PropType<
-        Omit<ServiceAgreementBaseVO, 'creator' | 'createdTime' | 'updatedTime'>
+        Omit<ServiceAgreementData, 'creator' | 'createdTime' | 'updatedTime'>
       >,
       required: true,
     },
     compareData: {
       type: Object as PropType<
-        Omit<ServiceAgreementBaseVO, 'creator' | 'createdTime' | 'updatedTime'> | null | undefined
+        Omit<ServiceAgreementData, 'creator' | 'createdTime' | 'updatedTime'> | null | undefined
       >,
       default: undefined,
     },
@@ -80,7 +80,7 @@ export default defineComponent({
     // 渲染基础信息的 Diff
     // key: 字段名
     // formatFn: 可选的格式化函数
-    const renderDiffItem = (key: keyof ServiceAgreementBaseVO, formatFn = formatters.default) => {
+    const renderDiffItem = (key: keyof ServiceAgreementData, formatFn = formatters.default) => {
       const newVal = props.data[key]
       const oldVal = props.compareData ? props.compareData[key] : undefined // 如果没 compareData，oldVal 为 undefined
 

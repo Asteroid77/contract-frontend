@@ -1,6 +1,6 @@
 import { $t } from '@/_utils/i18n'
 import type { ApprovalInstance } from '@/modules/approval/application/models'
-import type { ServiceAgreementRequestDTO } from '@/modules/service-agreement/application/models'
+import type { ServiceAgreementRequestDTO } from '@/modules/service-agreement/domain/dto'
 import AttachmentApprovalDiff from '@/modules/service-agreement/presentation/sign/AttachmentApprovalDiff'
 import ServiceAgreementAttachmentPrint from '@/modules/service-agreement/presentation/print/ServiceAgreementAttachmentPrint'
 import ServiceAgreementPrint from '@/modules/service-agreement/presentation/print/ServiceAgreementPrint'
@@ -9,6 +9,7 @@ import { useFilesDetailQuery } from '@/modules/file/application/hooks/useFileSer
 import { uniq } from 'lodash'
 import { computed } from 'vue'
 import { defineComponent, type PropType } from 'vue'
+import { toViewServiceAgreementRequest } from '@/modules/service-agreement/application/mappers'
 
 export default defineComponent({
   name: 'ServiceAgreementApprovalDiffTemplate',
@@ -52,12 +53,25 @@ export default defineComponent({
       return uniq([...oldFileIds, ...newFileIds])
     })
     const { data: files } = useFilesDetailQuery(allFileIds)
-    const filesMap = useDistributeFiles(files, { old: sourceData ?? {}, new: approvalData }, rules)
+    const filesMap = useDistributeFiles(
+      files,
+      {
+        old: (sourceData ?? {}) as unknown as Record<string, unknown>,
+        new: approvalData as unknown as Record<string, unknown>,
+      },
+      rules,
+    )
+
+    const viewApprovalData = computed(() => toViewServiceAgreementRequest(approvalData))
+    const viewSourceData = computed(() =>
+      sourceData ? toViewServiceAgreementRequest(sourceData) : null,
+    )
+
     return () => (
       <>
         <ServiceAgreementPrint
-          data={approvalData}
-          compareData={sourceData ?? null}
+          data={viewApprovalData.value}
+          compareData={viewSourceData.value}
           v-slots={{
             attachments: () => (
               <>

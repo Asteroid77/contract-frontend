@@ -3,15 +3,15 @@ import { computed, defineComponent, type PropType } from 'vue'
 import FileDiffSection from '@/modules/approval/presentation/print/ApprovalPrintFileDiffSection'
 import { NEmpty } from 'naive-ui'
 import '@/modules/approval/presentation/approval/styles/AttachmentApprovalDiff.css'
-import type { OssCallbackDTO } from '@/modules/file/application/models'
+import type { OssCallbackView } from '@/modules/file/application/models'
 export default defineComponent({
   name: 'AttachmentApprovalDiff',
   props: {
     // 传入旧数据对象
     filesMap: {
       type: Object as PropType<{
-        old?: Record<string, OssCallbackDTO[]> | null
-        new: Record<string, OssCallbackDTO[]> | null
+        old?: Record<string, OssCallbackView[]> | null
+        new: Record<string, OssCallbackView[]> | null
       }>,
       required: true,
     },
@@ -54,9 +54,7 @@ export default defineComponent({
         ))}
 
         {/* 如果三个都空 */}
-        {isAllEmpty.value && (
-          <NEmpty description={$t('common.label.noData')} />
-        )}
+        {isAllEmpty.value && <NEmpty description={$t('common.label.noData')} />}
       </div>
     )
   },

@@ -1,5 +1,5 @@
 import { $t } from '@/_utils/i18n'
-import type { ServiceAgreementPageVo } from '@/modules/service-agreement/application/models'
+import type { ServiceAgreementPageItem } from '@/modules/service-agreement/application/models'
 import { type DataTableColumns, NDataTable, type PaginationProps } from 'naive-ui'
 import { defineComponent, type PropType } from 'vue'
 import areaData from '@/modules/shared/application/constants/PCA.json'
@@ -10,7 +10,7 @@ export default defineComponent({
   name: 'service-agreement-page',
   props: {
     data: {
-      type: Array as PropType<ServiceAgreementPageVo[]>,
+      type: Array as PropType<ServiceAgreementPageItem[]>,
       default: () => [],
     },
     pagination: {
@@ -25,7 +25,7 @@ export default defineComponent({
   setup(props, { slots }) {
     const treeLookup = new TreeLookup(areaData)
     const selectLookup = new SelectLookup(ServiceAgreementStatusOption)
-    function createColumns(): DataTableColumns<ServiceAgreementPageVo> {
+    function createColumns(): DataTableColumns<ServiceAgreementPageItem> {
       const baseColumn = [
         {
           title: $t('domain.agreement.field.companyName'),
@@ -34,14 +34,14 @@ export default defineComponent({
         {
           title: $t('domain.agreement.field.area'),
           key: 'companyArea',
-          render: (row: ServiceAgreementPageVo) => {
+          render: (row: ServiceAgreementPageItem) => {
             return treeLookup.getFullPath(row.companyArea)
           },
         },
         {
           title: $t('common.label.status'),
           key: 'status',
-          render: (row: ServiceAgreementPageVo) => {
+          render: (row: ServiceAgreementPageItem) => {
             return selectLookup.getLabel(row.status)
           },
         },
@@ -53,7 +53,7 @@ export default defineComponent({
           title: $t('domain.agreement.field.expiryDate'),
           key: 'expirationTime',
         },
-      ] as DataTableColumns<ServiceAgreementPageVo>
+      ] as DataTableColumns<ServiceAgreementPageItem>
       if (slots.actions) {
         baseColumn.push({
           title: $t('common.action.operate'),

@@ -4,7 +4,10 @@ import ServiceAgreementPage from '@/modules/service-agreement/presentation/sign/
 import { useServiceAgreementPage } from '@/modules/service-agreement/application/hooks/useSignService' // 替换为实际 hook 路径
 import { ServiceAgreementStatusOption } from '@/modules/service-agreement/application/constants' // 假设枚举路径
 import type { BasePageRequest } from '@/modules/shared/application/request/types'
-import type { ServiceAgreementPageDTO, ServiceAgreementPageVo } from '@/modules/service-agreement/application/models'
+import type {
+  ServiceAgreementPageQuery,
+  ServiceAgreementPageItem,
+} from '@/modules/service-agreement/application/models'
 import { $t } from '@/_utils/i18n'
 import { useRouter } from 'vue-router'
 import type { RouteLocationAsRelativeGeneric } from 'vue-router'
@@ -13,7 +16,7 @@ export default defineComponent({
   name: 'ServiceAgreementView',
   setup() {
     // 初始化分页查询参数
-    const pageRequest = ref<BasePageRequest<ServiceAgreementPageDTO>>({
+    const pageRequest = ref<BasePageRequest<ServiceAgreementPageQuery>>({
       page: 1,
       size: 10,
     })
@@ -51,7 +54,7 @@ export default defineComponent({
       handleSearch()
     }
 
-    const handleActions = (row: ServiceAgreementPageVo, mode: 'edit' | 'detail') => {
+    const handleActions = (row: ServiceAgreementPageItem, mode: 'edit' | 'detail') => {
       const routeInfo = {
         name: 'sign',
         query: {
@@ -106,7 +109,7 @@ export default defineComponent({
           pagination={pagination}
           loading={isPending.value}
           v-slots={{
-            actions: (row: ServiceAgreementPageVo) => (
+            actions: (row: ServiceAgreementPageItem) => (
               <NSpace>
                 <NButton
                   size="tiny"

@@ -10,14 +10,16 @@ import type {
   ServicePointSpecificationInput,
 } from '../domain/dto'
 import type {
-  PreviewAttachmentsVO as ViewPreviewAttachmentsVO,
-  ServiceAgreementPageVo as ViewServiceAgreementPageVo,
-  ServiceAgreementAttachmentsVO as ViewServiceAgreementAttachmentsVO,
-  ServiceAgreementRequestDTO as ViewServiceAgreementRequestDTO,
-  ServiceAgreementVo as ViewServiceAgreementVo,
+  PreviewAttachmentsData as ViewPreviewAttachmentsData,
+  ServiceAgreementPageItem as ViewServiceAgreementPageItem,
+  ServiceAgreementAttachmentsData as ViewServiceAgreementAttachmentsData,
+  ServiceAgreementForm,
+  ServiceAgreementDetail as ViewServiceAgreementDetail,
   ServicePointSpecification,
 } from './models'
 import { toOssCallbackView } from '@/modules/file/application/models'
+
+// ... (toTimestamp, toDateTimeString, normalizeCompanyArea are unchanged? No, mapAttachments uses rename)
 
 const toTimestamp = (value: string | null | undefined): number | null => {
   if (!value) return null
@@ -42,7 +44,7 @@ const normalizeCompanyArea = (value: string | null | undefined): string => {
 
 const mapAttachments = (
   attachments: DomainServiceAgreementAttachmentsVO,
-): ViewServiceAgreementAttachmentsVO => {
+): ViewServiceAgreementAttachmentsData => {
   return {
     billFiles: attachments.billFiles.map(toOssCallbackView),
     supplementaryAttachmentFiles: attachments.supplementaryAttachmentFiles.map(toOssCallbackView),
@@ -52,7 +54,7 @@ const mapAttachments = (
 
 export const toViewServiceAgreement = (
   domain: DomainServiceAgreementVo,
-): ViewServiceAgreementVo => {
+): ViewServiceAgreementDetail => {
   return {
     ...domain,
     companyArea: normalizeCompanyArea(domain.companyArea),
@@ -67,7 +69,7 @@ export const toViewServiceAgreement = (
 
 export const toViewServiceAgreementPage = (
   domain: DomainServiceAgreementPageVo,
-): ViewServiceAgreementPageVo => {
+): ViewServiceAgreementPageItem => {
   return {
     ...domain,
     companyArea: normalizeCompanyArea(domain.companyArea),
@@ -76,7 +78,7 @@ export const toViewServiceAgreementPage = (
 
 export const toViewPreviewAttachments = (
   domain: DomainPreviewAttachmentsVO,
-): ViewPreviewAttachmentsVO => {
+): ViewPreviewAttachmentsData => {
   return {
     newFiles: mapAttachments(domain.newFiles),
     oldFiles: mapAttachments(domain.oldFiles),
@@ -102,10 +104,17 @@ const toViewServicePoint = (item: ServicePointSpecificationInput): ServicePointS
 })
 
 export const toDomainServiceAgreementRequest = (
-  view: ViewServiceAgreementRequestDTO,
+  view: ServiceAgreementForm,
 ): DomainServiceAgreementRequestDTO => {
   return {
     ...view,
+    companyName: view.companyName || '',
+    companyAddress: view.companyAddress || '',
+    liaisonName: view.liaisonName || '',
+    liaisonPosition: view.liaisonPosition || '',
+    liaisonPhone: view.liaisonPhone || '',
+    industry: view.industry || null, // If DTO industry is string | null, this is fine. If string, use || ''
+    comment: view.comment || null,
     companyArea: normalizeCompanyArea(view.companyArea),
     expirationTime: toDateTimeString(view.expirationTime),
     servicePointSpecifications: view.servicePointSpecifications
@@ -117,8 +126,8 @@ export const toDomainServiceAgreementRequest = (
 
 export const toViewServiceAgreementRequest = (
   domain: DomainServiceAgreementRequestDTO,
-): ViewServiceAgreementRequestDTO => {
-  const { creator, servicePointSpecifications, ...rest } = domain
+): ServiceAgreementForm => {
+  const { servicePointSpecifications, ...rest } = domain
   return {
     ...rest,
     companyArea: normalizeCompanyArea(domain.companyArea),

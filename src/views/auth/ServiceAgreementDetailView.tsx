@@ -1,11 +1,8 @@
 import { $t } from '@/_utils/i18n'
-import type {
-  ServiceAgreementRequestDTO,
-  ServiceAgreementUIMap,
-} from '@/modules/service-agreement/application/models'
+import type { ServiceAgreementUIMap } from '@/modules/service-agreement/application/models'
 import { ServiceAgreementStatusEnum } from '@/modules/service-agreement/application/constants'
 import { convertUIToRequestDTO } from '@/modules/service-agreement/application/ui-mappers'
-import ServiceAgreementForm from '@/modules/service-agreement/presentation/sign/ServiceAgreementForm'
+import ServiceAgreementFormComponent from '@/modules/service-agreement/presentation/sign/ServiceAgreementForm'
 import {
   useServiceAgreementDetail,
   useSubmitRecordMutation,
@@ -86,7 +83,10 @@ export default defineComponent({
 
     return () => (
       <>
-        <ServiceAgreementForm initialValue={initialData.value} loading={initialDataLoading.value}>
+        <ServiceAgreementFormComponent
+          initialValue={initialData.value}
+          loading={initialDataLoading.value}
+        >
           {{
             Button: ({
               formValue,
@@ -112,7 +112,7 @@ export default defineComponent({
               </NSpace>
             ),
           }}
-        </ServiceAgreementForm>
+        </ServiceAgreementFormComponent>
         {initialData.value && (
           <div id={'printable-approval-area'} class={printStyle['printable-approval-area']}>
             <ServiceAgreementPrint

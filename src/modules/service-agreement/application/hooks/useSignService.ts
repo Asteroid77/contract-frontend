@@ -1,14 +1,14 @@
 import { serviceAgreementService } from '@/modules/service-agreement/application/service'
-import type { OssCallbackDTO } from '@/modules/file/application/models'
+import type { OssCallbackView } from '@/modules/file/application/models'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { fileKeys } from '@/modules/file/application/hooks/useFileService'
 import type {
-  PreviewAttachmentsVO,
-  ServiceAgreementPageDTO,
-  ServiceAgreementPreviewAttachmentsDTO,
-  ServiceAgreementRequestDTO,
-  ServiceAgreementVo,
+  PreviewAttachmentsData,
+  ServiceAgreementPageQuery,
+  PreviewAttachmentsQuery,
+  ServiceAgreementDetail,
 } from '@/modules/service-agreement/application/models'
+import type { ServiceAgreementRequestDTO } from '@/modules/service-agreement/domain/dto'
 import type { BasePageRequest } from '@/modules/shared/application/request/types'
 import type { ApprovalInstance } from '@/modules/approval/domain/types'
 import { computed, type Ref } from 'vue'
@@ -18,11 +18,10 @@ import type { FileCategory } from '@/modules/service-agreement/domain/enums'
 export const signKeys = {
   all: ['service-agreements'] as const,
   lists: () => [...signKeys.all, 'list'] as const,
-  list: (params: BasePageRequest<ServiceAgreementPageDTO>) =>
+  list: (params: BasePageRequest<ServiceAgreementPageQuery>) =>
     [...signKeys.lists(), params] as const,
   detail: (id: number) => [...signKeys.all, 'detail', id] as const,
-  preview: (params: ServiceAgreementPreviewAttachmentsDTO) =>
-    [...signKeys.all, 'preview', params] as const,
+  preview: (params: PreviewAttachmentsQuery) => [...signKeys.all, 'preview', params] as const,
 }
 
 // =================================================================
@@ -45,7 +44,7 @@ export const useServiceAgreementDetail = (id: Ref<number | null>) => {
  * 分页查询备案/签约列表
  */
 export const useServiceAgreementPage = (
-  pageRequest: Ref<BasePageRequest<ServiceAgreementPageDTO>>,
+  pageRequest: Ref<BasePageRequest<ServiceAgreementPageQuery>>,
 ) => {
   return useQuery({
     queryKey: computed(() => signKeys.list(pageRequest.value)),
@@ -61,10 +60,10 @@ export const useServiceAgreementPage = (
  * @param paramsRef
  */
 export const usePreviewAttachments = (
-  paramsRef: Ref<ServiceAgreementPreviewAttachmentsDTO>,
+  paramsRef: Ref<PreviewAttachmentsQuery>,
   enabled: Ref<boolean>,
 ) => {
-  return useQuery<PreviewAttachmentsVO, AxiosError<unknown>, PreviewAttachmentsVO>({
+  return useQuery<PreviewAttachmentsData, AxiosError<unknown>, PreviewAttachmentsData>({
     queryKey: signKeys.preview(paramsRef.value!),
     queryFn: () => serviceAgreementService.getPreviewAttachments(paramsRef.value),
     enabled: computed(() => enabled.value),
@@ -83,7 +82,7 @@ export const usePreviewAttachments = (
  * 上传文件的 Hook
  * @param onSuccessCallback 可选的成功回调
  */
-export const useUploadFileMutation = (onSuccessCallback?: (data: OssCallbackDTO) => void) => {
+export const useUploadFileMutation = (onSuccessCallback?: (data: OssCallbackView) => void) => {
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -93,7 +92,11 @@ export const useUploadFileMutation = (onSuccessCallback?: (data: OssCallbackDTO)
       fileCategory: FileCategory
       onProgress: (e: { percent: number }) => void
     }) =>
-      serviceAgreementService.uploadFile(variables.file, variables.fileCategory, variables.onProgress),
+      serviceAgreementService.uploadFile(
+        variables.file,
+        variables.fileCategory,
+        variables.onProgress,
+      ),
 
     onSuccess: (response) => {
       // 从 ServerResponse 中提取出核心数据
@@ -140,7 +143,7 @@ export const useSubmitSignMutation = (
  * 保存备案 (Record)
  */
 export const useSubmitRecordMutation = (
-  callback?: (serviceResponse: ServiceAgreementVo) => void,
+  callback?: (serviceResponse: ServiceAgreementDetail) => void,
 ) => {
   const queryClient = useQueryClient()
 

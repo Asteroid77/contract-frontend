@@ -1,274 +1,67 @@
 import type { BaseQuery, ConditionWrapper } from '@/modules/shared/application/request/types'
 import type { OssCallbackView } from '@/modules/file/application/models'
+import type {
+  ServiceAgreement as DomainServiceAgreement,
+  ServicePointSpecification as DomainServicePointSpecification,
+} from '../domain/types'
+import type {
+  ElectricityConsumptionType as DomainElectricityConsumptionType,
+  PriceCategory as DomainPriceCategory,
+  PriceModel as DomainPriceModel,
+  PriceType as DomainPriceType,
+  ServiceAgreementStatus as DomainServiceAgreementStatus,
+} from '../domain/enums'
 
-export type PriceGroup = {
-  // 价格模式
-  priceMode: string | unknown
-  // 价格类型
-  priceType: string | unknown
-  // 价格种类
-  priceSort: string | unknown
-  // 固定价格
-  settledPrice: string | unknown
-  // 固定价差
-  settledSpread: string | unknown
-  // 分成比例
-  splitRatio: string | unknown
-  // 其它(备注)
-  remark: string | unknown
-}
 /**
  * @file Types converted from ServiceAgreement.java
  */
 
 // --- Enum Types ---
+// Re-exporting enums/types for convenience if needed, or just using them directly.
+// In this file, we will use the imported types.
 
 /**
  * 签约状态
- * 1: 备案
- * 2: 签约
  */
-export type ServiceAgreementStatus = 1 | 2 | 3
+export type ServiceAgreementStatus = DomainServiceAgreementStatus
 
 /**
  * 价格模式
- * '分成类' | '保底类' | '保底分成类' | '其它'
  */
-export type PriceModel = 1 | 2 | 3 | 4
+export type PriceModel = DomainPriceModel
 
 /**
  * 价格类型
- * '电厂侧' | '用户侧' | '售电公司侧'
  */
-export type PriceType = 1 | 2 | 3
+export type PriceType = DomainPriceType
 
 /**
  * 价格种类
- * '固定价格' | '固定价差' | '分成比例'
  */
-export type PriceCategory = 1 | 2 | 3
+export type PriceCategory = DomainPriceCategory
 
 /**
  * 用电类别
  */
-export type ElectricityConsumptionType = 1 | 2
+export type ElectricityConsumptionType = DomainElectricityConsumptionType
 
 // --- Main Interface ---
 
 /**
  * 备案/签约实体
+ * Refactored to use Domain Entity
  */
-export interface ServiceAgreement {
-  /**
-   * 主键ID
-   * @example 1
-   */
-  id: number
+export type ServiceAgreement = DomainServiceAgreement
 
-  /**
-   * 企业名称
-   * @example "某某科技有限公司"
-   */
-  companyName: string
-
-  /**
-   * 企业所处地区(p/c/a，由地区代码组成)
-   * @example "110000/110100/110101"
-   */
-  companyArea: string
-
-  /**
-   * 企业详细地址
-   * @example "华乐街道翻斗花园25号8栋909楼"
-   */
-  companyAddress: string
-
-  /**
-   * 企业所处行业
-   * @example "制造业"
-   */
-  industry: string | null
-
-  /**
-   * 签约状态
-   * @see ServiceAgreementStatus
-   */
-  status: ServiceAgreementStatus
-
-  /**
-   * 联系人姓名
-   * @example "张三"
-   */
-  liaisonName: string
-
-  /**
-   * 联系人职务
-   * @example "总经理"
-   */
-  liaisonPosition: string
-
-  /**
-   * 联系人电话
-   * @example "13800138000"
-   */
-  liaisonPhone: string
-
-  /**
-   * 年用电量（万千瓦时）
-   * @example 1000
-   */
-  yearUsableCharge: number
-
-  /**
-   * 是否执行分时电价策略
-   * @example true
-   */
-  isTimeOfUsePricingEnabled: boolean
-
-  /**
-   * 峰比例 (%)
-   * @example 30
-   */
-  peakPercentage: number | null
-
-  /**
-   * 尖比例 (%)
-   * @example 10
-   */
-  superPeakPercentage: number | null
-
-  /**
-   * 平比例 (%)
-   * @example 40
-   */
-  standardPercentage: number | null
-
-  /**
-   * 谷比例 (%)
-   * @example 20
-   */
-  valleyPercentage: number | null
-
-  /**
-   * 进度备注
-   * @example "正在审核中"
-   */
-  comment: string | null
-
-  /**
-   * 价格模式
-   * @see PriceModel
-   */
-  priceModel: PriceModel | null
-
-  /**
-   * 价格类型
-   * @see PriceType
-   */
-  priceType: PriceType | null
-
-  /**
-   * 价格种类
-   * @see PriceCategory
-   */
-  priceCategory: PriceCategory | null
-
-  /**
-   * 固定价格 (作为字符串以保证精度)
-   * @example "0.5500"
-   */
-  fixedPrice: string | null
-
-  /**
-   * 固定价差 (作为字符串以保证精度)
-   * @example "0.0200"
-   */
-  fixedSpread: string | null
-
-  /**
-   * 收入分成比例 (%)
-   * @example 30
-   */
-  revenueShareRatio: number | null
-
-  /**
-   * 合同到期时间 (格式: yyyy-MM-dd HH:mm:ss)
-   * @example "2025-12-31 23:59:59"
-   */
-  expirationTime: number | null
-
-  /**
-   * 创建人id
-   * @example 1
-   */
-  creator: number
-
-  /**
-   * 创建时间 (格式: yyyy-MM-dd HH:mm:ss)
-   * @example "2025-07-24 10:00:00"
-   */
-  createdTime: number
-
-  /**
-   * 更新时间 (格式: yyyy-MM-dd HH:mm:ss)
-   * @example "2025-07-24 10:00:00"
-   */
-  updatedTime: number
-}
 /**
  * 营销户号信息
- * @description 对应 Java 中的 ServicePointSpecification 类
+ * @description Refactored to use Domain Entity, but with optional timestamps for UI creation/forms.
  */
-export interface ServicePointSpecification {
-  /**
-   * 主键ID
-   * @example 1
-   */
-  id: number
-
-  /**
-   * 关联备案/签约项的id
-   * @type {number} (Java Long)
-   * @example 1
-   */
-  agreementId: number
-
-  /**
-   * 营销户号
-   * @example "1234567890"
-   */
-  serviceAccount: string
-
-  /**
-   * 变压器容量(kVA)
-   * @type {number} (Java BigDecimal)
-   * @example 1000.50
-   */
-  transformerCapacity: number
-
-  /**
-   * 用电类别
-   */
-  electricityConsumptionType: ElectricityConsumptionType
-
-  /**
-   * 电压等级(kV)
-   * @example "10kV"
-   */
-  voltageClass: string
-
-  /**
-   * 创建时间 (ISO 8601 格式字符串)
-   * @type {string} (Java LocalDateTime)
-   * @example "2025-07-24T10:00:00"
-   */
+export type ServicePointSpecification = Omit<
+  DomainServicePointSpecification,
+  'createdTime' | 'updatedTime'
+> & {
   createdTime?: string
-
-  /**
-   * 更新时间 (ISO 8601 格式字符串)
-   * @type {string | null} (Java LocalDateTime)
-   * @example "2025-07-24T10:00:00"
-   */
   updatedTime?: string | null
 }
 
@@ -276,7 +69,15 @@ export interface ServicePointSpecification {
  * 备案/签约数据前端展示体
  * @description 对应 Java 中的 ServiceAgreementVo 类
  */
-export interface ServiceAgreementVo extends ServiceAgreement {
+export interface ServiceAgreementDetail
+  extends Omit<ServiceAgreement, 'expirationTime' | 'createdTime' | 'updatedTime'> {
+  /**
+   * 合同到期时间 (UI 使用 Timestamp)
+   */
+  expirationTime: number | null
+  createdTime: number
+  updatedTime: number
+
   /**
    * 合同扫描件文件列表
    */
@@ -301,40 +102,96 @@ export interface ServiceAgreementVo extends ServiceAgreement {
   servicePointSpecifications: ServicePointSpecification[]
 }
 
-export interface ServiceAgreementBaseVO
-  extends Omit<ServiceAgreement, 'creator' | 'updatedTime' | 'createdTime' | 'id'> {
+export interface ServiceAgreementData
+  extends Omit<
+    ServiceAgreement,
+    | 'creator'
+    | 'updatedTime'
+    | 'createdTime'
+    | 'id'
+    | 'expirationTime'
+    | 'companyName'
+    | 'companyArea'
+    | 'companyAddress'
+    | 'industry'
+    | 'liaisonName'
+    | 'liaisonPosition'
+    | 'liaisonPhone'
+    | 'comment'
+  > {
+  companyName: string | null
+  companyArea: string | null
+  companyAddress: string | null
+  industry: string | null
+  liaisonName: string | null
+  liaisonPosition: string | null
+  liaisonPhone: string | null
+  comment: string | null
   /**
    * 营销户号集合
    */
   servicePointSpecifications: ServicePointSpecification[] | null
   id: number | null
+  /**
+   * 合同到期时间 (UI 使用 Timestamp)
+   */
+  expirationTime: number | null
 }
 
-export interface ServiceAgreementAttachmentsVO {
+export interface ServiceAgreementAttachmentsData {
   [key: string]: OssCallbackView[]
   contractScanFiles: OssCallbackView[]
   billFiles: OssCallbackView[]
   supplementaryAttachmentFiles: OssCallbackView[]
 }
 
-export type ServiceAgreementAttaches = ServiceAgreementAttachmentsVO
+export type ServiceAgreementAttaches = ServiceAgreementAttachmentsData
 
 /**
- * 备案/签约请求DTO (Data Transfer Object)
+ * 备案/签约请求表单数据 (UI Form State)
  * @description
- * 这个类型用于向服务器发送创建或更新服务协议的请求。
- * 它通过 `Omit` 从基础的 `ServiceAgreement` 类型中移除了服务器生成的字段（如 id, createdTime, updatedTime），
- * 然后添加了特定于请求的字段（如文件ID列表）和覆盖了类型不一致的字段（如 creator）。
+ * 这是一个纯前端的 UI 模型，用于收集用户输入。
+ * 它的结构类似 DTO，但字段类型是为了适应前端组件（如 DatePicker 使用 timestamp）。
+ * 同时也消除了与 Domain DTO 的命名冲突。
  */
-export type ServiceAgreementRequestDTO =
+export type ServiceAgreementForm =
   // 1. 从基础 ServiceAgreement 类型中排除掉服务器生成的、或类型不匹配的字段
-  Omit<ServiceAgreement, 'id' | 'creator' | 'createdTime' | 'updatedTime'> & {
+  Omit<
+    ServiceAgreement,
+    | 'id'
+    | 'creator'
+    | 'createdTime'
+    | 'updatedTime'
+    | 'expirationTime'
+    | 'companyName'
+    | 'companyArea'
+    | 'companyAddress'
+    | 'industry'
+    | 'liaisonName'
+    | 'liaisonPosition'
+    | 'liaisonPhone'
+    | 'comment'
+  > & {
+    // 允许表单字段为空
+    companyName: string | null
+    companyArea: string | null
+    companyAddress: string | null
+    industry: string | null
+    liaisonName: string | null
+    liaisonPosition: string | null
+    liaisonPhone: string | null
+    comment: string | null
     // 2. 重新定义 DTO 中存在的、但可能为空的 id
     /**
      * 主键ID.
      * 在创建新记录时应为 null，在更新时为记录的 number ID。
      */
     id: number | null
+
+    /**
+     * 合同到期时间 (UI 使用 Timestamp)
+     */
+    expirationTime: number | null
 
     // 4. 添加 DTO 中特有的、用于关联文件的 ID 列表
     /**
@@ -469,10 +326,10 @@ export interface AttachmentDataForInitiation {
 }
 
 /**
- * 分页查询参数
+ * 分页查询参数 (UI Query State)
  * @description 对应 Java 中的 ServiceAgreementPageDTO 类
  */
-export interface ServiceAgreementPageDTO extends BaseQuery {
+export interface ServiceAgreementPageQuery extends BaseQuery {
   /** 公司名称（支持：like） */
   companyName?: ConditionWrapper<string>
   /** 公司所在地区（支持：like） */
@@ -485,10 +342,10 @@ export interface ServiceAgreementPageDTO extends BaseQuery {
   yearUsableCharge?: ConditionWrapper<number | [number, number]>
 }
 /**
- * 分页列表 VO
+ * 分页列表项 (UI List Item)
  * @description 对应 Java 中的 ServiceAgreementPageVo 类
  */
-export interface ServiceAgreementPageVo {
+export interface ServiceAgreementPageItem {
   /** 主键ID */
   id: number
   /** 企业名称 */
@@ -508,9 +365,9 @@ export interface ServiceAgreementPageVo {
  */
 export type PreviewType = 1 | 2
 /**
- * 获取预览附件的请求 DTO
+ * 获取预览附件的请求参数 (UI Query)
  */
-export interface ServiceAgreementPreviewAttachmentsDTO {
+export interface PreviewAttachmentsQuery {
   /**
    * 业务ID (表单查看时为 AgreementID，审批查看时为 ApprovalInstanceID)
    */
@@ -525,12 +382,12 @@ export interface ServiceAgreementPreviewAttachmentsDTO {
   code: string
 }
 
-export type ServiceAgreementAttachesVO = ServiceAgreementAttachmentsVO
+export type ServiceAgreementAttachesData = ServiceAgreementAttachmentsData
 
 /**
  * 预览附件的返回 VO
  */
-export interface PreviewAttachmentsVO {
-  newFiles: ServiceAgreementAttachmentsVO
-  oldFiles: ServiceAgreementAttachmentsVO
+export interface PreviewAttachmentsData {
+  newFiles: ServiceAgreementAttachmentsData
+  oldFiles: ServiceAgreementAttachmentsData
 }

@@ -3,7 +3,7 @@ import { NQrCode } from 'naive-ui'
 import { computed } from 'vue'
 import { defineComponent } from 'vue'
 import { renderAttachmentRows } from '@/modules/approval/application/print/FileListDiff'
-import type { ServiceAgreementVo } from '@/modules/service-agreement/application/models'
+import type { ServiceAgreementDetail } from '@/modules/service-agreement/application/models'
 import type { PropType } from 'vue'
 import clsx from 'clsx'
 import { PreviewTypeEnum } from '@/modules/service-agreement/application/constants'
@@ -13,14 +13,17 @@ export default defineComponent({
     id: { type: Number, required: true },
     data: {
       type: Object as PropType<
-        Pick<ServiceAgreementVo, 'billFiles' | 'contractScanFiles' | 'supplementaryAttachmentFiles'>
+        Pick<
+          ServiceAgreementDetail,
+          'billFiles' | 'contractScanFiles' | 'supplementaryAttachmentFiles'
+        >
       >,
       required: true,
     },
     compareData: {
       type: Object as PropType<
         | Pick<
-            ServiceAgreementVo,
+            ServiceAgreementDetail,
             'billFiles' | 'contractScanFiles' | 'supplementaryAttachmentFiles'
           >
         | null
