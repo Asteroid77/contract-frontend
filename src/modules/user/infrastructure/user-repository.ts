@@ -21,7 +21,9 @@ const USER_ENDPOINTS = createPrefixedEndpoints('/user', {
   PASSWORD_RECOVERY: '/password/recovery',
 })
 
-export const userRepository = {
+import type { IUserRepository } from '../domain/repositories'
+
+export const userRepository: IUserRepository = {
   login: (data: LoginRequestDTO) =>
     useRequest<ServerResponse<UserInfoVo>, LoginRequestDTO>({
       method: 'POST',
@@ -40,7 +42,10 @@ export const userRepository = {
       url: `${USER_ENDPOINTS.GET_BY_TOKEN}${token}`,
     }).then((resp) => resp.data),
   additionalInfoRequest: (data: UserAdditionalInfoRequestDTO) =>
-    useRequest<ServerResponse<ApprovalInstance<Record<string, unknown>>>, UserAdditionalInfoRequestDTO>({
+    useRequest<
+      ServerResponse<ApprovalInstance<Record<string, unknown>>>,
+      UserAdditionalInfoRequestDTO
+    >({
       method: 'POST',
       url: USER_ENDPOINTS.ADDITIONAL_INFO_PUT,
       data,

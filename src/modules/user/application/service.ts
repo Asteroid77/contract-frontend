@@ -24,6 +24,7 @@ import {
   toViewUserPage,
 } from './mappers'
 import type { ApprovalInstance } from '@/modules/approval/domain/types'
+import type { IUserRepository } from '../domain/repositories'
 
 const mapAdditionalInfoApproval = (
   instance: ApprovalInstance<Record<string, unknown>>,
@@ -39,24 +40,39 @@ const mapAdditionalInfoApproval = (
   }
 }
 
-export const userService = {
-  login: (data: SignInForm): Promise<SignInResponse> =>
-    userRepository.login(toDomainLoginRequest(data)).then(toViewSignInResponse),
-  register: (data: RegisterForm): Promise<RegisterResponse> =>
-    userRepository.register(toDomainRegisterRequest(data)).then(toViewRegisterResponse),
-  getUserInfoByToken: (token: string): Promise<SignInResponse> =>
-    userRepository.getByToken(token).then(toViewSignInResponse),
-  additionalInfoRequest: (
+export class UserService {
+  constructor(private readonly repo: IUserRepository) {}
+
+  login(data: SignInForm): Promise<SignInResponse> {
+    return this.repo.login(toDomainLoginRequest(data)).then(toViewSignInResponse)
+  }
+
+  register(data: RegisterForm): Promise<RegisterResponse> {
+    return this.repo.register(toDomainRegisterRequest(data)).then(toViewRegisterResponse)
+  }
+
+  getUserInfoByToken(token: string): Promise<SignInResponse> {
+    return this.repo.getByToken(token).then(toViewSignInResponse)
+  }
+
+  additionalInfoRequest(
     data: UserAdditionalInfoForm,
-  ): Promise<ApprovalInstance<UserAdditionalInfo>> =>
-    userRepository
+  ): Promise<ApprovalInstance<UserAdditionalInfo>> {
+    return this.repo
       .additionalInfoRequest(toDomainAdditionalInfoRequest(data))
-      .then(mapAdditionalInfoApproval),
-  getUserPage: (pageRequest: BasePageRequest<UserPageQuery>): Promise<IPage<UserPageItem>> =>
-    userRepository.getUserPage(toDomainPageRequest(pageRequest)).then((page) => ({
+      .then(mapAdditionalInfoApproval)
+  }
+
+  getUserPage(pageRequest: BasePageRequest<UserPageQuery>): Promise<IPage<UserPageItem>> {
+    return this.repo.getUserPage(toDomainPageRequest(pageRequest)).then((page) => ({
       ...page,
       records: page.records.map(toViewUserPage),
-    })),
-  passwordRecovery: (data: PasswordRecoveryForm): Promise<boolean> =>
-    userRepository.passwordRecovery(toDomainPasswordRecoveryRequest(data)),
+    }))
+  }
+
+  passwordRecovery(data: PasswordRecoveryForm): Promise<boolean> {
+    return this.repo.passwordRecovery(toDomainPasswordRecoveryRequest(data))
+  }
 }
+
+export const userService = new UserService(userRepository)
