@@ -3,7 +3,7 @@ import type { SignInForm } from '@/modules/user/application/models'
 import { defineComponent, onMounted, onUnmounted, ref } from 'vue'
 import { useLogin } from '@/modules/user/application/hooks/useLogin'
 import { notification } from '@/_utils/discrete_naive_api'
-import { $t } from '@/_utils/i18n'
+import { useI18n } from 'vue-i18n'
 import { NButton, NIcon } from 'naive-ui'
 import clsx from 'clsx'
 import { GithubFilled, QqCircleFilled } from '@vicons/antd'
@@ -14,6 +14,7 @@ import { getFrontendOrigin } from '@/app/infrastructure/request/get-frontend-url
 export default defineComponent({
   name: 'login-view',
   setup() {
+    const { t: $t } = useI18n()
     const login = useLogin()
     const authWindowRef = ref<Window | null>(null)
     const handleMessage = (event: MessageEvent) => {

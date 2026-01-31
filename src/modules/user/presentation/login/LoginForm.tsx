@@ -8,7 +8,7 @@ import {
 } from 'vue'
 import { loginFormValidation } from '@/modules/access/application/validation'
 import { NButton, NDivider, NForm, NFormItem, NImage, NInput, NSpace, NSpin } from 'naive-ui'
-import { $t } from '@/_utils/i18n'
+import { useI18n } from 'vue-i18n'
 import { InfoCircleFilled, IdcardOutlined, KeyOutlined, MailOutlined } from '@vicons/antd'
 import { useCaptcha } from '@/modules/captcha/application/hooks/useCaptcha'
 import { NTooltip, NIcon } from 'naive-ui'
@@ -31,6 +31,7 @@ export default defineComponent({
     submit: null,
   },
   setup(props, { emit, slots }) {
+    const { t: $t } = useI18n()
     const { isLoading: captchaLoading, data: captchaData, refetch: captchaRefetch } = useCaptcha()
     const formRef: Readonly<ShallowRef<FormInst | null>> = useTemplateRef<FormInst>('formRef')
     // 使用 Factory Function 初始化表单模型

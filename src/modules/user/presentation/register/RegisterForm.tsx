@@ -1,7 +1,7 @@
 import { defineComponent, ref, useTemplateRef, type PropType, type ShallowRef } from 'vue'
 import { registerFormValidation } from '@/modules/access/application/validation'
 import { NButton, NForm, NFormItem, NInput } from 'naive-ui'
-import { $t } from '@/_utils/i18n'
+import { useI18n } from 'vue-i18n'
 import {
   InfoCircleFilled,
   IdcardOutlined,
@@ -30,6 +30,7 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const useSMSCode = sendSMSCode()
+    const { t: $t } = useI18n()
     const formData = ref<FormInput<RegisterForm>>({})
     const formRef: Readonly<ShallowRef<FormInst | null>> = useTemplateRef<FormInst>('formRef')
     const validation = registerFormValidation(formData)
