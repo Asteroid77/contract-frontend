@@ -1,5 +1,5 @@
 import { accessService } from '@/modules/access/application/service'
-import type { RolePageDTO, RoleRequest, RoleVO } from '@/modules/access/application/models'
+import type { RolePageQuery, RoleForm, RoleItem } from '@/modules/access/application/models'
 import type { BasePageRequest, IPage } from '@/modules/shared/application/request/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import type { AxiosError } from 'axios'
@@ -9,7 +9,7 @@ import { computed } from 'vue'
 export const roleKeys = {
   all: ['role'] as const,
   lists: () => [...roleKeys.all, 'list'] as const,
-  list: (filters: BasePageRequest<RolePageDTO>) => [...roleKeys.lists(), filters] as const,
+  list: (filters: BasePageRequest<RolePageQuery>) => [...roleKeys.lists(), filters] as const,
   details: () => [...roleKeys.all, 'detail'] as const,
   detail: (id: number) => [...roleKeys.details(), id] as const,
   userRoles: (userId: number) => [...roleKeys.all, 'user', userId] as const,
@@ -17,14 +17,14 @@ export const roleKeys = {
 
 // 1. 获取角色分页列表
 export const useRolePage = (
-  params: Ref<BasePageRequest<RolePageDTO>> | BasePageRequest<RolePageDTO>,
+  params: Ref<BasePageRequest<RolePageQuery>> | BasePageRequest<RolePageQuery>,
   options?: {
     enabled?: Ref<boolean> | boolean
     staleTime?: number
     gcTime?: number
   },
 ) => {
-  return useQuery<IPage<RoleVO>, AxiosError<unknown>, IPage<RoleVO>>({
+  return useQuery<IPage<RoleItem>, AxiosError<unknown>, IPage<RoleItem>>({
     queryKey: computed(() => roleKeys.list(unref(params))),
     queryFn: () => accessService.getRolePage(unref(params)),
     staleTime: options?.staleTime ?? 5 * 60 * 1000, // 5分钟
@@ -40,7 +40,7 @@ export const useRolesByUserId = (
     staleTime?: number
   },
 ) => {
-  return useQuery<RoleVO[], AxiosError<unknown>, RoleVO[]>({
+  return useQuery<RoleItem[], AxiosError<unknown>, RoleItem[]>({
     queryKey: computed(() => roleKeys.userRoles(unref(userId))),
     queryFn: () => accessService.getRolesByUserId(unref(userId)),
     staleTime: options?.staleTime ?? 5 * 60 * 1000,
@@ -57,7 +57,7 @@ export const useEditRole = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: RoleRequest) => accessService.editRole(data),
+    mutationFn: (data: RoleForm) => accessService.editRole(data),
     onSuccess: (data, variables) => {
       // 使角色列表缓存失效
       queryClient.invalidateQueries({

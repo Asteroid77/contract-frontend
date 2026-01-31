@@ -1,7 +1,11 @@
 import { $t } from '@/_utils/i18n'
 import { chinaMobilePhoneVerify } from '@/modules/shared/application/rules/ChinaMobilePhoneNumRule'
 import { requireRule } from '@/modules/shared/application/rules/RequireRule'
-import type { PasswordRecoveryRequest, RegisterRequest, SignInRequest } from '@/modules/user/application/models'
+import type {
+  PasswordRecoveryForm,
+  RegisterForm,
+  SignInForm,
+} from '@/modules/user/application/models'
 import type { FormRules, FormItemRule } from 'naive-ui'
 import type { Ref } from 'vue'
 
@@ -10,7 +14,7 @@ type FormValidationResult<T> = {
   requiredKeys: readonly (keyof T)[]
 }
 
-export const loginFormRules: (formValue: Ref<FormInput<SignInRequest>>) => FormRules = () => {
+export const loginFormRules: (formValue: Ref<FormInput<SignInForm>>) => FormRules = () => {
   return {
     phone: [
       {
@@ -63,15 +67,15 @@ export const loginFormRules: (formValue: Ref<FormInput<SignInRequest>>) => FormR
 }
 
 export const loginFormValidation = (
-  formValue: Ref<FormInput<SignInRequest>>,
-): FormValidationResult<SignInRequest> => {
+  formValue: Ref<FormInput<SignInForm>>,
+): FormValidationResult<SignInForm> => {
   return {
     rules: loginFormRules(formValue),
     requiredKeys: ['phone', 'password', 'captcha', 'captchaKey'],
   }
 }
 
-export const RegisterStep1FormRule: (formValue: Ref<FormInput<RegisterRequest>>) => FormRules = (
+export const RegisterStep1FormRule: (formValue: Ref<FormInput<RegisterForm>>) => FormRules = (
   formValue,
 ) => {
   return {
@@ -146,8 +150,8 @@ export const RegisterStep1FormRule: (formValue: Ref<FormInput<RegisterRequest>>)
 }
 
 export const registerFormValidation = (
-  formValue: Ref<FormInput<RegisterRequest>>,
-): FormValidationResult<RegisterRequest> => {
+  formValue: Ref<FormInput<RegisterForm>>,
+): FormValidationResult<RegisterForm> => {
   return {
     rules: RegisterStep1FormRule(formValue),
     requiredKeys: ['phone', 'password', 'dbCheckPassword', 'code', 'bizId'],
@@ -155,7 +159,7 @@ export const registerFormValidation = (
 }
 
 export const passwordRecoveryFormRules: (
-  formValue: Ref<FormInput<PasswordRecoveryRequest>>,
+  formValue: Ref<FormInput<PasswordRecoveryForm>>,
 ) => FormRules = (formValue) => {
   return {
     phone: [
@@ -242,8 +246,8 @@ export const passwordRecoveryFormRules: (
 }
 
 export const passwordRecoveryFormValidation = (
-  formValue: Ref<FormInput<PasswordRecoveryRequest>>,
-): FormValidationResult<PasswordRecoveryRequest> => {
+  formValue: Ref<FormInput<PasswordRecoveryForm>>,
+): FormValidationResult<PasswordRecoveryForm> => {
   return {
     rules: passwordRecoveryFormRules(formValue),
     requiredKeys: ['phone', 'password', 'dbCheckPassword', 'code', 'bizId'],

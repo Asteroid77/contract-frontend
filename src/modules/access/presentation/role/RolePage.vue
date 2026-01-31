@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { $t } from '@/_utils/i18n'
-import type { RolePageDTO, RoleVO } from '@/modules/access/application/models'
+import type { RolePageQuery, RoleItem } from '@/modules/access/application/models'
 import { useRolePage } from '@/modules/access/application/hooks/useRoleService'
 import type { BasePageRequest } from '@/modules/shared/application/request/types'
 import {
@@ -21,9 +21,9 @@ function createColumns({
   edit,
   assign,
 }: {
-  edit: (rowData: RoleVO) => void
-  assign: (rowData: RoleVO) => void
-}): DataTableColumns<RoleVO> {
+  edit: (rowData: RoleItem) => void
+  assign: (rowData: RoleItem) => void
+}): DataTableColumns<RoleItem> {
   return [
     {
       title: $t('system.role.field.code'),
@@ -75,7 +75,7 @@ const pagination: PaginationProps = reactive({
 const currentDrawerWithRoleId = ref<number>(1)
 const showOuter = ref<boolean>(false)
 const columns = createColumns({
-  edit: (rowData: RoleVO) => {
+  edit: (rowData: RoleItem) => {
     $router.push({
       name: 'role-detail',
       params: {
@@ -83,12 +83,12 @@ const columns = createColumns({
       },
     })
   },
-  assign: (rowData: RoleVO) => {
+  assign: (rowData: RoleItem) => {
     showOuter.value = true
     currentDrawerWithRoleId.value = rowData.id
   },
 })
-const queryConditionMap = ref<BasePageRequest<RolePageDTO>>({
+const queryConditionMap = ref<BasePageRequest<RolePageQuery>>({
   page: pagination.page,
   size: pagination.size,
 })
