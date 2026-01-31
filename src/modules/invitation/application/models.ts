@@ -6,7 +6,7 @@ import type {
   InvitationRecord as DomainInvitationRecord,
 } from '../domain/types'
 
-export type InvitationUpdateRequest = EditRemarkDTO
+export type InvitationUpdateForm = EditRemarkDTO
 export type InvitationRecordPageRequest = BasePageRequest<BaseQuery>
 
 export type InvitationCode = DomainInvitationCode

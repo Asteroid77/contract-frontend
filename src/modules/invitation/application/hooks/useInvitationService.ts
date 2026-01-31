@@ -1,5 +1,5 @@
 import { invitationService } from '@/modules/invitation/application/service'
-import type { InvitationCode, InvitationUpdateRequest } from '@/modules/invitation/application/models'
+import type { InvitationCode, InvitationUpdateForm } from '@/modules/invitation/application/models'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 
 // 查询键前缀
@@ -56,7 +56,7 @@ export const useUpdateInvitationCodeMutation = (successCallback: () => void) => 
 
   return useMutation({
     // mutationFn 接收的参数会从 .mutate(params) 传递过来
-    mutationFn: (params: InvitationUpdateRequest[]) => invitationService.updateInvitationCode(params),
+    mutationFn: (params: InvitationUpdateForm[]) => invitationService.updateInvitationCode(params),
     onSuccess: () => {
       // 更新成功后，同样让列表缓存失效
       queryClient.invalidateQueries({ queryKey: invitationKeys.lists() })
