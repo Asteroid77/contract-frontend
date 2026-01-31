@@ -1,4 +1,4 @@
-import type { OssCallbackDTO } from '@/modules/file/application/models'
+import type { OssCallbackView } from '@/modules/file/application/models'
 import { NGi, NGrid } from 'naive-ui'
 import type { PropType } from 'vue'
 import { computed } from 'vue'
@@ -9,17 +9,17 @@ export default defineComponent({
   name: 'file-diff-section',
   props: {
     title: { type: String, required: true },
-    oldFiles: { type: Array as PropType<OssCallbackDTO[]>, default: () => [] },
-    newFiles: { type: Array as PropType<OssCallbackDTO[]>, default: () => [] },
+    oldData: { type: Array as PropType<OssCallbackView[]>, required: false },
+    newData: { type: Array as PropType<OssCallbackView[]>, required: false },
     approvalType: { type: Boolean, default: false },
   },
   setup(props) {
     const diffResult = computed(() => {
       if (!props.approvalType) {
-        return { added: [], removed: [], kept: [], normal: props.newFiles }
+        return { added: [], removed: [], kept: [], normal: props.newData || [] }
       }
-      const oldMap = new Map(props.oldFiles.map((f) => [f.id, f]))
-      const newMap = new Map(props.newFiles.map((f) => [f.id, f]))
+      const oldMap = new Map((props.oldData || []).map((f) => [f.id, f]))
+      const newMap = new Map((props.newData || []).map((f) => [f.id, f]))
       const added = props.newFiles.filter((f) => !oldMap.has(f.id))
       const removed = props.oldFiles.filter((f) => !newMap.has(f.id))
       const kept = props.newFiles.filter((f) => oldMap.has(f.id))

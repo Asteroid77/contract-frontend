@@ -1,4 +1,4 @@
-import type { OssCallbackDTO } from '@/modules/file/application/models'
+import type { OssCallbackView } from '@/modules/file/application/models'
 import { FilePdfOutlined } from '@vicons/antd'
 import { NIcon, NImage, NTag } from 'naive-ui'
 import type { PropType } from 'vue'
@@ -7,7 +7,7 @@ import { $t } from '@/_utils/i18n'
 import '@/modules/approval/presentation/approval/styles/FileItemCard.css'
 export default defineComponent({
   props: {
-    file: { type: Object as PropType<OssCallbackDTO>, required: true },
+    file: { type: Object as PropType<OssCallbackView>, required: true },
     status: { type: String as PropType<'added' | 'removed' | 'kept' | 'normal'>, required: true },
   },
   setup(props) {
@@ -15,7 +15,12 @@ export default defineComponent({
 
     // 样式映射
     const styleMap = {
-      added: { borderColor: '#18a058', tagType: 'success', tagText: $t('common.action.add'), opacity: 1 },
+      added: {
+        borderColor: '#18a058',
+        tagType: 'success',
+        tagText: $t('common.action.add'),
+        opacity: 1,
+      },
       removed: {
         borderColor: '#d03050',
         tagType: 'error',

@@ -1,7 +1,7 @@
 import { approvalService } from '@/modules/approval/application/service'
 import type {
-  ApprovalOpinionRequest,
-  ApprovalInstancesPageRequest,
+  ApprovalOpinionForm,
+  ApprovalInstancesPageQuery,
   ApprovalInstance,
   ApprovalInstancePage,
   ApprovalHistory,
@@ -26,7 +26,7 @@ export const approvalTaskKeys = {
 export const approvalInstanceKeys = {
   ALL: ['approval', 'instance'],
   INSTANCE: ['approval', 'instance'] as const,
-  INSTANCE_PAGE: (params: BasePageRequest<ApprovalInstancesPageRequest>) =>
+  INSTANCE_PAGE: (params: BasePageRequest<ApprovalInstancesPageQuery>) =>
     ['approval', 'instances', 'page', params] as const,
   INSTANCE_DETAIL: (instanceId: number) => ['approval', 'instance', instanceId] as const,
   LATEST_ADDITIONAL_INFO_INSTANCE: ['approval', 'instance', 'additional_info'],
@@ -58,16 +58,16 @@ export const useClaimTask = () => {
 export const useHandleTask = (options?: {
   onSuccess?: (
     data: ApprovalInstance<Record<string, unknown>>,
-    variables: ApprovalOpinionRequest,
+    variables: ApprovalOpinionForm,
   ) => void
-  onError?: (error: Error, variables: ApprovalOpinionRequest) => void
+  onError?: (error: Error, variables: ApprovalOpinionForm) => void
 }) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (request: ApprovalOpinionRequest) => approvalService.handleTask(request),
+    mutationFn: (request: ApprovalOpinionForm) => approvalService.handleTask(request),
 
-    onSuccess: (data, variables: ApprovalOpinionRequest) => {
+    onSuccess: (data, variables: ApprovalOpinionForm) => {
       // 使相关查询失效
       queryClient.invalidateQueries({
         queryKey: approvalKeys.ALL,
@@ -121,7 +121,7 @@ export const useCancelApprovalInstance = () => {
  * 获取审批实例分页数据
  */
 export const useApprovalInstancePage = (
-  params: BasePageRequest<ApprovalInstancesPageRequest>,
+  params: BasePageRequest<ApprovalInstancesPageQuery>,
   options?: {
     enabled?: boolean
     refetchInterval?: number
@@ -159,11 +159,7 @@ export const useApprovalInstanceDetail = (params: Ref<number>) => {
  * @returns
  */
 export const useApprovalHistoryQuery = (instanceId: Ref<number>) => {
-  return useQuery<
-    ApprovalHistory[],
-    AxiosError<unknown>,
-    ApprovalHistory[]
-  >({
+  return useQuery<ApprovalHistory[], AxiosError<unknown>, ApprovalHistory[]>({
     queryKey: approvalKeys.HISTORY(instanceId.value),
     queryFn: () => approvalService.getHistoryList(instanceId.value),
     enabled: computed(() => !!instanceId.value && instanceId.value > 0),
@@ -172,11 +168,7 @@ export const useApprovalHistoryQuery = (instanceId: Ref<number>) => {
 }
 
 export const useLatestAdditionalInfoInstanceStatus = () => {
-  return useQuery<
-    LatestAdditionalInfoInstance,
-    AxiosError<unknown>,
-    LatestAdditionalInfoInstance
-  >({
+  return useQuery<LatestAdditionalInfoInstance, AxiosError<unknown>, LatestAdditionalInfoInstance>({
     queryKey: approvalInstanceKeys.LATEST_ADDITIONAL_INFO_INSTANCE,
     queryFn: () => approvalService.getLatestAdditionalInfoInstanceStatus(),
   })

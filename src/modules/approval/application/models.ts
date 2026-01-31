@@ -9,15 +9,20 @@ import type {
 import type { ApprovalProcessName, ApprovalTaskStatus } from '../domain/enums'
 
 export type { ApprovalInstanceStatus, ApprovalProcessName, ApprovalTaskStatus }
-export type { ApprovalInstance, ApprovalInstancePage, ApprovalHistory, LatestAdditionalInfoInstance }
+export type {
+  ApprovalInstance,
+  ApprovalInstancePage,
+  ApprovalHistory,
+  LatestAdditionalInfoInstance,
+}
 
-export interface ApprovalOpinionRequest {
+export interface ApprovalOpinionForm {
   taskId: number
   comment: string
   approved: boolean
 }
 
-export interface ApprovalInstancesPageRequest extends BaseQuery {
+export interface ApprovalInstancesPageQuery extends BaseQuery {
   processId?: ConditionWrapper<number>
   applicantId?: ConditionWrapper<number>
   createdTime?: ConditionWrapper<string>

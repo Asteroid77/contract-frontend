@@ -1,10 +1,10 @@
 import { $t } from '@/_utils/i18n'
-import type { OssCallbackDTO } from '@/modules/file/application/models'
+import type { OssCallbackView } from '@/modules/file/application/models'
 import { uniq } from 'lodash'
 import type { Ref } from 'vue'
 import { computed } from 'vue'
 
-export interface DiffOssFile extends OssCallbackDTO {
+export interface DiffOssFile extends OssCallbackView {
   _status: 'added' | 'removed' | 'modified' | 'kept'
   _oldFileSize?: number // 用于展示修改前的大小
 }
@@ -12,8 +12,8 @@ export interface DiffOssFile extends OssCallbackDTO {
  * 对比新旧文件列表，返回一个合并后的列表
  */
 export function diffFileList(
-  newList: OssCallbackDTO[] | undefined | null,
-  oldList: OssCallbackDTO[] | undefined | null,
+  newList: OssCallbackView[] | undefined | null,
+  oldList: OssCallbackView[] | undefined | null,
   enable?: boolean,
 ): DiffOssFile[] {
   const safeNew = newList || []
@@ -66,8 +66,8 @@ export function formatFileSize(bytes: number | undefined) {
 // 渲染附件行的辅助函数
 export const renderAttachmentRows = (
   title: string,
-  newFiles: OssCallbackDTO[] | undefined,
-  oldFiles: OssCallbackDTO[] | undefined,
+  newFiles: OssCallbackView[] | undefined,
+  oldFiles: OssCallbackView[] | undefined,
   enable?: boolean,
 ) => {
   // 获取 Diff 后的合并列表
@@ -117,7 +117,7 @@ export const renderAttachmentRows = (
  * 映射Ids
  * @param sourceData 包含 ID 的源数据对象
  * @param rules 映射规则
- * @returns Map<key, OssCallbackDTO[]>
+ * @returns Map<key, OssCallbackView[]>
  */
 export function mapFileIds(
   sourceData: Record<string, number[]>,
@@ -139,11 +139,11 @@ export function mapFileIds(
 }
 export interface MappedFiles {
   // key 是 rules 中定义的 key (例如 'contractScanFiles')
-  old: Record<string, OssCallbackDTO[]>
-  new: Record<string, OssCallbackDTO[]>
+  old: Record<string, OssCallbackView[]>
+  new: Record<string, OssCallbackView[]>
 }
-const createFileIdMap = (files: OssCallbackDTO[] | undefined) => {
-  const map = new Map<number, OssCallbackDTO>()
+const createFileIdMap = (files: OssCallbackView[] | undefined) => {
+  const map = new Map<number, OssCallbackView>()
   if (files) {
     files.forEach((f) => map.set(f.id, f))
   }
@@ -151,7 +151,7 @@ const createFileIdMap = (files: OssCallbackDTO[] | undefined) => {
 }
 
 export function useDistributeFiles(
-  allFilesRef: Ref<OssCallbackDTO[] | undefined>,
+  allFilesRef: Ref<OssCallbackView[] | undefined>,
   dataSources: { old: Record<string, unknown>; new: Record<string, unknown> }, // 这里的 any 指代包含 xxxIds 的业务对象
   rules: { key: string; title: string }[],
 ) {
@@ -160,11 +160,13 @@ export function useDistributeFiles(
     const fileMap = createFileIdMap(allFilesRef.value)
 
     // 2. 初始化结果结构
-    const result: { old: Record<string, OssCallbackDTO[]>; new: Record<string, OssCallbackDTO[]> } =
-      {
-        old: {},
-        new: {},
-      }
+    const result: {
+      old: Record<string, OssCallbackView[]>
+      new: Record<string, OssCallbackView[]>
+    } = {
+      old: {},
+      new: {},
+    }
 
     // 遍历 'old' 和 'new' 两个维度
     ;(['old', 'new'] as const).forEach((type) => {
@@ -180,7 +182,7 @@ export function useDistributeFiles(
           // 根据 ID 从 fileMap 中捞取对象
           result[type][rule.key] = ids
             .map((id) => fileMap.get(id))
-            .filter(Boolean) as OssCallbackDTO[]
+            .filter(Boolean) as OssCallbackView[]
         }
       })
     })

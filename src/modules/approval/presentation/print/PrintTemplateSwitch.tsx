@@ -3,7 +3,7 @@ import { match } from 'ts-pattern'
 import UserAdditionInfoPrintTemplate from '@/modules/user/presentation/print/UserAdditionInfoPrintTemplate'
 import { defineComponent, type PropType } from 'vue'
 import SignDiffTemplate from '@/modules/service-agreement/presentation/print/SignDiffTemplate'
-import type { ServiceAgreementRequestDTO } from '@/modules/service-agreement/application/models'
+import type { ServiceAgreementRequestDTO } from '@/modules/service-agreement/domain/dto'
 
 export default defineComponent({
   name: 'PrintTemplateSwitch',
@@ -26,7 +26,7 @@ export default defineComponent({
         .otherwise(() => {
           return (
             <SignDiffTemplate
-              data={props.data as ApprovalInstance<ServiceAgreementRequestDTO>}
+              data={props.data as unknown as ApprovalInstance<ServiceAgreementRequestDTO>}
             ></SignDiffTemplate>
           )
         })
