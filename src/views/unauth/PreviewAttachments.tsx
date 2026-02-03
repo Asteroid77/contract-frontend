@@ -62,8 +62,8 @@ export default defineComponent({
         {!hasValue.value && (
           <NResult
             status="403"
-            title="请输入访问码以继续访问"
-            description="备案/签约内的联系人电话后四位"
+            title={$t('domain.agreement.preview.accessTitle')}
+            description={$t('domain.agreement.preview.accessDesc')}
             class={clsx('w-full', 'h-full', '  ')}
             v-slots={{
               footer: () => (
@@ -75,7 +75,7 @@ export default defineComponent({
                     ></NInput>
                   </AppFormItem>
                   <NButton onClick={access} loading={preview.isLoading.value}>
-                    {'访问'}
+                    {$t('domain.agreement.preview.accessAction')}
                   </NButton>
                 </NForm>
               ),

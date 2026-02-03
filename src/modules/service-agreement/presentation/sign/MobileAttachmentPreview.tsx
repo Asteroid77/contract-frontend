@@ -1,5 +1,6 @@
 import { defineComponent, computed, ref, type PropType } from 'vue'
 import './styles/MobileAttachmentPreview.css'
+import { $t } from '@/_utils/i18n'
 // --- 类型定义 ---
 export interface AgreementData {
   companyName: string
@@ -106,23 +107,23 @@ export default defineComponent({
       <div class="mobile-preview-container">
         {/* Header */}
         <div class="header">
-          <h2>附件预览</h2>
-          <p class="sub-title">{props.agreementData.companyName || '未命名企业'}</p>
+          <h2>{$t('domain.agreement.preview.attachmentsTitle')}</h2>
+          <p class="sub-title">{props.agreementData.companyName || $t('domain.agreement.preview.unnamedCompany')}</p>
         </div>
 
         {/* Sections */}
-        {renderFileGrid('合同扫描件', '📄', groupedFiles.value.contract)}
-        {renderFileGrid('月费单', '🧾', groupedFiles.value.bill)}
-        {renderFileGrid('其他附件', '📎', groupedFiles.value.supplementary)}
+        {renderFileGrid($t('domain.agreement.file.contract') as string, '📄', groupedFiles.value.contract)}
+        {renderFileGrid($t('domain.agreement.file.bill') as string, '🧾', groupedFiles.value.bill)}
+        {renderFileGrid($t('domain.agreement.file.other') as string, '📎', groupedFiles.value.supplementary)}
 
         {/* Empty State */}
-        {isEmpty.value && <div class="empty-state">暂无附件数据</div>}
+        {isEmpty.value && <div class="empty-state">{$t('domain.agreement.preview.noAttachmentsData')}</div>}
 
         {/* Image Viewer Modal */}
         {previewImage.value && (
           <div class="image-viewer" onClick={() => (previewImage.value = null)}>
             <img src={previewImage.value} />
-            <div class="close-tip">点击任意处关闭</div>
+            <div class="close-tip">{$t('domain.agreement.preview.clickAnywhereToClose')}</div>
           </div>
         )}
       </div>
