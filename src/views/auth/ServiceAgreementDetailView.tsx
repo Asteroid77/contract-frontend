@@ -12,10 +12,13 @@ import { NButton, NSpace } from 'naive-ui'
 import { match } from 'ts-pattern'
 import { computed, defineComponent } from 'vue'
 import { useRouter } from 'vue-router'
-import ServiceAgreementPrint from '@/modules/service-agreement/presentation/print/ServiceAgreementPrint'
-import ServiceAgreementAttachmentPrint from '@/modules/service-agreement/presentation/print/ServiceAgreementAttachmentPrint'
 import { usePrint } from '@/modules/approval/application/hooks/usePrint'
-import printStyle from '@/modules/service-agreement/presentation/print/styles/FormPrintCSS.module.css'
+import UnifiedFormPrint from '@/modules/shared/presentation/diff-check/components/print/UnifiedFormPrint'
+import { PreviewTypeEnum, ServiceAgreementStatusOption } from '@/modules/service-agreement/application/constants'
+import {
+  buildServiceAgreementDiffCheckFields,
+  toServiceAgreementDetailDiffCheckForm,
+} from '@/modules/service-agreement/presentation/diff-check/serviceAgreementDiffCheck'
 export default defineComponent({
   name: 'ServiceAgreementDetail',
   props: {
@@ -81,6 +84,19 @@ export default defineComponent({
       print('printable-approval-area')
     }
 
+    const previewUrl = computed(() => {
+      const origin = window.location.origin
+      const id = props.id ?? initialData.value?.id
+      return `${origin}/sign/preview/attachments?id=${id}&type=${PreviewTypeEnum.FORM_VIEW}`
+    })
+
+    const printTitle = computed(() => {
+      if (!initialData.value) return '表单'
+      const statusLabel =
+        ServiceAgreementStatusOption.find((o) => o.value === initialData.value!.status)?.label || '表单'
+      return `${statusLabel}`
+    })
+
     return () => (
       <>
         <ServiceAgreementFormComponent
@@ -114,35 +130,17 @@ export default defineComponent({
           }}
         </ServiceAgreementFormComponent>
         {initialData.value && (
-          <div id={'printable-approval-area'} class={printStyle['printable-approval-area']}>
-            <ServiceAgreementPrint
-              data={initialData.value}
-              v-slots={{
-                attachments: () =>
-                  initialData.value && (
-                    <ServiceAgreementAttachmentPrint
-                      id={props.id as number}
-                      data={{
-                        billFiles: initialData.value?.billFiles,
-                        contractScanFiles: initialData.value?.contractScanFiles,
-                        supplementaryAttachmentFiles:
-                          initialData.value?.supplementaryAttachmentFiles,
-                      }}
-                      rules={[
-                        { title: $t('domain.agreement.file.bill'), key: 'billFiles' },
-                        {
-                          title: $t('domain.agreement.file.contract'),
-                          key: 'contractScanFiles',
-                        },
-                        {
-                          title: $t('domain.agreement.file.other'),
-                          key: 'supplementaryAttachmentFiles',
-                        },
-                      ]}
-                    ></ServiceAgreementAttachmentPrint>
-                  ),
-              }}
-            />
+          <div style="display: none;">
+            <div id={'printable-approval-area'}>
+              <UnifiedFormPrint
+                title={printTitle.value}
+                docNo={String(props.id ?? initialData.value.id ?? '')}
+                previewUrl={previewUrl.value}
+                fields={buildServiceAgreementDiffCheckFields()}
+                data={toServiceAgreementDetailDiffCheckForm(initialData.value)}
+                oldData={null}
+              />
+            </div>
           </div>
         )}
       </>
