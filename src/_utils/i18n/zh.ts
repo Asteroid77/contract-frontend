@@ -19,6 +19,8 @@ export default {
       noData: '无数据',
       action: '操作',
       remark: '备注',
+      empty: '暂无',
+      totalItems: '共 {count} 项',
     },
     status: {
       concluded: '已结束',
@@ -99,6 +101,7 @@ export default {
       save: '保存',
       print: '打印',
       preview: '预览',
+      openInNewTab: '新窗口打开',
       transfer: '转交',
       home: '首页',
     },
@@ -113,6 +116,38 @@ export default {
     file: {
       uploadSuccess: '文件:{name}上传成功',
       uploadError: '文件:{name}上传失败',
+    },
+    diffCheck: {
+      action: {
+        showOnlyChanged: '只显示变更项',
+      },
+      label: {
+        noChangeData: '无变更数据',
+        addedCount: '新增 {count}',
+        removedCount: '删除 {count}',
+        modifiedCount: '修改 {count}',
+      },
+      title: {
+        filePreview: '文件预览',
+      },
+      message: {
+        textReadFallback: '无法直接读取文本内容（可能是跨域/权限限制），建议“新窗口打开”。',
+        previewUnsupported: '该文件类型暂不支持内置预览，请使用“新窗口打开”。',
+      },
+      print: {
+        docNo: '单据编号',
+        generatedAt: '生成时间',
+        qrHint: '扫码查看',
+        legend: {
+          title: '图例',
+          strikeThrough: '删除线',
+          originalValue: '原值',
+          boldUnderline: '加粗下划线',
+          newValue: '新值',
+          addedItem: '新增项',
+          removedItem: '删除项',
+        },
+      },
     },
     options: {
       registerType: {
@@ -515,6 +550,15 @@ export default {
         qr: '扫码查看电子附件',
         code: '提取码',
         title: '电网签约备案服务协议',
+      },
+      preview: {
+        accessTitle: '请输入访问码以继续访问',
+        accessDesc: '备案/签约内的联系人电话后四位',
+        accessAction: '访问',
+        attachmentsTitle: '附件预览',
+        unnamedCompany: '未命名企业',
+        noAttachmentsData: '暂无附件数据',
+        clickAnywhereToClose: '点击任意处关闭',
       },
       message: {
         filingSuccess: '您已成功提交备案！',

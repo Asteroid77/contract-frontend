@@ -19,6 +19,8 @@ const i18NInfo = {
       noData: 'No Data',
       action: 'Action',
       remark: 'Remark',
+      empty: 'N/A',
+      totalItems: 'Total {count} items',
     },
     status: {
       concluded: 'Ended',
@@ -98,6 +100,7 @@ const i18NInfo = {
       save: 'Save',
       print: 'Print',
       preview: 'Preview',
+      openInNewTab: 'Open in new tab',
       transfer: 'Transfer',
       home: 'Home',
     },
@@ -112,6 +115,40 @@ const i18NInfo = {
     file: {
       uploadSuccess: '{name} uploaded.',
       uploadError: 'Failed to upload {name}.',
+    },
+    diffCheck: {
+      action: {
+        showOnlyChanged: 'Show changes only',
+      },
+      label: {
+        noChangeData: 'No changes',
+        addedCount: 'Added {count}',
+        removedCount: 'Removed {count}',
+        modifiedCount: 'Modified {count}',
+      },
+      title: {
+        filePreview: 'File Preview',
+      },
+      message: {
+        textReadFallback:
+          'Unable to read the text content directly (possible CORS/permission issue). Please open in a new tab.',
+        previewUnsupported:
+          'This file type is not supported for in-app preview. Please open in a new tab.',
+      },
+      print: {
+        docNo: 'Document No.',
+        generatedAt: 'Generated At',
+        qrHint: 'Scan to view',
+        legend: {
+          title: 'Legend',
+          strikeThrough: 'Strikethrough',
+          originalValue: 'Original',
+          boldUnderline: 'Bold underline',
+          newValue: 'New',
+          addedItem: 'Added',
+          removedItem: 'Removed',
+        },
+      },
     },
     options: {
       registerType: {
@@ -514,6 +551,15 @@ const i18NInfo = {
         qr: 'Scan to view',
         code: 'Code',
         title: 'Power Grid Agreement',
+      },
+      preview: {
+        accessTitle: 'Please enter the access code to continue.',
+        accessDesc: 'The last 4 digits of the contact phone number in the record/sign agreement.',
+        accessAction: 'Access',
+        attachmentsTitle: 'Attachments Preview',
+        unnamedCompany: 'Unnamed Company',
+        noAttachmentsData: 'No attachments',
+        clickAnywhereToClose: 'Click anywhere to close',
       },
       message: {
         filingSuccess: 'Filing submitted.',
