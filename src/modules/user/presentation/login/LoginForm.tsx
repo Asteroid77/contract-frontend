@@ -8,7 +8,6 @@ import {
 } from 'vue'
 import { loginFormValidation } from '@/modules/access/application/validation'
 import { NButton, NDivider, NForm, NFormItem, NImage, NInput, NSpace, NSpin } from 'naive-ui'
-import { useI18n } from 'vue-i18n'
 import { InfoCircleFilled, IdcardOutlined, KeyOutlined, MailOutlined } from '@vicons/antd'
 import { useCaptcha } from '@/modules/captcha/application/hooks/useCaptcha'
 import { NTooltip, NIcon } from 'naive-ui'
@@ -17,6 +16,7 @@ import type { SignInForm } from '@/modules/user/application/models'
 import { RouterLink } from 'vue-router'
 import type { FormInst } from 'naive-ui/lib'
 import { createSignInModel } from '@/modules/user/application/ui-mappers'
+import { $t } from '@/_utils/i18n'
 
 export default defineComponent({
   props: {
@@ -31,7 +31,6 @@ export default defineComponent({
     submit: null,
   },
   setup(props, { emit, slots }) {
-    const { t: $t } = useI18n()
     const { isLoading: captchaLoading, data: captchaData, refetch: captchaRefetch } = useCaptcha()
     const formRef: Readonly<ShallowRef<FormInst | null>> = useTemplateRef<FormInst>('formRef')
     // 使用 Factory Function 初始化表单模型
@@ -204,7 +203,7 @@ export default defineComponent({
               </RouterLink>
             }
           </div>
-          {<NDivider>{'or'}</NDivider>}
+          {<NDivider>{$t('common.label.or')}</NDivider>}
           {renderSlot(slots, 'default')}
         </NForm>
         <div

@@ -1,7 +1,6 @@
 import { defineComponent, ref, useTemplateRef, type PropType, type ShallowRef } from 'vue'
 import { registerFormValidation } from '@/modules/access/application/validation'
 import { NButton, NForm, NFormItem, NInput } from 'naive-ui'
-import { useI18n } from 'vue-i18n'
 import {
   InfoCircleFilled,
   IdcardOutlined,
@@ -15,6 +14,7 @@ import type { RegisterForm, SignInForm } from '@/modules/user/application/models
 import { RouterLink } from 'vue-router'
 import { useSMS } from '@/modules/captcha/application/hooks/useSMS'
 import type { FormInst } from 'naive-ui/lib'
+import { $t } from '@/_utils/i18n'
 const { getSendBtnLabelText, getSMSCoolDownSecond, sendSMSCode } = useSMS()
 export default defineComponent({
   props: {
@@ -30,7 +30,6 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const useSMSCode = sendSMSCode()
-    const { t: $t } = useI18n()
     const formData = ref<FormInput<RegisterForm>>({})
     const formRef: Readonly<ShallowRef<FormInst | null>> = useTemplateRef<FormInst>('formRef')
     const validation = registerFormValidation(formData)
