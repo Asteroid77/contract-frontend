@@ -18,11 +18,14 @@ export default defineComponent({
       if (!props.approvalType) {
         return { added: [], removed: [], kept: [], normal: props.newData || [] }
       }
-      const oldMap = new Map((props.oldData || []).map((f) => [f.id, f]))
-      const newMap = new Map((props.newData || []).map((f) => [f.id, f]))
-      const added = props.newFiles.filter((f) => !oldMap.has(f.id))
-      const removed = props.oldFiles.filter((f) => !newMap.has(f.id))
-      const kept = props.newFiles.filter((f) => oldMap.has(f.id))
+      const oldFiles = props.oldData || []
+      const newFiles = props.newData || []
+
+      const oldMap = new Map(oldFiles.map((f) => [f.id, f]))
+      const newMap = new Map(newFiles.map((f) => [f.id, f]))
+      const added = newFiles.filter((f) => !oldMap.has(f.id))
+      const removed = oldFiles.filter((f) => !newMap.has(f.id))
+      const kept = newFiles.filter((f) => oldMap.has(f.id))
 
       return { added, removed, kept, normal: [] }
     })

@@ -41,14 +41,13 @@ export default defineComponent({
         return isNewEmpty && isOldEmpty
       })
     })
-    console.log(props.filesMap)
     return () => (
       <div class="attachment-approval-container">
         {props.rules.map((item) => (
           <FileDiffSection
             title={item.title}
-            oldFiles={props.filesMap.old?.[item.key]}
-            newFiles={props.filesMap.new?.[item.key]}
+            oldData={props.filesMap.old?.[item.key]}
+            newData={props.filesMap.new?.[item.key]}
             approvalType={props.filesMap.old === undefined ? false : true}
           />
         ))}
