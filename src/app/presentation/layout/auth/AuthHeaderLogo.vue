@@ -4,10 +4,11 @@ import { ref, useTemplateRef, watch } from 'vue'
 import { authRoutes } from '@/router'
 import { convertRoutesToMenuItems } from '@/app/presentation/layout/utils/MenuBuilder'
 import clsx from 'clsx'
-import { $t } from '@/_utils/i18n'
 import { useRoute } from 'vue-router'
 import { useCssVar } from '@/app/presentation/theme/hooks/useCssVar'
+import { useI18n } from 'vue-i18n'
 const route = useRoute()
+const { t: $t } = useI18n()
 
 const menuOptions = convertRoutesToMenuItems(authRoutes)
 

@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { $t } from '@/_utils/i18n'
 import type {
   ApprovalInstance,
-  ApprovalInstancesPageRequest,
+  ApprovalInstancesPageQuery,
 } from '@/modules/approval/application/models'
 import { useApprovalInstancePage, useClaimTask } from '@/modules/approval/application/hooks/useApprovalService'
 import type { BasePageRequest } from '@/modules/shared/application/request/types'
@@ -26,10 +25,12 @@ import type { SignInResponse } from '@/modules/user/application/models'
 import { formatted } from '@/modules/shared/presentation/time'
 import { useRouter } from 'vue-router'
 import StatusTag from './StatusTag'
+import { useI18n } from 'vue-i18n'
 const router = useRouter()
-const searchFormData = ref<ApprovalInstancesPageRequest>({})
+const { t: $t } = useI18n()
+const searchFormData = ref<ApprovalInstancesPageQuery>({})
 const searchData = computed(() => {
-  const result: BasePageRequest<ApprovalInstancesPageRequest> = {
+  const result: BasePageRequest<ApprovalInstancesPageQuery> = {
     page: pagination.page,
     size: pagination.pageSize,
   }

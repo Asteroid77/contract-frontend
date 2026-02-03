@@ -4,7 +4,8 @@ import ApprovalTemplate from '@/modules/approval/presentation/approval/ApprovalT
 import { computed, type Ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { NResult, NButton } from 'naive-ui'
-import { $t } from '@/_utils/i18n'
+import { useI18n } from 'vue-i18n'
+const { t: $t } = useI18n()
 const route = useRoute()
 const instanceId: Ref<number | null> = computed(() => {
   const id = route.query.instanceId

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { $t } from '@/_utils/i18n'
 import type { RolePageQuery, RoleItem } from '@/modules/access/application/models'
 import { useRolePage } from '@/modules/access/application/hooks/useRoleService'
 import type { BasePageRequest } from '@/modules/shared/application/request/types'
@@ -15,7 +14,9 @@ import { computed, reactive, ref } from 'vue'
 import { h } from 'vue'
 import { useRouter } from 'vue-router'
 import RoleAssign from './RoleAssign.vue'
+import { useI18n } from 'vue-i18n'
 const $router = useRouter()
+const { t: $t } = useI18n()
 
 function createColumns({
   edit,

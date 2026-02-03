@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { $t } from '@/_utils/i18n'
 import { useUserPage } from '@/modules/user/application/hooks/useUserPage'
 import { useAssignedUsersByRole, useAssignRoleToUsers } from '@/modules/access/application/hooks/useUserRoleService'
 import { NTransfer, NCard, NSpace, NButton, NPopconfirm } from 'naive-ui'
 import { computed, watch } from 'vue'
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+const { t: $t } = useI18n()
 const props = defineProps<{
   roleId: number
 }>()

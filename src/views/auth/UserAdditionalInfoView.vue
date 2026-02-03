@@ -4,7 +4,7 @@ import UserAdditionalInfoUiForm, {
 } from '@/modules/user/presentation/user_additional_info/UserAdditionalInfoForm'
 import { computed, useTemplateRef } from 'vue'
 import { NFlex, NButton, NSkeleton, NResult } from 'naive-ui'
-import { $t } from '@/_utils/i18n'
+import { useI18n } from 'vue-i18n'
 import type { Ref } from 'vue'
 import type { UserAdditionalInfoForm } from '@/modules/user/application/models'
 import { useUserAdditionalInfoRequest } from '@/modules/user/application/hooks/useUserAdditionalInfoRequest'
@@ -12,6 +12,8 @@ import { useLatestAdditionalInfoInstanceStatus } from '@/modules/approval/applic
 import { useRouter } from 'vue-router'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
 import { useLoadUserInfo } from '@/modules/user/application/hooks/useLoadUserInfo'
+
+const { t: $t } = useI18n()
 
 const $form: Ref<UserAdditionalInfoFormExpose | null> =
   useTemplateRef<UserAdditionalInfoFormExpose>('formRef')

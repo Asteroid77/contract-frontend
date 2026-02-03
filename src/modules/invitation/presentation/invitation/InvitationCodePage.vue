@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { $t } from '@/_utils/i18n'
 import {
   NButton,
   NSpace,
@@ -20,6 +19,8 @@ import {
 } from '@/modules/invitation/application/hooks/useInvitationService'
 import clsx from 'clsx'
 import { invitationCodeStatus } from '@/modules/invitation/application/constants'
+import { useI18n } from 'vue-i18n'
+const { t: $t } = useI18n()
 const invitationListQuery = useInvitationCodeListQuery()
 function createColumns(): DataTableColumns<InvitationCode> {
   return [

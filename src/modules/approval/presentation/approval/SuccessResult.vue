@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { $t } from '@/_utils/i18n'
 import { NResult, NButton } from 'naive-ui'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 const router = useRouter()
+const { t: $t } = useI18n()
 const handleReturn = () => {
   router.go(-1)
 }
@@ -11,7 +12,7 @@ const handleReturn = () => {
   <n-result
     status="success"
     :title="$t('common.status.success')"
-    :description="$t('approval.messages.approveSuccess')"
+    :description="$t('domain.approval.message.approveSuccess')"
   >
     <template #footer>
       <n-button @click="handleReturn">{{ $t('common.action.back') }}</n-button>

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { $t } from '@/_utils/i18n/'
+import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
 import { getFrontendLoginUrl } from '@/app/infrastructure/request/get-frontend-url'
 
 const token: string | undefined = useRoute().query.token?.toString()
 const error: string | undefined = useRoute().query.error?.toString()
+const { t: $t } = useI18n()
 const title = ref<string>($t('auth.oauth.callback'))
 if (token) {
   window.opener.postMessage(
