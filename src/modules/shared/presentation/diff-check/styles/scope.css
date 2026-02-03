@@ -1,0 +1,426 @@
+/* ========== 主题 CSS 变量 - 作用域隔离（diff-check） ========== */
+.diff-check-scope {
+  /* Light 主题 (默认) */
+  --color-primary: #334155;
+  --color-primary-hover: #475569;
+  --color-primary-pressed: #1e293b;
+  --color-primary-suppl: #334155;
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-pressed: #1e40af;
+  --color-bg-body: #f8fafc;
+  --color-bg-card: #ffffff;
+  --color-text-main: #0f172a;
+  --color-text-body: #334155;
+  --color-text-light: #64748b;
+  --color-text-disabled: #cbd5e1;
+  --color-border: #e2e8f0;
+
+  /* 通用 Tokens */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --padding-card: 16px;
+
+  /* Diff 状态色 */
+  --diff-added-bg: rgba(34, 197, 94, 0.12);
+  --diff-added-text: #15803d;
+  --diff-removed-bg: rgba(239, 68, 68, 0.12);
+  --diff-removed-text: #dc2626;
+  --diff-modified-old-bg: rgba(245, 158, 11, 0.12);
+  --diff-modified-old-text: #b45309;
+  --diff-modified-new-bg: rgba(59, 130, 246, 0.12);
+  --diff-modified-new-text: #1d4ed8;
+
+  /* 文件缩略图（响应式，避免硬编码到组件） */
+  --diff-check-file-thumb-size: clamp(56px, 6vw, 72px);
+
+  background-color: var(--color-bg-body);
+  color: var(--color-text-body);
+}
+
+.diff-check-scope[data-theme='dark'] {
+  --color-primary: #e2e8f0;
+  --color-primary-hover: #f1f5f9;
+  --color-primary-pressed: #94a3b8;
+  --color-primary-suppl: #e2e8f0;
+  --color-accent: #3b82f6;
+  --color-accent-hover: #60a5fa;
+  --color-accent-pressed: #2563eb;
+  --color-bg-body: #020617;
+  --color-bg-card: #0f172a;
+  --color-text-main: #f8fafc;
+  --color-text-body: #cbd5e1;
+  --color-text-light: #64748b;
+  --color-text-disabled: #334155;
+  --color-border: #1e293b;
+
+  --diff-added-bg: rgba(34, 197, 94, 0.2);
+  --diff-added-text: #4ade80;
+  --diff-removed-bg: rgba(239, 68, 68, 0.2);
+  --diff-removed-text: #f87171;
+  --diff-modified-old-bg: rgba(245, 158, 11, 0.2);
+  --diff-modified-old-text: #fbbf24;
+  --diff-modified-new-bg: rgba(96, 165, 250, 0.2);
+  --diff-modified-new-text: #93c5fd;
+}
+
+.diff-check-scope[data-theme='sakura'] {
+  --color-primary: #db2777;
+  --color-primary-hover: #ec4899;
+  --color-primary-pressed: #be185d;
+  --color-primary-suppl: #db2777;
+  --color-accent: #f59e0b;
+  --color-accent-hover: #fbbf24;
+  --color-accent-pressed: #d97706;
+  --color-bg-body: #fff1f2;
+  --color-bg-card: #ffffff;
+  --color-text-main: #881337;
+  --color-text-body: #9f1239;
+  --color-text-light: #fb7185;
+  --color-text-disabled: #fecdd3;
+  --color-border: #fbcfe8;
+
+  --diff-added-bg: rgba(34, 197, 94, 0.15);
+  --diff-added-text: #15803d;
+  --diff-removed-bg: rgba(190, 24, 93, 0.15);
+  --diff-removed-text: #be185d;
+  --diff-modified-old-bg: rgba(251, 113, 133, 0.2);
+  --diff-modified-old-text: #be185d;
+  --diff-modified-new-bg: rgba(245, 158, 11, 0.15);
+  --diff-modified-new-text: #b45309;
+}
+
+/* ========== 卡片样式 ========== */
+.diff-check-scope .theme-card {
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+
+/* ========== 表格样式 ========== */
+.diff-check-scope .form-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.diff-check-scope .form-table th {
+  background-color: var(--color-bg-body);
+  color: var(--color-text-main);
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.diff-check-scope .form-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 14px;
+  vertical-align: top;
+}
+
+.diff-check-scope .form-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.diff-check-scope .form-table tbody tr:hover {
+  background-color: var(--color-bg-body);
+}
+
+.diff-check-scope .field-label {
+  width: 120px;
+  color: var(--color-text-light);
+  font-weight: 500;
+}
+
+.diff-check-scope .field-empty {
+  color: var(--color-text-disabled);
+  font-style: italic;
+}
+
+/* ========== 内联 Diff 样式 ========== */
+.diff-check-scope .diff-inline-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.diff-check-scope .diff-arrow {
+  color: var(--color-text-light);
+  font-size: 12px;
+}
+
+.diff-check-scope .diff-inline {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.diff-check-scope .diff-inline--added {
+  background-color: var(--diff-added-bg);
+  color: var(--diff-added-text);
+}
+
+.diff-check-scope .diff-inline--removed {
+  background-color: var(--diff-removed-bg);
+  color: var(--diff-removed-text);
+  text-decoration: line-through;
+}
+
+.diff-check-scope .diff-inline--old {
+  background-color: var(--diff-modified-old-bg);
+  color: var(--diff-modified-old-text);
+  text-decoration: line-through;
+}
+
+.diff-check-scope .diff-inline--new {
+  background-color: var(--diff-modified-new-bg);
+  color: var(--diff-modified-new-text);
+}
+
+/* ========== 列表字段样式 ========== */
+.diff-check-scope .list-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.diff-check-scope .list-toggle {
+  color: var(--color-text-light);
+  font-size: 12px;
+}
+
+.diff-check-scope .badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.diff-check-scope .badge--added {
+  background-color: var(--diff-added-bg);
+  color: var(--diff-added-text);
+}
+.diff-check-scope .badge--removed {
+  background-color: var(--diff-removed-bg);
+  color: var(--diff-removed-text);
+}
+.diff-check-scope .badge--modified {
+  background-color: var(--diff-modified-new-bg);
+  color: var(--diff-modified-new-text);
+}
+
+.diff-check-scope .list-expand-row > td {
+  padding: 0 !important;
+  background-color: var(--color-bg-body);
+}
+
+.diff-check-scope .list-nested {
+  padding: 8px 16px 16px 16px;
+}
+
+.diff-check-scope .form-table--nested {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.diff-check-scope .col-index {
+  width: 40px;
+  text-align: center;
+  color: var(--color-text-light);
+}
+
+.diff-check-scope .list-row--added {
+  background-color: var(--diff-added-bg) !important;
+}
+.diff-check-scope .list-row--removed {
+  background-color: var(--diff-removed-bg) !important;
+}
+.diff-check-scope .list-row--removed td {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* ========== 文件展示样式 ========== */
+.diff-check-scope .file-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.diff-check-scope .file-diff-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.diff-check-scope .file-item {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 8px;
+  background-color: var(--color-bg-card);
+  position: relative;
+  max-width: 220px;
+}
+
+.diff-check-scope .file-item--added {
+  border-color: var(--diff-added-text);
+  background-color: var(--diff-added-bg);
+}
+
+.diff-check-scope .file-item--removed {
+  border-color: var(--diff-removed-text);
+  background-color: var(--diff-removed-bg);
+  opacity: 0.85;
+}
+
+.diff-check-scope .file-image-wrapper {
+  position: relative;
+}
+
+.diff-check-scope .file-image-thumb {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: inline-block;
+  width: var(--diff-check-file-thumb-size);
+  height: var(--diff-check-file-thumb-size);
+}
+
+.diff-check-scope .file-image-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  display: block;
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+}
+
+.diff-check-scope .file-item--removed .file-image-thumb img {
+  filter: grayscale(50%);
+}
+
+.diff-check-scope .file-status-tag {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.diff-check-scope .file-status-tag--added {
+  background-color: var(--diff-added-text);
+}
+
+.diff-check-scope .file-status-tag--removed {
+  background-color: var(--diff-removed-text);
+}
+
+.diff-check-scope .file-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.diff-check-scope .file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.diff-check-scope .file-link {
+  color: var(--color-accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.diff-check-scope .file-link:hover {
+  color: var(--color-accent-hover);
+}
+
+.diff-check-scope .file-size {
+  color: var(--color-text-light);
+  font-size: 12px;
+}
+
+.diff-check-scope .file-status-badge {
+  font-size: 12px;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  color: #fff;
+}
+
+.diff-check-scope .file-status-badge--added {
+  background-color: var(--diff-added-text);
+}
+.diff-check-scope .file-status-badge--removed {
+  background-color: var(--diff-removed-text);
+}
+
+.diff-check-scope .file-diff-replace {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.diff-check-scope .file-diff-arrow {
+  color: var(--color-text-light);
+}
+
+.diff-check-scope .empty-row {
+  text-align: center;
+  padding: 16px;
+}
+
+/* ========== 移动端：强制单列排布（仅作用于顶层表格） ========== */
+@media screen and (max-width: 768px) {
+  .diff-check-scope .unified-table-wrapper > table.form-table,
+  .diff-check-scope .unified-table-wrapper > table.form-table > tbody,
+  .diff-check-scope .unified-table-wrapper > table.form-table > tbody > tr,
+  .diff-check-scope .unified-table-wrapper > table.form-table > tbody > tr > td {
+    display: block;
+    width: 100%;
+  }
+
+  .diff-check-scope .unified-table-wrapper > table.form-table > tbody > tr > td {
+    border-bottom: none;
+    padding: 6px 0;
+  }
+
+  .diff-check-scope .unified-table-wrapper > table.form-table > tbody > tr {
+    border-bottom: 1px solid var(--color-border);
+    padding: 10px 0;
+  }
+
+  .diff-check-scope .unified-table-wrapper > table.form-table > tbody > tr:last-child {
+    border-bottom: none;
+  }
+
+  .diff-check-scope .unified-table-wrapper > table.form-table .field-label {
+    width: auto;
+    color: var(--color-text-main);
+    font-weight: 600;
+  }
+}
