@@ -21,7 +21,7 @@ export const templateSwitch = defineComponent({
           return (
             <>
               <SignDiffTemplate
-                data={props.data as ApprovalInstance<ServiceAgreementRequestDTO>}
+                data={props.data as unknown as ApprovalInstance<ServiceAgreementRequestDTO>}
               ></SignDiffTemplate>
             </>
           )

@@ -1,6 +1,6 @@
 import { dialog } from '@/_utils/discrete_naive_api'
 import { $t } from '@/_utils/i18n'
-import type { ApprovalInstance, ApprovalOpinionRequest } from '@/modules/approval/application/models'
+import type { ApprovalInstance, ApprovalOpinionForm } from '@/modules/approval/application/models'
 import {
   useCancelApprovalInstance,
   useClaimTask,
@@ -52,7 +52,7 @@ export default defineComponent({
     })
     const approveBtnClick = () => {
       const approvalOptionFormRef: Ref<FormInst | null> = ref<FormInst | null>(null)
-      const approvalOptionData = ref<FormInput<ApprovalOpinionRequest>>({
+      const approvalOptionData = ref<FormInput<ApprovalOpinionForm>>({
         taskId: props.data?.taskId,
       })
       approvalOptionData.value = {
@@ -68,7 +68,7 @@ export default defineComponent({
         onPositiveClick: () => {
           approvalOptionFormRef.value?.validate((errors) => {
             if (!errors?.length) {
-              handleTask.mutate(approvalOptionData.value as ApprovalOpinionRequest)
+              handleTask.mutate(approvalOptionData.value as ApprovalOpinionForm)
             }
           })
         },
