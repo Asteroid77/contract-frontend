@@ -9,7 +9,9 @@ import { renderIcon } from '@/_utils/widget/renderIcon'
 import { resolveIcon, type IconNames } from '@/app/presentation/layout/utils/MenuBuilder'
 const routeInfoMap: { [key: string]: RouteRecordRaw } = {}
 authRoutes.map((item) => {
-  routeInfoMap[item.name] = item
+  if (typeof item.name === 'string') {
+    routeInfoMap[item.name] = item
+  }
 })
 const route = useRoute()
 const breadcrumbData = computed(() => {
