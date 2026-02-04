@@ -3,6 +3,7 @@ import type { ToBeInstalledPlugin, ToBeInstalledPluginList } from './index'
 import { usePiniaPlugin } from './usePiniaPlugin'
 import { useRouterPlugin } from './useRouterPlugin'
 import { useRequestPlugin } from './useRequestPlugin'
+import { useI18nPlugin } from './useI18nPlugin'
 const _installedPlugins = ref(new Set<Plugin>())
 /**
  * 注册单个Vue插件
@@ -39,6 +40,7 @@ export function getInstalledPlugins(): Ref<Set<Plugin>> {
  */
 function _initiation(app: App<Element>) {
   const data: ToBeInstalledPlugin | ToBeInstalledPlugin[] | ToBeInstalledPluginList = [
+    useI18nPlugin(),
     usePiniaPlugin(),
     useRouterPlugin(),
     useRequestPlugin(),

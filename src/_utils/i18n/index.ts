@@ -15,7 +15,7 @@ type ObjectPaths<T, Path extends string = ''> = T extends object
         : never
     }[keyof T]
   : never
-const i18n = createI18n<MessageSchema, 'en' | 'zh-CN'>({
+export const i18n = createI18n<MessageSchema, 'en' | 'zh-CN'>({
   legacy: false,
   locale: language.value,
   fallbackLocale: 'zh-CN',
