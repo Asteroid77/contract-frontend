@@ -1,4 +1,5 @@
-import type { BaseQuery, ConditionWrapper } from '@/modules/shared/application/request/types'
+import type { BasePageRequest, BaseQuery, ConditionWrapper } from '@/modules/shared/application/request/types'
+import type { QueryFilters } from '@/modules/shared/domain/query'
 import type { ApprovalInstanceStatus } from '../domain/enums'
 import type {
   ApprovalHistory,
@@ -28,4 +29,8 @@ export interface ApprovalInstancesPageQuery extends BaseQuery {
   createdTime?: ConditionWrapper<string>
   updatedTime?: ConditionWrapper<string>
   status?: ConditionWrapper<ApprovalInstanceStatus>
+}
+
+export type ApprovalInstancesPageRequest = Omit<BasePageRequest<ApprovalInstancesPageQuery>, 'query'> & {
+  query?: ApprovalInstancesPageQuery | QueryFilters
 }

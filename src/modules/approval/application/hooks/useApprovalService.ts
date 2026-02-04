@@ -2,15 +2,16 @@ import { approvalService } from '@/modules/approval/application/service'
 import type {
   ApprovalOpinionForm,
   ApprovalInstancesPageQuery,
+  ApprovalInstancesPageRequest,
   ApprovalInstance,
   ApprovalInstancePage,
   ApprovalHistory,
   LatestAdditionalInfoInstance,
 } from '@/modules/approval/application/models'
-import type { BasePageRequest, IPage } from '@/modules/shared/application/request/types'
+import type { IPage } from '@/modules/shared/application/request/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import type { AxiosError } from 'axios'
-import { computed, type Ref } from 'vue'
+import { computed, unref, type Ref } from 'vue'
 export const approvalKeys = {
   ALL: ['approval'] as const,
   DETAIL: (id: number) => ['approval', 'detail', id] as const,
@@ -26,7 +27,7 @@ export const approvalTaskKeys = {
 export const approvalInstanceKeys = {
   ALL: ['approval', 'instance'],
   INSTANCE: ['approval', 'instance'] as const,
-  INSTANCE_PAGE: (params: BasePageRequest<ApprovalInstancesPageQuery>) =>
+  INSTANCE_PAGE: (params: ApprovalInstancesPageRequest) =>
     ['approval', 'instances', 'page', params] as const,
   INSTANCE_DETAIL: (instanceId: number) => ['approval', 'instance', instanceId] as const,
   LATEST_ADDITIONAL_INFO_INSTANCE: ['approval', 'instance', 'additional_info'],
@@ -121,16 +122,16 @@ export const useCancelApprovalInstance = () => {
  * 获取审批实例分页数据
  */
 export const useApprovalInstancePage = (
-  params: BasePageRequest<ApprovalInstancesPageQuery>,
+  params: Ref<ApprovalInstancesPageRequest> | ApprovalInstancesPageRequest,
   options?: {
-    enabled?: boolean
+    enabled?: Ref<boolean> | boolean
     refetchInterval?: number
   },
 ) => {
   return useQuery<IPage<ApprovalInstancePage>, AxiosError<unknown>, IPage<ApprovalInstancePage>>({
-    queryKey: approvalInstanceKeys.INSTANCE_PAGE(params),
-    queryFn: () => approvalService.getInstancePage(params),
-    enabled: options?.enabled ?? true,
+    queryKey: computed(() => approvalInstanceKeys.INSTANCE_PAGE(unref(params))),
+    queryFn: () => approvalService.getInstancePage(unref(params)),
+    enabled: computed(() => unref(options?.enabled ?? true)),
     refetchInterval: options?.refetchInterval,
     staleTime: 30 * 1000, // 30秒
     placeholderData: (previousData) => previousData, // 保持之前的数据
