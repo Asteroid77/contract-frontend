@@ -1,6 +1,5 @@
 import { useRequest } from '@/modules/shared/infrastructure/useRequest'
 import { createPrefixedEndpoints } from '@/modules/shared/infrastructure/api/api-prefix-generator'
-import type { ServerResponse } from '@/modules/shared/domain/response'
 import type { IPage, BasePageRequest } from '@/modules/shared/domain/page'
 import type { ApprovalInstance } from '@/modules/approval/domain/types'
 import type {
@@ -36,7 +35,7 @@ export const serviceAgreementRepository = {
     formData.append('file', file)
     formData.append('fileCategory', fileCategory)
 
-    return useRequest<ServerResponse<OssCallbackDTO>, FormData>({
+    return useRequest<OssCallbackDTO, FormData>({
       method: 'POST',
       url: SERVICE_AGREEMENT_ENDPOINTS.UPLOAD,
       data: formData,
@@ -52,21 +51,21 @@ export const serviceAgreementRepository = {
     }).then((resp) => resp.data)
   },
   sign: (data: ServiceAgreementRequestDTO) => {
-    return useRequest<ServerResponse<ApprovalInstance<ServiceAgreementRequestDTO>>>({
+    return useRequest<ApprovalInstance<ServiceAgreementRequestDTO>>({
       method: 'POST',
       url: SERVICE_AGREEMENT_ENDPOINTS.SIGN,
       data,
     }).then((resp) => resp.data)
   },
   record: (data: ServiceAgreementRequestDTO) => {
-    return useRequest<ServerResponse<ServiceAgreementVo>>({
+    return useRequest<ServiceAgreementVo>({
       method: 'POST',
       url: SERVICE_AGREEMENT_ENDPOINTS.RECORD,
       data,
     }).then((resp) => resp.data)
   },
   duplicateCheck: (companyName: string, pca: string) => {
-    return useRequest<ServerResponse<boolean>>({
+    return useRequest<boolean>({
       method: 'POST',
       url: SERVICE_AGREEMENT_ENDPOINTS.DUPLICATE_CHECK,
       params: {
@@ -76,21 +75,21 @@ export const serviceAgreementRepository = {
     }).then((resp) => resp.data)
   },
   get: (id: number) => {
-    return useRequest<ServerResponse<ServiceAgreementVo>>({
+    return useRequest<ServiceAgreementVo>({
       method: 'GET',
       url: SERVICE_AGREEMENT_ENDPOINTS.GET,
       params: { id },
     }).then((resp) => resp.data)
   },
   page: (pageRequest: BasePageRequest<ServiceAgreementPageDTO>) => {
-    return useRequest<ServerResponse<IPage<ServiceAgreementPageVo>>>({
+    return useRequest<IPage<ServiceAgreementPageVo>>({
       method: 'POST',
       url: SERVICE_AGREEMENT_ENDPOINTS.PAGE,
       data: pageRequest,
     }).then((resp) => resp.data)
   },
   getPreviewAttachments: (data: ServiceAgreementPreviewAttachmentsDTO) => {
-    return useRequest<ServerResponse<PreviewAttachmentsVO>>({
+    return useRequest<PreviewAttachmentsVO>({
       method: 'POST',
       url: SERVICE_AGREEMENT_ENDPOINTS.PREVIEW_ATTACHMENTS,
       data,

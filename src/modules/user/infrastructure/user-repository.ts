@@ -1,7 +1,6 @@
 import { useRequest } from '@/modules/shared/infrastructure/useRequest'
 import { createPrefixedEndpoints } from '@/modules/shared/infrastructure/api/api-prefix-generator'
 import type { BasePageRequest, IPage } from '@/modules/shared/domain/page'
-import type { ServerResponse } from '@/modules/shared/domain/response'
 import type {
   ForgetPasswordRequestDTO,
   LoginRequestDTO,
@@ -25,33 +24,30 @@ import type { IUserRepository } from '../domain/repositories'
 
 export const userRepository: IUserRepository = {
   login: (data: LoginRequestDTO) =>
-    useRequest<ServerResponse<UserInfoVo>, LoginRequestDTO>({
+    useRequest<UserInfoVo, LoginRequestDTO>({
       method: 'POST',
       url: USER_ENDPOINTS.LOGIN,
       data,
     }).then((resp) => resp.data),
   register: (data: RegisterRequestDTO) =>
-    useRequest<ServerResponse<number>, RegisterRequestDTO>({
+    useRequest<number, RegisterRequestDTO>({
       method: 'POST',
       url: USER_ENDPOINTS.REGISTER,
       data,
     }).then((resp) => resp.data),
   getByToken: (token: string) =>
-    useRequest<ServerResponse<UserInfoVo>, never>({
+    useRequest<UserInfoVo, never>({
       method: 'GET',
       url: `${USER_ENDPOINTS.GET_BY_TOKEN}${token}`,
     }).then((resp) => resp.data),
   additionalInfoRequest: (data: UserAdditionalInfoRequestDTO) =>
-    useRequest<
-      ServerResponse<ApprovalInstance<Record<string, unknown>>>,
-      UserAdditionalInfoRequestDTO
-    >({
+    useRequest<ApprovalInstance<Record<string, unknown>>, UserAdditionalInfoRequestDTO>({
       method: 'POST',
       url: USER_ENDPOINTS.ADDITIONAL_INFO_PUT,
       data,
     }).then((resp) => resp.data),
   getUserPage: (pageRequest: BasePageRequest<UserPageDTO>) =>
-    useRequest<ServerResponse<IPage<UserPageVo>>, BasePageRequest<UserPageDTO>>({
+    useRequest<IPage<UserPageVo>, BasePageRequest<UserPageDTO>>({
       url: USER_ENDPOINTS.PAGE,
       method: 'POST',
       data: pageRequest,
@@ -60,7 +56,7 @@ export const userRepository: IUserRepository = {
       },
     }).then((resp) => resp.data),
   passwordRecovery: (data: ForgetPasswordRequestDTO) =>
-    useRequest<ServerResponse<boolean>, ForgetPasswordRequestDTO>({
+    useRequest<boolean, ForgetPasswordRequestDTO>({
       method: 'POST',
       url: USER_ENDPOINTS.PASSWORD_RECOVERY,
       data,

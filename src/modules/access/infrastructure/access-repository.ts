@@ -1,7 +1,6 @@
 import { useRequest } from '@/modules/shared/infrastructure/useRequest'
 import { createPrefixedEndpoints } from '@/modules/shared/infrastructure/api/api-prefix-generator'
 import type { BasePageRequest, IPage } from '@/modules/shared/domain/page'
-import type { ServerResponse } from '@/modules/shared/domain/response'
 import type {
   PermissionPageDTO,
   RoleAssignDTO,
@@ -29,7 +28,7 @@ const USER_ROLE_ENDPOINTS = createPrefixedEndpoints('/user-role', {
 
 export const accessRepository = {
   getRolePage: (data: BasePageRequest<RolePageDTO>) =>
-    useRequest<ServerResponse<IPage<RoleVo>>, BasePageRequest<RolePageDTO>>({
+    useRequest<IPage<RoleVo>, BasePageRequest<RolePageDTO>>({
       method: 'POST',
       url: ROLE_ENDPOINTS.PAGE,
       data,
@@ -38,13 +37,13 @@ export const accessRepository = {
       },
     }).then((resp) => resp.data),
   editRole: (data: RoleRequestDTO) =>
-    useRequest<ServerResponse<number>, RoleRequestDTO>({
+    useRequest<number, RoleRequestDTO>({
       method: 'POST',
       url: ROLE_ENDPOINTS.EDIT,
       data,
     }).then((resp) => resp.data),
   getRolesByUserId: (userId: number) =>
-    useRequest<ServerResponse<RoleVo[]>, never>({
+    useRequest<RoleVo[], never>({
       method: 'GET',
       url: ROLE_ENDPOINTS.GET_BY_USER_ID,
       params: {
@@ -55,7 +54,7 @@ export const accessRepository = {
       },
     }).then((resp) => resp.data),
   getPermissionPage: (data: BasePageRequest<PermissionPageDTO>) =>
-    useRequest<ServerResponse<IPage<Permission>>, BasePageRequest<PermissionPageDTO>>({
+    useRequest<IPage<Permission>, BasePageRequest<PermissionPageDTO>>({
       method: 'POST',
       url: PERMISSION_ENDPOINTS.PAGE,
       data,
@@ -64,7 +63,7 @@ export const accessRepository = {
       },
     }).then((resp) => resp.data),
   getPermissionsByRoleId: (data: RolePermissionsPageDTO) =>
-    useRequest<ServerResponse<IPage<Permission>>, RolePermissionsPageDTO>({
+    useRequest<IPage<Permission>, RolePermissionsPageDTO>({
       method: 'POST',
       url: PERMISSION_ENDPOINTS.ROLE_PAGE,
       data,
@@ -73,7 +72,7 @@ export const accessRepository = {
       },
     }).then((resp) => resp.data),
   getAssignedUsersByRoleId: (roleId: number) =>
-    useRequest<ServerResponse<AssignedUserOptions[]>, never>({
+    useRequest<AssignedUserOptions[], never>({
       method: 'GET',
       url: USER_ROLE_ENDPOINTS.ASSIGNED_USERS,
       params: {
@@ -84,7 +83,7 @@ export const accessRepository = {
       },
     }).then((resp) => resp.data),
   assignRoleToUsers: (data: RoleAssignDTO) =>
-    useRequest<ServerResponse<null>, RoleAssignDTO>({
+    useRequest<null, RoleAssignDTO>({
       method: 'POST',
       url: USER_ROLE_ENDPOINTS.ASSIGN,
       data,
