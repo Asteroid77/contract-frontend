@@ -1,11 +1,10 @@
-import type {
-  CustomAxiosRequestConfig,
-  ServerResponse,
-} from '@/modules/shared/application/request/types'
+import type { CustomAxiosRequestConfig } from '@/modules/shared/application/request/types'
+import type { RFC7807Response, RFC7807SuccessResponse } from '@/modules/shared/domain/response'
 import { type AxiosResponse } from 'axios'
+import axios from 'axios'
 import { apiClient } from '@/app/infrastructure/request/http-client'
-import { ResponseCode } from '@/modules/shared/application/constants/response-code'
 import { BusinessError } from '@/modules/shared/domain/errors'
+
 /**
  * 用于项目的请求封装(unWrapper为true时)
  * @param {CustomAxiosRequestConfig<D>} config 自定义axios请求配置
@@ -15,77 +14,94 @@ import { BusinessError } from '@/modules/shared/domain/errors'
  * @return {Promise<T>}
  */
 export function useRequest<T, D = unknown>(
-  config: CustomAxiosRequestConfig<D> & { unWrapper?: true },
+  config: CustomAxiosRequestConfig<D> & { unWrap?: true },
   queryKey?: unknown[],
-): Promise<T>
+): Promise<RFC7807SuccessResponse<T>>
 /**
  * 用于项目的请求封装(unWrapper为false时)
  * @param {CustomAxiosRequestConfig<D>} config 自定义axios请求配置
  * @param {unknown[]} queryKey 请求key
  * @template T 返回值
  * @template D 发起请求时服务端所需参数类型
- * @return {Promise<AxiosResponse<ServerResponse<T>>>}
+ * @return {Promise<AxiosResponse<RFC7807Response<T>>>}
  */
 export function useRequest<T, D = unknown>(
-  config: CustomAxiosRequestConfig<D> & { unWrapper?: false },
+  config: CustomAxiosRequestConfig<D> & { unWrap?: false },
   queryKey?: unknown[],
-): Promise<AxiosResponse<ServerResponse<T>>>
+): Promise<AxiosResponse<RFC7807SuccessResponse<T>>>
 /**
  * 用于项目的请求封装
  * @param {CustomAxiosRequestConfig<D>} config 自定义axios请求配置
  * @param {unknown[]} queryKey 请求key
  * @template T 返回值
  * @template D 发起请求时服务端所需参数类型
- * @return {Promise<T | AxiosResponse<ServerResponse<T>, D>>}
+ * @return {Promise<T | AxiosResponse<RFC7807Response<T>, D>>}
  */
 export async function useRequest<T, D = unknown>(
   config: CustomAxiosRequestConfig<D>,
   queryKey?: unknown[],
-): Promise<ServerResponse<T> | AxiosResponse<ServerResponse<T>, D>> {
+): Promise<RFC7807SuccessResponse<T> | AxiosResponse<RFC7807SuccessResponse<T>, D>> {
   if (!queryKey) {
     queryKey = [config.url]
   }
-  //请求开始时间
   const fetchStartTimestamp = new Date()
   console.log(`Request starting at ${fetchStartTimestamp},key:${queryKey}`)
-  //params
   console.log(`params`, config.params, 'data', config.data)
-  //data
   console.log('token', config.headers?.satoken)
   setToken(config, 'Authorization')
+
   try {
-    const data: AxiosResponse<ServerResponse<T>> = await apiClient<
-      ServerResponse<T>,
-      AxiosResponse<ServerResponse<T>>,
+    const response: AxiosResponse<RFC7807Response<T>> = await apiClient<
+      RFC7807Response<T>,
+      AxiosResponse<RFC7807Response<T>>,
       D
     >(config)
-    // const result: ServerResponse<T> = data.data
+
     const fetchEndTimestamp = new Date()
-    const resp = data.data
     console.log(`Request ending at ${fetchEndTimestamp}, key: ${queryKey}`)
-    if (resp.code === ResponseCode.SUCCESS) {
-      return _unWrapperResponseData<T>(config, data)
-    }
-    // 业务失败，但HTTP成功。主动创建BusinessError并抛出。
-    throw new BusinessError(resp.message || 'error', resp.code)
+
+    // HTTP 2xx - 成功，直接返回
+    return _unWrapperResponseData<T>(config, response)
   } catch (err) {
     console.error(err)
-    // const error = err as AxiosError<ServerResponse<unknown>>
-    // 服务端错误处理
-    // httpErrorHandle(config, error)
-    // 抛出异常给Promise接收方
+
+    // 处理 Axios 错误，从响应中提取 RFC 7807 字段
+    if (axios.isAxiosError(err) && err.response) {
+      const problemDetails = err.response.data as RFC7807Response
+      throw new BusinessError(
+        problemDetails.detail || problemDetails.title || 'Error',
+        problemDetails.code,
+        problemDetails.traceId,
+        problemDetails.type,
+        problemDetails.status,
+      )
+    }
+
     throw err
   }
 }
+
 function _unWrapperResponseData<T>(
   config: CustomAxiosRequestConfig,
-  data: AxiosResponse<ServerResponse<T>>,
-): ServerResponse<T> | AxiosResponse<ServerResponse<T>> {
-  if (config.unWrap !== false) {
-    return data.data
+  data: AxiosResponse<RFC7807Response<T>>,
+): RFC7807SuccessResponse<T> | AxiosResponse<RFC7807SuccessResponse<T>> {
+  const body = data.data
+  if (body.data === undefined) {
+    throw new BusinessError(
+      body.detail || body.title || 'Response data is missing',
+      body.code,
+      body.traceId,
+      body.type,
+      body.status,
+    )
   }
-  return data
+
+  if (config.unWrap !== false) {
+    return body as RFC7807SuccessResponse<T>
+  }
+  return data as AxiosResponse<RFC7807SuccessResponse<T>>
 }
+
 function setToken(config: CustomAxiosRequestConfig, tokenName: string) {
   config.headers = config.headers || {}
   let token = config.headers[tokenName]
