@@ -11,7 +11,8 @@ import { notification, showUniqueErrorNotification } from '@/_utils/discrete_nai
 import { $t } from '@/_utils/i18n'
 import { match } from 'ts-pattern'
 import type { NotificationOptions } from 'naive-ui'
-import type { ServerResponse } from '@/modules/shared/application/request/types'
+import type { RFC7807Response } from '@/modules/shared/domain/response'
+import { BusinessError } from '@/modules/shared/domain/errors'
 import type { AxiosError, AxiosResponse } from 'axios'
 import axios from 'axios'
 import { queryPersister } from '@/app/infrastructure/query/tanstack_query_persist_with_dexie'
@@ -33,24 +34,30 @@ function processApiError(error: Error | undefined): ProcessedError | undefined {
 
   // 1. 处理主动抛出的、带有 isBusinessError 标志的业务错误
   if (error?.hasOwnProperty('isBusinessError')) {
+    const bizError = error as BusinessError
+    const traceIdSuffix = bizError.traceId ? `\n\nTraceId: ${bizError.traceId}` : ''
     return {
       title: $t('common.error.businessFail'), // "业务异常"
-      content: error.message === 'error' ? $t('common.status.error') : error.message,
+      content:
+        (bizError.message === 'error' ? $t('common.status.error') : bizError.message) +
+        traceIdSuffix,
       originalError,
     }
   }
 
   // 2. 接着处理 Axios 错误
   if (axios.isAxiosError(error)) {
-    const axiosError = error as AxiosError<ServerResponse<unknown>>
+    const axiosError = error as AxiosError<RFC7807Response<unknown>>
 
     // 2a. 服务器有响应，但状态码是 4xx/5xx
     if (axiosError.response) {
-      // 尝试从响应体中获取后端定义的错误信息
-      const serverMessage = axiosError.response.data?.message
+      // 尝试从响应体中获取 RFC 7807 格式的错误信息
+      const problemDetails = axiosError.response.data
+      const serverMessage = problemDetails?.detail || problemDetails?.title
+      const traceIdSuffix = problemDetails?.traceId ? `\n\nTraceId: ${problemDetails.traceId}` : ''
       return {
         title: $t('common.error.timeout'), // "请求失败"
-        content: serverMessage || $t('common.error.timeoutMeta'),
+        content: (serverMessage || $t('common.error.timeoutMeta')) + traceIdSuffix,
         originalError,
       }
     }
@@ -190,7 +197,7 @@ const globalMutationErrorHandler = (
   globalBaseErrorHandler(error, undefined, variables, context, mutation)
 }
 const globalSuccessHandler = (
-  data: ServerResponse<unknown> | AxiosResponse<ServerResponse<unknown>>,
+  data: RFC7807Response<unknown> | AxiosResponse<RFC7807Response<unknown>>,
   variabbles: unknown,
   context: unknown,
   query?: Query<unknown, unknown, unknown>,
@@ -204,7 +211,7 @@ const globalSuccessHandler = (
     match(typeof toastOnErrorConfig)
       .with('function', () => {
         const toastOnSuccess = gatherStruction.meta?.toastOnSuccess as (
-          data: ServerResponse<unknown> | AxiosResponse<ServerResponse<unknown>>,
+          data: RFC7807Response<unknown> | AxiosResponse<RFC7807Response<unknown>>,
           query: Query<unknown, unknown, unknown> | Mutation<unknown, unknown, unknown, unknown>,
         ) => NotificationOptions
         notification.success(toastOnSuccess(data, gatherStruction))
@@ -218,8 +225,8 @@ const globalSuccessHandler = (
           notification.success({
             title: $t('common.status.success'),
             content: data.hasOwnProperty('config')
-              ? (data as AxiosResponse<ServerResponse<unknown>>).data.message
-              : (data as ServerResponse<unknown>).message,
+              ? (data as AxiosResponse<RFC7807Response<unknown>>).data.detail
+              : (data as RFC7807Response<unknown>).detail,
             duration: 5000,
             keepAliveOnHover: true,
           })
@@ -233,7 +240,7 @@ const queryClient = new QueryClient({
       select: (response: unknown) => {
         // return unwrapped data
         if (response && typeof response === 'object' && 'data' in response) {
-          return (response as ServerResponse<unknown>).data
+          return (response as RFC7807Response<unknown>).data
         }
         // return original data.
         return response
@@ -247,14 +254,14 @@ const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: globalBaseErrorHandler,
     onSuccess(data, query) {
-      const result = data as ServerResponse<unknown> | AxiosResponse<ServerResponse<unknown>>
+      const result = data as RFC7807Response<unknown> | AxiosResponse<RFC7807Response<unknown>>
       globalSuccessHandler(result, null, null, query, undefined)
     },
   }),
   mutationCache: new MutationCache({
     onError: globalMutationErrorHandler,
     onSuccess(data, variables, context, mutation) {
-      const result = data as ServerResponse<unknown> | AxiosResponse<ServerResponse<unknown>>
+      const result = data as RFC7807Response<unknown> | AxiosResponse<RFC7807Response<unknown>>
       globalSuccessHandler(result, null, null, undefined, mutation)
     },
   }),
