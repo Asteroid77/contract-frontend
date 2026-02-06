@@ -16,7 +16,8 @@ initObservability(app, {
   openReplay: {
     projectKey: import.meta.env.VITE_OPENREPLAY_PROJECT_KEY || '',
     ingestPoint: import.meta.env.VITE_OPENREPLAY_INGEST_POINT,
-    enabled: !!import.meta.env.VITE_OPENREPLAY_PROJECT_KEY,
+    // 使用独立的开关控制，而不是依赖 projectKey 是否存在
+    enabled: import.meta.env.VITE_OPENREPLAY_ENABLED === 'true',
   },
 })
 

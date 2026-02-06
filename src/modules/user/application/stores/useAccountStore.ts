@@ -2,11 +2,13 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import dexie from '@/app/infrastructure/storage/dexie'
 import type { SignInResponse } from '@/modules/user/application/models'
+import { STORAGE_KEYS } from '@/constants/storage'
+import { updateAbility, clearAbility } from '@/modules/access/application/ability'
 export const useAccountStore = defineStore('account', () => {
   /**
    * 用户登录凭证
    */
-  const token = ref<SignInResponse['token'] | null>(localStorage.getItem('ACCESS_TOKEN'))
+  const token = ref<SignInResponse['token'] | null>(localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN))
 
   /**
    * 总信息
@@ -65,6 +67,7 @@ export const useAccountStore = defineStore('account', () => {
    * @description 重置account并路由导航至初始页，由路由守卫逻辑导航回login页
    */
   function logout() {
+    clearAbility() // 清空 CASL 权限
     $reset()
   }
 
@@ -75,9 +78,12 @@ export const useAccountStore = defineStore('account', () => {
     roleList.value = data.roleList
     permissionList.value = data.permissionList
     account.value = data
-    localStorage.setItem('ACCESS_TOKEN', data.token)
+    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, data.token)
     dexie.userinfo.add(data)
     isLoadedData.value = true
+
+    // 更新 CASL 权限
+    updateAbility(data.permissionList, data.roleList)
   }
 
   /**
@@ -110,7 +116,7 @@ export const useAccountStore = defineStore('account', () => {
 
   function $reset() {
     if (token.value) dexie.userinfo.delete(token.value)
-    localStorage.removeItem('ACCESS_TOKEN')
+    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
     token.value = ''
     user.value = {
       // 主键
