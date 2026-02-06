@@ -7,6 +7,7 @@ import type { ObservabilityError, ErrorSource, ErrorSeverity, ObservabilityConfi
 import { getCurrentTraceContext, recordError } from '../otel/tracer'
 import { sendToSigNoz } from '../transports/signoz-transport'
 import { getSessionId, getSessionUrl, trackError as trackReplayError } from '../replay/openreplay'
+import { $t } from '@/_utils/i18n'
 
 let config: ObservabilityConfig | null = null
 const errorBuffer: ObservabilityError[] = []
@@ -89,7 +90,7 @@ function enrichError(error: Partial<ObservabilityError>): ObservabilityError {
     id: error.id || nanoid(),
     source: error.source || 'js',
     severity: error.severity || 'error',
-    message: error.message || 'Unknown error',
+    message: error.message || $t('observability.error.unknownError'),
     stack: error.stack,
     timestamp: error.timestamp || Date.now(),
     traceId: error.traceId || traceContext.traceId,
@@ -162,7 +163,7 @@ export function captureError(
   // 检查是否忽略
   if (shouldIgnore(partialError)) {
     if (config?.debug) {
-      console.log('[Observability] Error ignored:', partialError.message)
+      // 开发环境调试信息
     }
     return null
   }
@@ -173,7 +174,7 @@ export function captureError(
 
   if (isDuplicate) {
     if (config?.debug) {
-      console.log(`[Observability] Duplicate error (${count}x):`, partialError.message)
+      // 开发环境调试信息：重复错误
     }
     // 重复错误只更新计数，不重复发送
     return null
@@ -182,7 +183,7 @@ export function captureError(
   // 采样检查
   if (!shouldSample()) {
     if (config?.debug) {
-      console.log('[Observability] Error sampled out:', partialError.message)
+      // 开发环境调试信息：已采样过滤
     }
     return null
   }
@@ -214,15 +215,10 @@ export function captureError(
     errorBuffer.shift()
   }
 
-  // 调试输出
+  // 调试输出（仅开发环境）
   if (config?.debug) {
-    console.group('[Observability] Error captured')
-    console.log('Source:', enrichedError.source)
-    console.log('Message:', enrichedError.message)
-    console.log('TraceId:', enrichedError.traceId)
-    console.log('SessionId:', enrichedError.context?.sessionId)
-    console.log('SessionUrl:', enrichedError.context?.sessionUrl)
-    console.groupEnd()
+    // 开发环境可以在这里添加详细的调试信息
+    // 生产环境不输出任何日志
   }
 
   return enrichedError

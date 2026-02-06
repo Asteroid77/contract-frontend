@@ -708,5 +708,38 @@ const i18NInfo = {
       list: 'Notifications',
     },
   },
+  observability: {
+    errorBoundary: {
+      title: 'Something went wrong',
+      description: 'An error occurred in this area, please try refreshing the page',
+      retry: 'Retry',
+      refresh: 'Refresh Page',
+    },
+    log: {
+      alreadyInitialized: 'Observability already initialized',
+      initializing: 'Initializing observability...',
+      initialized: 'Observability initialized successfully',
+      shutdownComplete: 'Observability shutdown complete',
+      errorIgnored: 'Error ignored',
+      duplicateError: 'Duplicate error',
+      errorSampledOut: 'Error sampled out',
+      errorCaptured: 'Error captured',
+      jsErrorCollectorInit: 'JsErrorCollector initialized',
+      vueErrorCollectorInstalled: 'VueErrorCollector installed',
+    },
+    error: {
+      source: 'Source',
+      message: 'Message',
+      traceId: 'TraceId',
+      sessionId: 'SessionId',
+      sessionUrl: 'SessionUrl',
+      vueError: 'Vue Error',
+      component: 'Component',
+      info: 'Info',
+      vueWarning: 'Vue Warning',
+      trace: 'Trace',
+      unknownError: 'Unknown error',
+    },
+  },
 }
 export default i18NInfo

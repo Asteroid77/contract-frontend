@@ -98,7 +98,7 @@ export const jsErrorCollector: ErrorCollector = {
     window.addEventListener('error', handleResourceError, true)
 
     isInitialized = true
-    console.log('[JsErrorCollector] Initialized')
+    // 初始化完成（生产环境不输出日志）
   },
 
   destroy(): void {
