@@ -6,7 +6,7 @@ import type { AppRouteRecord } from '../types'
  */
 export const manageRoutes: AppRouteRecord[] = [
   {
-    path: 'manage',
+    path: '/manage',
     name: 'manage',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
@@ -16,7 +16,7 @@ export const manageRoutes: AppRouteRecord[] = [
     },
   },
   {
-    path: 'manage/user/list',
+    path: '/manage/user/list',
     name: 'manage-user-list',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {

@@ -1,43 +1,63 @@
 import { userKeys } from '@/modules/user/application/hooks/useLoadUserInfo'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
 import type { Router } from 'vue-router'
-import { difference } from 'lodash'
 import { useQueryClient } from '@tanstack/vue-query'
 import type { SignInResponse } from '@/modules/user/application/models'
 import { userService } from '@/modules/user/application/service'
 import type { AxiosError } from 'axios'
+import { STORAGE_KEYS } from '@/constants/storage'
+import { captureError } from '@/app/observability'
+
+/**
+ * 认证守卫
+ *
+ * 职责：
+ * 1. 检查用户是否已登录
+ * 2. 加载用户数据（首次）
+ * 3. 处理登录重定向
+ *
+ * 注意：
+ * - 权限检查由 SetupAbilityGuard 负责
+ * - 此守卫只负责认证（Authentication），不负责授权（Authorization）
+ */
 export function setupAuthGuards(router: Router) {
   router.beforeEach(async (to) => {
-    const token = localStorage.getItem('ACCESS_TOKEN')
+    const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
     const accountStore = useAccountStore()
 
     // ==============================================
-    // 没有 Token 的情况
+    // 1. 检查路由是否需要认证
+    // ==============================================
+    const requiresAuth = to.meta.requiresAuth !== false // 默认需要认证
+
+    // ==============================================
+    // 2. 没有 Token 的情况
     // ==============================================
     if (!token) {
-      // 如果是白名单（如登录页），放行
-      if (_isUnAuthRoute(to.path)) {
+      // 如果路由不需要认证，放行
+      if (!requiresAuth) {
         return true
       }
-      // 否则，全部重定向到登录页
+      // 否则，重定向到登录页
       return { name: 'login', query: { redirect: to.fullPath } }
     }
 
     // ==============================================
-    // 有 Token 的情况
+    // 3. 有 Token 的情况
     // ==============================================
 
-    // 2.1 已登录还想去登录页？踢回 Dashboard
-    // if (_isUnAuthRoute(to.path)) {
-    //   return { name: 'dashboard' }
-    // }
+    // 3.1 已登录用户访问登录页，重定向到 Dashboard
+    // 特殊情况：oauth2-callback 需要放行
+    if (!requiresAuth && to.name !== 'oauth2-callback') {
+      return { name: 'dashboard' }
+    }
 
-    // 2.2 数据预加载 (这是唯一产生阻塞的步骤)
+    // 3.2 数据预加载（首次登录时）
     // 只有在数据还没加载过时才等待，后续路由跳转不会阻塞
     if (!accountStore.isLoadedData) {
       try {
         const queryClient = useQueryClient()
-        // 这里 await 会导致路由暂停，你的全局进度条应该在这里转圈
+        // 这里 await 会导致路由暂停，全局进度条会显示加载状态
         const data = await queryClient.ensureQueryData<
           SignInResponse,
           AxiosError<unknown>
@@ -49,16 +69,30 @@ export function setupAuthGuards(router: Router) {
         accountStore.login(data)
       } catch (error) {
         // Token 过期或网络错误，清除状态并去登录页
-        console.error('Auth Guard Error:', error)
+        captureError(error as Error, {
+          source: 'http',
+          severity: 'error',
+          context: {
+            location: 'AuthGuard',
+            action: 'loadUserInfo',
+          },
+        })
         accountStore.logout()
         return { name: 'login', query: { redirect: to.fullPath } }
       }
     }
 
     // ==============================================
-    // 权限校验 (数据已存在)
+    // 4. 权限检查
     // ==============================================
 
+    // 如果路由定义了 CASL ability 规则，跳过旧的权限检查
+    // 权限检查由 SetupAbilityGuard 统一处理
+    if (to.meta.ability) {
+      return true
+    }
+
+    // 兼容旧的权限检查方式（permissions/roles）
     const requirePerms = to.meta.permissions
     const requireRoles = to.meta.roles
 
@@ -68,47 +102,43 @@ export function setupAuthGuards(router: Router) {
     }
 
     // 校验权限
-    const hasPerm = permsInspect(
-      accountStore.permissionList.map((item) => item.name),
-      requirePerms,
-    )
-    if (hasPerm) return true
+    if (requirePerms) {
+      const hasAllPerms = requirePerms.every((perm) =>
+        accountStore.hasPermission(perm)
+      )
+      if (!hasAllPerms) {
+        captureError(new Error('Permission denied'), {
+          source: 'permission',
+          severity: 'warning',
+          context: {
+            route: to.name,
+            requiredPermissions: requirePerms,
+            userPermissions: accountStore.permissionList.map((item) => item.name),
+          },
+        })
+        return { name: '403' }
+      }
+    }
 
     // 校验角色
-    const hasRole = permsInspect(
-      accountStore.roleList.map((item) => item.name),
-      requireRoles,
-    )
-    if (hasRole) return true
+    if (requireRoles) {
+      const hasAllRoles = requireRoles.every((role) =>
+        accountStore.hasRole(role)
+      )
+      if (!hasAllRoles) {
+        captureError(new Error('Role denied'), {
+          source: 'permission',
+          severity: 'warning',
+          context: {
+            route: to.name,
+            requiredRoles: requireRoles,
+            userRoles: accountStore.roleList.map((item) => item.name),
+          },
+        })
+        return { name: '403' }
+      }
+    }
 
-    // 既没权限也没角色 -> 403
-    return { name: '403' }
+    return true
   })
-}
-/**
- * 匹配auth路由
- * 注意查看@/router/index.ts中定义的auth路由是否以auth开头，如果不是则需要对正则表达式进行修改
- * @param path 路由路径
- * @returns {boolean}
- */
-const _isAuthRoute = (path: string) => {
-  return /^\/auth(\/|$)/.test(path)
-}
-
-const _isUnAuthRoute = (path: string) => {
-  return /^\/unauth(\/|$)/.test(path)
-}
-
-/**
- * 权限检查
- * @param list 载有role code或者permission code的list
- * @param requireList 检查是否有所需的role code / permission code list
- * @returns void | 403forbidden路由参数
- */
-const permsInspect = (list: Array<string>, requireList: Array<string> | undefined) => {
-  if (!requireList) return
-  if (difference(requireList, list).length > 0) {
-    return { name: '403forbidden' }
-  }
-  return
 }

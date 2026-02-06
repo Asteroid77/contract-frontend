@@ -6,7 +6,7 @@ import type { AppRouteRecord } from '../types'
  */
 export const userRoutes: AppRouteRecord[] = [
   {
-    path: 'user',
+    path: '/user',
     name: 'user',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
@@ -16,7 +16,7 @@ export const userRoutes: AppRouteRecord[] = [
     },
   },
   {
-    path: 'user/additional-info',
+    path: '/user/additional-info',
     name: 'user-additional-info',
     component: () => import('@/views/auth/UserAdditionalInfoView.vue'),
     meta: {
@@ -26,7 +26,7 @@ export const userRoutes: AppRouteRecord[] = [
     },
   },
   {
-    path: 'user/agent/list',
+    path: '/user/agent/list',
     name: 'user-agent-list',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
@@ -36,7 +36,7 @@ export const userRoutes: AppRouteRecord[] = [
     },
   },
   {
-    path: 'sign/self/list',
+    path: '/sign/self/list',
     name: 'my-sign',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {

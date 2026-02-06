@@ -1,4 +1,5 @@
 import type { RouteRecordRaw, RouteLocationRaw, RouteParamsRaw, LocationQuery } from 'vue-router'
+import type { Action, Subject } from '@/modules/access/application/ability'
 
 // ============================================================
 // 路由元信息类型
@@ -18,6 +19,22 @@ export interface AppRouteMeta {
   isTransition?: boolean
   /** 是否在菜单中隐藏 */
   hideInMenu?: boolean
+  /** 是否需要认证（默认 true） */
+  requiresAuth?: boolean
+  /** 需要的权限列表（旧方式，兼容保留） */
+  permissions?: string[]
+  /** 需要的角色列表（旧方式，兼容保留） */
+  roles?: string[]
+  /** CASL 权限规则（推荐使用） */
+  ability?: AbilityRule | AbilityRule[]
+}
+
+/**
+ * CASL 权限规则
+ */
+export interface AbilityRule {
+  action: Action
+  subject: Subject
 }
 
 // ============================================================

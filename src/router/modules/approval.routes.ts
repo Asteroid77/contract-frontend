@@ -6,7 +6,7 @@ import type { AppRouteRecord } from '../types'
  */
 export const approvalRoutes: AppRouteRecord[] = [
   {
-    path: 'approval',
+    path: '/approval',
     name: 'approval',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
@@ -16,7 +16,7 @@ export const approvalRoutes: AppRouteRecord[] = [
     },
   },
   {
-    path: 'approval/my-approval-instance/page',
+    path: '/approval/my-approval-instance/page',
     name: 'approval-my-approval-instance-page',
     component: () => import('@/views/auth/ApprovalInstancePageView.vue'),
     meta: {
@@ -26,7 +26,7 @@ export const approvalRoutes: AppRouteRecord[] = [
     },
   },
   {
-    path: 'approval/instance/detail',
+    path: '/approval/instance/detail',
     name: 'approval-instance-detail',
     component: () => import('@/views/auth/ApprovalDetailView.vue'),
     meta: {
@@ -37,7 +37,7 @@ export const approvalRoutes: AppRouteRecord[] = [
     },
   },
   {
-    path: 'approval/my-task/list',
+    path: '/approval/my-task/list',
     name: 'approval-my-task-list',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
@@ -47,7 +47,7 @@ export const approvalRoutes: AppRouteRecord[] = [
     },
   },
   {
-    path: 'approval/process/list',
+    path: '/approval/process/list',
     name: 'approval-process-list',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
@@ -57,7 +57,7 @@ export const approvalRoutes: AppRouteRecord[] = [
     },
   },
   {
-    path: 'approval/node/list',
+    path: '/approval/node/list',
     name: 'approval-node-list',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
@@ -68,7 +68,7 @@ export const approvalRoutes: AppRouteRecord[] = [
     },
   },
   {
-    path: 'approval/task/list',
+    path: '/approval/task/list',
     name: 'approval-task-list',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {

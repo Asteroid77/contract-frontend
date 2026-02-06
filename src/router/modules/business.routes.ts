@@ -15,7 +15,7 @@ const toNumberOrNull = (val: unknown): number | null => {
  */
 export const businessRoutes: AppRouteRecord[] = [
   {
-    path: 'business',
+    path: '/business',
     name: 'business',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
@@ -25,7 +25,7 @@ export const businessRoutes: AppRouteRecord[] = [
     },
   },
   {
-    path: 'invitation',
+    path: '/invitation',
     name: 'invitation',
     component: () => import('@/views/auth/InvitationPageView.vue'),
     meta: {
@@ -35,7 +35,7 @@ export const businessRoutes: AppRouteRecord[] = [
     },
   },
   {
-    path: 'sign',
+    path: '/sign',
     name: 'sign',
     component: () => import('@/views/auth/ServiceAgreementDetailView'),
     meta: {
@@ -48,7 +48,7 @@ export const businessRoutes: AppRouteRecord[] = [
     }),
   },
   {
-    path: 'sign/page',
+    path: '/sign/page',
     name: 'sign-page',
     component: () => import('@/views/auth/ServiceAgreementPageView'),
     meta: {
@@ -58,7 +58,7 @@ export const businessRoutes: AppRouteRecord[] = [
     },
   },
   {
-    path: 'sign/result',
+    path: '/sign/result',
     name: 'sign-result',
     component: () => import('@/views/auth/SignResultView'),
     meta: {

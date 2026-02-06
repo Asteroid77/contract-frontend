@@ -8,6 +8,7 @@ import ZwIcon from '@/modules/shared/presentation/widget/ZwIcon.vue'
 import { useTemplateRef } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCssVar } from '@/app/presentation/theme/hooks/useCssVar'
+import LogoImage from '@/assets/logo.png'
 const route = useRoute()
 const menuOptions = convertRoutesToMenuItems(authRoutes)
 const sidebarCollapsedWidth = parseInt(useCssVar('--sidebar-collapsed-width').value!)
@@ -62,7 +63,7 @@ watch(
         )
       "
     >
-      <img :src="'/src/assert/logo.png'" alt="logo" :class="clsx(isExpanded ? 'w-16' : 'w-12')" />
+      <img :src="LogoImage" alt="logo" :class="clsx(isExpanded ? 'w-16' : 'w-12')" />
       <n-button
         secondary
         circle
