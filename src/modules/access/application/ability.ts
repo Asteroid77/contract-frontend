@@ -1,0 +1,243 @@
+/**
+ * CASL 权限管理系统
+ * 基于 @casl/ability 实现细粒度的权限控制
+ *
+ * 架构说明：
+ * 1. 使用 CASL 的 Ability 类定义权限规则
+ * 2. 支持动态更新权限（用户登录/登出时）
+ * 3. 提供类型安全的权限检查
+ * 4. 集成到路由守卫、指令、组合式函数中
+ */
+
+import { Ability, AbilityBuilder, type AbilityClass, type PureAbility } from '@casl/ability'
+import type { Permission, RoleVo } from '../domain/types'
+
+// ============================================================
+// 类型定义
+// ============================================================
+
+/**
+ * 权限动作类型
+ * 遵循 CRUD + 特殊操作的模式
+ */
+export type Action =
+  | 'create'   // 创建
+  | 'read'     // 读取
+  | 'update'   // 更新
+  | 'delete'   // 删除
+  | 'manage'   // 管理（所有操作）
+  | 'approve'  // 审批
+  | 'reject'   // 拒绝
+  | 'assign'   // 分配
+  | 'export'   // 导出
+  | 'import'   // 导入
+
+/**
+ * 权限主体类型
+ * 定义系统中所有可以被权限控制的资源
+ */
+export type Subject =
+  | 'User'           // 用户管理
+  | 'Role'           // 角色管理
+  | 'Permission'     // 权限管理
+  | 'Contract'       // 合同
+  | 'Approval'       // 审批
+  | 'ApprovalTask'   // 审批任务
+  | 'Business'       // 业务
+  | 'Dashboard'      // 仪表盘
+  | 'all'            // 所有资源
+
+/**
+ * 应用权限类型
+ * 定义了 Action 和 Subject 的组合
+ */
+export type AppAbility = PureAbility<[Action, Subject]>
+
+// ============================================================
+// 权限实例创建
+// ============================================================
+
+/**
+ * 创建一个新的 Ability 实例
+ * 默认没有任何权限
+ */
+export function createAbility(): AppAbility {
+  const { build } = new AbilityBuilder<AppAbility>(Ability as AbilityClass<AppAbility>)
+  return build()
+}
+
+/**
+ * 全局权限实例
+ * 在应用启动时创建，用户登录后更新
+ */
+export const ability = createAbility()
+
+// ============================================================
+// 权限规则构建
+// ============================================================
+
+/**
+ * 从后端权限数据构建 CASL 规则
+ *
+ * 后端权限格式示例：
+ * - "user:create" -> can('create', 'User')
+ * - "contract:read" -> can('read', 'Contract')
+ * - "approval:*" -> can('manage', 'Approval')
+ *
+ * @param permissions 权限列表
+ * @param roles 角色列表
+ */
+export function defineAbilityFor(
+  permissions: Permission[],
+  roles: RoleVo[],
+): AppAbility {
+  const { can, build } = new AbilityBuilder<AppAbility>(Ability as AbilityClass<AppAbility>)
+
+  // 1. 处理角色权限
+  // 如果用户是管理员，拥有所有权限
+  if (roles.some((role) => role.name === 'admin' || role.name === 'super_admin')) {
+    can('manage', 'all')
+    return build()
+  }
+
+  // 2. 处理细粒度权限
+  permissions.forEach((permission) => {
+    const rule = parsePermission(permission.name)
+    if (rule) {
+      can(rule.action, rule.subject)
+    }
+  })
+
+  // 3. 处理角色中的权限
+  roles.forEach((role) => {
+    role.permissions?.forEach((permission) => {
+      const rule = parsePermission(permission.name)
+      if (rule) {
+        can(rule.action, rule.subject)
+      }
+    })
+  })
+
+  return build()
+}
+
+/**
+ * 解析权限字符串为 CASL 规则
+ *
+ * 支持的格式：
+ * - "user:create" -> { action: 'create', subject: 'User' }
+ * - "contract:*" -> { action: 'manage', subject: 'Contract' }
+ * - "approval:read,update" -> 多个规则
+ *
+ * @param permissionName 权限名称
+ */
+function parsePermission(permissionName: string): { action: Action; subject: Subject } | null {
+  const parts = permissionName.split(':')
+  if (parts.length !== 2) {
+    console.warn(`[CASL] Invalid permission format: ${permissionName}`)
+    return null
+  }
+
+  const [subjectStr, actionStr] = parts
+  const subject = capitalizeFirstLetter(subjectStr) as Subject
+  const action = (actionStr === '*' ? 'manage' : actionStr) as Action
+
+  // 验证 subject 和 action 是否有效
+  if (!isValidSubject(subject)) {
+    console.warn(`[CASL] Invalid subject: ${subject}`)
+    return null
+  }
+
+  if (!isValidAction(action)) {
+    console.warn(`[CASL] Invalid action: ${action}`)
+    return null
+  }
+
+  return { action, subject }
+}
+
+/**
+ * 更新全局权限实例
+ * 在用户登录/登出时调用
+ */
+export function updateAbility(permissions: Permission[], roles: RoleVo[]): void {
+  const newAbility = defineAbilityFor(permissions, roles)
+  ability.update(newAbility.rules)
+}
+
+/**
+ * 清空权限
+ * 在用户登出时调用
+ */
+export function clearAbility(): void {
+  ability.update([])
+}
+
+// ============================================================
+// 工具函数
+// ============================================================
+
+/**
+ * 首字母大写
+ */
+function capitalizeFirstLetter(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
+/**
+ * 验证 Subject 是否有效
+ */
+function isValidSubject(subject: string): subject is Subject {
+  const validSubjects: Subject[] = [
+    'User',
+    'Role',
+    'Permission',
+    'Contract',
+    'Approval',
+    'ApprovalTask',
+    'Business',
+    'Dashboard',
+    'all',
+  ]
+  return validSubjects.includes(subject as Subject)
+}
+
+/**
+ * 验证 Action 是否有效
+ */
+function isValidAction(action: string): action is Action {
+  const validActions: Action[] = [
+    'create',
+    'read',
+    'update',
+    'delete',
+    'manage',
+    'approve',
+    'reject',
+    'assign',
+    'export',
+    'import',
+  ]
+  return validActions.includes(action as Action)
+}
+
+// ============================================================
+// 便捷检查函数
+// ============================================================
+
+/**
+ * 检查是否可以执行某个操作
+ * @example
+ * can('create', 'User') // 是否可以创建用户
+ * can('read', 'Contract') // 是否可以读取合同
+ */
+export function can(action: Action, subject: Subject): boolean {
+  return ability.can(action, subject)
+}
+
+/**
+ * 检查是否不能执行某个操作
+ */
+export function cannot(action: Action, subject: Subject): boolean {
+  return ability.cannot(action, subject)
+}
