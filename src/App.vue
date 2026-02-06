@@ -3,6 +3,8 @@ import { zhCN, dateZhCN, NConfigProvider, darkTheme } from 'naive-ui'
 import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
 import { useTheme } from '@/app/presentation/theme/hooks/useTheme'
 import { computed } from 'vue'
+import ErrorBoundary from '@/app/observability/components/ErrorBoundary'
+
 const { isDark, activeThemeOverrides } = useTheme()
 const naiveTheme = computed(() => (isDark.value ? darkTheme : null))
 </script>
@@ -15,7 +17,10 @@ const naiveTheme = computed(() => (isDark.value ? darkTheme : null))
     :theme="naiveTheme"
     :class="'h-full'"
   >
-    <RouterView></RouterView>
+    <!-- 全局错误边界：防止整个应用崩溃 -->
+    <ErrorBoundary>
+      <RouterView></RouterView>
+    </ErrorBoundary>
   </n-config-provider>
   <VueQueryDevtools />
 </template>

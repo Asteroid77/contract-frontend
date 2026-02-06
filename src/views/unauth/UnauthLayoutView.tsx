@@ -3,6 +3,8 @@ import { RouterView, useRoute } from 'vue-router'
 import clsx from 'clsx'
 import MyLogo from '@/assets/logo.svg?component'
 import { NIcon, NScrollbar } from 'naive-ui'
+import ErrorBoundary from '@/app/observability/components/ErrorBoundary'
+
 export default defineComponent({
   name: 'unauth-layout-view',
   setup() {
@@ -18,41 +20,44 @@ export default defineComponent({
           <MyLogo></MyLogo>
         </NIcon>
         <NScrollbar class={clsx('flex-1', 'min-h-0')}>
-          <RouterView
-            v-slots={{
-              default: ({ Component }: { Component: DefineComponent }) => (
-                <Transition
-                  mode="out-in"
-                  // 进场过程：持续 300ms，缓出曲线
-                  enterActiveClass="transition-all duration-300 ease-out"
-                  // 进场开始状态：透明度为0
-                  enterFromClass="opacity-0"
-                  // 进场结束状态：透明度100
-                  enterToClass="opacity-100"
-                  // 离场过程：持续 200ms，缓入曲线
-                  leaveActiveClass="transition-all duration-200 ease-in"
-                  // 离场开始状态：透明度100
-                  leaveFromClass="opacity-100"
-                >
-                  {Component && (
-                    <Component
-                      class={clsx(
-                        'h-full',
-                        'w-full',
-                        'sm:max-w-[30rem]',
-                        'min-w-[22rem]',
-                        'mx-auto',
-                        'flex',
-                        'justify-center',
-                        'items-center',
-                      )}
-                      key={route.path}
-                    />
-                  )}
-                </Transition>
-              ),
-            }}
-          />
+          {/* 页面级错误边界：保护未登录页面 */}
+          <ErrorBoundary>
+            <RouterView
+              v-slots={{
+                default: ({ Component }: { Component: DefineComponent }) => (
+                  <Transition
+                    mode="out-in"
+                    // 进场过程：持续 300ms，缓出曲线
+                    enterActiveClass="transition-all duration-300 ease-out"
+                    // 进场开始状态：透明度为0
+                    enterFromClass="opacity-0"
+                    // 进场结束状态：透明度100
+                    enterToClass="opacity-100"
+                    // 离场过程：持续 200ms，缓入曲线
+                    leaveActiveClass="transition-all duration-200 ease-in"
+                    // 离场开始状态：透明度100
+                    leaveFromClass="opacity-100"
+                  >
+                    {Component && (
+                      <Component
+                        class={clsx(
+                          'h-full',
+                          'w-full',
+                          'sm:max-w-[30rem]',
+                          'min-w-[22rem]',
+                          'mx-auto',
+                          'flex',
+                          'justify-center',
+                          'items-center',
+                        )}
+                        key={route.path}
+                      />
+                    )}
+                  </Transition>
+                ),
+              }}
+            />
+          </ErrorBoundary>
         </NScrollbar>
       </div>
     )
