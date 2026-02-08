@@ -44,6 +44,15 @@ export const commonTokens = {
   paddingCard: '16px', // 统一卡片内边距
   gapFormItem: '24px', // 表单垂直间距
 
+  // --- 字体系统 ---
+  fontSans: "'Inter', 'Noto Sans SC', ui-sans-serif, -apple-system, BlinkMacSystemFont, sans-serif",
+  fontMono: "'SFMono-Regular', Menlo, Consolas, 'PT Mono', 'Liberation Mono', Courier, monospace",
+
+  // --- 阴影系统 ---
+  shadowSm: '0 1px 2px rgba(0, 0, 0, 0.05)',
+  shadowMd: '0 4px 12px rgba(0, 0, 0, 0.1)',
+  shadowLg: '0 8px 24px rgba(0, 0, 0, 0.15)',
+
 }
 export const colorTokens = {
   light: {

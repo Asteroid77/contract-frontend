@@ -56,6 +56,16 @@
     /* transform: translateY(-10px); */
     /* 建议：离开时不要位移，或者只轻微位移，避免页面“乱飞”的感觉 */
   }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.15s ease;
+  }
+
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
+  }
 }
 /*
  * ==========================================================================
@@ -94,4 +104,16 @@
     fill: currentColor;
     overflow: hidden;
   }
+
+  .notion-card {
+    background-color: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .notion-card:hover {
+    box-shadow: var(--shadow-md);
+  }
+
 }
