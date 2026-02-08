@@ -47,6 +47,24 @@ export interface CustomAxiosRequestConfig<D = unknown> extends AxiosRequestConfi
    * 是否解构数据(默认解构链路AxiosResponse<ServerResponse<T> -> ServerResponse<T> -> T)
    */
   unWrap?: boolean
+  /**
+   * 请求上下文
+   */
+  requestContext?: RequestContext
+}
+
+/**
+ * 请求上下文
+ */
+export interface RequestContext {
+  /**
+   * 请求ID
+   */
+  requestId?: string
+  /**
+   * 取消信号（主要用于 TanStack Query）
+   */
+  signal?: AbortSignal
 }
 
 /**

@@ -4,6 +4,13 @@ import { type AxiosResponse } from 'axios'
 import axios from 'axios'
 import { apiClient } from '@/app/infrastructure/request/http-client'
 import { BusinessError } from '@/modules/shared/domain/errors'
+import {
+  createRequestId,
+  normalizeRequestId,
+  REQUEST_ID_HEADER,
+  resolveResponseRequestId,
+} from '@/app/infrastructure/request/request-id'
+import { getCurrentRequestContext } from '@/app/infrastructure/request/request-context'
 
 /**
  * 用于项目的请求封装(unWrapper为true时)
@@ -48,6 +55,7 @@ export async function useRequest<T, D = unknown>(
   console.log(`Request starting at ${fetchStartTimestamp},key:${queryKey}`)
   console.log(`params`, config.params, 'data', config.data)
   console.log('token', config.headers?.satoken)
+  setRequestId(config)
   setToken(config, 'Authorization')
 
   try {
@@ -68,10 +76,12 @@ export async function useRequest<T, D = unknown>(
     // 处理 Axios 错误，从响应中提取 RFC 7807 字段
     if (axios.isAxiosError(err) && err.response) {
       const problemDetails = err.response.data as RFC7807Response
+      const responseRequestId = resolveResponseRequestId(err.response as AxiosResponse<RFC7807Response>)
       throw new BusinessError(
         problemDetails.detail || problemDetails.title || 'Error',
         problemDetails.code,
         problemDetails.traceId,
+        responseRequestId || getRequestIdFromConfig(config),
         problemDetails.type,
         problemDetails.status,
       )
@@ -86,11 +96,18 @@ function _unWrapperResponseData<T>(
   data: AxiosResponse<RFC7807Response<T>>,
 ): RFC7807SuccessResponse<T> | AxiosResponse<RFC7807SuccessResponse<T>> {
   const body = data.data
+  const responseRequestId =
+    resolveResponseRequestId(data as AxiosResponse<RFC7807Response<unknown>>) ||
+    getRequestIdFromConfig(config)
+  body.requestId = responseRequestId
+  data.data.requestId = responseRequestId
+
   if (body.data === undefined) {
     throw new BusinessError(
       body.detail || body.title || 'Response data is missing',
       body.code,
       body.traceId,
+      body.requestId || getRequestIdFromConfig(config),
       body.type,
       body.status,
     )
@@ -100,6 +117,40 @@ function _unWrapperResponseData<T>(
     return body as RFC7807SuccessResponse<T>
   }
   return data as AxiosResponse<RFC7807SuccessResponse<T>>
+}
+
+function setRequestId(config: CustomAxiosRequestConfig) {
+  const currentContext = getCurrentRequestContext()
+  const requestId =
+    normalizeRequestId(config.requestContext?.requestId) ??
+    normalizeRequestId(currentContext?.requestId) ??
+    normalizeRequestId(config.headers?.[REQUEST_ID_HEADER]) ??
+    normalizeRequestId(config.headers?.[REQUEST_ID_HEADER.toLowerCase()]) ??
+    createRequestId()
+
+  config.requestContext = {
+    ...(currentContext ?? {}),
+    ...(config.requestContext ?? {}),
+    requestId,
+  }
+
+  config.headers = {
+    ...(config.headers ?? {}),
+    [REQUEST_ID_HEADER]: requestId,
+  }
+
+  if (config.requestContext.signal && !config.signal) {
+    config.signal = config.requestContext.signal
+  }
+}
+
+function getRequestIdFromConfig(config: CustomAxiosRequestConfig): string {
+  return (
+    normalizeRequestId(config.requestContext?.requestId) ??
+    normalizeRequestId(config.headers?.[REQUEST_ID_HEADER]) ??
+    normalizeRequestId(config.headers?.[REQUEST_ID_HEADER.toLowerCase()]) ??
+    ''
+  )
 }
 
 function setToken(config: CustomAxiosRequestConfig, tokenName: string) {

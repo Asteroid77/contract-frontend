@@ -17,6 +17,12 @@ export interface RFC7807Response<T = unknown> {
   code: number
   /** 追踪 ID */
   traceId: string
+  /** 请求 ID */
+  requestId?: string
+  /**
+   * @deprecated 后端字段拼写错误兼容
+   */
+  reuqestId?: string
   /** 业务数据（仅成功时存在） */
   data?: T
 }
