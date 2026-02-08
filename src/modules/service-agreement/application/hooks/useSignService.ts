@@ -14,6 +14,7 @@ import type { ApprovalInstance } from '@/modules/approval/domain/types'
 import { computed, type Ref } from 'vue'
 import type { AxiosError } from 'axios'
 import type { FileCategory } from '@/modules/service-agreement/domain/enums'
+import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 
 export const signKeys = {
   all: ['service-agreements'] as const,
@@ -34,7 +35,8 @@ export const signKeys = {
 export const useServiceAgreementDetail = (id: Ref<number | null>) => {
   return useQuery({
     queryKey: computed(() => signKeys.detail(id.value!)),
-    queryFn: () => serviceAgreementService.get(id.value!),
+    queryFn: (ctx) =>
+      withQueryRequestContext(ctx.queryKey, ctx, () => serviceAgreementService.get(id.value!)),
     enabled: computed(() => id.value !== null && id.value > 0),
     staleTime: 5 * 60 * 1000,
   })
@@ -48,7 +50,8 @@ export const useServiceAgreementPage = (
 ) => {
   return useQuery({
     queryKey: computed(() => signKeys.list(pageRequest.value)),
-    queryFn: () => serviceAgreementService.page(pageRequest.value),
+    queryFn: (ctx) =>
+      withQueryRequestContext(ctx.queryKey, ctx, () => serviceAgreementService.page(pageRequest.value)),
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000,
   })
@@ -65,7 +68,10 @@ export const usePreviewAttachments = (
 ) => {
   return useQuery<PreviewAttachmentsData, AxiosError<unknown>, PreviewAttachmentsData>({
     queryKey: signKeys.preview(paramsRef.value!),
-    queryFn: () => serviceAgreementService.getPreviewAttachments(paramsRef.value),
+    queryFn: (ctx) =>
+      withQueryRequestContext(ctx.queryKey, ctx, () =>
+        serviceAgreementService.getPreviewAttachments(paramsRef.value),
+      ),
     enabled: computed(() => enabled.value),
 
     staleTime: 5 * 60 * 1000, // 5 分钟

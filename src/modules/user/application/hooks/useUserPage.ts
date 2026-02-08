@@ -4,6 +4,7 @@ import type { BasePageRequest, IPage } from '@/modules/shared/application/reques
 import { keepPreviousData, useQuery } from '@tanstack/vue-query'
 import type { AxiosError } from 'axios'
 import { computed, unref, type Ref } from 'vue'
+import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 
 export const userQueryKeys = {
   all: ['users'] as const,
@@ -25,7 +26,8 @@ export const useUserPage = (
 ) => {
   return useQuery<IPage<UserPageItem>, AxiosError<unknown>, IPage<UserPageItem>>({
     queryKey: computed(() => userQueryKeys.list(unref(pageRequest))),
-    queryFn: () => userService.getUserPage(unref(pageRequest)),
+    queryFn: (ctx) =>
+      withQueryRequestContext(ctx.queryKey, ctx, () => userService.getUserPage(unref(pageRequest))),
     placeholderData: keepPreviousData, // 分页时保持旧数据
     staleTime: options?.staleTime ?? 5 * 60 * 1000, // 5分钟
     gcTime: options?.gcTime ?? 10 * 60 * 1000, // 10分钟

@@ -1,6 +1,7 @@
 import { invitationService } from '@/modules/invitation/application/service'
 import type { InvitationCode, InvitationUpdateForm } from '@/modules/invitation/application/models'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 
 // 查询键前缀
 export const invitationKeys = {
@@ -16,7 +17,8 @@ export const invitationKeys = {
 export const useInvitationCodeListQuery = () => {
   return useQuery<InvitationCode[], unknown, InvitationCode[]>({
     queryKey: invitationKeys.lists(),
-    queryFn: () => invitationService.getInvitationCodeList(),
+    queryFn: (ctx) =>
+      withQueryRequestContext(ctx.queryKey, ctx, () => invitationService.getInvitationCodeList()),
   })
 }
 
@@ -26,7 +28,8 @@ export const useInvitationCodeListQuery = () => {
 export const useInvitatedCountQuery = () => {
   return useQuery<number, unknown, number>({
     queryKey: invitationKeys.count(),
-    queryFn: () => invitationService.getInvitedCount(),
+    queryFn: (ctx) =>
+      withQueryRequestContext(ctx.queryKey, ctx, () => invitationService.getInvitedCount()),
   })
 }
 

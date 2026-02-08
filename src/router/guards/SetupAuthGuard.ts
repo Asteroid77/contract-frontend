@@ -7,6 +7,7 @@ import { userService } from '@/modules/user/application/service'
 import type { AxiosError } from 'axios'
 import { STORAGE_KEYS } from '@/constants/storage'
 import { captureError } from '@/app/observability'
+import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 
 /**
  * 认证守卫
@@ -63,7 +64,8 @@ export function setupAuthGuards(router: Router) {
           AxiosError<unknown>
         >({
           queryKey: userKeys.INFO(token),
-          queryFn: () => userService.getUserInfoByToken(token),
+          queryFn: (ctx) =>
+            withQueryRequestContext(ctx.queryKey, ctx, () => userService.getUserInfoByToken(token)),
           staleTime: 1000 * 60 * 5, // 5分钟内不重复请求
         })
         accountStore.login(data)

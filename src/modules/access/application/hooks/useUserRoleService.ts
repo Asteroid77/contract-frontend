@@ -4,6 +4,7 @@ import { accessService } from '@/modules/access/application/service'
 import type { RoleAssignRequest } from '@/modules/access/application/models'
 import { roleKeys } from './useRoleService'
 import { userQueryKeys } from '@/modules/user/application/hooks/useUserPage'
+import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 
 // Query Keys
 export const userRoleKeys = {
@@ -31,10 +32,10 @@ export const useAssignedUsersByRole = (
       const id = unref(roleId)
       return id ? userRoleKeys.assignedUsersByRole(id) : ['empty']
     }),
-    queryFn: () => {
+    queryFn: (ctx) => {
       const id = unref(roleId)
       if (!id) throw new Error('Role ID is required')
-      return accessService.getAssignedUsersByRoleId(id)
+      return withQueryRequestContext(ctx.queryKey, ctx, () => accessService.getAssignedUsersByRoleId(id))
     },
     enabled: computed(() => {
       const id = unref(roleId)

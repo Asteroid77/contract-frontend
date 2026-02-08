@@ -16,6 +16,8 @@ import { BusinessError } from '@/modules/shared/domain/errors'
 import type { AxiosError, AxiosResponse } from 'axios'
 import axios from 'axios'
 import { queryPersister } from '@/app/infrastructure/query/tanstack_query_persist_with_dexie'
+import { clearQueryRequestId } from '@/app/infrastructure/query/query-request-id'
+import { readRequestIdFromBody, readRequestIdFromHeaders } from '@/app/infrastructure/request/request-id'
 /**
  * 错误信息接口
  */
@@ -36,11 +38,13 @@ function processApiError(error: Error | undefined): ProcessedError | undefined {
   if (error?.hasOwnProperty('isBusinessError')) {
     const bizError = error as BusinessError
     const traceIdSuffix = bizError.traceId ? `\n\nTraceId: ${bizError.traceId}` : ''
+    const requestIdSuffix = bizError.requestId ? `\nRequestId: ${bizError.requestId}` : ''
     return {
       title: $t('common.error.businessFail'), // "业务异常"
       content:
         (bizError.message === 'error' ? $t('common.status.error') : bizError.message) +
-        traceIdSuffix,
+        traceIdSuffix +
+        requestIdSuffix,
       originalError,
     }
   }
@@ -55,9 +59,12 @@ function processApiError(error: Error | undefined): ProcessedError | undefined {
       const problemDetails = axiosError.response.data
       const serverMessage = problemDetails?.detail || problemDetails?.title
       const traceIdSuffix = problemDetails?.traceId ? `\n\nTraceId: ${problemDetails.traceId}` : ''
+      const requestId =
+        readRequestIdFromBody(problemDetails) ?? readRequestIdFromHeaders(axiosError.response.headers)
+      const requestIdSuffix = requestId ? `\nRequestId: ${requestId}` : ''
       return {
         title: $t('common.error.timeout'), // "请求失败"
-        content: (serverMessage || $t('common.error.timeoutMeta')) + traceIdSuffix,
+        content: (serverMessage || $t('common.error.timeoutMeta')) + traceIdSuffix + requestIdSuffix,
         originalError,
       }
     }
@@ -256,6 +263,9 @@ const queryClient = new QueryClient({
     onSuccess(data, query) {
       const result = data as RFC7807Response<unknown> | AxiosResponse<RFC7807Response<unknown>>
       globalSuccessHandler(result, null, null, query, undefined)
+    },
+    onSettled(_data, _error, query) {
+      clearQueryRequestId(query.queryKey)
     },
   }),
   mutationCache: new MutationCache({

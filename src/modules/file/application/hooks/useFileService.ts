@@ -3,6 +3,7 @@ import { fileService } from '@/modules/file/application/file-service'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import type { AxiosError } from 'axios'
 import type { Ref } from 'vue'
+import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 
 // =================================================================
 // QUERY KEYS (用于唯一标识缓存中的数据)
@@ -31,9 +32,9 @@ export const fileKeys = {
 export const useFileDetailQuery = (fileId: number | undefined) => {
   return useQuery<FileResponse, AxiosError<unknown>, FileResponse>({
     queryKey: fileKeys.detail(fileId),
-    queryFn: () => {
+    queryFn: (ctx) => {
       if (!fileId) return Promise.reject(new Error('File ID is required for fileDetailQuery'))
-      return fileService.getFileById(fileId)
+      return withQueryRequestContext(ctx.queryKey, ctx, () => fileService.getFileById(fileId))
     },
     enabled: !!fileId,
     staleTime: Infinity, // 由useFilesDetailQuery更新缓存，这个仅为缓存获取器
@@ -51,10 +52,12 @@ export const useFilesDetailQuery = (fileIds: Ref<number[]>) => {
   const queryClient = useQueryClient()
   return useQuery<FileResponse[], AxiosError<unknown>, FileResponse[]>({
     queryKey: fileKeys.batchDetail(fileIds.value),
-    queryFn: async () => {
+    queryFn: async (ctx) => {
       if (!fileIds.value || !fileIds.value.length)
         return Promise.reject(new Error('File ID is required for fileDetailQuery'))
-      const files = await fileService.getFilesByIds(fileIds.value)
+      const files = await withQueryRequestContext(ctx.queryKey, ctx, () =>
+        fileService.getFilesByIds(fileIds.value),
+      )
       if (files && files.length > 0) {
         //  遍历数据并填充单个缓存
         for (const file of files) {
@@ -88,10 +91,12 @@ export const useFilesMetaDetailQuery = (fileIds: Ref<number[]>) => {
   const queryClient = useQueryClient()
   return useQuery<FileStorage[], AxiosError<unknown>, FileStorage[]>({
     queryKey: fileKeys.batchMetaDetail(fileIds.value),
-    queryFn: async () => {
+    queryFn: async (ctx) => {
       if (!fileIds.value || !fileIds.value.length)
         return Promise.reject(new Error('File ID is required for fileDetailQuery'))
-      const files = await fileService.getFilesMetaByIds(fileIds.value)
+      const files = await withQueryRequestContext(ctx.queryKey, ctx, () =>
+        fileService.getFilesMetaByIds(fileIds.value),
+      )
       if (files && files.length > 0) {
         //  遍历数据并填充单个缓存
         for (const file of files) {

@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import type { AxiosError } from 'axios'
 import { unref, type Ref } from 'vue'
 import { computed } from 'vue'
+import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 
 export const roleKeys = {
   all: ['role'] as const,
@@ -26,7 +27,8 @@ export const useRolePage = (
 ) => {
   return useQuery<IPage<RoleItem>, AxiosError<unknown>, IPage<RoleItem>>({
     queryKey: computed(() => roleKeys.list(unref(params))),
-    queryFn: () => accessService.getRolePage(unref(params)),
+    queryFn: (ctx) =>
+      withQueryRequestContext(ctx.queryKey, ctx, () => accessService.getRolePage(unref(params))),
     staleTime: options?.staleTime ?? 5 * 60 * 1000, // 5分钟
     gcTime: options?.gcTime ?? 10 * 60 * 1000, // 10分钟
     enabled: options?.enabled ?? true,
@@ -42,7 +44,8 @@ export const useRolesByUserId = (
 ) => {
   return useQuery<RoleItem[], AxiosError<unknown>, RoleItem[]>({
     queryKey: computed(() => roleKeys.userRoles(unref(userId))),
-    queryFn: () => accessService.getRolesByUserId(unref(userId)),
+    queryFn: (ctx) =>
+      withQueryRequestContext(ctx.queryKey, ctx, () => accessService.getRolesByUserId(unref(userId))),
     staleTime: options?.staleTime ?? 5 * 60 * 1000,
     enabled: computed(() => {
       const id = unref(userId)

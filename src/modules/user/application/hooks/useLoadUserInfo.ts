@@ -2,6 +2,7 @@ import { userService } from '@/modules/user/application/service'
 import type { SignInResponse } from '@/modules/user/application/models'
 import { useQuery } from '@tanstack/vue-query'
 import type { AxiosError } from 'axios'
+import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 
 export const userKeys = {
   ALL: ['user'],
@@ -15,6 +16,7 @@ export const userKeys = {
 export function useLoadUserInfo(accessToken: string) {
   return useQuery<SignInResponse, AxiosError<unknown>, SignInResponse>({
     queryKey: userKeys.INFO(accessToken),
-    queryFn: () => userService.getUserInfoByToken(accessToken),
+    queryFn: (ctx) =>
+      withQueryRequestContext(ctx.queryKey, ctx, () => userService.getUserInfoByToken(accessToken)),
   })
 }

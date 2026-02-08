@@ -12,6 +12,7 @@ import type { IPage } from '@/modules/shared/application/request/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import type { AxiosError } from 'axios'
 import { computed, unref, type Ref } from 'vue'
+import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 export const approvalKeys = {
   ALL: ['approval'] as const,
   DETAIL: (id: number) => ['approval', 'detail', id] as const,
@@ -130,7 +131,8 @@ export const useApprovalInstancePage = (
 ) => {
   return useQuery<IPage<ApprovalInstancePage>, AxiosError<unknown>, IPage<ApprovalInstancePage>>({
     queryKey: computed(() => approvalInstanceKeys.INSTANCE_PAGE(unref(params))),
-    queryFn: () => approvalService.getInstancePage(unref(params)),
+    queryFn: (ctx) =>
+      withQueryRequestContext(ctx.queryKey, ctx, () => approvalService.getInstancePage(unref(params))),
     enabled: computed(() => unref(options?.enabled ?? true)),
     refetchInterval: options?.refetchInterval,
     staleTime: 30 * 1000, // 30秒
@@ -148,7 +150,8 @@ export const useApprovalInstanceDetail = (params: Ref<number>) => {
     ApprovalInstance<Record<string, unknown>>
   >({
     queryKey: approvalInstanceKeys.INSTANCE_DETAIL(params.value),
-    queryFn: () => approvalService.getInstanceDetail(params.value),
+    queryFn: (ctx) =>
+      withQueryRequestContext(ctx.queryKey, ctx, () => approvalService.getInstanceDetail(params.value)),
     enabled: !!params.value && params.value > 0,
     placeholderData: (previousData) => previousData, // 保持之前的数据
   })
@@ -162,7 +165,8 @@ export const useApprovalInstanceDetail = (params: Ref<number>) => {
 export const useApprovalHistoryQuery = (instanceId: Ref<number>) => {
   return useQuery<ApprovalHistory[], AxiosError<unknown>, ApprovalHistory[]>({
     queryKey: approvalKeys.HISTORY(instanceId.value),
-    queryFn: () => approvalService.getHistoryList(instanceId.value),
+    queryFn: (ctx) =>
+      withQueryRequestContext(ctx.queryKey, ctx, () => approvalService.getHistoryList(instanceId.value)),
     enabled: computed(() => !!instanceId.value && instanceId.value > 0),
     placeholderData: (previousData) => previousData, // 保持之前的数据
   })
@@ -171,6 +175,9 @@ export const useApprovalHistoryQuery = (instanceId: Ref<number>) => {
 export const useLatestAdditionalInfoInstanceStatus = () => {
   return useQuery<LatestAdditionalInfoInstance, AxiosError<unknown>, LatestAdditionalInfoInstance>({
     queryKey: approvalInstanceKeys.LATEST_ADDITIONAL_INFO_INSTANCE,
-    queryFn: () => approvalService.getLatestAdditionalInfoInstanceStatus(),
+    queryFn: (ctx) =>
+      withQueryRequestContext(ctx.queryKey, ctx, () =>
+        approvalService.getLatestAdditionalInfoInstanceStatus(),
+      ),
   })
 }
