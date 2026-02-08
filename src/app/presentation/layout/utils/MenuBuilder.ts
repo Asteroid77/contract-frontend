@@ -3,6 +3,7 @@ import { h } from 'vue'
 import { NEllipsis, type MenuOption } from 'naive-ui'
 import { renderIcon } from '@/_utils/widget/renderIcon'
 import { routeIcons as icons } from '@/app/presentation/constants/route-icons'
+import { $t } from '@/_utils/i18n'
 
 export type IconNames = keyof typeof icons
 /**
@@ -19,12 +20,15 @@ export function convertRoutesToMenuItems(routes: RouteRecordRaw[]) {
     // 跳过没有meta或者meta.name或者使用hideInMenu的路由
     if (!route.meta || !route.meta.name || route.meta.hideInMenu) return
 
+    // 翻译菜单名称
+    const menuLabel = $t(route.meta.name as any)
+
     // 创建菜单项
     const menuItem: MenuOption = {
       key: route.name as string,
       label: () =>
         route.meta?.isTransition
-          ? h(NEllipsis, null, { default: () => route.meta?.name })
+          ? h(NEllipsis, null, { default: () => menuLabel })
           : h(
               RouterLink,
               {
@@ -32,7 +36,7 @@ export function convertRoutesToMenuItems(routes: RouteRecordRaw[]) {
                   name: route.name,
                 },
               },
-              { default: () => h(NEllipsis, null, { default: () => route.meta?.name }) },
+              { default: () => h(NEllipsis, null, { default: () => menuLabel }) },
             ),
       children: [],
       // 保存原始路由信息，用于后续处理

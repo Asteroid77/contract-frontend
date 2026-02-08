@@ -385,6 +385,75 @@ export default {
       dark: '暗黑',
       sakura: '樱花',
     },
+    profile: {
+      title: '个人中心',
+      baseInformation: '基础信息',
+      settings: '设置',
+      appearance: {
+        title: '外观',
+        themeTitle: '主题',
+        themeDescription: '选择你偏好的主题色',
+        languageTitle: '语言',
+        languageDescription: '选择你偏好的语言',
+      },
+      notifications: {
+        title: '通知',
+        push: {
+          title: '推送通知',
+          description: '预留推送通知能力，待后端接口就绪后启用',
+        },
+      },
+      security: {
+        title: '安全',
+        description: '管理账号安全能力与风险操作入口',
+        changePassword: {
+          title: '修改密码',
+          description: '修改当前账号密码以提升安全性',
+          action: '修改密码',
+          todo: '修改密码接口暂未接入',
+        },
+      },
+      accountStatistics: '账户统计',
+      field: {
+        username: '用户名',
+        phone: '绑定手机号',
+        platform: '登录平台',
+      },
+      platform: {
+        native: '账号密码',
+        github: 'GitHub',
+        wechat: '微信',
+      },
+      status: {
+        completed: '完成',
+        uncompleted: '未完成',
+      },
+      stats: {
+        signedCount: '已签约数量',
+        filingCount: '备案数量',
+        profileCompletion: '信息补充',
+        monthlyRevenue: '当月收益（¥）',
+        revenuePlaceholder: '-',
+      },
+      avatar: {
+        upload: '上传头像',
+        uploadTodo: '头像上传接口暂未接入',
+      },
+      twoFactor: {
+        title: '两步验证（2FA）',
+        description: '为账号增加额外安全保护，后端接口就绪后启用',
+        action: '启用两步验证',
+        todo: '2FA 接口暂未接入',
+      },
+      danger: {
+        title: '危险操作',
+        description: '删除账号是不可逆操作，请谨慎处理',
+        action: '删除账号',
+        confirmTitle: '确认删除账号',
+        confirmContent: '删除账号接口尚未接入，当前为预留操作入口',
+        todo: '删除账号接口暂未接入',
+      },
+    },
     menu: {
       title: '菜单',
       field: {
@@ -418,6 +487,7 @@ export default {
       signDetail: '备案/签约详情',
       profile: '用户',
       additional: '用户信息补全/改动',
+      settings: '设置',
       agents: '代理人列表',
       mySign: '我的备案/签约',
       manage: '管理',
@@ -432,6 +502,10 @@ export default {
       tasks: '审批任务列表',
       signResult: '备案/签约结果',
       signList: '备案/签约列表',
+      errorBoundaryDemo: 'ErrorBoundary 演示',
+      error403: '无权限',
+      error404: '页面不存在',
+      error500: '服务器错误',
     },
   },
   domain: {
@@ -713,6 +787,43 @@ export default {
       description: '该区域发生了错误，请尝试刷新页面',
       retry: '重试',
       refresh: '刷新页面',
+      defaultTitle: '出错了',
+      defaultDescription: '此组件渲染时发生了错误，已被错误边界捕获。',
+      props: {
+        status: '状态',
+        source: '来源',
+        lifecycle: '生命周期',
+        capturedAt: '捕获时间',
+        areas: '组件链路',
+      },
+      status: {
+        error: '错误',
+        active: '正常',
+      },
+      callout: {
+        title: '错误已被 ErrorBoundary 捕获',
+        descBefore: '此错误由最近的',
+        descAfter: '组件捕获，子组件树已被替换为降级 UI。',
+      },
+      sections: {
+        errorDetails: '错误详情',
+        componentTrace: '组件追踪',
+        actions: '操作',
+      },
+      actions: {
+        retry: '重试组件',
+        refresh: '刷新页面',
+        copyError: '复制错误信息',
+      },
+      toast: {
+        copied: '错误信息已复制到剪贴板',
+        copyFailed: '复制失败',
+        reloading: '页面即将刷新…',
+      },
+      resetBanner: {
+        title: '组件已重置',
+        description: 'ErrorBoundary 已成功重置，组件将重新渲染。',
+      },
     },
     log: {
       alreadyInitialized: '可观测性系统已初始化',

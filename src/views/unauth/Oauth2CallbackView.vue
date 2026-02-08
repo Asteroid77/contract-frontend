@@ -2,7 +2,7 @@
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
-import { getFrontendLoginUrl } from '@/app/infrastructure/request/get-frontend-url'
+import { getFrontendOrigin } from '@/app/infrastructure/request/get-frontend-url'
 
 const token: string | undefined = useRoute().query.token?.toString()
 const error: string | undefined = useRoute().query.error?.toString()
@@ -14,8 +14,8 @@ if (token) {
       token,
       url: useRoute().fullPath,
     },
-    // 指定接收消息的窗口必须位于登录页 URL（实际上通常只需要匹配 Origin，但保持原有逻辑更安全）
-    getFrontendLoginUrl(),
+    // postMessage 目标应使用 origin，避免路径变更（/login vs /unauth/login）导致消息被丢弃
+    getFrontendOrigin(),
   )
 }
 if (error) {

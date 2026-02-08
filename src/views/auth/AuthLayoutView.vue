@@ -7,6 +7,7 @@ import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 import { match } from 'ts-pattern'
 import ErrorBoundary from '@/app/observability/components/ErrorBoundary'
+import { $t } from '@/_utils/i18n'
 
 const route = useRoute()
 
@@ -28,6 +29,11 @@ const contentClasses = computed(() => {
     needsCentering.value && 'flex items-center justify-center',
   )
 })
+
+// 翻译页面标题
+const pageTitle = computed(() => {
+  return route.meta.name ? $t(route.meta.name as any) : ''
+})
 </script>
 <template>
   <div :class="clsx('zw-layout', 'w-full', 'h-full', 'flex')">
@@ -41,7 +47,7 @@ const contentClasses = computed(() => {
         :class="clsx('zw-content', 'grow', needsCentering ? '' : 'p-content')"
         :trigger="needsCentering ? undefined : 'none'"
       >
-        <n-card :title="route.meta.name" :class="clsx('w-full', 'h-full')">
+        <n-card :title="pageTitle" :class="clsx('w-full', 'h-full')">
           <div :class="contentClasses">
             <!-- 页面级错误边界：保护主内容区 -->
             <ErrorBoundary>

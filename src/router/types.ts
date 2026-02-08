@@ -68,6 +68,7 @@ export type AuthRouteName =
   // 用户中心
   | 'user'
   | 'user-additional-info'
+  | 'user-settings'
   | 'user-agent-list'
   | 'my-sign'
   // 管理中心

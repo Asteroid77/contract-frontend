@@ -1,4 +1,3 @@
-import { $t } from '@/_utils/i18n'
 import type { AppRouteRecord } from '../types'
 import DashboardView from '@/views/auth/DashboardView.vue'
 
@@ -16,7 +15,7 @@ export const dashboardRoutes: AppRouteRecord[] = [
     name: 'dashboard',
     component: DashboardView,
     meta: {
-      name: $t('layout.menu.home'),
+      name: 'layout.menu.home',
       icon: 'MapsHomeWorkOutlined',
       layout: 'auth',
     },
@@ -26,7 +25,7 @@ export const dashboardRoutes: AppRouteRecord[] = [
     name: 'document',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
-      name: $t('layout.menu.docs'),
+      name: 'layout.menu.docs',
       icon: 'MenuBookTwotone',
       layout: 'auth',
     },

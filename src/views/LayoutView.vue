@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import AuthLayoutView from './auth/AuthLayoutView.vue'
+import AuthLayoutView from './auth/AuthLayoutView.tsx'
 import UnauthLayoutView from './unauth/UnauthLayoutView'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
 import { NSpin } from 'naive-ui'

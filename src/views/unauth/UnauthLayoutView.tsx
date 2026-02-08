@@ -1,64 +1,26 @@
-import { defineComponent, Transition, type DefineComponent } from 'vue'
-import { RouterView, useRoute } from 'vue-router'
-import clsx from 'clsx'
-import MyLogo from '@/assets/logo.svg?component'
-import { NIcon, NScrollbar } from 'naive-ui'
+import { defineComponent, Transition } from 'vue'
+import { RouterView } from 'vue-router'
 import ErrorBoundary from '@/app/observability/components/ErrorBoundary'
 
 export default defineComponent({
-  name: 'unauth-layout-view',
+  name: 'unauth-layout-view-vdts',
   setup() {
-    const route = useRoute()
     return () => (
-      <div class="h-full flex-1 flex flex-col justify-center items-center">
-        {/*
-         * 未登录布局
-         * 高度撑满屏幕: h-full, flex-1
-         * 水平垂直居中: flex, justify-center, items-center
-         */}
-        <NIcon size={150} class={clsx('items-center')}>
-          <MyLogo></MyLogo>
-        </NIcon>
-        <NScrollbar class={clsx('flex-1', 'min-h-0')}>
-          {/* 页面级错误边界：保护未登录页面 */}
+      <div class="min-h-screen bg-[var(--color-bg-body)] flex items-center justify-center p-4 md:p-8">
+        <div class="w-full max-w-[30rem]">
           <ErrorBoundary>
             <RouterView
               v-slots={{
-                default: ({ Component }: { Component: DefineComponent }) => (
-                  <Transition
-                    mode="out-in"
-                    // 进场过程：持续 300ms，缓出曲线
-                    enterActiveClass="transition-all duration-300 ease-out"
-                    // 进场开始状态：透明度为0
-                    enterFromClass="opacity-0"
-                    // 进场结束状态：透明度100
-                    enterToClass="opacity-100"
-                    // 离场过程：持续 200ms，缓入曲线
-                    leaveActiveClass="transition-all duration-200 ease-in"
-                    // 离场开始状态：透明度100
-                    leaveFromClass="opacity-100"
-                  >
-                    {Component && (
-                      <Component
-                        class={clsx(
-                          'h-full',
-                          'w-full',
-                          'sm:max-w-[30rem]',
-                          'min-w-[22rem]',
-                          'mx-auto',
-                          'flex',
-                          'justify-center',
-                          'items-center',
-                        )}
-                        key={route.path}
-                      />
-                    )}
-                  </Transition>
-                ),
+                default: ({ Component }: { Component: any }) =>
+                  Component && (
+                    <Transition name="page" mode="out-in">
+                      <Component />
+                    </Transition>
+                  ),
               }}
             />
           </ErrorBoundary>
-        </NScrollbar>
+        </div>
       </div>
     )
   },

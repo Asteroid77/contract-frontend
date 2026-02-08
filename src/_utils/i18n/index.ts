@@ -2,7 +2,15 @@ import { createI18n } from 'vue-i18n'
 import { ref, type Ref } from 'vue'
 import zhCN from './zh.ts'
 import en from './en.ts'
-export const language: Ref<NavigatorLanguage['language']> = ref(window.navigator.language)
+
+export type AppLocale = 'en' | 'zh-CN'
+
+function normalizeLocale(locale?: string): AppLocale {
+  return locale?.toLowerCase().startsWith('en') ? 'en' : 'zh-CN'
+}
+
+export const language: Ref<AppLocale> = ref(normalizeLocale(window.navigator.language))
+
 type MessageSchema = typeof zhCN
 type ObjectPaths<T, Path extends string = ''> = T extends object
   ? {
@@ -15,15 +23,32 @@ type ObjectPaths<T, Path extends string = ''> = T extends object
         : never
     }[keyof T]
   : never
-export const i18n = createI18n<MessageSchema, 'en' | 'zh-CN'>({
+
+export const i18n = createI18n<MessageSchema, AppLocale>({
   legacy: false,
   locale: language.value,
   fallbackLocale: 'zh-CN',
   messages: {
     'zh-CN': zhCN,
-    en: en,
+    en,
   },
 })
+
+export function setLanguage(locale: AppLocale) {
+  language.value = locale
+
+  const globalLocale = i18n.global.locale as unknown
+
+  if (typeof globalLocale === 'string') {
+    ;(i18n.global.locale as unknown as AppLocale) = locale
+    return
+  }
+
+  if (globalLocale && typeof globalLocale === 'object' && 'value' in globalLocale) {
+    ;(globalLocale as { value: AppLocale }).value = locale
+  }
+}
+
 /**
  * 获取i18n实例
  * @return {I18NComposerTranslation}

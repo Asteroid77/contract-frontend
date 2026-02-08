@@ -109,7 +109,7 @@ export default defineComponent({
     )
     return () => (
       <>
-        <NForm ref="formRef" rules={validation.rules} model={formValue.value}>
+        <NForm ref="formRef" rules={validation.rules} model={formValue.value} disabled={props.type === 'detail'}>
           <NFormItem label={$t('auth.register.type')} path="registerType">
             <NSelect
               v-model:value={formValue.value.registerType}

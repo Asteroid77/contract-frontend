@@ -1,4 +1,3 @@
-import { $t } from '@/_utils/i18n'
 import type { AppRouteRecord } from '../types'
 import type { RouteLocation } from 'vue-router'
 
@@ -19,7 +18,7 @@ export const businessRoutes: AppRouteRecord[] = [
     name: 'business',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
-      name: $t('layout.menu.business'),
+      name: 'layout.menu.business',
       icon: 'BusinessCenterOutlined',
       isTransition: true,
     },
@@ -29,7 +28,7 @@ export const businessRoutes: AppRouteRecord[] = [
     name: 'invitation',
     component: () => import('@/views/auth/InvitationPageView.vue'),
     meta: {
-      name: $t('layout.menu.invitation'),
+      name: 'layout.menu.invitation',
       icon: 'InsertInvitationOutlined',
       parent: 'business',
     },
@@ -39,7 +38,7 @@ export const businessRoutes: AppRouteRecord[] = [
     name: 'sign',
     component: () => import('@/views/auth/ServiceAgreementDetailView'),
     meta: {
-      name: $t('layout.menu.sign'),
+      name: 'layout.menu.sign',
       icon: 'icon-qianyue',
       parent: 'sign-page',
     },
@@ -52,8 +51,8 @@ export const businessRoutes: AppRouteRecord[] = [
     name: 'sign-page',
     component: () => import('@/views/auth/ServiceAgreementPageView'),
     meta: {
-      name: $t('layout.menu.signList'),
-      icon: 'icon-qianyueliebiao',
+      name: 'layout.menu.signList',
+      icon: 'FeaturedPlayListOutlined',
       parent: 'business',
     },
   },
@@ -62,7 +61,7 @@ export const businessRoutes: AppRouteRecord[] = [
     name: 'sign-result',
     component: () => import('@/views/auth/SignResultView'),
     meta: {
-      name: $t('layout.menu.signResult'),
+      name: 'layout.menu.signResult',
       icon: 'icon-qianyueliebiao',
       parent: 'sign',
       hideInMenu: true,

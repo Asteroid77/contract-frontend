@@ -13,6 +13,7 @@ import {
   BusinessCenterOutlined,
   DesignServicesTwotone,
 } from '@vicons/material'
+import { SettingsOutline } from '@vicons/ionicons5'
 
 export const routeIcons = {
   UserData,
@@ -33,4 +34,5 @@ export const routeIcons = {
   BusinessCenterOutlined,
   UserSwitchOutlined,
   DesignServicesTwotone,
+  SettingsOutline,
 } as const

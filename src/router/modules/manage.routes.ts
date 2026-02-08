@@ -1,4 +1,3 @@
-import { $t } from '@/_utils/i18n'
 import type { AppRouteRecord } from '../types'
 
 /**
@@ -10,7 +9,7 @@ export const manageRoutes: AppRouteRecord[] = [
     name: 'manage',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
-      name: $t('layout.menu.manage'),
+      name: 'layout.menu.manage',
       icon: 'ManageAccountsOutlined',
       isTransition: true,
     },
@@ -20,7 +19,7 @@ export const manageRoutes: AppRouteRecord[] = [
     name: 'manage-user-list',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
-      name: $t('layout.menu.users'),
+      name: 'layout.menu.users',
       icon: 'UserMultiple',
       parent: 'manage',
     },

@@ -1,4 +1,3 @@
-import { $t } from '@/_utils/i18n'
 import type { AppRouteRecord } from '../types'
 import type { RouteLocation } from 'vue-router'
 import LoginView from '@/views/unauth/LoginView'
@@ -21,11 +20,51 @@ const toNumberOrNull = (val: unknown): number | null => {
  */
 export const unauthRoutes: AppRouteRecord[] = [
   {
+    path: '/unauth/login',
+    redirect: { name: 'login' },
+    meta: {
+      requiresAuth: false,
+      layout: 'unauth',
+    },
+  },
+  {
+    path: '/unauth/register',
+    redirect: { name: 'register' },
+    meta: {
+      requiresAuth: false,
+      layout: 'unauth',
+    },
+  },
+  {
+    path: '/unauth/password-recovery',
+    redirect: { name: 'password-recovery' },
+    meta: {
+      requiresAuth: false,
+      layout: 'unauth',
+    },
+  },
+  {
+    path: '/unauth/oauth2/callback',
+    redirect: (route) => ({ name: 'oauth2-callback', query: route.query }),
+    meta: {
+      requiresAuth: false,
+      layout: 'unauth',
+    },
+  },
+  {
+    path: '/forgot-password',
+    redirect: { name: 'password-recovery' },
+    meta: {
+      requiresAuth: false,
+      layout: 'unauth',
+    },
+  },
+  {
     path: '/login',
     name: 'login',
     component: LoginView,
     meta: {
-      name: $t('auth.login.noAccount'),
+      name: 'layout.menu.login',
       requiresAuth: false,
       layout: 'unauth',
     },
@@ -35,7 +74,7 @@ export const unauthRoutes: AppRouteRecord[] = [
     name: 'register',
     component: () => import('@/views/unauth/RegisterView'),
     meta: {
-      name: $t('auth.register.submit'),
+      name: 'layout.menu.register',
       requiresAuth: false,
       layout: 'unauth',
     },
@@ -45,7 +84,7 @@ export const unauthRoutes: AppRouteRecord[] = [
     name: 'password-recovery',
     component: () => import('@/views/unauth/PasswordRecoveryView'),
     meta: {
-      name: $t('layout.menu.recovery'),
+      name: 'layout.menu.recovery',
       requiresAuth: false,
       layout: 'unauth',
     },
@@ -55,7 +94,7 @@ export const unauthRoutes: AppRouteRecord[] = [
     name: 'oauth2-callback',
     component: () => import('@/views/unauth/Oauth2CallbackView.vue'),
     meta: {
-      name: $t('auth.oauth.callback'),
+      name: 'auth.oauth.callback',
       requiresAuth: false,
       layout: 'unauth',
     },

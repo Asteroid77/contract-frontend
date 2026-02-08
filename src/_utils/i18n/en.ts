@@ -386,6 +386,75 @@ const i18NInfo = {
       dark: 'Dark',
       sakura: 'Sakura',
     },
+    profile: {
+      title: 'Profile Center',
+      baseInformation: 'Base Information',
+      settings: 'Settings',
+      appearance: {
+        title: 'Appearance',
+        themeTitle: 'Theme',
+        themeDescription: 'Choose your preferred color theme',
+        languageTitle: 'Language',
+        languageDescription: 'Select your preferred language',
+      },
+      notifications: {
+        title: 'Notifications',
+        push: {
+          title: 'Push Notifications',
+          description: 'Reserved push notification capability. It will be enabled after backend support is ready',
+        },
+      },
+      security: {
+        title: 'Security',
+        description: 'Manage your account security and high-risk operations',
+        changePassword: {
+          title: 'Change Password',
+          description: 'Update your account password to improve security',
+          action: 'Change Password',
+          todo: 'Change password API is not connected yet',
+        },
+      },
+      accountStatistics: 'Account Statistics',
+      field: {
+        username: 'Username',
+        phone: 'Bound Phone',
+        platform: 'Login Platform',
+      },
+      platform: {
+        native: 'Account Password',
+        github: 'GitHub',
+        wechat: 'WeChat',
+      },
+      status: {
+        completed: 'Completed',
+        uncompleted: 'Incomplete',
+      },
+      stats: {
+        signedCount: 'Signed Contracts',
+        filingCount: 'Filings',
+        profileCompletion: 'Profile Completion',
+        monthlyRevenue: 'Monthly Revenue (¥)',
+        revenuePlaceholder: '-',
+      },
+      avatar: {
+        upload: 'Upload Avatar',
+        uploadTodo: 'Avatar upload API is not connected yet',
+      },
+      twoFactor: {
+        title: 'Two-Factor Authentication (2FA)',
+        description: 'Add an extra layer of security to your account. It will be enabled after backend support is ready',
+        action: 'Enable 2FA',
+        todo: '2FA API is not connected yet',
+      },
+      danger: {
+        title: 'Danger Zone',
+        description: 'Deleting your account is irreversible. Please proceed with caution',
+        action: 'Delete Account',
+        confirmTitle: 'Confirm Account Deletion',
+        confirmContent: 'Delete account API is not connected yet. This action is currently a reserved entry',
+        todo: 'Delete account API is not connected yet',
+      },
+    },
     menu: {
       title: 'Menu',
       field: {
@@ -419,6 +488,7 @@ const i18NInfo = {
       signDetail: 'Details',
       profile: 'User Profile',
       additional: 'Additional Info',
+      settings: 'Settings',
       agents: 'Agents',
       mySign: 'My Filings',
       manage: 'Management',
@@ -433,6 +503,10 @@ const i18NInfo = {
       tasks: 'Tasks',
       signResult: 'Result',
       signList: 'List',
+      errorBoundaryDemo: 'ErrorBoundary Demo',
+      error403: 'Forbidden',
+      error404: 'Not Found',
+      error500: 'Server Error',
     },
   },
   domain: {
@@ -714,6 +788,44 @@ const i18NInfo = {
       description: 'An error occurred in this area, please try refreshing the page',
       retry: 'Retry',
       refresh: 'Refresh Page',
+      defaultTitle: 'Something went wrong',
+      defaultDescription:
+        'An error occurred while rendering this component. It has been caught by the error boundary.',
+      props: {
+        status: 'Status',
+        source: 'Source',
+        lifecycle: 'Lifecycle',
+        capturedAt: 'Captured at',
+        areas: 'Areas',
+      },
+      status: {
+        error: 'Error',
+        active: 'Active',
+      },
+      callout: {
+        title: 'Error caught by ErrorBoundary',
+        descBefore: 'This error was captured by the nearest',
+        descAfter: 'component. The subtree has been replaced with a fallback UI.',
+      },
+      sections: {
+        errorDetails: 'Error Details',
+        componentTrace: 'Component Trace',
+        actions: 'Actions',
+      },
+      actions: {
+        retry: 'Retry Component',
+        refresh: 'Refresh Page',
+        copyError: 'Copy Error Info',
+      },
+      toast: {
+        copied: 'Error info copied to clipboard',
+        copyFailed: 'Failed to copy',
+        reloading: 'Page will reload…',
+      },
+      resetBanner: {
+        title: 'Component Reset',
+        description: 'The ErrorBoundary has been reset successfully.',
+      },
     },
     log: {
       alreadyInitialized: 'Observability already initialized',

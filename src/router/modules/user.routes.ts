@@ -1,4 +1,3 @@
-import { $t } from '@/_utils/i18n'
 import type { AppRouteRecord } from '../types'
 
 /**
@@ -10,7 +9,7 @@ export const userRoutes: AppRouteRecord[] = [
     name: 'user',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
-      name: $t('layout.menu.profile'),
+      name: 'layout.menu.profile',
       icon: 'UserSwitchOutlined',
       isTransition: true,
     },
@@ -20,9 +19,21 @@ export const userRoutes: AppRouteRecord[] = [
     name: 'user-additional-info',
     component: () => import('@/views/auth/UserAdditionalInfoView.vue'),
     meta: {
-      name: $t('layout.menu.additional'),
+      name: 'layout.menu.additional',
       icon: 'UserData',
       parent: 'user',
+      hideInMenu: true,
+    },
+  },
+  {
+    path: '/user/settings',
+    name: 'user-settings',
+    component: () => import('@/views/auth/UserSettingsView.vue'),
+    meta: {
+      name: 'layout.menu.settings',
+      icon: 'SettingsOutline',
+      parent: 'user',
+      hideInMenu: true,
     },
   },
   {
@@ -30,7 +41,7 @@ export const userRoutes: AppRouteRecord[] = [
     name: 'user-agent-list',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
-      name: $t('layout.menu.agents'),
+      name: 'layout.menu.agents',
       icon: 'RealEstateAgentOutlined',
       parent: 'user',
     },
@@ -40,7 +51,7 @@ export const userRoutes: AppRouteRecord[] = [
     name: 'my-sign',
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
-      name: $t('layout.menu.mySign'),
+      name: 'layout.menu.mySign',
       icon: 'AssignmentIndOutlined',
       parent: 'user',
     },
