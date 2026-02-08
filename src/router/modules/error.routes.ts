@@ -5,11 +5,21 @@ import type { AppRouteRecord } from '../types'
  */
 export const errorRoutes: AppRouteRecord[] = [
   {
+    path: '/error-boundary-demo',
+    name: 'error-boundary-demo',
+    component: () => import('@/views/error/ErrorBoundaryDemoView'),
+    meta: {
+      name: 'layout.menu.errorBoundaryDemo',
+      requiresAuth: true,
+      hideInMenu: false,
+    },
+  },
+  {
     path: '/403',
     name: '403',
     component: () => import('@/views/error/403View.vue'),
     meta: {
-      name: '无权限',
+      name: 'layout.menu.error403',
       requiresAuth: false,
       hideInMenu: true,
     },
@@ -19,7 +29,7 @@ export const errorRoutes: AppRouteRecord[] = [
     name: '404',
     component: () => import('@/views/error/404View.vue'),
     meta: {
-      name: '页面不存在',
+      name: 'layout.menu.error404',
       requiresAuth: false,
       hideInMenu: true,
     },
@@ -29,7 +39,7 @@ export const errorRoutes: AppRouteRecord[] = [
     name: '500',
     component: () => import('@/views/error/500View.vue'),
     meta: {
-      name: '服务器错误',
+      name: 'layout.menu.error500',
       requiresAuth: false,
       hideInMenu: true,
     },
