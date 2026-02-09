@@ -505,7 +505,7 @@ export default {
       invitation: '我的邀请',
       sign: '备案/签约',
       signDetail: '备案/签约详情',
-      profile: '用户',
+      profile: '个人中心',
       additional: '用户信息补全/改动',
       settings: '设置',
       agents: '代理人列表',

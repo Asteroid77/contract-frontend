@@ -15,6 +15,17 @@ export const userRoutes: AppRouteRecord[] = [
     },
   },
   {
+    path: '/user/profile',
+    name: 'user-profile',
+    component: () => import('@/views/auth/UserProfileView.vue'),
+    meta: {
+      name: 'layout.menu.profile',
+      icon: 'UserData',
+      parent: 'user',
+      hideInMenu: true,
+    },
+  },
+  {
     path: '/user/additional-info',
     name: 'user-additional-info',
     component: () => import('@/views/auth/UserAdditionalInfoView.vue'),
@@ -22,6 +33,17 @@ export const userRoutes: AppRouteRecord[] = [
       name: 'layout.menu.additional',
       icon: 'UserData',
       parent: 'user',
+      hideInMenu: true,
+    },
+  },
+  {
+    path: '/user/additional-info/pending',
+    name: 'user-additional-info-pending',
+    component: () => import('@/views/auth/UserAdditionalInfoPendingView.vue'),
+    meta: {
+      name: 'layout.menu.additional',
+      icon: 'UserData',
+      parent: 'user-additional-info',
       hideInMenu: true,
     },
   },

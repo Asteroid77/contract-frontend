@@ -294,7 +294,7 @@ export default defineComponent({
 
                 <div
                   class="flex items-center justify-center p-2 rounded-lg cursor-pointer transition-colors hover:bg-[var(--color-border)]"
-                  onClick={() => router.push({ name: 'user-additional-info' })}
+                  onClick={() => router.push({ name: 'user-profile' })}
                 >
                   <div class="w-8 h-8 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-[var(--color-bg-card)] text-sm font-medium shrink-0">
                     {(accountStore.user.name || 'U').slice(0, 1)}
@@ -305,7 +305,7 @@ export default defineComponent({
               <div class="flex items-stretch gap-2">
                 <div
                   class="flex-1 flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors hover:bg-[var(--color-border)]"
-                  onClick={() => router.push({ name: 'user-additional-info' })}
+                  onClick={() => router.push({ name: 'user-profile' })}
                 >
                   <div class="w-8 h-8 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-[var(--color-bg-card)] text-sm font-medium shrink-0">
                     {(accountStore.user.name || 'U').slice(0, 1)}

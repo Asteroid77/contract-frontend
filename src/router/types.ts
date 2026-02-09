@@ -67,7 +67,9 @@ export type AuthRouteName =
   | 'sign-result'
   // 用户中心
   | 'user'
+  | 'user-profile'
   | 'user-additional-info'
+  | 'user-additional-info-pending'
   | 'user-settings'
   | 'user-agent-list'
   | 'my-sign'

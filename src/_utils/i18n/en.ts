@@ -506,7 +506,7 @@ const i18NInfo = {
       invitation: 'Invitations',
       sign: 'Filing/Signing',
       signDetail: 'Details',
-      profile: 'User Profile',
+      profile: 'Personal Center',
       additional: 'Additional Info',
       settings: 'Settings',
       agents: 'Agents',
