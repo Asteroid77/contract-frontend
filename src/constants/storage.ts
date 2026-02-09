@@ -7,6 +7,8 @@ export const STORAGE_KEYS = {
   ACCESS_TOKEN: 'ACCESS_TOKEN',
   /** 刷新令牌 */
   REFRESH_TOKEN: 'REFRESH_TOKEN',
+  /** 语言偏好（用户手动选择） */
+  APP_LOCALE: 'APP_LOCALE',
   /** 用户偏好设置 */
   USER_PREFERENCES: 'USER_PREFERENCES',
 } as const

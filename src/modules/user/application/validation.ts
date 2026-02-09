@@ -59,12 +59,25 @@ export const UserAdditionalInfoFormRules: (
         trigger: ['blur'],
       },
       {
-        pattern: isLegalRepresentative
-          ? /^[0-9A-Z]{18}$/
-          : /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/,
-        message: isLegalRepresentative
-          ? $t('domain.user.validation.usci')
-          : $t('domain.user.validation.identity'),
+        validator: (_rule: FormItemRule, value: string) => {
+          if (!value) {
+            return true
+          }
+
+          const pattern = isLegalRepresentative
+            ? /^[0-9A-Z]{18}$/
+            : /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/
+
+          if (pattern.test(value)) {
+            return true
+          }
+
+          return new Error(
+            isLegalRepresentative
+              ? $t('domain.user.validation.usci')
+              : $t('domain.user.validation.identity'),
+          )
+        },
         trigger: ['blur'],
       },
     ],

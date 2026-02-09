@@ -24,11 +24,13 @@ export const loginFormRules: (formValue: Ref<FormInput<SignInForm>>) => FormRule
         trigger: ['blur'],
       },
       {
-        validator: (rule: FormItemRule, value: string) => {
+        validator: (_rule: FormItemRule, value: string) => {
           if (!value) return true
-          return chinaMobilePhoneVerify(value)
+          if (chinaMobilePhoneVerify(value)) {
+            return true
+          }
+          return new Error($t('auth.validation.phoneFormat'))
         },
-        message: $t('auth.validation.phoneFormat'),
         trigger: ['blur'],
       },
     ],
@@ -89,8 +91,13 @@ export const RegisterStep1FormRule: (formValue: Ref<FormInput<RegisterForm>>) =>
         trigger: ['blur'],
       },
       {
-        validator: (rule: FormItemRule, value: string) => chinaMobilePhoneVerify(value),
-        message: $t('auth.validation.phoneFormat'),
+        validator: (_rule: FormItemRule, value: string) => {
+          if (!value) return true
+          if (chinaMobilePhoneVerify(value)) {
+            return true
+          }
+          return new Error($t('auth.validation.phoneFormat'))
+        },
       },
     ],
     password: [
@@ -170,11 +177,13 @@ export const passwordRecoveryFormRules: (
         trigger: ['blur'],
       },
       {
-        validator: (rule: FormItemRule, value: string) => {
+        validator: (_rule: FormItemRule, value: string) => {
           if (!value) return true
-          return chinaMobilePhoneVerify(value)
+          if (chinaMobilePhoneVerify(value)) {
+            return true
+          }
+          return new Error($t('auth.validation.phoneFormat'))
         },
-        message: $t('auth.validation.phoneFormat'),
         trigger: ['blur'],
       },
     ],
