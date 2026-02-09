@@ -36,6 +36,7 @@ export interface UserInfoVo {
   base: User
   profile: UserAdditionalInfoVo | null
   token: string
+  refreshToken?: string
   roleList: RoleVo[]
   permissionList: Permission[]
   needProfile: boolean

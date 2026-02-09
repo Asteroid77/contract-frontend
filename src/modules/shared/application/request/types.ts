@@ -51,6 +51,18 @@ export interface CustomAxiosRequestConfig<D = unknown> extends AxiosRequestConfi
    * 请求上下文
    */
   requestContext?: RequestContext
+  /**
+   * 跳过自动刷新逻辑（用于刷新令牌接口自身）
+   */
+  skipAuthRefresh?: boolean
+  /**
+   * 跳过自动注入 Authorization
+   */
+  skipAuthToken?: boolean
+  /**
+   * 内部标识：401 刷新后已重放一次
+   */
+  _authRetried?: boolean
 }
 
 /**

@@ -73,9 +73,15 @@ export interface SignInResponse {
   user: UserInfo
   profile: UserAdditionalInfo | null
   token: string
+  refreshToken?: string
   permissionList: Permission[]
   roleList: RoleVo[]
   needProfile?: boolean
+}
+
+export interface ChangePasswordForm {
+  oldPassword: string
+  newPassword: string
 }
 
 /**

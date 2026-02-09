@@ -11,6 +11,12 @@ import {
   resolveResponseRequestId,
 } from '@/app/infrastructure/request/request-id'
 import { getCurrentRequestContext } from '@/app/infrastructure/request/request-context'
+import {
+  forceRefreshAccessToken,
+  getStoredAccessToken,
+  hasStoredRefreshToken,
+  refreshAccessTokenIfNeeded,
+} from '@/modules/access/application/token-manager'
 
 /**
  * 用于项目的请求封装(unWrapper为true时)
@@ -51,44 +57,96 @@ export async function useRequest<T, D = unknown>(
   if (!queryKey) {
     queryKey = [config.url]
   }
+
   const fetchStartTimestamp = new Date()
   console.log(`Request starting at ${fetchStartTimestamp},key:${queryKey}`)
   console.log(`params`, config.params, 'data', config.data)
-  console.log('token', config.headers?.satoken)
+
   setRequestId(config)
-  setToken(config, 'Authorization')
+  await tryRefreshTokenBeforeRequest(config)
 
   try {
-    const response: AxiosResponse<RFC7807Response<T>> = await apiClient<
-      RFC7807Response<T>,
-      AxiosResponse<RFC7807Response<T>>,
-      D
-    >(config)
-
-    const fetchEndTimestamp = new Date()
-    console.log(`Request ending at ${fetchEndTimestamp}, key: ${queryKey}`)
-
-    // HTTP 2xx - 成功，直接返回
-    return _unWrapperResponseData<T>(config, response)
-  } catch (err) {
-    console.error(err)
-
-    // 处理 Axios 错误，从响应中提取 RFC 7807 字段
-    if (axios.isAxiosError(err) && err.response) {
-      const problemDetails = err.response.data as RFC7807Response
-      const responseRequestId = resolveResponseRequestId(err.response as AxiosResponse<RFC7807Response>)
-      throw new BusinessError(
-        problemDetails.detail || problemDetails.title || 'Error',
-        problemDetails.code,
-        problemDetails.traceId,
-        responseRequestId || getRequestIdFromConfig(config),
-        problemDetails.type,
-        problemDetails.status,
-      )
+    return await executeRequest<T, D>(config, queryKey)
+  } catch (error) {
+    if (shouldRetryWithTokenRefresh(error, config)) {
+      try {
+        await forceRefreshAccessToken()
+        config._authRetried = true
+        return await executeRequest<T, D>(config, queryKey, true)
+      } catch (retryError) {
+        throwMappedRequestError(retryError, config)
+      }
     }
 
-    throw err
+    throwMappedRequestError(error, config)
   }
+}
+
+async function executeRequest<T, D>(
+  config: CustomAxiosRequestConfig<D>,
+  queryKey: unknown[],
+  forceReloadToken: boolean = false,
+): Promise<RFC7807SuccessResponse<T> | AxiosResponse<RFC7807SuccessResponse<T>, D>> {
+  setToken(config, 'Authorization', forceReloadToken)
+
+  const response: AxiosResponse<RFC7807Response<T>> = await apiClient<
+    RFC7807Response<T>,
+    AxiosResponse<RFC7807Response<T>>,
+    D
+  >(config)
+
+  const fetchEndTimestamp = new Date()
+  console.log(`Request ending at ${fetchEndTimestamp}, key: ${queryKey}`)
+
+  return _unWrapperResponseData<T>(config, response)
+}
+
+async function tryRefreshTokenBeforeRequest(config: CustomAxiosRequestConfig): Promise<void> {
+  if (config.skipAuthRefresh) {
+    return
+  }
+
+  try {
+    await refreshAccessTokenIfNeeded()
+  } catch (error) {
+    console.warn('refresh token before request failed, fallback to direct request', error)
+  }
+}
+
+function shouldRetryWithTokenRefresh(error: unknown, config: CustomAxiosRequestConfig): boolean {
+  if (config.skipAuthRefresh || config._authRetried || !hasStoredRefreshToken()) {
+    return false
+  }
+
+  if (!axios.isAxiosError(error) || !error.response) {
+    return false
+  }
+
+  const problemDetails = error.response.data as RFC7807Response | undefined
+  const status = error.response.status ?? problemDetails?.status
+  const code = problemDetails?.code
+
+  return status === 401 || code === 401
+}
+
+function throwMappedRequestError(error: unknown, config: CustomAxiosRequestConfig): never {
+  console.error(error)
+
+  if (axios.isAxiosError(error) && error.response) {
+    const problemDetails = error.response.data as RFC7807Response
+    const responseRequestId = resolveResponseRequestId(error.response as AxiosResponse<RFC7807Response>)
+
+    throw new BusinessError(
+      problemDetails.detail || problemDetails.title || 'Error',
+      problemDetails.code,
+      problemDetails.traceId,
+      responseRequestId || getRequestIdFromConfig(config),
+      problemDetails.type,
+      problemDetails.status,
+    )
+  }
+
+  throw error
 }
 
 function _unWrapperResponseData<T>(
@@ -153,8 +211,21 @@ function getRequestIdFromConfig(config: CustomAxiosRequestConfig): string {
   )
 }
 
-function setToken(config: CustomAxiosRequestConfig, tokenName: string) {
+function setToken(
+  config: CustomAxiosRequestConfig,
+  tokenName: string,
+  forceReloadToken: boolean = false,
+) {
+  if (config.skipAuthToken) {
+    return
+  }
+
   config.headers = config.headers || {}
+
+  if (forceReloadToken) {
+    delete config.headers[tokenName]
+  }
+
   let token = config.headers[tokenName]
 
   if (!token) {
@@ -163,7 +234,7 @@ function setToken(config: CustomAxiosRequestConfig, tokenName: string) {
   }
 
   if (!token) {
-    token = localStorage.getItem('ACCESS_TOKEN')
+    token = getStoredAccessToken()
 
     if (token) {
       config.headers[tokenName] = token

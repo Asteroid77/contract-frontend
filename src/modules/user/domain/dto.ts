@@ -6,6 +6,7 @@ export interface LoginRequestDTO {
   password: string
   captcha: string
   captchaKey: string
+  remember?: boolean
 }
 
 export interface RegisterRequestDTO {
@@ -20,6 +21,11 @@ export interface ForgetPasswordRequestDTO {
   password: string
   code: string
   bizId: string
+}
+
+export interface ChangePasswordRequestDTO {
+  oldPassword: string
+  newPassword: string
 }
 
 export interface UserAdditionalInfoRequestDTO {

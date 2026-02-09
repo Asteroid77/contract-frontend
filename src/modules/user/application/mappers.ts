@@ -1,11 +1,13 @@
 import type {
+  ChangePasswordRequestDTO,
+  ForgetPasswordRequestDTO,
   LoginRequestDTO,
   RegisterRequestDTO,
-  ForgetPasswordRequestDTO,
   UserAdditionalInfoRequestDTO,
 } from '../domain/dto'
 import type { UserAdditionalInfoVo, UserInfoVo, UserPageVo } from '../domain/types'
 import type {
+  ChangePasswordForm,
   PasswordRecoveryForm,
   RegisterForm,
   RegisterResponse,
@@ -23,6 +25,7 @@ export const toDomainLoginRequest = (view: SignInForm): LoginRequestDTO => ({
   password: view.password,
   captcha: view.captcha,
   captchaKey: view.captchaKey,
+  remember: view.remember,
 })
 
 export const toDomainRegisterRequest = (view: RegisterForm): RegisterRequestDTO => ({
@@ -39,6 +42,13 @@ export const toDomainPasswordRecoveryRequest = (
   password: view.password,
   code: view.code,
   bizId: view.bizId,
+})
+
+export const toDomainChangePasswordRequest = (
+  view: ChangePasswordForm,
+): ChangePasswordRequestDTO => ({
+  oldPassword: view.oldPassword,
+  newPassword: view.newPassword,
 })
 
 export const toDomainAdditionalInfoRequest = (
@@ -98,6 +108,7 @@ export const toViewSignInResponse = (info: UserInfoVo): SignInResponse => ({
   user: toViewUserInfo(info),
   profile: toViewAdditionalInfo(info.profile),
   token: info.token,
+  refreshToken: info.refreshToken,
   roleList: info.roleList,
   permissionList: info.permissionList,
   needProfile: info.needProfile,

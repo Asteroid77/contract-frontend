@@ -5,6 +5,8 @@ import { useRequest } from '../useRequest'
 import { apiClient } from '@/app/infrastructure/request/http-client'
 import { REQUEST_ID_HEADER } from '@/app/infrastructure/request/request-id'
 import { BusinessError } from '@/modules/shared/domain/errors'
+import { STORAGE_KEYS } from '@/constants/storage'
+import { AUTH_ENDPOINTS } from '@/modules/access/infrastructure/auth-endpoints'
 
 const readHeader = (
   headers?: AxiosResponseHeaders | RawAxiosRequestHeaders,
@@ -26,15 +28,29 @@ const readHeader = (
   return typeof value === 'string' ? value : undefined
 }
 
+const parseJsonBody = (data: unknown): Record<string, unknown> => {
+  if (typeof data === 'string' && data.length > 0) {
+    return JSON.parse(data) as Record<string, unknown>
+  }
+
+  if (data && typeof data === 'object') {
+    return data as Record<string, unknown>
+  }
+
+  return {}
+}
+
 let mock: AxiosMockAdapter
 
 describe('useRequest requestId behavior', () => {
   beforeEach(() => {
     mock = new AxiosMockAdapter(apiClient)
+    localStorage.clear()
   })
 
   afterEach(() => {
     mock.restore()
+    localStorage.clear()
   })
 
   it('injects requestId header from requestContext', async () => {
@@ -142,5 +158,89 @@ describe('useRequest requestId behavior', () => {
     ).rejects.toEqual(
       expect.objectContaining<Partial<BusinessError>>({ requestId: 'request-id-from-header' }),
     )
+  })
+
+  it('retries with refreshed token on 401 and keeps same requestId', async () => {
+    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, 'access-old')
+    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'refresh-old')
+
+    let protectedAttempt = 0
+    let refreshCallCount = 0
+
+    const protectedRequestIds: string[] = []
+    const protectedAuthHeaders: string[] = []
+
+    mock.onGet('/protected').reply((config: AxiosRequestConfig) => {
+      protectedAttempt += 1
+      protectedRequestIds.push(readHeader(config.headers as RawAxiosRequestHeaders, REQUEST_ID_HEADER) ?? '')
+      protectedAuthHeaders.push(readHeader(config.headers as RawAxiosRequestHeaders, 'Authorization') ?? '')
+
+      if (protectedAttempt === 1) {
+        return [
+          401,
+          {
+            type: 'about:blank',
+            title: 'expired',
+            status: 401,
+            detail: 'token expired',
+            code: 401,
+            traceId: 'trace-id-401',
+          },
+        ]
+      }
+
+      return [
+        200,
+        {
+          type: 'about:blank',
+          title: 'ok',
+          status: 200,
+          detail: 'ok',
+          code: 0,
+          traceId: 'trace-id-ok',
+          data: { ok: true },
+        },
+      ]
+    })
+
+    mock.onPost(AUTH_ENDPOINTS.TOKEN_REFRESH).reply((config: AxiosRequestConfig) => {
+      refreshCallCount += 1
+      const payload = parseJsonBody(config.data)
+      expect(payload.refreshToken).toBe('refresh-old')
+
+      return [
+        200,
+        {
+          type: 'about:blank',
+          title: 'ok',
+          status: 200,
+          detail: 'ok',
+          code: 0,
+          traceId: 'trace-id-refresh',
+          data: {
+            accessToken: 'access-new',
+            refreshToken: 'refresh-new',
+            tokenType: 'Bearer',
+            expiresIn: 7200,
+          },
+        },
+      ]
+    })
+
+    const response = await useRequest<{ ok: boolean }>({
+      method: 'GET',
+      url: '/protected',
+      requestContext: {
+        requestId: 'request-id-stable',
+      },
+    })
+
+    expect(response.data.ok).toBe(true)
+    expect(refreshCallCount).toBe(1)
+    expect(protectedAttempt).toBe(2)
+    expect(protectedAuthHeaders).toEqual(['access-old', 'access-new'])
+    expect(protectedRequestIds).toEqual(['request-id-stable', 'request-id-stable'])
+    expect(localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)).toBe('access-new')
+    expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBe('refresh-new')
   })
 })

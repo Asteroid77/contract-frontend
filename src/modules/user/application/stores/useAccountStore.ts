@@ -4,11 +4,20 @@ import dexie from '@/app/infrastructure/storage/dexie'
 import type { SignInResponse } from '@/modules/user/application/models'
 import { STORAGE_KEYS } from '@/constants/storage'
 import { updateAbility, clearAbility } from '@/modules/access/application/ability'
+import { clearAuthTokens, setAuthTokens } from '@/modules/access/application/token-manager'
+
 export const useAccountStore = defineStore('account', () => {
   /**
    * 用户登录凭证
    */
   const token = ref<SignInResponse['token'] | null>(localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN))
+
+  /**
+   * 用户刷新凭证（记住我场景）
+   */
+  const refreshToken = ref<SignInResponse['refreshToken'] | null>(
+    localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN),
+  )
 
   /**
    * 总信息
@@ -71,14 +80,22 @@ export const useAccountStore = defineStore('account', () => {
     $reset()
   }
 
+  function updateTokens(accessToken: string, nextRefreshToken?: string) {
+    token.value = accessToken
+    refreshToken.value = nextRefreshToken ?? null
+    setAuthTokens({
+      accessToken,
+      refreshToken: nextRefreshToken,
+    })
+  }
+
   function login(data: SignInResponse) {
-    token.value = data.token
+    updateTokens(data.token, data.refreshToken)
     user.value = data.user
     profile.value = data.profile
     roleList.value = data.roleList
     permissionList.value = data.permissionList
     account.value = data
-    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, data.token)
     dexie.userinfo.add(data)
     isLoadedData.value = true
 
@@ -116,8 +133,10 @@ export const useAccountStore = defineStore('account', () => {
 
   function $reset() {
     if (token.value) dexie.userinfo.delete(token.value)
-    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
-    token.value = ''
+    clearAuthTokens()
+    token.value = null
+    refreshToken.value = null
+    isLoadedData.value = false
     user.value = {
       // 主键
       id: 0,
@@ -141,11 +160,13 @@ export const useAccountStore = defineStore('account', () => {
       roleList: [],
       permissionList: [],
       token: '',
+      refreshToken: undefined,
     }
   }
 
   return {
     token,
+    refreshToken,
     roleList,
     permissionList,
     user,
@@ -156,6 +177,7 @@ export const useAccountStore = defineStore('account', () => {
     account,
     logout,
     login,
+    updateTokens,
     hasPermission,
     hasRole,
     isOwner,
