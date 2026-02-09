@@ -410,6 +410,7 @@ export default {
           title: '修改密码',
           description: '修改当前账号密码以提升安全性',
           action: '修改密码',
+          success: '密码修改成功，请重新登录',
           todo: '修改密码接口暂未接入',
         },
       },

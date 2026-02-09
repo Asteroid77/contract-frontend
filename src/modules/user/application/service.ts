@@ -3,6 +3,7 @@ import { toDomainPageRequest } from '@/modules/shared/application/query/legacy-q
 import { userRepository } from '../infrastructure/user-repository'
 import type { UserAdditionalInfoVo } from '../domain/types'
 import type {
+  ChangePasswordForm,
   PasswordRecoveryForm,
   RegisterForm,
   RegisterResponse,
@@ -15,6 +16,7 @@ import type {
 } from './models'
 import {
   toDomainAdditionalInfoRequest,
+  toDomainChangePasswordRequest,
   toDomainLoginRequest,
   toDomainPasswordRecoveryRequest,
   toDomainRegisterRequest,
@@ -53,6 +55,10 @@ export class UserService {
 
   getUserInfoByToken(token: string): Promise<SignInResponse> {
     return this.repo.getByToken(token).then(toViewSignInResponse)
+  }
+
+  changePassword(data: ChangePasswordForm): Promise<boolean> {
+    return this.repo.changePassword(toDomainChangePasswordRequest(data))
   }
 
   additionalInfoRequest(

@@ -411,6 +411,7 @@ const i18NInfo = {
           title: 'Change Password',
           description: 'Update your account password to improve security',
           action: 'Change Password',
+          success: 'Password updated. Please sign in again.',
           todo: 'Change password API is not connected yet',
         },
       },

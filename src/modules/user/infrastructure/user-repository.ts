@@ -1,7 +1,7 @@
 import { useRequest } from '@/modules/shared/infrastructure/useRequest'
-import { createPrefixedEndpoints } from '@/modules/shared/infrastructure/api/api-prefix-generator'
 import type { BasePageRequest, IPage } from '@/modules/shared/domain/page'
 import type {
+  ChangePasswordRequestDTO,
   ForgetPasswordRequestDTO,
   LoginRequestDTO,
   RegisterRequestDTO,
@@ -10,15 +10,7 @@ import type {
 } from '../domain/dto'
 import type { UserInfoVo, UserPageVo } from '../domain/types'
 import type { ApprovalInstance } from '@/modules/approval/domain/types'
-
-const USER_ENDPOINTS = createPrefixedEndpoints('/user', {
-  LOGIN: '/login',
-  REGISTER: '/register',
-  GET_BY_TOKEN: '/get/',
-  ADDITIONAL_INFO_PUT: '/additional_info/put',
-  PAGE: '/page',
-  PASSWORD_RECOVERY: '/password/recovery',
-})
+import { USER_ENDPOINTS } from './user-endpoints'
 
 import type { IUserRepository } from '../domain/repositories'
 
@@ -39,6 +31,12 @@ export const userRepository: IUserRepository = {
     useRequest<UserInfoVo, never>({
       method: 'GET',
       url: `${USER_ENDPOINTS.GET_BY_TOKEN}${token}`,
+    }).then((resp) => resp.data),
+  changePassword: (data: ChangePasswordRequestDTO) =>
+    useRequest<boolean, ChangePasswordRequestDTO>({
+      method: 'POST',
+      url: USER_ENDPOINTS.PASSWORD_CHANGE,
+      data,
     }).then((resp) => resp.data),
   additionalInfoRequest: (data: UserAdditionalInfoRequestDTO) =>
     useRequest<ApprovalInstance<Record<string, unknown>>, UserAdditionalInfoRequestDTO>({
