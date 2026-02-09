@@ -7,12 +7,15 @@ import type {
   PasswordRecoveryForm,
   RegisterForm,
   RegisterResponse,
+  RevokeDeviceSessionsForm,
+  RevokeDeviceSessionsResult,
   SignInForm,
   SignInResponse,
   UserAdditionalInfo,
   UserAdditionalInfoForm,
-  UserPageQuery,
+  UserDeviceSession,
   UserPageItem,
+  UserPageQuery,
 } from './models'
 import {
   toDomainAdditionalInfoRequest,
@@ -20,9 +23,12 @@ import {
   toDomainLoginRequest,
   toDomainPasswordRecoveryRequest,
   toDomainRegisterRequest,
+  toDomainRevokeCurrentUserDevicesRequest,
   toViewAdditionalInfo,
   toViewRegisterResponse,
+  toViewRevokeDeviceSessionsResult,
   toViewSignInResponse,
+  toViewUserDeviceSession,
   toViewUserPage,
 } from './mappers'
 import type { ApprovalInstance } from '@/modules/approval/domain/types'
@@ -59,6 +65,16 @@ export class UserService {
 
   changePassword(data: ChangePasswordForm): Promise<boolean> {
     return this.repo.changePassword(toDomainChangePasswordRequest(data))
+  }
+
+  listCurrentUserDevices(): Promise<UserDeviceSession[]> {
+    return this.repo.listCurrentUserDevices().then((items) => items.map(toViewUserDeviceSession))
+  }
+
+  revokeCurrentUserDevices(data: RevokeDeviceSessionsForm): Promise<RevokeDeviceSessionsResult> {
+    return this.repo
+      .revokeCurrentUserDevices(toDomainRevokeCurrentUserDevicesRequest(data))
+      .then(toViewRevokeDeviceSessionsResult)
   }
 
   additionalInfoRequest(

@@ -5,10 +5,16 @@ import type {
   ForgetPasswordRequestDTO,
   LoginRequestDTO,
   RegisterRequestDTO,
+  RevokeDeviceSessionsRequestDTO,
   UserAdditionalInfoRequestDTO,
   UserPageDTO,
 } from '../domain/dto'
-import type { UserInfoVo, UserPageVo } from '../domain/types'
+import type {
+  RevokeDeviceSessionsResponseDto,
+  UserDeviceSessionVo,
+  UserInfoVo,
+  UserPageVo,
+} from '../domain/types'
 import type { ApprovalInstance } from '@/modules/approval/domain/types'
 import { USER_ENDPOINTS } from './user-endpoints'
 
@@ -36,6 +42,20 @@ export const userRepository: IUserRepository = {
     useRequest<boolean, ChangePasswordRequestDTO>({
       method: 'POST',
       url: USER_ENDPOINTS.PASSWORD_CHANGE,
+      data,
+    }).then((resp) => resp.data),
+  listCurrentUserDevices: () =>
+    useRequest<UserDeviceSessionVo[], never>({
+      method: 'GET',
+      url: USER_ENDPOINTS.DEVICES,
+      notify: {
+        success: false,
+      },
+    }).then((resp) => resp.data),
+  revokeCurrentUserDevices: (data: RevokeDeviceSessionsRequestDTO) =>
+    useRequest<RevokeDeviceSessionsResponseDto, RevokeDeviceSessionsRequestDTO>({
+      method: 'POST',
+      url: USER_ENDPOINTS.DEVICES_REVOKE,
       data,
     }).then((resp) => resp.data),
   additionalInfoRequest: (data: UserAdditionalInfoRequestDTO) =>

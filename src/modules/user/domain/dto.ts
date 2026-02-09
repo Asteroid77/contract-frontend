@@ -28,6 +28,11 @@ export interface ChangePasswordRequestDTO {
   newPassword: string
 }
 
+export interface RevokeDeviceSessionsRequestDTO {
+  deviceIds: string[]
+  allowCurrentDevice?: boolean
+}
+
 export interface UserAdditionalInfoRequestDTO {
   id?: number
   registerType: RegisterType

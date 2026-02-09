@@ -84,6 +84,24 @@ export interface ChangePasswordForm {
   newPassword: string
 }
 
+export interface UserDeviceSession {
+  deviceId: string
+  clientIp?: string
+  userAgent?: string
+  lastActiveAt: string
+  currentDevice: boolean
+}
+
+export interface RevokeDeviceSessionsForm {
+  deviceIds: string[]
+  allowCurrentDevice?: boolean
+}
+
+export interface RevokeDeviceSessionsResult {
+  revokedCount: number
+  skippedCurrentDeviceCount: number
+}
+
 /**
  * 注册请求数据结构
  */

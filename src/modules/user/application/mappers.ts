@@ -3,18 +3,28 @@ import type {
   ForgetPasswordRequestDTO,
   LoginRequestDTO,
   RegisterRequestDTO,
+  RevokeDeviceSessionsRequestDTO,
   UserAdditionalInfoRequestDTO,
 } from '../domain/dto'
-import type { UserAdditionalInfoVo, UserInfoVo, UserPageVo } from '../domain/types'
+import type {
+  RevokeDeviceSessionsResponseDto,
+  UserAdditionalInfoVo,
+  UserDeviceSessionVo,
+  UserInfoVo,
+  UserPageVo,
+} from '../domain/types'
 import type {
   ChangePasswordForm,
   PasswordRecoveryForm,
   RegisterForm,
   RegisterResponse,
+  RevokeDeviceSessionsForm,
+  RevokeDeviceSessionsResult,
   SignInForm,
   SignInResponse,
   UserAdditionalInfo,
   UserAdditionalInfoForm,
+  UserDeviceSession,
   UserInfo,
   UserPageItem,
 } from './models'
@@ -49,6 +59,13 @@ export const toDomainChangePasswordRequest = (
 ): ChangePasswordRequestDTO => ({
   oldPassword: view.oldPassword,
   newPassword: view.newPassword,
+})
+
+export const toDomainRevokeCurrentUserDevicesRequest = (
+  view: RevokeDeviceSessionsForm,
+): RevokeDeviceSessionsRequestDTO => ({
+  deviceIds: view.deviceIds,
+  allowCurrentDevice: view.allowCurrentDevice ?? false,
 })
 
 export const toDomainAdditionalInfoRequest = (
@@ -116,6 +133,21 @@ export const toViewSignInResponse = (info: UserInfoVo): SignInResponse => ({
 
 export const toViewRegisterResponse = (userId: number): RegisterResponse => ({
   userId,
+})
+
+export const toViewUserDeviceSession = (session: UserDeviceSessionVo): UserDeviceSession => ({
+  deviceId: session.deviceId,
+  clientIp: session.clientIp,
+  userAgent: session.userAgent,
+  lastActiveAt: session.lastActiveAt,
+  currentDevice: session.currentDevice,
+})
+
+export const toViewRevokeDeviceSessionsResult = (
+  result: RevokeDeviceSessionsResponseDto,
+): RevokeDeviceSessionsResult => ({
+  revokedCount: result.revokedCount,
+  skippedCurrentDeviceCount: result.skippedCurrentDeviceCount,
 })
 
 export const toViewUserPage = (row: UserPageVo): UserPageItem => ({

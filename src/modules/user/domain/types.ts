@@ -53,3 +53,16 @@ export interface UserPageVo {
   discriminator: number
   platform?: PlatformEnum
 }
+
+export interface UserDeviceSessionVo {
+  deviceId: string
+  clientIp?: string
+  userAgent?: string
+  lastActiveAt: string
+  currentDevice: boolean
+}
+
+export interface RevokeDeviceSessionsResponseDto {
+  revokedCount: number
+  skippedCurrentDeviceCount: number
+}

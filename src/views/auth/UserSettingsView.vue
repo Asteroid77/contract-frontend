@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, h, ref } from 'vue'
 import {
   NFlex,
   NButton,
@@ -10,6 +10,10 @@ import {
   NForm,
   NFormItem,
   NInput,
+  NDataTable,
+  NTag,
+  type DataTableColumns,
+  type DataTableRowKey,
   type FormInst,
   type FormRules,
 } from 'naive-ui'
@@ -21,12 +25,20 @@ import { language, setLanguage, type AppLocale } from '@/_utils/i18n'
 import { useChangePassword } from '@/modules/user/application/hooks/useChangePassword'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
 import { requireRule } from '@/modules/shared/application/rules/RequireRule'
+import {
+  useCurrentUserDevicesQuery,
+  useRevokeCurrentUserDevicesMutation,
+} from '@/modules/user/application/hooks/useUserDevices'
+import type { UserDeviceSession } from '@/modules/user/application/models'
+import { formatted } from '@/modules/shared/presentation/time'
 
 const { t: $t } = useI18n()
 const { currentTheme, setTheme } = useTheme()
 const router = useRouter()
 const accountStore = useAccountStore()
 const changePasswordMutation = useChangePassword()
+const userDevicesQuery = useCurrentUserDevicesQuery()
+const revokeDevicesMutation = useRevokeCurrentUserDevicesMutation()
 
 const pushNotificationsEnabled = ref(false)
 const changePasswordFormRef = ref<FormInst | null>(null)
@@ -35,6 +47,7 @@ const changePasswordFormValue = ref({
   newPassword: '',
   confirmNewPassword: '',
 })
+const selectedDeviceIds = ref<string[]>([])
 
 const changePasswordRules = computed<FormRules>(() => ({
   oldPassword: [
@@ -101,6 +114,48 @@ const localeOptions = [
 
 const currentLocale = computed(() => language.value)
 
+const deviceColumns = computed<DataTableColumns<UserDeviceSession>>(() => [
+  {
+    type: 'selection',
+  },
+  {
+    title: $t('layout.profile.security.devices.field.deviceId'),
+    key: 'deviceId',
+  },
+  {
+    title: $t('layout.profile.security.devices.field.clientIp'),
+    key: 'clientIp',
+    render: (row) => row.clientIp || $t('common.label.unknown'),
+  },
+  {
+    title: $t('layout.profile.security.devices.field.userAgent'),
+    key: 'userAgent',
+    render: (row) => row.userAgent || $t('common.label.unknown'),
+  },
+  {
+    title: $t('layout.profile.security.devices.field.lastActiveAt'),
+    key: 'lastActiveAt',
+    render: (row) => formatted(row.lastActiveAt).standard,
+  },
+  {
+    title: $t('layout.profile.security.devices.field.currentDevice'),
+    key: 'currentDevice',
+    render: (row) =>
+      row.currentDevice
+        ? h(
+            NTag,
+            {
+              type: 'success',
+              bordered: false,
+            },
+            { default: () => $t('layout.profile.security.devices.currentDevice') },
+          )
+        : '-',
+  },
+])
+
+const hasSelectedDevices = computed(() => selectedDeviceIds.value.length > 0)
+
 const handleThemeChange = (value: Theme) => {
   setTheme(value)
 }
@@ -153,6 +208,52 @@ const handleDeleteAccount = () => {
     negativeText: $t('common.action.cancel'),
     onPositiveClick: () => {
       message.warning($t('layout.profile.danger.todo'))
+    },
+  })
+}
+
+const handleDeviceCheck = (rowKeys: DataTableRowKey[]) => {
+  selectedDeviceIds.value = rowKeys as string[]
+}
+
+const handleRefreshDevices = () => {
+  userDevicesQuery.refetch()
+}
+
+const handleRevokeSelectedDevices = async () => {
+  if (!selectedDeviceIds.value.length) {
+    message.warning($t('common.validation.selectAtLeast'))
+    return
+  }
+
+  const selectedCount = selectedDeviceIds.value.length
+
+  dialog.warning({
+    title: $t('layout.profile.security.devices.revokeConfirmTitle'),
+    content: $t('layout.profile.security.devices.revokeConfirmContent', { count: selectedCount }),
+    positiveText: $t('layout.profile.security.devices.revokeAction'),
+    negativeText: $t('common.action.cancel'),
+    async onPositiveClick() {
+      const result = await revokeDevicesMutation.mutateAsync({
+        deviceIds: [...selectedDeviceIds.value],
+        allowCurrentDevice: false,
+      })
+
+      selectedDeviceIds.value = []
+
+      if (result.revokedCount > 0) {
+        message.success(
+          $t('layout.profile.security.devices.revokeSuccess', { count: result.revokedCount }),
+        )
+      }
+
+      if (result.skippedCurrentDeviceCount > 0) {
+        message.warning(
+          $t('layout.profile.security.devices.revokeSkippedCurrentDevice', {
+            count: result.skippedCurrentDeviceCount,
+          }),
+        )
+      }
     },
   })
 }
@@ -302,6 +403,50 @@ const handleDeleteAccount = () => {
               </n-flex>
             </n-form>
           </div>
+        </div>
+
+        <n-divider class="!my-0" />
+
+        <div>
+          <div class="text-base font-medium text-[var(--color-text-main)]">
+            {{ $t('layout.profile.security.devices.title') }}
+          </div>
+          <div class="text-sm text-[var(--color-text-light)] mt-1">
+            {{ $t('layout.profile.security.devices.description') }}
+          </div>
+        </div>
+
+        <div class="w-full">
+          <n-flex class="mb-3" justify="space-between" align="center" :size="8">
+            <div class="text-sm text-[var(--color-text-light)]">
+              {{ $t('layout.profile.security.devices.selectedCount', { count: selectedDeviceIds.length }) }}
+            </div>
+            <n-flex :size="8">
+              <n-button secondary :loading="userDevicesQuery.isFetching.value" @click="handleRefreshDevices">
+                {{ $t('layout.profile.security.devices.refreshAction') }}
+              </n-button>
+              <n-button
+                type="error"
+                secondary
+                :disabled="!hasSelectedDevices || revokeDevicesMutation.isPending.value"
+                :loading="revokeDevicesMutation.isPending.value"
+                @click="handleRevokeSelectedDevices"
+              >
+                {{ $t('layout.profile.security.devices.revokeAction') }}
+              </n-button>
+            </n-flex>
+          </n-flex>
+
+          <n-data-table
+            :bordered="false"
+            :single-line="false"
+            :columns="deviceColumns"
+            :data="userDevicesQuery.data.value || []"
+            :loading="userDevicesQuery.isLoading.value"
+            :checked-row-keys="selectedDeviceIds"
+            :row-key="(row) => row.deviceId"
+            @update:checked-row-keys="handleDeviceCheck"
+          />
         </div>
 
         <n-divider class="!my-0" />

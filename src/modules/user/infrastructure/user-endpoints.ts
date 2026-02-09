@@ -5,6 +5,8 @@ export const USER_ENDPOINTS = createPrefixedEndpoints('/user', {
   REGISTER: '/register',
   GET_BY_TOKEN: '/get/',
   PASSWORD_CHANGE: '/password/change',
+  DEVICES: '/devices',
+  DEVICES_REVOKE: '/devices/revoke',
   ADDITIONAL_INFO_PUT: '/additional_info/put',
   PAGE: '/page',
   PASSWORD_RECOVERY: '/password/recovery',
