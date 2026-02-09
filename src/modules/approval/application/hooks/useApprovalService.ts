@@ -172,12 +172,23 @@ export const useApprovalHistoryQuery = (instanceId: Ref<number>) => {
   })
 }
 
-export const useLatestAdditionalInfoInstanceStatus = () => {
+export const useLatestAdditionalInfoInstanceStatus = (options?: {
+  enabled?: Ref<boolean> | boolean
+  staleTime?: number
+  gcTime?: number
+  refetchOnWindowFocus?: boolean
+  refetchOnMount?: boolean | 'always'
+}) => {
   return useQuery<LatestAdditionalInfoInstance, AxiosError<unknown>, LatestAdditionalInfoInstance>({
     queryKey: approvalInstanceKeys.LATEST_ADDITIONAL_INFO_INSTANCE,
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () =>
         approvalService.getLatestAdditionalInfoInstanceStatus(),
       ),
+    enabled: computed(() => unref(options?.enabled ?? true)),
+    staleTime: options?.staleTime ?? 0,
+    gcTime: options?.gcTime ?? 0,
+    refetchOnWindowFocus: options?.refetchOnWindowFocus ?? false,
+    refetchOnMount: options?.refetchOnMount ?? 'always',
   })
 }
