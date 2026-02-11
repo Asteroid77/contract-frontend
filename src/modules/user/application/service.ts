@@ -95,6 +95,10 @@ export class UserService {
   passwordRecovery(data: PasswordRecoveryForm): Promise<boolean> {
     return this.repo.passwordRecovery(toDomainPasswordRecoveryRequest(data))
   }
+
+  logout(): Promise<boolean> {
+    return this.repo.logout()
+  }
 }
 
 export const userService = new UserService(userRepository)

@@ -10,4 +10,5 @@ export const USER_ENDPOINTS = createPrefixedEndpoints('/user', {
   ADDITIONAL_INFO_PUT: '/additional_info/put',
   PAGE: '/page',
   PASSWORD_RECOVERY: '/password/recovery',
+  LOGOUT: '/logout',
 })

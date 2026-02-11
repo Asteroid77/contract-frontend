@@ -79,4 +79,10 @@ export const userRepository: IUserRepository = {
       url: USER_ENDPOINTS.PASSWORD_RECOVERY,
       data,
     }).then((resp) => resp.data),
+  logout: () =>
+    useRequest<boolean, never>({
+      method: 'POST',
+      url: USER_ENDPOINTS.LOGOUT,
+      notify: { success: false },
+    }).then((resp) => resp.data),
 }
