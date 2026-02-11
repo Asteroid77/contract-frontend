@@ -367,6 +367,21 @@ const i18NInfo = {
       successMeta: 'Redirecting...',
       callback: 'Logged in. Redirecting...',
     },
+    twoFactor: {
+      verify: 'Two-Factor Verification',
+      verifyTitle: 'Enter Verification Code',
+      verifyDescription: 'Enter the 6-digit code from your authenticator app',
+      codeLabel: 'Verification Code',
+      codePlaceholder: 'Enter 6-digit code',
+      backupCodeToggle: 'Use backup code',
+      totpCodeToggle: 'Use authenticator code',
+      backupCodePlaceholder: 'Enter backup code',
+      rememberDevice: 'Remember this device',
+      submitAction: 'Verify',
+      backToLogin: 'Back to login',
+      expiredTitle: 'Verification Expired',
+      expiredDescription: 'The temporary token has expired. Please log in again.',
+    },
     captcha: {
       refreshHint: 'Click image to refresh',
     },
@@ -462,9 +477,45 @@ const i18NInfo = {
       },
       twoFactor: {
         title: 'Two-Factor Authentication (2FA)',
-        description: 'Add an extra layer of security to your account. It will be enabled after backend support is ready',
-        action: 'Enable 2FA',
-        todo: '2FA API is not connected yet',
+        description:
+          'Add an extra layer of security using Time-based One-Time Passwords (TOTP)',
+        enableAction: 'Enable 2FA',
+        disableAction: 'Disable 2FA',
+        regenerateAction: 'Regenerate Backup Codes',
+        status: {
+          enabled: 'Enabled',
+          disabled: 'Disabled',
+        },
+        setup: {
+          title: 'Set Up Two-Factor Authentication',
+          step1Title: 'Scan QR Code',
+          step1Description:
+            'Scan the QR code below with your authenticator app. We recommend using the WeChat mini-program for managing TOTP codes.',
+          step1ManualKey: "Can't scan? Enter this key manually:",
+          step2Title: 'Verify Code',
+          step2Description: 'Enter the 6-digit code from your authenticator app',
+          step3Title: 'Save Backup Codes',
+          step3Description:
+            'Save these backup codes in a safe place. Each code can only be used once. Use them to log in if you lose access to your authenticator app.',
+          step3Warning:
+            'You will not be able to view these codes again after closing this window',
+          copied: 'Copied to clipboard',
+        },
+        disable: {
+          title: 'Disable Two-Factor Authentication',
+          description:
+            'Your account will no longer require two-factor verification after disabling',
+          passwordLabel: 'Enter your login password to confirm',
+          confirmAction: 'Confirm Disable',
+        },
+        regenerate: {
+          title: 'Regenerate Backup Codes',
+          description:
+            'All existing backup codes will be invalidated after regeneration',
+          confirmAction: 'Confirm Regeneration',
+        },
+        wechatHint:
+          'We recommend using the WeChat mini-program for managing your verification codes',
       },
       danger: {
         title: 'Danger Zone',
