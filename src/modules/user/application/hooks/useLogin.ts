@@ -1,4 +1,4 @@
-import type { SignInForm, SignInResponse } from '@/modules/user/application/models'
+import type { SignInForm, SignInResponse, SignInResponseComplete } from '@/modules/user/application/models'
 import { useMutation } from '@tanstack/vue-query'
 import type { AxiosError } from 'axios'
 import { userService } from '@/modules/user/application/service'
@@ -21,7 +21,20 @@ export function useLogin() {
         ? userService.login(signInMutate.data)
         : userService.getUserInfoByToken(signInMutate.token),
     onSuccess: async (data: SignInResponse, variable: SignInMutate) => {
-      useAccountStore().login(data)
+      if (data.requireTwoFactor) {
+        router.push({
+          name: 'two-factor-verify',
+          query: {
+            token: data.twoFactorToken,
+            redirect: typeof variable.redirect === 'string'
+              ? variable.redirect
+              : undefined,
+          },
+        })
+        return
+      }
+
+      useAccountStore().login(data as SignInResponseComplete)
       router.push(variable.redirect || { name: 'dashboard' })
     },
   })

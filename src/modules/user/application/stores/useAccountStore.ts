@@ -1,33 +1,34 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import dexie from '@/app/infrastructure/storage/dexie'
-import type { SignInResponse } from '@/modules/user/application/models'
+import type { SignInResponseComplete } from '@/modules/user/application/models'
 import { STORAGE_KEYS } from '@/constants/storage'
 import { updateAbility, clearAbility } from '@/modules/access/application/ability'
 import { clearAuthTokens, setAuthTokens } from '@/modules/access/application/token-manager'
+import { userService } from '@/modules/user/application/service'
 
 export const useAccountStore = defineStore('account', () => {
   /**
    * 用户登录凭证
    */
-  const token = ref<SignInResponse['token'] | null>(localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN))
+  const token = ref<SignInResponseComplete['token'] | null>(localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN))
 
   /**
    * 用户刷新凭证（记住我场景）
    */
-  const refreshToken = ref<SignInResponse['refreshToken'] | null>(
+  const refreshToken = ref<SignInResponseComplete['refreshToken'] | null>(
     localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN),
   )
 
   /**
    * 总信息
    */
-  const account = ref<SignInResponse>()
+  const account = ref<SignInResponseComplete>()
 
   /**
    * 用户信息
    */
-  const user = ref<SignInResponse['user']>({
+  const user = ref<SignInResponseComplete['user']>({
     // 主键
     id: 0,
     // 姓名
@@ -45,17 +46,17 @@ export const useAccountStore = defineStore('account', () => {
   /**
    * 用户详情
    */
-  const profile = ref<SignInResponse['profile']>(null)
+  const profile = ref<SignInResponseComplete['profile']>(null)
 
   /**
    * 用户角色列表
    */
-  const roleList = ref<SignInResponse['roleList']>([])
+  const roleList = ref<SignInResponseComplete['roleList']>([])
 
   /**
    * 用户权限列表
    */
-  const permissionList = ref<SignInResponse['permissionList']>([])
+  const permissionList = ref<SignInResponseComplete['permissionList']>([])
 
   /**
    * 用户是否登录
@@ -73,11 +74,15 @@ export const useAccountStore = defineStore('account', () => {
 
   /**
    * 退出登录
-   * @description 重置account并路由导航至初始页，由路由守卫逻辑导航回login页
+   * @description 调用后端登出接口，然后重置account并路由导航至初始页，由路由守卫逻辑导航回login页
    */
   function logout() {
-    clearAbility() // 清空 CASL 权限
-    $reset()
+    userService.logout().catch(() => {
+      // 即使后端登出失败，也继续清理本地状态
+    }).finally(() => {
+      clearAbility() // 清空 CASL 权限
+      $reset()
+    })
   }
 
   function updateTokens(accessToken: string, nextRefreshToken?: string) {
@@ -89,7 +94,7 @@ export const useAccountStore = defineStore('account', () => {
     })
   }
 
-  function login(data: SignInResponse) {
+  function login(data: SignInResponseComplete) {
     updateTokens(data.token, data.refreshToken)
     user.value = data.user
     profile.value = data.profile
@@ -155,6 +160,7 @@ export const useAccountStore = defineStore('account', () => {
     roleList.value = []
     permissionList.value = []
     account.value = {
+      requireTwoFactor: false,
       user: user.value,
       profile: profile.value,
       roleList: [],
