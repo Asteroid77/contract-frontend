@@ -31,6 +31,7 @@ import {
 } from '@/modules/user/application/hooks/useUserDevices'
 import type { UserDeviceSession } from '@/modules/user/application/models'
 import { formatted } from '@/modules/shared/presentation/time'
+import TotpSettingsSection from './components/TotpSettingsSection.vue'
 
 const { t: $t } = useI18n()
 const { currentTheme, setTheme } = useTheme()
@@ -194,10 +195,6 @@ const submitChangePassword = async () => {
   } catch {
     // 全局错误处理已处理提示
   }
-}
-
-const handleSetup2FA = () => {
-  message.info($t('layout.profile.twoFactor.todo'))
 }
 
 const handleDeleteAccount = () => {
@@ -451,19 +448,7 @@ const handleRevokeSelectedDevices = async () => {
 
         <n-divider class="!my-0" />
 
-        <div class="flex items-center justify-between gap-4">
-          <div>
-            <div class="text-base font-medium text-[var(--color-text-main)]">
-              {{ $t('layout.profile.twoFactor.title') }}
-            </div>
-            <div class="text-sm text-[var(--color-text-light)] mt-1">
-              {{ $t('layout.profile.twoFactor.description') }}
-            </div>
-          </div>
-          <n-button secondary @click="handleSetup2FA">
-            {{ $t('layout.profile.twoFactor.action') }}
-          </n-button>
-        </div>
+        <TotpSettingsSection />
       </n-flex>
     </n-card>
 
