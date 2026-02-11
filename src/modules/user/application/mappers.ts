@@ -4,10 +4,15 @@ import type {
   LoginRequestDTO,
   RegisterRequestDTO,
   RevokeDeviceSessionsRequestDTO,
+  TotpDisableRequestDTO,
+  TotpEnableRequestDTO,
+  TotpVerifyRequestDTO,
   UserAdditionalInfoRequestDTO,
 } from '../domain/dto'
 import type {
   RevokeDeviceSessionsResponseDto,
+  TotpSetupVo,
+  TotpStatusVo,
   UserAdditionalInfoVo,
   UserDeviceSessionVo,
   UserInfoVo,
@@ -22,6 +27,11 @@ import type {
   RevokeDeviceSessionsResult,
   SignInForm,
   SignInResponse,
+  TotpDisableForm,
+  TotpEnableForm,
+  TotpSetupResult,
+  TotpStatus,
+  TotpVerifyForm,
   UserAdditionalInfo,
   UserAdditionalInfoForm,
   UserDeviceSession,
@@ -121,15 +131,24 @@ export const toViewAdditionalInfo = (
   }
 }
 
-export const toViewSignInResponse = (info: UserInfoVo): SignInResponse => ({
-  user: toViewUserInfo(info),
-  profile: toViewAdditionalInfo(info.profile),
-  token: info.token,
-  refreshToken: info.refreshToken,
-  roleList: info.roleList,
-  permissionList: info.permissionList,
-  needProfile: info.needProfile,
-})
+export const toViewSignInResponse = (info: UserInfoVo): SignInResponse => {
+  if (info.requireTwoFactor) {
+    return {
+      requireTwoFactor: true,
+      twoFactorToken: info.twoFactorToken ?? '',
+    }
+  }
+  return {
+    requireTwoFactor: false,
+    user: toViewUserInfo(info),
+    profile: toViewAdditionalInfo(info.profile),
+    token: info.token,
+    refreshToken: info.refreshToken,
+    roleList: info.roleList,
+    permissionList: info.permissionList,
+    needProfile: info.needProfile,
+  }
+}
 
 export const toViewRegisterResponse = (userId: number): RegisterResponse => ({
   userId,
@@ -173,3 +192,35 @@ const toViewApprovalInstance = (
 export const toViewAdditionalInfoApproval = (
   instance: ApprovalInstance<Record<string, unknown>>,
 ): ApprovalInstance<Record<string, unknown>> => toViewApprovalInstance(instance)
+
+// --- TOTP Mappers ---
+
+export const toDomainTotpVerifyRequest = (
+  view: TotpVerifyForm,
+): TotpVerifyRequestDTO => ({
+  twoFactorToken: view.twoFactorToken,
+  code: view.code,
+  rememberMe: view.rememberMe,
+})
+
+export const toDomainTotpEnableRequest = (
+  view: TotpEnableForm,
+): TotpEnableRequestDTO => ({
+  code: view.code,
+})
+
+export const toDomainTotpDisableRequest = (
+  view: TotpDisableForm,
+): TotpDisableRequestDTO => ({
+  password: view.password,
+})
+
+export const toViewTotpStatus = (vo: TotpStatusVo): TotpStatus => ({
+  enabled: vo.enabled,
+})
+
+export const toViewTotpSetup = (vo: TotpSetupVo): TotpSetupResult => ({
+  secret: vo.secret,
+  qrCodeUri: vo.qrCodeUri,
+  backupCodes: [...vo.backupCodes],
+})

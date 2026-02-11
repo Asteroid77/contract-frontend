@@ -67,9 +67,10 @@ export interface SignInForm {
 }
 
 /**
- * 登录成功后返回数据结构
+ * 登录成功后返回数据结构（未触发2FA）
  */
-export interface SignInResponse {
+export interface SignInResponseComplete {
+  requireTwoFactor: false
   user: UserInfo
   profile: UserAdditionalInfo | null
   token: string
@@ -78,6 +79,19 @@ export interface SignInResponse {
   roleList: RoleVo[]
   needProfile?: boolean
 }
+
+/**
+ * 登录需要2FA验证
+ */
+export interface SignInResponseTwoFactor {
+  requireTwoFactor: true
+  twoFactorToken: string
+}
+
+/**
+ * 登录响应联合类型
+ */
+export type SignInResponse = SignInResponseComplete | SignInResponseTwoFactor
 
 export interface ChangePasswordForm {
   oldPassword: string
@@ -159,4 +173,30 @@ export interface UserPageQuery extends BaseQuery {
   registerType?: ConditionWrapper<number>
   identity?: ConditionWrapper<string>
   discriminator?: ConditionWrapper<number>
+}
+
+// --- TOTP View Models ---
+
+export interface TotpVerifyForm {
+  twoFactorToken: string
+  code: string
+  rememberMe: boolean
+}
+
+export interface TotpStatus {
+  enabled: boolean
+}
+
+export interface TotpSetupResult {
+  secret: string
+  qrCodeUri: string
+  backupCodes: string[]
+}
+
+export interface TotpEnableForm {
+  code: string
+}
+
+export interface TotpDisableForm {
+  password: string
 }
