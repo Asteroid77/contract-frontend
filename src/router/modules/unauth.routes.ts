@@ -70,6 +70,16 @@ export const unauthRoutes: AppRouteRecord[] = [
     },
   },
   {
+    path: '/two-factor-verify',
+    name: 'two-factor-verify',
+    component: () => import('@/views/unauth/TwoFactorVerifyView'),
+    meta: {
+      name: 'auth.twoFactor.verify',
+      requiresAuth: false,
+      layout: 'unauth',
+    },
+  },
+  {
     path: '/register',
     name: 'register',
     component: () => import('@/views/unauth/RegisterView'),
