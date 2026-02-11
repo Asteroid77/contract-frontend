@@ -40,6 +40,18 @@ export interface UserInfoVo {
   roleList: RoleVo[]
   permissionList: Permission[]
   needProfile: boolean
+  requireTwoFactor: boolean
+  twoFactorToken: string | null
+}
+
+export interface TotpStatusVo {
+  enabled: boolean
+}
+
+export interface TotpSetupVo {
+  secret: string
+  qrCodeUri: string
+  backupCodes: string[]
 }
 
 export interface UserPageVo {

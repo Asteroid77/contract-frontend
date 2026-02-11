@@ -49,3 +49,19 @@ export interface UserAdditionalInfoRequestDTO {
 }
 
 export type UserPageDTO = QueryFilters
+
+// --- TOTP DTOs ---
+
+export interface TotpVerifyRequestDTO {
+  twoFactorToken: string
+  code: string
+  rememberMe: boolean
+}
+
+export interface TotpEnableRequestDTO {
+  code: string
+}
+
+export interface TotpDisableRequestDTO {
+  password: string
+}
