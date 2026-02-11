@@ -6,11 +6,16 @@ import type {
   LoginRequestDTO,
   RegisterRequestDTO,
   RevokeDeviceSessionsRequestDTO,
+  TotpDisableRequestDTO,
+  TotpEnableRequestDTO,
+  TotpVerifyRequestDTO,
   UserAdditionalInfoRequestDTO,
   UserPageDTO,
 } from './dto'
 import type {
   RevokeDeviceSessionsResponseDto,
+  TotpSetupVo,
+  TotpStatusVo,
   UserDeviceSessionVo,
   UserInfoVo,
   UserPageVo,
@@ -30,4 +35,14 @@ export interface IUserRepository {
   ): Promise<ApprovalInstance<Record<string, unknown>>>
   getUserPage(pageRequest: BasePageRequest<UserPageDTO>): Promise<IPage<UserPageVo>>
   passwordRecovery(data: ForgetPasswordRequestDTO): Promise<boolean>
+  logout(): Promise<boolean>
+}
+
+export interface ITotpRepository {
+  verify(data: TotpVerifyRequestDTO): Promise<UserInfoVo>
+  getStatus(): Promise<TotpStatusVo>
+  setup(): Promise<TotpSetupVo>
+  enable(data: TotpEnableRequestDTO): Promise<boolean>
+  disable(data: TotpDisableRequestDTO): Promise<void>
+  regenerateBackupCodes(): Promise<string[]>
 }
