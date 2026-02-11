@@ -1,0 +1,58 @@
+import { describe, expect, it, vi } from 'vitest'
+import { mount } from '@vue/test-utils'
+
+vi.mock('@/_utils/i18n', () => ({
+  $t: vi.fn((key: string) => key),
+}))
+
+vi.mock('@/modules/approval/application/utils', () => ({
+  showIncompletedUserName: vi.fn((name: string) => `masked:${name}`),
+}))
+
+import ApprovalBaseInfoDiffCheck from '@/modules/approval/presentation/approval/diff-check/ApprovalBaseInfoDiffCheck'
+
+describe('ApprovalBaseInfoDiffCheck', () => {
+  it('uses final status when process is finished', () => {
+    const wrapper = mount(ApprovalBaseInfoDiffCheck, {
+      props: {
+        data: {
+          id: 1,
+          processName: '用户信息审批',
+          nodeName: '审批节点A',
+          applicantName: '张三',
+          assigneeName: '李四',
+          status: 'approved',
+          taskStatus: 'handling',
+        } as never,
+      },
+    })
+
+    const text = wrapper.text()
+    expect(text).toContain('用户信息审批')
+    expect(text).toContain('审批节点A')
+    expect(text).toContain('masked:张三')
+    expect(text).toContain('masked:李四')
+    expect(text).toContain('domain.approval.status.approved')
+    expect(text).not.toContain('domain.approval.status.processing')
+  })
+
+  it('uses taskStatus when process is not finished', () => {
+    const wrapper = mount(ApprovalBaseInfoDiffCheck, {
+      props: {
+        data: {
+          id: 2,
+          processName: '备案/签约信息审批',
+          nodeName: '审批节点B',
+          applicantName: '王五',
+          assigneeName: '赵六',
+          status: 'pending',
+          taskStatus: 'handling',
+        } as never,
+      },
+    })
+
+    const text = wrapper.text()
+    expect(text).toContain('domain.approval.status.processing')
+    expect(text).not.toContain('domain.approval.status.pending')
+  })
+})

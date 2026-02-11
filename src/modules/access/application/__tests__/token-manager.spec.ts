@@ -67,6 +67,55 @@ describe('token-manager', () => {
     expect(isAccessTokenExpiringSoon(300)).toBe(false)
   })
 
+  it('returns false for malformed jwt token', () => {
+    setAuthTokens({
+      accessToken: 'not-a-jwt',
+      refreshToken: 'refresh-token',
+    })
+
+    expect(isAccessTokenExpiringSoon(300)).toBe(false)
+  })
+
+  it('removes refresh token when setAuthTokens called without refreshToken', () => {
+    setAuthTokens({
+      accessToken: createJwtWithExpOffset(1800),
+      refreshToken: 'refresh-token',
+    })
+
+    setAuthTokens({
+      accessToken: createJwtWithExpOffset(1200),
+    })
+
+    expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBeNull()
+  })
+
+  it('returns null when refresh not needed', async () => {
+    setAuthTokens({
+      accessToken: createJwtWithExpOffset(1800),
+      refreshToken: 'refresh-token',
+    })
+
+    await expect(refreshAccessTokenIfNeeded(300)).resolves.toBeNull()
+    expect(mock.history.post).toHaveLength(0)
+  })
+
+  it('returns null when refresh token is missing', async () => {
+    setAuthTokens({
+      accessToken: createJwtWithExpOffset(30),
+    })
+
+    await expect(refreshAccessTokenIfNeeded(300)).resolves.toBeNull()
+    expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBeNull()
+  })
+
+  it('throws when force refresh is called without refreshToken', async () => {
+    setAuthTokens({
+      accessToken: createJwtWithExpOffset(30),
+    })
+
+    await expect(forceRefreshAccessToken()).rejects.toThrow('Refresh token is missing')
+  })
+
   it('refreshes tokens when accessToken is expiring soon', async () => {
     setAuthTokens({
       accessToken: createJwtWithExpOffset(60),
@@ -108,6 +157,32 @@ describe('token-manager', () => {
     expect(refreshCallCount).toBe(1)
     expect(first).toEqual(second)
     expect(first.accessToken).toBe('access-new')
+  })
+
+  it('clears tokens when refresh response misses required fields', async () => {
+    setAuthTokens({
+      accessToken: createJwtWithExpOffset(10),
+      refreshToken: 'refresh-old',
+    })
+
+    mock.onPost(AUTH_ENDPOINTS.TOKEN_REFRESH).reply(200, {
+      type: 'about:blank',
+      title: 'ok',
+      status: 200,
+      detail: 'ok',
+      code: 0,
+      traceId: 'trace-refresh-missing',
+      data: {
+        accessToken: 'access-new',
+      },
+    })
+
+    await expect(forceRefreshAccessToken()).rejects.toThrow(
+      'Refresh token response missing required fields',
+    )
+
+    expect(localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)).toBeNull()
+    expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBeNull()
   })
 
   it('clears tokens when refresh failed', async () => {

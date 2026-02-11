@@ -9,7 +9,7 @@ export default defineComponent({
   name: 'PrintTemplateSwitch',
   props: {
     name: {
-      type: Object as PropType<ApprovalProcessName[keyof ApprovalProcessName]>,
+      type: String as PropType<ApprovalProcessName>,
       required: true,
     },
     data: {
