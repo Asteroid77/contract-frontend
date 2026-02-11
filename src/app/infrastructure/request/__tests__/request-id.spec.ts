@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { AxiosResponse, RawAxiosResponseHeaders } from 'axios'
 import {
+  createRequestId,
   normalizeRequestId,
   readRequestIdFromBody,
   readRequestIdFromHeaders,
@@ -8,11 +9,33 @@ import {
 } from '../request-id'
 
 describe('request-id utils', () => {
+  it('createRequestId returns non-empty string id', () => {
+    const requestId = createRequestId()
+
+    expect(typeof requestId).toBe('string')
+    expect(requestId.length).toBeGreaterThan(0)
+  })
+
   it('normalizeRequestId trims and filters invalid values', () => {
     expect(normalizeRequestId('  req-123  ')).toBe('req-123')
     expect(normalizeRequestId('   ')).toBeUndefined()
     expect(normalizeRequestId(undefined)).toBeUndefined()
     expect(normalizeRequestId(123)).toBeUndefined()
+  })
+
+  it('readRequestIdFromHeaders prefers canonical header key then lowercase fallback', () => {
+    expect(
+      readRequestIdFromHeaders({
+        'X-Request-Id': ' canonical-id ',
+        'x-request-id': 'lower-id',
+      } as RawAxiosResponseHeaders),
+    ).toBe('canonical-id')
+
+    expect(
+      readRequestIdFromHeaders({
+        'x-request-id': ' lower-id ',
+      } as RawAxiosResponseHeaders),
+    ).toBe('lower-id')
   })
 
   it('readRequestIdFromBody supports requestId and reuqestId', () => {
