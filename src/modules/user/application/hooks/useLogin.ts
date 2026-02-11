@@ -11,7 +11,7 @@ export type SignInMutate = { redirect?: RouteLocationRaw } & (
       mode: 'local'
       data: SignInForm
     }
-  | { mode: 'oauth2'; token: string; redirect?: RouteLocationRaw }
+  | { mode: 'oauth2'; token: string; refreshToken?: string; redirect?: RouteLocationRaw }
 )
 
 export function useLogin() {
@@ -34,7 +34,12 @@ export function useLogin() {
         return
       }
 
-      useAccountStore().login(data as SignInResponseComplete)
+      const complete = data as SignInResponseComplete
+      // OAuth2 回调 URL 中的 refreshToken 优先于接口返回值
+      if (variable.mode === 'oauth2' && variable.refreshToken) {
+        complete.refreshToken = variable.refreshToken
+      }
+      useAccountStore().login(complete)
       router.push(variable.redirect || { name: 'dashboard' })
     },
   })

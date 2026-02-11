@@ -52,7 +52,8 @@ export default defineComponent({
         })
       } else if (event.data && event.data.token) {
         const token = event.data.token
-        login.mutate({ mode: 'oauth2', token })
+        const refreshToken = event.data.refreshToken
+        login.mutate({ mode: 'oauth2', token, refreshToken })
       } else if (event.data?.url && event.data.url.includes('callback')) {
         notification['error']({
           title: t('auth.oauth.error'),

@@ -6,6 +6,7 @@ import { getFrontendOrigin } from '@/app/infrastructure/request/get-frontend-url
 
 const route = useRoute()
 const token: string | undefined = route.query.token?.toString()
+const refreshToken: string | undefined = route.query.refreshToken?.toString()
 const requireTwoFactor: string | undefined = route.query.requireTwoFactor?.toString()
 const twoFactorToken: string | undefined = route.query.twoFactorToken?.toString()
 const error: string | undefined = route.query.error?.toString()
@@ -26,6 +27,7 @@ if (requireTwoFactor === 'true' && twoFactorToken) {
   window.opener.postMessage(
     {
       token,
+      refreshToken,
       url: route.fullPath,
     },
     // postMessage 目标应使用 origin，避免路径变更（/login vs /unauth/login）导致消息被丢弃
