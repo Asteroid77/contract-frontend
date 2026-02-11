@@ -44,7 +44,13 @@ export default defineComponent({
         return
       }
 
-      if (event.data && event.data.token) {
+      if (event.data?.requireTwoFactor && event.data.twoFactorToken) {
+        // 第三方登录需要 2FA 验证，直接跳转到验证页
+        router.push({
+          name: 'two-factor-verify',
+          query: { token: event.data.twoFactorToken },
+        })
+      } else if (event.data && event.data.token) {
         const token = event.data.token
         login.mutate({ mode: 'oauth2', token })
       } else if (event.data?.url && event.data.url.includes('callback')) {
