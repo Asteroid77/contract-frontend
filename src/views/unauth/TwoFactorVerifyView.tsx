@@ -15,7 +15,8 @@ export default defineComponent({
     const twoFactorToken = computed(() => (route.query.token as string) || '')
     const redirectTarget = computed(() => (route.query.redirect as string) || '')
     const code = ref('')
-    const rememberMe = ref(false)
+    const rememberMe = ref(route.query.rememberMe?.toString() === 'true')
+    const rememberDevice = ref(route.query.rememberDevice?.toString() === 'true')
     const useBackupCode = ref(false)
 
     watchEffect(() => {
@@ -30,6 +31,7 @@ export default defineComponent({
         twoFactorToken: twoFactorToken.value,
         code: code.value.trim(),
         rememberMe: rememberMe.value,
+        rememberDevice: rememberDevice.value,
         redirect: redirectTarget.value || undefined,
       })
     }
@@ -63,12 +65,19 @@ export default defineComponent({
             />
           </NFormItem>
 
-          <div class="flex justify-between items-center mb-6">
-            <NCheckbox v-model:checked={rememberMe.value}>
-              <span class="text-sm text-[var(--color-text-body)]">
-                {t('auth.twoFactor.rememberDevice')}
-              </span>
-            </NCheckbox>
+          <div class="flex justify-between items-start mb-6">
+            <div class="flex flex-col gap-2">
+              <NCheckbox v-model:checked={rememberMe.value}>
+                <span class="text-sm text-[var(--color-text-body)]">
+                  {t('auth.twoFactor.rememberMe')}
+                </span>
+              </NCheckbox>
+              <NCheckbox v-model:checked={rememberDevice.value}>
+                <span class="text-sm text-[var(--color-text-body)]">
+                  {t('auth.twoFactor.rememberDevice')}
+                </span>
+              </NCheckbox>
+            </div>
             <a
               class="text-sm text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] cursor-pointer"
               onClick={toggleMode}

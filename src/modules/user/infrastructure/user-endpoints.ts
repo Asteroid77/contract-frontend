@@ -3,7 +3,7 @@ import { createPrefixedEndpoints } from '@/modules/shared/infrastructure/api/api
 export const USER_ENDPOINTS = createPrefixedEndpoints('/user', {
   LOGIN: '/login',
   REGISTER: '/register',
-  GET_BY_TOKEN: '/get/',
+  ME: '/me',
   PASSWORD_CHANGE: '/password/change',
   DEVICES: '/devices',
   DEVICES_REVOKE: '/devices/revoke',

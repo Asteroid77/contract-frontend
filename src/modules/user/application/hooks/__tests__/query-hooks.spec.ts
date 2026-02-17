@@ -21,7 +21,7 @@ vi.mock('@tanstack/vue-query', () => ({
 
 vi.mock('@/modules/user/application/service', () => ({
   userService: {
-    getUserInfoByToken: vi.fn(),
+    getCurrentUserInfo: vi.fn(),
     getUserPage: vi.fn(),
     additionalInfoRequest: vi.fn(),
   },
@@ -44,9 +44,10 @@ const queryClient = {
 describe('user query hooks', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    localStorage.clear()
     vi.mocked(useQueryClient).mockReturnValue(queryClient as never)
 
-    vi.mocked(userService.getUserInfoByToken).mockResolvedValue({ token: 'token-a' } as never)
+    vi.mocked(userService.getCurrentUserInfo).mockResolvedValue({ token: 'token-a' } as never)
     vi.mocked(userService.getUserPage).mockResolvedValue({
       records: [],
       total: 0,
@@ -78,7 +79,17 @@ describe('user query hooks', () => {
     await options.queryFn({ queryKey: userKeys.INFO('token-1') })
 
     expect(withQueryRequestContext).toHaveBeenCalled()
-    expect(userService.getUserInfoByToken).toHaveBeenCalledWith('token-1')
+    expect(userService.getCurrentUserInfo).toHaveBeenCalledWith()
+  })
+
+  it('useLoadUserInfo keeps token in queryKey for cache partitioning', async () => {
+    useLoadUserInfo('token-stale')
+    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+
+    await options.queryFn({ queryKey: userKeys.INFO('token-stale') })
+
+    expect(options.queryKey).toEqual(userKeys.INFO('token-stale'))
+    expect(userService.getCurrentUserInfo).toHaveBeenCalledWith()
   })
 
   it('useUserPage uses defaults and delegates queryFn', async () => {

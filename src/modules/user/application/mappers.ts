@@ -45,7 +45,7 @@ export const toDomainLoginRequest = (view: SignInForm): LoginRequestDTO => ({
   password: view.password,
   captcha: view.captcha,
   captchaKey: view.captchaKey,
-  remember: view.remember,
+  rememberMe: view.remember,
 })
 
 export const toDomainRegisterRequest = (view: RegisterForm): RegisterRequestDTO => ({
@@ -144,6 +144,7 @@ export const toViewSignInResponse = (info: UserInfoVo): SignInResponse => {
     profile: toViewAdditionalInfo(info.profile),
     token: info.token,
     refreshToken: info.refreshToken,
+    expiresIn: info.expiresIn,
     roleList: info.roleList,
     permissionList: info.permissionList,
     needProfile: info.needProfile,
@@ -201,6 +202,7 @@ export const toDomainTotpVerifyRequest = (
   twoFactorToken: view.twoFactorToken,
   code: view.code,
   rememberMe: view.rememberMe,
+  rememberDevice: view.rememberDevice,
 })
 
 export const toDomainTotpEnableRequest = (

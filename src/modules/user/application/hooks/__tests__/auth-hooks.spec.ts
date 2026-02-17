@@ -23,7 +23,8 @@ vi.mock('@/modules/user/application/service', () => ({
   userService: {
     changePassword: vi.fn(),
     login: vi.fn(),
-    getUserInfoByToken: vi.fn(),
+    exchangeOAuth2Code: vi.fn(),
+    getCurrentUserInfo: vi.fn(),
     register: vi.fn(),
     passwordRecovery: vi.fn(),
   },
@@ -88,24 +89,134 @@ describe('user auth-related hooks', () => {
     await options.mutationFn(payload)
 
     expect(userService.login).toHaveBeenCalledWith(payload.data)
-    expect(userService.getUserInfoByToken).not.toHaveBeenCalled()
+    expect(userService.getCurrentUserInfo).not.toHaveBeenCalled()
   })
 
-  it('useLogin mutationFn uses getUserInfoByToken when mode is oauth2', async () => {
-    vi.mocked(userService.getUserInfoByToken).mockResolvedValue({ token: 'oauth-token' } as never)
+  it('useLogin mutationFn exchanges authCode and loads current user info when mode is oauth2', async () => {
+    vi.mocked(userService.exchangeOAuth2Code).mockResolvedValue({
+      requireTwoFactor: false,
+      accessToken: 'oauth-token',
+      refreshToken: 'oauth-refresh-token',
+      expiresIn: 600,
+      twoFactorToken: null,
+    } as never)
+    vi.mocked(userService.getCurrentUserInfo).mockResolvedValue({
+      requireTwoFactor: false,
+      token: 'oauth-token',
+      expiresIn: 1200,
+      user: {
+        id: 1,
+        name: 'Tester',
+        phone: '13800138000',
+        active: '1',
+        isDeleted: 0,
+        platform: 'NATIVE',
+      },
+      profile: null,
+      permissionList: [],
+      roleList: [],
+    } as never)
 
     useLogin()
     const options = vi.mocked(useMutation).mock.calls[0][0] as any
 
     const payload = {
       mode: 'oauth2',
-      token: 'oauth-token',
+      authCode: 'oauth-auth-code',
+      rememberMe: false,
     }
 
-    await options.mutationFn(payload)
+    const result = await options.mutationFn(payload)
 
-    expect(userService.getUserInfoByToken).toHaveBeenCalledWith('oauth-token')
+    expect(userService.exchangeOAuth2Code).toHaveBeenCalledWith('oauth-auth-code')
+    expect(userService.getCurrentUserInfo).toHaveBeenCalledWith('oauth-token')
     expect(userService.login).not.toHaveBeenCalled()
+    expect(result).toEqual(
+      expect.objectContaining({
+        refreshToken: 'oauth-refresh-token',
+        expiresIn: 1200,
+      }),
+    )
+  })
+
+  it('useLogin mutationFn falls back to oauth2 expiresIn when profile expiresIn is missing', async () => {
+    vi.mocked(userService.exchangeOAuth2Code).mockResolvedValue({
+      requireTwoFactor: false,
+      accessToken: 'oauth-token',
+      refreshToken: 'oauth-refresh-token',
+      expiresIn: 900,
+      twoFactorToken: null,
+    } as never)
+    vi.mocked(userService.getCurrentUserInfo).mockResolvedValue({
+      requireTwoFactor: false,
+      token: 'oauth-token',
+      user: {
+        id: 1,
+        name: 'Tester',
+        phone: '13800138000',
+        active: '1',
+        isDeleted: 0,
+        platform: 'NATIVE',
+      },
+      profile: null,
+      permissionList: [],
+      roleList: [],
+    } as never)
+
+    useLogin()
+    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+
+    const result = await options.mutationFn({
+      mode: 'oauth2',
+      authCode: 'oauth-auth-code',
+      rememberMe: false,
+    })
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        expiresIn: 900,
+      }),
+    )
+  })
+
+  it('useLogin mutationFn throws when oauth2 exchange misses accessToken', async () => {
+    vi.mocked(userService.exchangeOAuth2Code).mockResolvedValue({
+      requireTwoFactor: false,
+      accessToken: null,
+      refreshToken: 'oauth-refresh-token',
+      twoFactorToken: null,
+    } as never)
+
+    useLogin()
+    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+
+    await expect(
+      options.mutationFn({
+        mode: 'oauth2',
+        authCode: 'oauth-auth-code',
+        rememberMe: false,
+      }),
+    ).rejects.toThrow('OAuth2 exchange result missing accessToken')
+  })
+
+  it('useLogin mutationFn throws when oauth2 exchange requires 2FA but misses twoFactorToken', async () => {
+    vi.mocked(userService.exchangeOAuth2Code).mockResolvedValue({
+      requireTwoFactor: true,
+      accessToken: null,
+      refreshToken: null,
+      twoFactorToken: null,
+    } as never)
+
+    useLogin()
+    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+
+    await expect(
+      options.mutationFn({
+        mode: 'oauth2',
+        authCode: 'oauth-auth-code',
+        rememberMe: false,
+      }),
+    ).rejects.toThrow('OAuth2 exchange result missing twoFactorToken')
   })
 
   it('useLogin onSuccess writes account and redirects to given target', async () => {
@@ -115,6 +226,7 @@ describe('user auth-related hooks', () => {
     const signInResponse = {
       token: 'token-a',
       refreshToken: 'refresh-a',
+      expiresIn: 3600,
       user: {
         id: 1,
         name: 'Tester',
@@ -151,6 +263,7 @@ describe('user auth-related hooks', () => {
     await options.onSuccess(
       {
         token: 'token-a',
+        expiresIn: 1800,
         user: {
           id: 1,
           name: 'Tester',
@@ -165,11 +278,71 @@ describe('user auth-related hooks', () => {
       },
       {
         mode: 'oauth2',
-        token: 'oauth-token',
+        authCode: 'oauth-auth-code',
+        rememberMe: false,
       },
     )
 
     expect(router.push).toHaveBeenCalledWith({ name: 'dashboard' })
+  })
+
+  it('useLogin onSuccess keeps rememberMe when redirecting to 2FA verify', async () => {
+    useLogin()
+    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+
+    await options.onSuccess(
+      {
+        requireTwoFactor: true,
+        twoFactorToken: '2fa-temp-token',
+      },
+      {
+        mode: 'local',
+        data: {
+          phone: '13800138000',
+          password: 'pwd',
+          captchaKey: 'k',
+          captcha: 'c',
+          remember: true,
+        },
+      },
+    )
+
+    expect(router.push).toHaveBeenCalledWith({
+      name: 'two-factor-verify',
+      query: {
+        token: '2fa-temp-token',
+        rememberMe: 'true',
+        redirect: undefined,
+      },
+    })
+    expect(loginSpy).not.toHaveBeenCalled()
+  })
+
+  it('useLogin onSuccess forwards oauth2 rememberMe when redirecting to 2FA verify', async () => {
+    useLogin()
+    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+
+    await options.onSuccess(
+      {
+        requireTwoFactor: true,
+        twoFactorToken: 'oauth2-2fa-token',
+      },
+      {
+        mode: 'oauth2',
+        authCode: 'oauth-auth-code',
+        rememberMe: true,
+      },
+    )
+
+    expect(router.push).toHaveBeenCalledWith({
+      name: 'two-factor-verify',
+      query: {
+        token: 'oauth2-2fa-token',
+        rememberMe: 'true',
+        redirect: undefined,
+      },
+    })
+    expect(loginSpy).not.toHaveBeenCalled()
   })
 
   it('useRegister delegates mutation and onSuccess logs in minimal user then redirects login', async () => {
@@ -242,7 +415,7 @@ describe('user auth-related hooks', () => {
 
     const result = useOauth2AuthorizationUrl('github')
 
-    expect(buildOauth2AuthorizationUrl).toHaveBeenCalledWith('github')
+    expect(buildOauth2AuthorizationUrl).toHaveBeenCalledWith('github', false)
     expect((window as any).open).toHaveBeenCalledTimes(1)
 
     const [url, target, features] = (window as any).open.mock.calls[0]

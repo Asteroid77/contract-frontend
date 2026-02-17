@@ -1,7 +1,7 @@
 import type { BasePageRequest, IPage } from '@/modules/shared/application/request/types'
 import { toDomainPageRequest } from '@/modules/shared/application/query/legacy-query-adapter'
 import { userRepository } from '../infrastructure/user-repository'
-import type { UserAdditionalInfoVo } from '../domain/types'
+import type { OAuth2ExchangeVo, UserAdditionalInfoVo } from '../domain/types'
 import type {
   ChangePasswordForm,
   PasswordRecoveryForm,
@@ -59,8 +59,12 @@ export class UserService {
     return this.repo.register(toDomainRegisterRequest(data)).then(toViewRegisterResponse)
   }
 
-  getUserInfoByToken(token: string): Promise<SignInResponse> {
-    return this.repo.getByToken(token).then(toViewSignInResponse)
+  getCurrentUserInfo(accessToken?: string): Promise<SignInResponse> {
+    return this.repo.getCurrentUserInfo(accessToken).then(toViewSignInResponse)
+  }
+
+  exchangeOAuth2Code(authCode: string): Promise<OAuth2ExchangeVo> {
+    return this.repo.exchangeOAuth2Code({ authCode })
   }
 
   changePassword(data: ChangePasswordForm): Promise<boolean> {

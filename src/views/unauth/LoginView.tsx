@@ -1,4 +1,4 @@
-import { defineComponent, ref, watch, onMounted, onUnmounted } from 'vue'
+import { defineComponent, ref, shallowRef, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { NForm, NFormItem, NInput, NButton, NCheckbox, NDivider } from 'naive-ui'
@@ -36,7 +36,8 @@ export default defineComponent({
       { immediate: true },
     )
 
-    const authWindowRef = ref<Window | null>(null)
+    const authWindowRef = shallowRef<Window | null>(null)
+    const oauthRememberMeRef = ref(false)
 
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== getFrontendOrigin()) {
@@ -44,17 +45,33 @@ export default defineComponent({
         return
       }
 
-      if (event.data?.requireTwoFactor && event.data.twoFactorToken) {
-        // 第三方登录需要 2FA 验证，直接跳转到验证页
-        router.push({
-          name: 'two-factor-verify',
-          query: { token: event.data.twoFactorToken },
+      if (!authWindowRef.value) {
+        return
+      }
+      if (!event.source || event.source !== authWindowRef.value) {
+        return
+      }
+
+      const authCode =
+        typeof event.data?.authCode === 'string' ? event.data.authCode.trim() : ''
+      const hasOauthError =
+        typeof event.data?.error === 'string' && event.data.error.trim().length > 0
+      const hasCallbackUrl =
+        typeof event.data?.url === 'string' && event.data.url.includes('callback')
+
+      if (hasOauthError) {
+        notification['error']({
+          title: t('auth.oauth.error'),
+          content: t('auth.oauth.errorMeta'),
+          duration: 2500,
         })
-      } else if (event.data && event.data.token) {
-        const token = event.data.token
-        const refreshToken = event.data.refreshToken
-        login.mutate({ mode: 'oauth2', token, refreshToken })
-      } else if (event.data?.url && event.data.url.includes('callback')) {
+      } else if (authCode.length > 0) {
+        login.mutate({
+          mode: 'oauth2',
+          authCode,
+          rememberMe: oauthRememberMeRef.value,
+        })
+      } else if (hasCallbackUrl) {
         notification['error']({
           title: t('auth.oauth.error'),
           content: t('auth.oauth.errorMeta'),
@@ -64,6 +81,7 @@ export default defineComponent({
 
       if (authWindowRef.value) {
         authWindowRef.value.close()
+        authWindowRef.value = null
       }
     }
 
@@ -76,7 +94,8 @@ export default defineComponent({
     })
 
     const oauth2BtnClick = (platform: string) => {
-      authWindowRef.value = useOauth2AuthorizationUrl(platform)
+      oauthRememberMeRef.value = Boolean(formData.value.remember)
+      authWindowRef.value = useOauth2AuthorizationUrl(platform, oauthRememberMeRef.value)
     }
 
     const handleSubmit = () => {

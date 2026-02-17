@@ -6,6 +6,7 @@ import {
   toDomainPasswordRecoveryRequest,
   toDomainRegisterRequest,
   toDomainRevokeCurrentUserDevicesRequest,
+  toDomainTotpVerifyRequest,
   toViewAdditionalInfo,
   toViewRevokeDeviceSessionsResult,
   toViewSignInResponse,
@@ -79,7 +80,7 @@ describe('user application mappers', () => {
       password: 'pwd',
       captcha: '1234',
       captchaKey: 'captcha-key',
-      remember: true,
+      rememberMe: true,
     })
 
     expect(
@@ -153,6 +154,22 @@ describe('user application mappers', () => {
     })
   })
 
+  it('maps totp verify form to domain dto', () => {
+    expect(
+      toDomainTotpVerifyRequest({
+        twoFactorToken: '2fa-token',
+        code: '123456',
+        rememberMe: true,
+        rememberDevice: false,
+      }),
+    ).toEqual({
+      twoFactorToken: '2fa-token',
+      code: '123456',
+      rememberMe: true,
+      rememberDevice: false,
+    })
+  })
+
   it('returns null when mapping null additional info', () => {
     expect(toViewAdditionalInfo(null)).toBeNull()
   })
@@ -179,6 +196,7 @@ describe('user application mappers', () => {
       createUserInfoVo({
         token: 'access-new',
         refreshToken: 'refresh-new',
+        expiresIn: 7200,
         needProfile: false,
       }),
     )
@@ -191,6 +209,7 @@ describe('user application mappers', () => {
 
     expect(completedResult.token).toBe('access-new')
     expect(completedResult.refreshToken).toBe('refresh-new')
+    expect(completedResult.expiresIn).toBe(7200)
     expect(completedResult.user.active).toBe('1')
     expect(uncompletedResult.user.active).toBe('0')
   })

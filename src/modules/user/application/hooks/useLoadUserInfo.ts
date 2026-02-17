@@ -16,7 +16,6 @@ export const userKeys = {
 export function useLoadUserInfo(accessToken: string) {
   return useQuery<SignInResponse, AxiosError<unknown>, SignInResponse>({
     queryKey: userKeys.INFO(accessToken),
-    queryFn: (ctx) =>
-      withQueryRequestContext(ctx.queryKey, ctx, () => userService.getUserInfoByToken(accessToken)),
+    queryFn: (ctx) => withQueryRequestContext(ctx.queryKey, ctx, () => userService.getCurrentUserInfo()),
   })
 }

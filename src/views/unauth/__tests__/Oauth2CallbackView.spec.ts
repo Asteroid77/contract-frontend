@@ -39,32 +39,56 @@ describe('Oauth2CallbackView', () => {
     })
   })
 
-  it('posts token message to opener when token exists', () => {
+  it('posts authCode message to opener when authCode exists', () => {
     routeState.query = {
-      token: 'token-abc',
+      authCode: 'auth-code-abc',
     }
-    routeState.fullPath = '/oauth2/callback?token=token-abc'
+    routeState.fullPath = '/oauth2/callback?authCode=auth-code-abc'
 
     const wrapper = mount(Oauth2CallbackView)
 
     expect(postMessageSpy).toHaveBeenCalledWith(
       {
-        token: 'token-abc',
-        url: '/oauth2/callback?token=token-abc',
+        authCode: 'auth-code-abc',
       },
       'https://frontend.example.com',
     )
+    expect(postMessageSpy).toHaveBeenCalledTimes(1)
     expect(wrapper.text()).toContain('auth.oauth.callback')
   })
 
-  it('shows error title when error query exists and skips token post', () => {
+  it('shows error title and posts error payload when error query exists', () => {
     routeState.query = {
       error: 'oauth failed',
     }
+    routeState.fullPath = '/oauth2/callback?error=oauth%20failed'
 
     const wrapper = mount(Oauth2CallbackView)
 
     expect(wrapper.text()).toContain('oauth failed')
+    expect(postMessageSpy).toHaveBeenCalledWith(
+      {
+        error: 'oauth failed',
+        url: '/oauth2/callback',
+      },
+      'https://frontend.example.com',
+    )
+    expect(postMessageSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('skips postMessage when opener is missing', () => {
+    routeState.query = {
+      authCode: 'auth-code-abc',
+    }
+
+    Object.defineProperty(window, 'opener', {
+      value: null,
+      configurable: true,
+    })
+
+    const wrapper = mount(Oauth2CallbackView)
+
     expect(postMessageSpy).not.toHaveBeenCalled()
+    expect(wrapper.text()).toContain('auth.oauth.callback')
   })
 })

@@ -5,7 +5,8 @@ import type { IUserRepository } from '@/modules/user/domain/repositories'
 const createRepoMock = () => ({
   login: vi.fn(),
   register: vi.fn(),
-  getByToken: vi.fn(),
+  getCurrentUserInfo: vi.fn(),
+  exchangeOAuth2Code: vi.fn(),
   changePassword: vi.fn(),
   listCurrentUserDevices: vi.fn(),
   revokeCurrentUserDevices: vi.fn(),
@@ -34,6 +35,7 @@ describe('UserService', () => {
       profile: null,
       token: 'access-token',
       refreshToken: 'refresh-token',
+      expiresIn: 7200,
       roleList: [],
       permissionList: [],
       needProfile: false,
@@ -52,18 +54,19 @@ describe('UserService', () => {
       password: 'pwd',
       captcha: '1234',
       captchaKey: 'captcha-key',
-      remember: true,
+      rememberMe: true,
     })
     expect(result.token).toBe('access-token')
     expect(result.refreshToken).toBe('refresh-token')
+    expect(result.expiresIn).toBe(7200)
     expect(result.user.active).toBe('1')
   })
 
-  it('maps register/getUserInfoByToken/changePassword/passwordRecovery', async () => {
+  it('maps register/getCurrentUserInfo/changePassword/passwordRecovery', async () => {
     const { repo, service } = createService()
 
     repo.register.mockResolvedValue(66)
-    repo.getByToken.mockResolvedValue({
+    repo.getCurrentUserInfo.mockResolvedValue({
       base: {
         id: 1,
         phone: '13800000000',
@@ -72,6 +75,7 @@ describe('UserService', () => {
       profile: null,
       token: 'access-token-2',
       refreshToken: 'refresh-token-2',
+      expiresIn: 1800,
       roleList: [],
       permissionList: [],
       needProfile: true,
@@ -88,10 +92,11 @@ describe('UserService', () => {
       }),
     ).resolves.toEqual({ userId: 66 })
 
-    await expect(service.getUserInfoByToken('access-token-2')).resolves.toEqual(
+    await expect(service.getCurrentUserInfo('access-token-2')).resolves.toEqual(
       expect.objectContaining({
         token: 'access-token-2',
         refreshToken: 'refresh-token-2',
+        expiresIn: 1800,
         user: expect.objectContaining({ active: '0' }),
       }),
     )
@@ -121,6 +126,29 @@ describe('UserService', () => {
       password: 'new-pwd',
       code: '7777',
       bizId: 'biz-id-2',
+    })
+  })
+
+  it('delegates exchangeOAuth2Code to repository with authCode payload', async () => {
+    const { repo, service } = createService()
+
+    repo.exchangeOAuth2Code.mockResolvedValue({
+      requireTwoFactor: false,
+      accessToken: 'oauth-access-token',
+      refreshToken: 'oauth-refresh-token',
+      expiresIn: 900,
+      twoFactorToken: null,
+    })
+
+    const result = await service.exchangeOAuth2Code('oauth-auth-code')
+
+    expect(repo.exchangeOAuth2Code).toHaveBeenCalledWith({ authCode: 'oauth-auth-code' })
+    expect(result).toEqual({
+      requireTwoFactor: false,
+      accessToken: 'oauth-access-token',
+      refreshToken: 'oauth-refresh-token',
+      expiresIn: 900,
+      twoFactorToken: null,
     })
   })
 

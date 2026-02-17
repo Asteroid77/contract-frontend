@@ -9,6 +9,7 @@ export interface TotpVerifyMutate {
   twoFactorToken: string
   code: string
   rememberMe: boolean
+  rememberDevice: boolean
   redirect?: string
 }
 
@@ -19,6 +20,7 @@ export function useTotpVerify() {
         twoFactorToken: variables.twoFactorToken,
         code: variables.code,
         rememberMe: variables.rememberMe,
+        rememberDevice: variables.rememberDevice,
       } satisfies TotpVerifyForm),
     onSuccess: (data, variables) => {
       if (data.requireTwoFactor) {

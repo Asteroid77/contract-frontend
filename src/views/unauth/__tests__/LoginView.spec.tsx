@@ -12,6 +12,7 @@ const {
   notificationErrorSpy,
   captchaDataState,
   captchaLoadingState,
+  oauthPopupWindow,
 } = vi.hoisted(() => ({
   routerPushSpy: vi.fn(),
   loginMutateSpy: vi.fn(),
@@ -28,6 +29,9 @@ const {
   },
   captchaLoadingState: {
     value: false,
+  },
+  oauthPopupWindow: {
+    close: vi.fn(),
   },
 }))
 
@@ -73,7 +77,8 @@ vi.mock('@/modules/user/application/hooks/useLogin', () => ({
 }))
 
 vi.mock('@/modules/user/application/hooks/useOauth2AuthorizationUrl', () => ({
-  useOauth2AuthorizationUrl: (platform: string) => oauth2AuthUrlSpy(platform),
+  useOauth2AuthorizationUrl: (platform: string, rememberMe?: boolean) =>
+    oauth2AuthUrlSpy(platform, rememberMe),
 }))
 
 vi.mock('@/modules/user/application/ui-mappers', () => ({
@@ -216,6 +221,28 @@ const findLinkByText = (wrapper: VueWrapper, text: string) => {
   return link
 }
 
+const dispatchOauthMessage = (
+  data: Record<string, unknown>,
+  options: {
+    origin?: string
+    source?: MessageEventSource | null
+  } = {},
+) => {
+  const event = new MessageEvent('message', {
+    origin: options.origin ?? FRONTEND_ORIGIN,
+    data,
+  })
+
+  if (options.source !== undefined) {
+    Object.defineProperty(event, 'source', {
+      value: options.source,
+      configurable: true,
+    })
+  }
+
+  window.dispatchEvent(event)
+}
+
 describe('LoginView', () => {
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>
   let mountedWrappers: Array<VueWrapper>
@@ -238,9 +265,8 @@ describe('LoginView', () => {
       ...(payload as Record<string, unknown>),
       mapped: true,
     }))
-    oauth2AuthUrlSpy.mockReturnValue({
-      close: oauthWindowCloseSpy,
-    })
+    oauthPopupWindow.close.mockImplementation(oauthWindowCloseSpy)
+    oauth2AuthUrlSpy.mockReturnValue(oauthPopupWindow as unknown as Window)
 
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
   })
@@ -291,42 +317,73 @@ describe('LoginView', () => {
     expect(captchaRefetchSpy).toHaveBeenCalledTimes(1)
   })
 
-  it('processes oauth2 token message from trusted origin and closes popup', async () => {
+  it('processes oauth2 authCode message from trusted origin and closes popup', async () => {
     const wrapper = mountView()
 
     await findButtonByText(wrapper, 'GitHub').trigger('click')
-    expect(oauth2AuthUrlSpy).toHaveBeenCalledWith('github')
+    expect(oauth2AuthUrlSpy).toHaveBeenCalledWith('github', false)
 
-    window.dispatchEvent(
-      new MessageEvent('message', {
-        origin: FRONTEND_ORIGIN,
-        data: {
-          token: 'oauth2-token-1',
-        },
-      }),
+    dispatchOauthMessage(
+      {
+        authCode: 'oauth2-auth-code-1',
+      },
+      {
+        source: oauthPopupWindow as unknown as MessageEventSource,
+      },
     )
 
     await nextTick()
 
     expect(loginMutateSpy).toHaveBeenCalledWith({
       mode: 'oauth2',
-      token: 'oauth2-token-1',
+      authCode: 'oauth2-auth-code-1',
+      rememberMe: false,
     })
     expect(oauthWindowCloseSpy).toHaveBeenCalledTimes(1)
   })
 
-  it('shows oauth error notification when callback url indicates failure', async () => {
+  it('forwards rememberMe snapshot when handling oauth2 authCode callback', async () => {
+    const wrapper = mountView()
+
+    await wrapper.get('[data-test="n-checkbox"]').trigger('click')
+    await findButtonByText(wrapper, 'GitHub').trigger('click')
+    expect(oauth2AuthUrlSpy).toHaveBeenCalledWith('github', true)
+
+    // change rememberMe after popup opens; callback should keep the snapshot value
+    await wrapper.get('[data-test="n-checkbox"]').trigger('click')
+
+    dispatchOauthMessage(
+      {
+        authCode: 'oauth2-auth-code-2',
+      },
+      {
+        source: oauthPopupWindow as unknown as MessageEventSource,
+      },
+    )
+
+    await nextTick()
+
+    expect(loginMutateSpy).toHaveBeenCalledWith({
+      mode: 'oauth2',
+      authCode: 'oauth2-auth-code-2',
+      rememberMe: true,
+    })
+    expect(oauthWindowCloseSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('shows oauth error notification when callback payload indicates failure', async () => {
     const wrapper = mountView()
 
     await findButtonByText(wrapper, 'GitHub').trigger('click')
 
-    window.dispatchEvent(
-      new MessageEvent('message', {
-        origin: FRONTEND_ORIGIN,
-        data: {
-          url: '/oauth2/callback?error=access_denied',
-        },
-      }),
+    dispatchOauthMessage(
+      {
+        error: 'access_denied',
+        url: '/oauth2/callback',
+      },
+      {
+        source: oauthPopupWindow as unknown as MessageEventSource,
+      },
     )
 
     await nextTick()
@@ -344,21 +401,80 @@ describe('LoginView', () => {
 
     await findButtonByText(wrapper, 'GitHub').trigger('click')
 
-    window.dispatchEvent(
-      new MessageEvent('message', {
+    dispatchOauthMessage(
+      {
+        authCode: 'bad-auth-code',
+      },
+      {
         origin: 'https://unknown.example.com',
-        data: {
-          token: 'bad-token',
-        },
-      }),
+        source: oauthPopupWindow as unknown as MessageEventSource,
+      },
     )
 
     await nextTick()
 
     expect(consoleErrorSpy).toHaveBeenCalled()
-    expect(loginMutateSpy).not.toHaveBeenCalledWith({ mode: 'oauth2', token: 'bad-token' })
+    expect(loginMutateSpy).not.toHaveBeenCalled()
     expect(notificationErrorSpy).not.toHaveBeenCalled()
     expect(oauthWindowCloseSpy).not.toHaveBeenCalled()
+  })
+
+  it('ignores message from non-popup source', async () => {
+    const wrapper = mountView()
+
+    await findButtonByText(wrapper, 'GitHub').trigger('click')
+
+    dispatchOauthMessage(
+      {
+        authCode: 'forged-auth-code',
+      },
+      {
+        source: new MessageChannel().port1 as unknown as MessageEventSource,
+      },
+    )
+
+    await nextTick()
+
+    expect(loginMutateSpy).not.toHaveBeenCalled()
+    expect(notificationErrorSpy).not.toHaveBeenCalled()
+    expect(oauthWindowCloseSpy).not.toHaveBeenCalled()
+  })
+
+  it('ignores oauth callback message when source is missing', async () => {
+    const wrapper = mountView()
+
+    await findButtonByText(wrapper, 'GitHub').trigger('click')
+
+    dispatchOauthMessage({
+      authCode: 'missing-source-auth-code',
+    })
+
+    await nextTick()
+
+    expect(loginMutateSpy).not.toHaveBeenCalled()
+    expect(notificationErrorSpy).not.toHaveBeenCalled()
+    expect(oauthWindowCloseSpy).not.toHaveBeenCalled()
+  })
+
+  it('ignores oauth callback when authCode is blank', async () => {
+    const wrapper = mountView()
+
+    await findButtonByText(wrapper, 'GitHub').trigger('click')
+
+    dispatchOauthMessage(
+      {
+        authCode: '   ',
+      },
+      {
+        source: oauthPopupWindow as unknown as MessageEventSource,
+      },
+    )
+
+    await nextTick()
+
+    expect(loginMutateSpy).not.toHaveBeenCalled()
+    expect(notificationErrorSpy).not.toHaveBeenCalled()
+    expect(oauthWindowCloseSpy).toHaveBeenCalledTimes(1)
   })
 
   it('navigates to password recovery and register pages', async () => {

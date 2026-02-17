@@ -4,6 +4,7 @@ import type {
   ChangePasswordRequestDTO,
   ForgetPasswordRequestDTO,
   LoginRequestDTO,
+  OAuth2ExchangeRequestDTO,
   RegisterRequestDTO,
   RevokeDeviceSessionsRequestDTO,
   TotpDisableRequestDTO,
@@ -13,6 +14,7 @@ import type {
   UserPageDTO,
 } from './dto'
 import type {
+  OAuth2ExchangeVo,
   RevokeDeviceSessionsResponseDto,
   TotpSetupVo,
   TotpStatusVo,
@@ -24,7 +26,8 @@ import type {
 export interface IUserRepository {
   login(data: LoginRequestDTO): Promise<UserInfoVo>
   register(data: RegisterRequestDTO): Promise<number>
-  getByToken(token: string): Promise<UserInfoVo>
+  exchangeOAuth2Code(data: OAuth2ExchangeRequestDTO): Promise<OAuth2ExchangeVo>
+  getCurrentUserInfo(accessToken?: string): Promise<UserInfoVo>
   changePassword(data: ChangePasswordRequestDTO): Promise<boolean>
   listCurrentUserDevices(): Promise<UserDeviceSessionVo[]>
   revokeCurrentUserDevices(

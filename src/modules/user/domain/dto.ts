@@ -6,7 +6,7 @@ export interface LoginRequestDTO {
   password: string
   captcha: string
   captchaKey: string
-  remember?: boolean
+  rememberMe?: boolean
 }
 
 export interface RegisterRequestDTO {
@@ -56,6 +56,7 @@ export interface TotpVerifyRequestDTO {
   twoFactorToken: string
   code: string
   rememberMe: boolean
+  rememberDevice: boolean
 }
 
 export interface TotpEnableRequestDTO {
@@ -64,4 +65,8 @@ export interface TotpEnableRequestDTO {
 
 export interface TotpDisableRequestDTO {
   password: string
+}
+
+export interface OAuth2ExchangeRequestDTO {
+  authCode: string
 }

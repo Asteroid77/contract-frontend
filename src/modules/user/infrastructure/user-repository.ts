@@ -4,12 +4,14 @@ import type {
   ChangePasswordRequestDTO,
   ForgetPasswordRequestDTO,
   LoginRequestDTO,
+  OAuth2ExchangeRequestDTO,
   RegisterRequestDTO,
   RevokeDeviceSessionsRequestDTO,
   UserAdditionalInfoRequestDTO,
   UserPageDTO,
 } from '../domain/dto'
 import type {
+  OAuth2ExchangeVo,
   RevokeDeviceSessionsResponseDto,
   UserDeviceSessionVo,
   UserInfoVo,
@@ -17,6 +19,7 @@ import type {
 } from '../domain/types'
 import type { ApprovalInstance } from '@/modules/approval/domain/types'
 import { USER_ENDPOINTS } from './user-endpoints'
+import { OAUTH2_ENDPOINTS } from './oauth-endpoints'
 
 import type { IUserRepository } from '../domain/repositories'
 
@@ -33,11 +36,37 @@ export const userRepository: IUserRepository = {
       url: USER_ENDPOINTS.REGISTER,
       data,
     }).then((resp) => resp.data),
-  getByToken: (token: string) =>
+  exchangeOAuth2Code: (data: OAuth2ExchangeRequestDTO) =>
+    useRequest<OAuth2ExchangeVo, OAuth2ExchangeRequestDTO>({
+      method: 'POST',
+      url: OAUTH2_ENDPOINTS.EXCHANGE,
+      data,
+      skipAuthToken: true,
+      skipAuthRefresh: true,
+    }).then((resp) => resp.data),
+  getCurrentUserInfo: (accessToken?: string) =>
     useRequest<UserInfoVo, never>({
       method: 'GET',
-      url: `${USER_ENDPOINTS.GET_BY_TOKEN}${token}`,
-    }).then((resp) => resp.data),
+      url: USER_ENDPOINTS.ME,
+      ...(accessToken
+        ? {
+            headers: {
+              Authorization: accessToken,
+            },
+            // OAuth2 回调首跳使用传入 token，避免复用旧本地 token 干扰请求。
+            skipAuthToken: true,
+            skipAuthRefresh: true,
+          }
+        : {}),
+    }).then((resp) => {
+      if (!accessToken || resp.data.token) {
+        return resp.data
+      }
+      return {
+        ...resp.data,
+        token: accessToken,
+      }
+    }),
   changePassword: (data: ChangePasswordRequestDTO) =>
     useRequest<boolean, ChangePasswordRequestDTO>({
       method: 'POST',
@@ -83,6 +112,7 @@ export const userRepository: IUserRepository = {
     useRequest<boolean, never>({
       method: 'POST',
       url: USER_ENDPOINTS.LOGOUT,
+      skipAuthRefresh: true,
       notify: { success: false },
     }).then((resp) => resp.data),
 }

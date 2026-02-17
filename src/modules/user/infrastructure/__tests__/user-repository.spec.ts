@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useRequest } from '@/modules/shared/infrastructure/useRequest'
 import { userRepository } from '@/modules/user/infrastructure/user-repository'
 import { USER_ENDPOINTS } from '@/modules/user/infrastructure/user-endpoints'
+import { OAUTH2_ENDPOINTS } from '@/modules/user/infrastructure/oauth-endpoints'
 
 vi.mock('@/modules/shared/infrastructure/useRequest', () => ({
   useRequest: vi.fn(),
@@ -19,7 +20,7 @@ describe('userRepository contract', () => {
       password: 'pwd',
       captcha: '1234',
       captchaKey: 'captcha-key',
-      remember: true,
+      rememberMe: true,
     }
 
     vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
@@ -55,17 +56,62 @@ describe('userRepository contract', () => {
     expect(result).toBe(payload)
   })
 
-  it('getByToken concatenates token in url and returns response data', async () => {
-    const payload = { token: 'new-token' }
-    const token = 'abc-token'
+  it('exchangeOAuth2Code forwards authCode and returns response data', async () => {
+    const payload = {
+      requireTwoFactor: false,
+      accessToken: 'oauth-access-token',
+      refreshToken: 'oauth-refresh-token',
+      expiresIn: 900,
+      twoFactorToken: null,
+    }
+    const dto = {
+      authCode: 'oauth-auth-code',
+    }
 
     vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
 
-    const result = await userRepository.getByToken(token)
+    const result = await userRepository.exchangeOAuth2Code(dto)
+
+    expect(useRequest).toHaveBeenCalledWith({
+      method: 'POST',
+      url: OAUTH2_ENDPOINTS.EXCHANGE,
+      data: dto,
+      skipAuthToken: true,
+      skipAuthRefresh: true,
+    })
+    expect(result).toEqual(payload)
+  })
+
+  it('getCurrentUserInfo requests /user/me and returns response data', async () => {
+    const payload = { token: 'new-token' }
+
+    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+
+    const result = await userRepository.getCurrentUserInfo()
 
     expect(useRequest).toHaveBeenCalledWith({
       method: 'GET',
-      url: `${USER_ENDPOINTS.GET_BY_TOKEN}${token}`,
+      url: USER_ENDPOINTS.ME,
+    })
+    expect(result).toEqual(payload)
+  })
+
+  it('getCurrentUserInfo uses explicit access token for oauth2 bootstrap', async () => {
+    const payload = { token: 'new-token' }
+    const token = 'oauth-access-token'
+
+    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+
+    const result = await userRepository.getCurrentUserInfo(token)
+
+    expect(useRequest).toHaveBeenCalledWith({
+      method: 'GET',
+      url: USER_ENDPOINTS.ME,
+      headers: {
+        Authorization: token,
+      },
+      skipAuthRefresh: true,
+      skipAuthToken: true,
     })
     expect(result).toEqual(payload)
   })
@@ -207,6 +253,20 @@ describe('userRepository contract', () => {
       method: 'POST',
       url: USER_ENDPOINTS.PASSWORD_RECOVERY,
       data: dto,
+    })
+    expect(result).toBe(true)
+  })
+
+  it('logout disables auth refresh and returns response data', async () => {
+    vi.mocked(useRequest).mockResolvedValue({ data: true } as never)
+
+    const result = await userRepository.logout()
+
+    expect(useRequest).toHaveBeenCalledWith({
+      method: 'POST',
+      url: USER_ENDPOINTS.LOGOUT,
+      skipAuthRefresh: true,
+      notify: { success: false },
     })
     expect(result).toBe(true)
   })

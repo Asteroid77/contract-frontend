@@ -75,6 +75,7 @@ export interface SignInResponseComplete {
   profile: UserAdditionalInfo | null
   token: string
   refreshToken?: string
+  expiresIn?: number
   permissionList: Permission[]
   roleList: RoleVo[]
   needProfile?: boolean
@@ -181,6 +182,7 @@ export interface TotpVerifyForm {
   twoFactorToken: string
   code: string
   rememberMe: boolean
+  rememberDevice: boolean
 }
 
 export interface TotpStatus {

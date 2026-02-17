@@ -1,8 +1,8 @@
 import { buildOauth2AuthorizationUrl } from '@/modules/user/infrastructure/oauth-endpoints'
 
-export function useOauth2AuthorizationUrl(platform: string): WindowProxy | null {
+export function useOauth2AuthorizationUrl(platform: string, rememberMe = false): WindowProxy | null {
   return window.open(
-    buildOauth2AuthorizationUrl(platform),
+    buildOauth2AuthorizationUrl(platform, rememberMe),
     `Oauth2Auth`,
     [
       `width=550`,

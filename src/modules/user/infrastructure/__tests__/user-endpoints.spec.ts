@@ -5,7 +5,7 @@ describe('user-endpoints', () => {
   it('exposes all user endpoints with /user prefix', () => {
     expect(USER_ENDPOINTS.LOGIN).toBe('/user/login')
     expect(USER_ENDPOINTS.REGISTER).toBe('/user/register')
-    expect(USER_ENDPOINTS.GET_BY_TOKEN).toBe('/user/get/')
+    expect(USER_ENDPOINTS.ME).toBe('/user/me')
     expect(USER_ENDPOINTS.PASSWORD_CHANGE).toBe('/user/password/change')
     expect(USER_ENDPOINTS.DEVICES).toBe('/user/devices')
     expect(USER_ENDPOINTS.DEVICES_REVOKE).toBe('/user/devices/revoke')
