@@ -63,6 +63,10 @@ export interface CustomAxiosRequestConfig<D = unknown> extends AxiosRequestConfi
    * 内部标识：401 刷新后已重放一次
    */
   _authRetried?: boolean
+  /**
+   * 内部标识：本次请求实际使用的 access token（用于判断是否为旧 token 导致的 401）
+   */
+  _authTokenUsed?: string
 }
 
 /**

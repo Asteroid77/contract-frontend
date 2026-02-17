@@ -2,26 +2,73 @@ import { userKeys } from '@/modules/user/application/hooks/useLoadUserInfo'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
 import type { Router } from 'vue-router'
 import { useQueryClient } from '@tanstack/vue-query'
-import type { SignInResponse } from '@/modules/user/application/models'
+import type { SignInResponse, SignInResponseComplete } from '@/modules/user/application/models'
 import { userService } from '@/modules/user/application/service'
+import axios from 'axios'
 import type { AxiosError } from 'axios'
 import { captureError } from '@/app/observability'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
+import { ResponseCode } from '@/modules/shared/application/constants/response-code'
 import {
   forceRefreshAccessToken,
   getStoredAccessToken,
+  getStoredRefreshToken,
   hasStoredRefreshToken,
-  refreshAccessTokenIfNeeded,
+  isLogoutInProgress,
 } from '@/modules/access/application/token-manager'
 
-const loadUserInfoByToken = async (token: string): Promise<SignInResponse> => {
+const loadCurrentUserInfo = async (accessToken: string): Promise<SignInResponse> => {
   const queryClient = useQueryClient()
   return queryClient.ensureQueryData<SignInResponse, AxiosError<unknown>>({
-    queryKey: userKeys.INFO(token),
+    queryKey: userKeys.INFO(accessToken),
     queryFn: (ctx) =>
-      withQueryRequestContext(ctx.queryKey, ctx, () => userService.getUserInfoByToken(token)),
+      withQueryRequestContext(ctx.queryKey, ctx, () => userService.getCurrentUserInfo()),
     staleTime: 1000 * 60 * 5,
   })
+}
+
+const mergeStoredRefreshToken = (data: SignInResponse): SignInResponseComplete => {
+  if (data.requireTwoFactor) {
+    throw new Error('Unexpected two-factor response while loading user info by token')
+  }
+
+  if (data.refreshToken) {
+    return data
+  }
+
+  const storedRefreshToken = getStoredRefreshToken()
+  if (!storedRefreshToken) {
+    return data
+  }
+
+  return {
+    ...data,
+    refreshToken: storedRefreshToken,
+  }
+}
+
+const isAuthError = (error: unknown): boolean => {
+  if (error && typeof error === 'object' && 'isBusinessError' in error) {
+    const bizError = error as { isBusinessError?: boolean; code?: number; status?: number }
+    if (bizError.isBusinessError) {
+      if (bizError.code === ResponseCode.OAUTH2_TOKEN_VERIFY_ERROR ||
+          bizError.code === ResponseCode.OAUTH2_TOKEN_EXPIRED) {
+        return true
+      }
+      return bizError.status === 401 || bizError.status === 403
+    }
+  }
+
+  if (axios.isAxiosError(error)) {
+    const status = error.response?.status
+    const payload = error.response?.data as { code?: number } | undefined
+    const code = payload?.code
+    return status === 401 || status === 403 ||
+      code === ResponseCode.OAUTH2_TOKEN_VERIFY_ERROR ||
+      code === ResponseCode.OAUTH2_TOKEN_EXPIRED
+  }
+
+  return false
 }
 
 /**
@@ -50,8 +97,9 @@ export function setupAuthGuards(router: Router) {
     // ==============================================
     let token = getStoredAccessToken()
     const canRefresh = hasStoredRefreshToken()
+    const loggingOut = isLogoutInProgress()
 
-    if (!token && canRefresh && requiresAuth) {
+    if (!loggingOut && !token && canRefresh && requiresAuth) {
       try {
         await forceRefreshAccessToken()
         token = getStoredAccessToken()
@@ -62,22 +110,6 @@ export function setupAuthGuards(router: Router) {
           context: {
             location: 'AuthGuard',
             action: 'refreshWithoutAccessToken',
-          },
-        })
-      }
-    }
-
-    if (token && canRefresh && requiresAuth) {
-      try {
-        await refreshAccessTokenIfNeeded()
-        token = getStoredAccessToken() ?? token
-      } catch (error) {
-        captureError(error as Error, {
-          source: 'http',
-          severity: 'warning',
-          context: {
-            location: 'AuthGuard',
-            action: 'refreshBeforeLoadUserInfo',
           },
         })
       }
@@ -109,46 +141,23 @@ export function setupAuthGuards(router: Router) {
     // 只有在数据还没加载过时才等待，后续路由跳转不会阻塞
     if (!accountStore.isLoadedData) {
       try {
-        const data = await loadUserInfoByToken(token)
-        accountStore.login(data)
+        const data = await loadCurrentUserInfo(token)
+        accountStore.login(mergeStoredRefreshToken(data))
       } catch (error) {
-        if (hasStoredRefreshToken()) {
-          try {
-            await forceRefreshAccessToken()
-            const refreshedToken = getStoredAccessToken()
-
-            if (refreshedToken) {
-              const retryData = await loadUserInfoByToken(refreshedToken)
-              accountStore.login(retryData)
-              token = refreshedToken
-            } else {
-              throw new Error('Refresh succeeded but access token missing')
-            }
-          } catch (retryError) {
-            captureError(retryError as Error, {
-              source: 'http',
-              severity: 'error',
-              context: {
-                location: 'AuthGuard',
-                action: 'loadUserInfoRetryAfterRefresh',
-              },
-            })
-            accountStore.logout()
-            return { name: 'login', query: { redirect: to.fullPath } }
-          }
-        } else {
-          // Token 过期或网络错误，清除状态并去登录页
-          captureError(error as Error, {
-            source: 'http',
-            severity: 'error',
-            context: {
-              location: 'AuthGuard',
-              action: 'loadUserInfo',
-            },
-          })
-          accountStore.logout()
+        // useRequest 已内置 401 -> refresh -> 重放，守卫不再重复触发 refresh
+        captureError(error as Error, {
+          source: 'http',
+          severity: 'error',
+          context: {
+            location: 'AuthGuard',
+            action: 'loadUserInfo',
+          },
+        })
+        if (isAuthError(error)) {
+          accountStore.clearSession()
           return { name: 'login', query: { redirect: to.fullPath } }
         }
+        return { name: '500' }
       }
     }
 

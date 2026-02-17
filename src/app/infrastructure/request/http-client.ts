@@ -4,6 +4,7 @@ import { getBackendURL } from './get-backend-url'
 const axiosDefaultOptions: CreateAxiosDefaults = {
   timeout: 10000,
   baseURL: getBackendURL(),
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },

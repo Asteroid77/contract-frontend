@@ -3,8 +3,9 @@ import { setupAuthGuards } from '@/router/guards/SetupAuthGuard'
 import {
   forceRefreshAccessToken,
   getStoredAccessToken,
+  getStoredRefreshToken,
   hasStoredRefreshToken,
-  refreshAccessTokenIfNeeded,
+  isLogoutInProgress,
 } from '@/modules/access/application/token-manager'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
 import { captureError } from '@/app/observability'
@@ -12,8 +13,9 @@ import { captureError } from '@/app/observability'
 vi.mock('@/modules/access/application/token-manager', () => ({
   forceRefreshAccessToken: vi.fn(),
   getStoredAccessToken: vi.fn(),
+  getStoredRefreshToken: vi.fn(),
   hasStoredRefreshToken: vi.fn(),
-  refreshAccessTokenIfNeeded: vi.fn(),
+  isLogoutInProgress: vi.fn(),
 }))
 
 vi.mock('@/modules/user/application/stores/useAccountStore', () => ({
@@ -39,8 +41,10 @@ type GuardHandler = (to: GuardTo) => Promise<unknown>
 
 const createAccountStore = () => ({
   isLoadedData: true,
+  isLoggingOut: false,
   login: vi.fn(),
   logout: vi.fn(),
+  clearSession: vi.fn(),
   hasPermission: vi.fn((perm: string) => perm === 'perm.read'),
   hasRole: vi.fn((role: string) => role === 'role.admin'),
   permissionList: [{ name: 'perm.read' }],
@@ -67,12 +71,13 @@ describe('setupAuthGuards', () => {
     vi.mocked(useAccountStore).mockReturnValue(accountStore as never)
 
     vi.mocked(getStoredAccessToken).mockReturnValue(null)
+    vi.mocked(getStoredRefreshToken).mockReturnValue(null)
     vi.mocked(hasStoredRefreshToken).mockReturnValue(false)
+    vi.mocked(isLogoutInProgress).mockReturnValue(false)
     vi.mocked(forceRefreshAccessToken).mockResolvedValue({
       accessToken: 'access-refreshed',
       refreshToken: 'refresh-refreshed',
     })
-    vi.mocked(refreshAccessTokenIfNeeded).mockResolvedValue(null)
   })
 
   it('redirects to login when auth is required and token missing', async () => {
@@ -136,7 +141,22 @@ describe('setupAuthGuards', () => {
     })
 
     expect(forceRefreshAccessToken).toHaveBeenCalledTimes(1)
-    expect(refreshAccessTokenIfNeeded).toHaveBeenCalledTimes(1)
+    expect(result).toBe(true)
+  })
+
+  it('skips refresh workflow when logout is in progress', async () => {
+    vi.mocked(isLogoutInProgress).mockReturnValue(true)
+    vi.mocked(getStoredAccessToken).mockReturnValue('access-token')
+    vi.mocked(hasStoredRefreshToken).mockReturnValue(true)
+
+    const { guard } = setupGuard()
+    const result = await guard({
+      name: 'dashboard',
+      fullPath: '/dashboard',
+      meta: {},
+    })
+
+    expect(forceRefreshAccessToken).not.toHaveBeenCalled()
     expect(result).toBe(true)
   })
 

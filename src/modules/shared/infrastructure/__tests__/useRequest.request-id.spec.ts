@@ -243,4 +243,74 @@ describe('useRequest requestId behavior', () => {
     expect(localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)).toBe('access-new')
     expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBe('refresh-new')
   })
+
+  it('replays with latest token when first attempt used stale token and skips refresh', async () => {
+    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, 'access-old')
+    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'refresh-stable')
+
+    let protectedAttempt = 0
+    let refreshCallCount = 0
+    const protectedAuthHeaders: string[] = []
+
+    mock.onGet('/protected-stale').reply((config: AxiosRequestConfig) => {
+      protectedAttempt += 1
+      protectedAuthHeaders.push(readHeader(config.headers as RawAxiosRequestHeaders, 'Authorization') ?? '')
+
+      if (protectedAttempt === 1) {
+        localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, 'access-new')
+        return [
+          401,
+          {
+            type: 'about:blank',
+            title: 'expired',
+            status: 401,
+            detail: 'token expired',
+            code: 401,
+            traceId: 'trace-id-stale-401',
+          },
+        ]
+      }
+
+      return [
+        200,
+        {
+          type: 'about:blank',
+          title: 'ok',
+          status: 200,
+          detail: 'ok',
+          code: 0,
+          traceId: 'trace-id-stale-ok',
+          data: { ok: true },
+        },
+      ]
+    })
+
+    mock.onPost(AUTH_ENDPOINTS.TOKEN_REFRESH).reply(() => {
+      refreshCallCount += 1
+      return [
+        500,
+        {
+          type: 'about:blank',
+          title: 'unexpected',
+          status: 500,
+          detail: 'refresh should not be called',
+          code: 5000,
+          traceId: 'trace-id-refresh-unexpected',
+        },
+      ]
+    })
+
+    const response = await useRequest<{ ok: boolean }>({
+      method: 'GET',
+      url: '/protected-stale',
+      requestContext: {
+        requestId: 'request-id-stale',
+      },
+    })
+
+    expect(response.data.ok).toBe(true)
+    expect(protectedAttempt).toBe(2)
+    expect(refreshCallCount).toBe(0)
+    expect(protectedAuthHeaders).toEqual(['access-old', 'access-new'])
+  })
 })

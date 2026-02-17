@@ -15,7 +15,7 @@ import {
   forceRefreshAccessToken,
   getStoredAccessToken,
   hasStoredRefreshToken,
-  refreshAccessTokenIfNeeded,
+  isLogoutInProgress,
 } from '@/modules/access/application/token-manager'
 
 /**
@@ -63,15 +63,18 @@ export async function useRequest<T, D = unknown>(
   console.log(`params`, config.params, 'data', config.data)
 
   setRequestId(config)
-  await tryRefreshTokenBeforeRequest(config)
 
   try {
     return await executeRequest<T, D>(config, queryKey)
   } catch (error) {
     if (shouldRetryWithTokenRefresh(error, config)) {
       try {
-        await forceRefreshAccessToken()
         config._authRetried = true
+        if (!shouldRefreshBeforeRetry(config)) {
+          return await executeRequest<T, D>(config, queryKey, true)
+        }
+
+        await forceRefreshAccessToken()
         return await executeRequest<T, D>(config, queryKey, true)
       } catch (retryError) {
         throwMappedRequestError(retryError, config)
@@ -87,7 +90,7 @@ async function executeRequest<T, D>(
   queryKey: unknown[],
   forceReloadToken: boolean = false,
 ): Promise<RFC7807SuccessResponse<T> | AxiosResponse<RFC7807SuccessResponse<T>, D>> {
-  setToken(config, 'Authorization', forceReloadToken)
+  config._authTokenUsed = setToken(config, 'Authorization', forceReloadToken)
 
   const response: AxiosResponse<RFC7807Response<T>> = await apiClient<
     RFC7807Response<T>,
@@ -101,20 +104,8 @@ async function executeRequest<T, D>(
   return _unWrapperResponseData<T>(config, response)
 }
 
-async function tryRefreshTokenBeforeRequest(config: CustomAxiosRequestConfig): Promise<void> {
-  if (config.skipAuthRefresh) {
-    return
-  }
-
-  try {
-    await refreshAccessTokenIfNeeded()
-  } catch (error) {
-    console.warn('refresh token before request failed, fallback to direct request', error)
-  }
-}
-
 function shouldRetryWithTokenRefresh(error: unknown, config: CustomAxiosRequestConfig): boolean {
-  if (config.skipAuthRefresh || config._authRetried || !hasStoredRefreshToken()) {
+  if (config.skipAuthRefresh || config._authRetried || !hasStoredRefreshToken() || isLogoutInProgress()) {
     return false
   }
 
@@ -127,6 +118,19 @@ function shouldRetryWithTokenRefresh(error: unknown, config: CustomAxiosRequestC
   const code = problemDetails?.code
 
   return status === 401 || code === 401
+}
+
+function shouldRefreshBeforeRetry(config: CustomAxiosRequestConfig): boolean {
+  const usedToken = normalizeAccessToken(config._authTokenUsed)
+  const latestToken = normalizeAccessToken(getStoredAccessToken() ?? undefined)
+
+  // 请求发送后 access token 已被其他请求/标签页更新，此时只需用最新 token 重放。
+  // 避免旧 token 的并发 401 在短时间内重复触发 refresh。
+  if (usedToken && latestToken && usedToken !== latestToken) {
+    return false
+  }
+
+  return true
 }
 
 function throwMappedRequestError(error: unknown, config: CustomAxiosRequestConfig): never {
@@ -215,9 +219,9 @@ function setToken(
   config: CustomAxiosRequestConfig,
   tokenName: string,
   forceReloadToken: boolean = false,
-) {
+): string | undefined {
   if (config.skipAuthToken) {
-    return
+    return undefined
   }
 
   config.headers = config.headers || {}
@@ -240,4 +244,18 @@ function setToken(
       config.headers[tokenName] = token
     }
   }
+
+  return normalizeAccessToken(token)
+}
+
+function normalizeAccessToken(token: unknown): string | undefined {
+  if (typeof token !== 'string') {
+    return undefined
+  }
+
+  if (token.startsWith('Bearer ')) {
+    return token.slice('Bearer '.length)
+  }
+
+  return token
 }
