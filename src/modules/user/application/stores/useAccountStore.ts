@@ -4,7 +4,11 @@ import dexie from '@/app/infrastructure/storage/dexie'
 import type { SignInResponseComplete } from '@/modules/user/application/models'
 import { STORAGE_KEYS } from '@/constants/storage'
 import { updateAbility, clearAbility } from '@/modules/access/application/ability'
-import { clearAuthTokens, setAuthTokens } from '@/modules/access/application/token-manager'
+import {
+  clearAuthTokens,
+  setAuthTokens,
+  setLogoutInProgress,
+} from '@/modules/access/application/token-manager'
 import { userService } from '@/modules/user/application/service'
 
 export const useAccountStore = defineStore('account', () => {
@@ -71,31 +75,62 @@ export const useAccountStore = defineStore('account', () => {
    * 用户语言
    */
   const language = ref<NavigatorLanguage['language']>(window.navigator.language)
+  const isLoggingOut = ref(false)
+  let logoutRequestId = 0
+  const LOGOUT_REQUEST_TIMEOUT_MS = 8000
+
+  function resetSessionState() {
+    clearAbility() // 清空 CASL 权限
+    $reset()
+    setLogoutInProgress(false)
+    isLoggingOut.value = false
+  }
 
   /**
    * 退出登录
    * @description 调用后端登出接口，然后重置account并路由导航至初始页，由路由守卫逻辑导航回login页
    */
   function logout() {
-    userService.logout().catch(() => {
-      // 即使后端登出失败，也继续清理本地状态
-    }).finally(() => {
-      clearAbility() // 清空 CASL 权限
-      $reset()
+    if (isLoggingOut.value) {
+      return
+    }
+    isLoggingOut.value = true
+    setLogoutInProgress(true)
+    const requestId = ++logoutRequestId
+
+    Promise.race([
+      userService.logout().catch(() => {
+        // 即使后端登出失败，也继续清理本地状态
+      }),
+      new Promise<void>((resolve) => {
+        setTimeout(resolve, LOGOUT_REQUEST_TIMEOUT_MS)
+      }),
+    ]).finally(() => {
+      if (requestId === logoutRequestId) {
+        resetSessionState()
+      }
     })
   }
 
-  function updateTokens(accessToken: string, nextRefreshToken?: string) {
+  function clearSession() {
+    resetSessionState()
+  }
+
+  function updateTokens(accessToken: string, nextRefreshToken?: string, expiresIn?: number) {
+    logoutRequestId += 1
+    setLogoutInProgress(false)
+    isLoggingOut.value = false
     token.value = accessToken
     refreshToken.value = nextRefreshToken ?? null
     setAuthTokens({
       accessToken,
       refreshToken: nextRefreshToken,
+      expiresIn,
     })
   }
 
   function login(data: SignInResponseComplete) {
-    updateTokens(data.token, data.refreshToken)
+    updateTokens(data.token, data.refreshToken, data.expiresIn)
     user.value = data.user
     profile.value = data.profile
     roleList.value = data.roleList
@@ -181,7 +216,9 @@ export const useAccountStore = defineStore('account', () => {
     language,
     profile,
     account,
+    isLoggingOut,
     logout,
+    clearSession,
     login,
     updateTokens,
     hasPermission,

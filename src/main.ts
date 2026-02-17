@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import '@/app/presentation/theme/styles/token.css'
 import { usePlugins } from '@/app/plugins/usePlugins.ts'
 import { initObservability } from '@/app/observability'
+import { initAuthTokenLifecycle } from '@/modules/access/application/token-manager'
 import App from './App.vue'
 
 const app = createApp(App)
@@ -22,5 +23,6 @@ initObservability(app, {
 })
 
 usePlugins(app)
+initAuthTokenLifecycle()
 
 app.mount('#app')

@@ -4,7 +4,12 @@ import { useAccountStore } from '@/modules/user/application/stores/useAccountSto
 import dexie from '@/app/infrastructure/storage/dexie'
 import { STORAGE_KEYS } from '@/constants/storage'
 import { updateAbility, clearAbility } from '@/modules/access/application/ability'
-import { clearAuthTokens, setAuthTokens } from '@/modules/access/application/token-manager'
+import {
+  clearAuthTokens,
+  setAuthTokens,
+  setLogoutInProgress,
+} from '@/modules/access/application/token-manager'
+import { userService } from '@/modules/user/application/service'
 
 vi.mock('@/app/infrastructure/storage/dexie', () => ({
   default: {
@@ -23,6 +28,13 @@ vi.mock('@/modules/access/application/ability', () => ({
 vi.mock('@/modules/access/application/token-manager', () => ({
   setAuthTokens: vi.fn(),
   clearAuthTokens: vi.fn(),
+  setLogoutInProgress: vi.fn(),
+}))
+
+vi.mock('@/modules/user/application/service', () => ({
+  userService: {
+    logout: vi.fn(() => Promise.resolve(true)),
+  },
 }))
 
 const buildSignInResponse = () => ({
@@ -49,6 +61,7 @@ const buildSignInResponse = () => ({
   },
   token: 'access-a',
   refreshToken: 'refresh-a',
+  expiresIn: 3600,
   permissionList: [
     {
       id: 1,
@@ -87,13 +100,14 @@ describe('useAccountStore', () => {
   it('updateTokens updates state and delegates to setAuthTokens', () => {
     const store = useAccountStore()
 
-    store.updateTokens('access-1', 'refresh-1')
+    store.updateTokens('access-1', 'refresh-1', 1800)
 
     expect(store.token).toBe('access-1')
     expect(store.refreshToken).toBe('refresh-1')
     expect(setAuthTokens).toHaveBeenLastCalledWith({
       accessToken: 'access-1',
       refreshToken: 'refresh-1',
+      expiresIn: 1800,
     })
 
     store.updateTokens('access-2')
@@ -103,6 +117,7 @@ describe('useAccountStore', () => {
     expect(setAuthTokens).toHaveBeenLastCalledWith({
       accessToken: 'access-2',
       refreshToken: undefined,
+      expiresIn: undefined,
     })
   })
 
@@ -124,6 +139,7 @@ describe('useAccountStore', () => {
     expect(setAuthTokens).toHaveBeenCalledWith({
       accessToken: 'access-a',
       refreshToken: 'refresh-a',
+      expiresIn: 3600,
     })
     expect(dexie.userinfo.add).toHaveBeenCalledWith(response)
     expect(updateAbility).toHaveBeenCalledWith(response.permissionList, response.roleList)
@@ -144,15 +160,20 @@ describe('useAccountStore', () => {
     expect(store.isOwner(10)).toBe(true)
   })
 
-  it('logout clears ability, tokens and resets to defaults', () => {
+  it('logout clears ability, tokens and resets to defaults', async () => {
     const store = useAccountStore()
     store.login(buildSignInResponse())
 
     store.logout()
+    await vi.waitFor(() => {
+      expect(clearAbility).toHaveBeenCalledTimes(1)
+    })
 
-    expect(clearAbility).toHaveBeenCalledTimes(1)
+    expect(userService.logout).toHaveBeenCalledTimes(1)
+    expect(setLogoutInProgress).toHaveBeenCalledWith(true)
     expect(dexie.userinfo.delete).toHaveBeenCalledWith('access-a')
     expect(clearAuthTokens).toHaveBeenCalledTimes(1)
+    expect(setLogoutInProgress).toHaveBeenLastCalledWith(false)
 
     expect(store.token).toBe(null)
     expect(store.refreshToken).toBe(null)
@@ -164,5 +185,64 @@ describe('useAccountStore', () => {
     expect(store.roleList).toEqual([])
     expect(store.account?.token).toBe('')
     expect(store.account?.refreshToken).toBeUndefined()
+  })
+
+  it('does not clear a new session when stale logout request resolves', async () => {
+    let resolveLogout: (() => void) | null = null
+    vi.mocked(userService.logout).mockImplementation(
+      () =>
+        new Promise<boolean>((resolve) => {
+          resolveLogout = () => resolve(true)
+        }),
+    )
+
+    const store = useAccountStore()
+    store.login(buildSignInResponse())
+
+    store.logout()
+
+    store.updateTokens('access-next', 'refresh-next', 1800)
+
+    resolveLogout?.()
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(store.token).toBe('access-next')
+    expect(store.refreshToken).toBe('refresh-next')
+    expect(store.isAuth).toBe(true)
+  })
+
+  it('resets session when logout request hangs beyond timeout', async () => {
+    vi.useFakeTimers()
+    try {
+      vi.mocked(userService.logout).mockImplementation(
+        () => new Promise<boolean>(() => {}),
+      )
+
+      const store = useAccountStore()
+      store.login(buildSignInResponse())
+
+      store.logout()
+      await vi.advanceTimersByTimeAsync(8000)
+
+      expect(store.token).toBe(null)
+      expect(store.refreshToken).toBe(null)
+      expect(store.isAuth).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('clearSession only clears local state without calling backend logout', () => {
+    const store = useAccountStore()
+    store.login(buildSignInResponse())
+
+    store.clearSession()
+
+    expect(userService.logout).not.toHaveBeenCalled()
+    expect(clearAbility).toHaveBeenCalledTimes(1)
+    expect(clearAuthTokens).toHaveBeenCalledTimes(1)
+    expect(store.token).toBe(null)
+    expect(store.refreshToken).toBe(null)
   })
 })

@@ -7,6 +7,8 @@ export const STORAGE_KEYS = {
   ACCESS_TOKEN: 'ACCESS_TOKEN',
   /** 刷新令牌 */
   REFRESH_TOKEN: 'REFRESH_TOKEN',
+  /** 访问令牌绝对过期时间戳（毫秒） */
+  ACCESS_TOKEN_EXPIRES_AT: 'ACCESS_TOKEN_EXPIRES_AT',
   /** 语言偏好（用户手动选择） */
   APP_LOCALE: 'APP_LOCALE',
   /** 用户偏好设置 */
