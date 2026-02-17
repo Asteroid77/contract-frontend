@@ -453,9 +453,15 @@ const requestRefreshToken = async (refreshToken: string): Promise<AuthTokenPair>
     RFC7807Response<RefreshTokenResponseDTO>,
     AxiosResponse<RFC7807Response<RefreshTokenResponseDTO>>,
     { refreshToken: string }
-  >(AUTH_ENDPOINTS.TOKEN_REFRESH, {
-    refreshToken,
-  })
+  >(
+    AUTH_ENDPOINTS.TOKEN_REFRESH,
+    {
+      refreshToken,
+    },
+    {
+      withCredentials: true,
+    },
+  )
 
   const payload = response.data.data
 

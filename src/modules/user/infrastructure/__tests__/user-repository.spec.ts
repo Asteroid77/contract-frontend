@@ -31,6 +31,7 @@ describe('userRepository contract', () => {
       method: 'POST',
       url: USER_ENDPOINTS.LOGIN,
       data: dto,
+      withCredentials: true,
     })
     expect(result).toEqual(payload)
   })
@@ -78,6 +79,7 @@ describe('userRepository contract', () => {
       data: dto,
       skipAuthToken: true,
       skipAuthRefresh: true,
+      withCredentials: true,
     })
     expect(result).toEqual(payload)
   })
@@ -266,6 +268,7 @@ describe('userRepository contract', () => {
       method: 'POST',
       url: USER_ENDPOINTS.LOGOUT,
       skipAuthRefresh: true,
+      withCredentials: true,
       notify: { success: false },
     })
     expect(result).toBe(true)

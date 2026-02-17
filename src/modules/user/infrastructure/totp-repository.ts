@@ -16,6 +16,7 @@ export const totpRepository: ITotpRepository = {
       data,
       skipAuthToken: true,
       skipAuthRefresh: true,
+      withCredentials: true,
     }).then((resp) => resp.data),
 
   getStatus: () =>

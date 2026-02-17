@@ -31,6 +31,7 @@ describe('http-client', () => {
 
     expect(options.timeout).toBe(10000)
     expect(options.baseURL).toBe('https://api.example.com/api')
+    expect(options.withCredentials).toBe(false)
     expect(options.headers).toEqual({
       'Content-Type': 'application/json',
     })

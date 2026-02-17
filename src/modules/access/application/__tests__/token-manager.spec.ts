@@ -184,6 +184,8 @@ describe('token-manager', () => {
 
       await vi.advanceTimersByTimeAsync(2000)
       expect(mock.history.post).toHaveLength(1)
+      const refreshRequest = mock.history.post[0]
+      expect(refreshRequest.withCredentials).toBe(true)
       expect(localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)).toBe('access-new')
       expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBe('refresh-new')
     } finally {
@@ -281,6 +283,8 @@ describe('token-manager', () => {
       accessToken: 'access-new',
       refreshToken: 'refresh-new',
     })
+    const refreshRequest = mock.history.post[0]
+    expect(refreshRequest.withCredentials).toBe(true)
     expect(localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)).toBe('access-new')
     expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBe('refresh-new')
     expect(getStoredAccessTokenExpiresAt()).not.toBeNull()

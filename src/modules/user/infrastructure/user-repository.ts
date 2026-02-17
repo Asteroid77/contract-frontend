@@ -29,6 +29,7 @@ export const userRepository: IUserRepository = {
       method: 'POST',
       url: USER_ENDPOINTS.LOGIN,
       data,
+      withCredentials: true,
     }).then((resp) => resp.data),
   register: (data: RegisterRequestDTO) =>
     useRequest<number, RegisterRequestDTO>({
@@ -43,6 +44,7 @@ export const userRepository: IUserRepository = {
       data,
       skipAuthToken: true,
       skipAuthRefresh: true,
+      withCredentials: true,
     }).then((resp) => resp.data),
   getCurrentUserInfo: (accessToken?: string) =>
     useRequest<UserInfoVo, never>({
@@ -113,6 +115,7 @@ export const userRepository: IUserRepository = {
       method: 'POST',
       url: USER_ENDPOINTS.LOGOUT,
       skipAuthRefresh: true,
+      withCredentials: true,
       notify: { success: false },
     }).then((resp) => resp.data),
 }
