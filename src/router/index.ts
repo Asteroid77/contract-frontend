@@ -22,6 +22,7 @@ import {
   userRoutes,
   manageRoutes,
   approvalRoutes,
+  workOrderRoutes,
   unauthRoutes,
   errorRoutes,
 } from './modules'
@@ -40,6 +41,7 @@ export const authRoutes: AppRouteRecord[] = [
   ...userRoutes,
   ...manageRoutes,
   ...approvalRoutes,
+  ...workOrderRoutes,
 ]
 
 /**

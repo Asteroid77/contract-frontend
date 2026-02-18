@@ -84,6 +84,9 @@ export type AuthRouteName =
   | 'approval-process-list'
   | 'approval-node-list'
   | 'approval-task-list'
+  // 工单中心
+  | 'work-order'
+  | 'work-order-detail'
 
 /**
  * 所有未认证路由的名称

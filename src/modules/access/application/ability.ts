@@ -45,6 +45,7 @@ export type Subject =
   | 'ApprovalTask'   // 审批任务
   | 'Business'       // 业务
   | 'Dashboard'      // 仪表盘
+  | 'WorkOrder'      // 工单
   | 'all'            // 所有资源
 
 /**
@@ -197,6 +198,7 @@ function isValidSubject(subject: string): subject is Subject {
     'ApprovalTask',
     'Business',
     'Dashboard',
+    'WorkOrder',
     'all',
   ]
   return validSubjects.includes(subject as Subject)
