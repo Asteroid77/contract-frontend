@@ -1,4 +1,3 @@
-import dayjs from 'dayjs'
 import type {
   PreviewAttachmentsVO as DomainPreviewAttachmentsVO,
   ServiceAgreementPageVo as DomainServiceAgreementPageVo,
@@ -18,29 +17,11 @@ import type {
   ServicePointSpecification,
 } from './models'
 import { toOssCallbackView } from '@/modules/file/application/models'
-
-// ... (toTimestamp, toDateTimeString, normalizeCompanyArea are unchanged? No, mapAttachments uses rename)
-
-const toTimestamp = (value: string | null | undefined): number | null => {
-  if (!value) return null
-  const date = new Date(value)
-  const time = date.getTime()
-  return Number.isNaN(time) ? null : time
-}
-
-const toDateTimeString = (value: number | null | undefined): string | null => {
-  if (value == null) return null
-  return dayjs(value).format('YYYY-MM-DD HH:mm:ss')
-}
-
-const normalizeCompanyArea = (value: string | null | undefined): string => {
-  if (!value) return ''
-  if (value.includes('/')) {
-    const parts = value.split('/')
-    return parts[parts.length - 1] || ''
-  }
-  return value
-}
+import {
+  getPathTail,
+  toDateTimeString,
+  toTimestampOrNull,
+} from '@/modules/shared/application/mapper-utils'
 
 const mapAttachments = (
   attachments: DomainServiceAgreementAttachmentsVO,
@@ -57,10 +38,10 @@ export const toViewServiceAgreement = (
 ): ViewServiceAgreementDetail => {
   return {
     ...domain,
-    companyArea: normalizeCompanyArea(domain.companyArea),
-    expirationTime: toTimestamp(domain.expirationTime),
-    createdTime: toTimestamp(domain.createdTime) ?? 0,
-    updatedTime: toTimestamp(domain.updatedTime) ?? 0,
+    companyArea: getPathTail(domain.companyArea),
+    expirationTime: toTimestampOrNull(domain.expirationTime),
+    createdTime: toTimestampOrNull(domain.createdTime) ?? 0,
+    updatedTime: toTimestampOrNull(domain.updatedTime) ?? 0,
     contractScanFiles: domain.contractScanFiles.map(toOssCallbackView),
     billFiles: domain.billFiles.map(toOssCallbackView),
     supplementaryAttachmentFiles: domain.supplementaryAttachmentFiles.map(toOssCallbackView),
@@ -72,7 +53,7 @@ export const toViewServiceAgreementPage = (
 ): ViewServiceAgreementPageItem => {
   return {
     ...domain,
-    companyArea: normalizeCompanyArea(domain.companyArea),
+    companyArea: getPathTail(domain.companyArea),
   }
 }
 
@@ -115,7 +96,7 @@ export const toDomainServiceAgreementRequest = (
     liaisonPhone: view.liaisonPhone || '',
     industry: view.industry || null, // If DTO industry is string | null, this is fine. If string, use || ''
     comment: view.comment || null,
-    companyArea: normalizeCompanyArea(view.companyArea),
+    companyArea: getPathTail(view.companyArea),
     expirationTime: toDateTimeString(view.expirationTime),
     servicePointSpecifications: view.servicePointSpecifications
       ? view.servicePointSpecifications.map(toServicePointInput)
@@ -130,8 +111,8 @@ export const toViewServiceAgreementRequest = (
   const { servicePointSpecifications, ...rest } = domain
   return {
     ...rest,
-    companyArea: normalizeCompanyArea(domain.companyArea),
-    expirationTime: toTimestamp(domain.expirationTime),
+    companyArea: getPathTail(domain.companyArea),
+    expirationTime: toTimestampOrNull(domain.expirationTime),
     servicePointSpecifications: servicePointSpecifications
       ? servicePointSpecifications.map(toViewServicePoint)
       : null,

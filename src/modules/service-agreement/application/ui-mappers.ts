@@ -5,8 +5,9 @@ import type {
   ServiceAgreementDetail,
   SignInfoDataForUI,
 } from './models'
-import type { OssCallbackView } from '@/modules/file/application/models'
 import type { ServiceAgreementStatus } from '../domain/enums'
+import type { ServiceAgreementRequestDTO } from '../domain/dto'
+import { mapItemIds, toDateTimeString, trimToNull } from '@/modules/shared/application/mapper-utils'
 
 const DEFAULT_STATUS: ServiceAgreementStatus = 1
 
@@ -63,16 +64,11 @@ export const createSignInfoModel = (
 export const createAttachmentInfoModel = (
   origin: Partial<ServiceAgreementDetail> = {},
 ): AttachmentDataForUI => {
-  const mapIds = (files?: OssCallbackView[]): number[] => {
-    if (!Array.isArray(files)) return []
-    return files.map((f) => f.id)
-  }
-
   return {
-    contractScanIds: origin.contractScanIds || mapIds(origin.contractScanFiles),
-    billIds: origin.billIds || mapIds(origin.billFiles),
+    contractScanIds: origin.contractScanIds ?? mapItemIds(origin.contractScanFiles),
+    billIds: origin.billIds ?? mapItemIds(origin.billFiles),
     supplementaryAttachmentIds:
-      origin.supplementaryAttachmentIds || mapIds(origin.supplementaryAttachmentFiles),
+      origin.supplementaryAttachmentIds ?? mapItemIds(origin.supplementaryAttachmentFiles),
   }
 }
 
@@ -94,21 +90,6 @@ export const createServiceAgreementModel = (
 /**
  * 将 UI 状态树转换为后端所需的 DTO
  */
-const trimOrNull = (val: string | null | undefined): string | null => {
-  if (val === null || val === undefined) return null
-  const trimmed = val.trim()
-  return trimmed === '' ? null : trimmed
-}
-
-/**
- * 将 UI 状态树转换为后端所需的 DTO
- */
-import dayjs from 'dayjs'
-import type { ServiceAgreementRequestDTO } from '../domain/dto'
-
-/**
- * 将 UI 状态树转换为后端所需的 DTO
- */
 export const convertUIToRequestDTO = (
   uiModel: ServiceAgreementUIMap,
 ): ServiceAgreementRequestDTO => {
@@ -116,29 +97,27 @@ export const convertUIToRequestDTO = (
   return {
     id: customerInfo.id,
     status: customerInfo.status,
-    companyName: trimOrNull(customerInfo.companyName) ?? '',
-    companyArea: trimOrNull(customerInfo.companyArea) ?? '',
-    companyAddress: trimOrNull(customerInfo.companyAddress) ?? '',
-    industry: trimOrNull(customerInfo.industry),
-    liaisonName: trimOrNull(customerInfo.liaisonName) ?? '',
-    liaisonPosition: trimOrNull(customerInfo.liaisonPosition) ?? '',
-    liaisonPhone: trimOrNull(customerInfo.liaisonPhone) ?? '',
+    companyName: trimToNull(customerInfo.companyName) ?? '',
+    companyArea: trimToNull(customerInfo.companyArea) ?? '',
+    companyAddress: trimToNull(customerInfo.companyAddress) ?? '',
+    industry: trimToNull(customerInfo.industry),
+    liaisonName: trimToNull(customerInfo.liaisonName) ?? '',
+    liaisonPosition: trimToNull(customerInfo.liaisonPosition) ?? '',
+    liaisonPhone: trimToNull(customerInfo.liaisonPhone) ?? '',
     yearUsableCharge: customerInfo.yearUsableCharge || 0,
     isTimeOfUsePricingEnabled: customerInfo.isTimeOfUsePricingEnabled,
     peakPercentage: customerInfo.peakPercentage,
     superPeakPercentage: customerInfo.superPeakPercentage,
     standardPercentage: customerInfo.standardPercentage,
     valleyPercentage: customerInfo.valleyPercentage,
-    comment: trimOrNull(customerInfo.comment),
+    comment: trimToNull(customerInfo.comment),
     priceModel: signInfo.priceModel,
     priceType: signInfo.priceType,
     priceCategory: signInfo.priceCategory,
     fixedPrice: signInfo.fixedPrice,
     fixedSpread: signInfo.fixedSpread,
     revenueShareRatio: signInfo.revenueShareRatio,
-    expirationTime: signInfo.expirationTime
-      ? dayjs(signInfo.expirationTime).format('YYYY-MM-DD HH:mm:ss')
-      : null,
+    expirationTime: toDateTimeString(signInfo.expirationTime),
     servicePointSpecifications: signInfo.servicePointSpecifications,
     contractScanIds: attachmentInfo.contractScanIds,
     billIds: attachmentInfo.billIds,
