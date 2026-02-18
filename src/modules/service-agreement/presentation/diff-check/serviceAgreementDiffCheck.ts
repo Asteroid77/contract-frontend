@@ -11,6 +11,7 @@ import {
   ServiceAgreementStatusOption,
   UsageCategoryOption,
 } from '@/modules/service-agreement/application/constants'
+import { getPathTail } from '@/modules/shared/application/mapper-utils'
 import { TreeLookup } from '@/modules/shared/presentation/lookup'
 import PcaData from '@/modules/shared/application/constants/PCA.json'
 import type {
@@ -26,15 +27,6 @@ type ServiceAgreementWithFiles = Omit<ServiceAgreementRequestDTO, 'expirationTim
   billFiles: FileView[]
   supplementaryAttachmentFiles: FileView[]
   servicePointSpecifications: ServicePointSpecificationInput[] | ServicePointSpecification[] | null
-}
-
-const normalizeCompanyArea = (value: string | null | undefined): string => {
-  if (!value) return ''
-  if (value.includes('/')) {
-    const parts = value.split('/')
-    return parts[parts.length - 1] || ''
-  }
-  return value
 }
 
 const optionLabel = (options: { label: string; value: unknown }[], value: unknown): string => {
@@ -119,7 +111,7 @@ export const toServiceAgreementDiffCheckForm = (model: ServiceAgreementWithFiles
     companyName: model.companyName ?? '',
     status: optionLabel(ServiceAgreementStatusOption, model.status),
     industry: model.industry ?? '',
-    companyArea: model.companyArea ? areaLookup.getFullPath(normalizeCompanyArea(model.companyArea)) : '',
+    companyArea: model.companyArea ? areaLookup.getFullPath(getPathTail(model.companyArea)) : '',
     companyAddress: model.companyAddress ?? '',
     liaisonName: model.liaisonName ?? '',
     liaisonPhone: model.liaisonPhone ?? '',
