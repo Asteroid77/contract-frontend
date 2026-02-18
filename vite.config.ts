@@ -40,6 +40,8 @@ const gitInfo = getGitInfo()
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
+  const isProduction = mode === 'production'
+
   return {
     define: {
       // 注入为全局常量
@@ -57,6 +59,14 @@ export default defineConfig(({ mode }) => {
         protocol: 'wss', // 必须：使用安全 WebSocket
       },
     },
+    build: isProduction
+      ? {
+          minify: 'esbuild',
+          esbuild: {
+            drop: ['console', 'debugger'],
+          },
+        }
+      : undefined,
     plugins: [vue(), vueJsx(), svgLoader(), vueDevTools(), tailwindcss(), themeGeneratorPlugin()],
     resolve: {
       alias: {
