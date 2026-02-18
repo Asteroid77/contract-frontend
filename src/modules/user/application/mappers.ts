@@ -39,6 +39,7 @@ import type {
   UserPageItem,
 } from './models'
 import type { ApprovalInstance } from '@/modules/approval/domain/types'
+import { nullToUndefined } from '@/modules/shared/application/mapper-utils'
 
 export const toDomainLoginRequest = (view: SignInForm): LoginRequestDTO => ({
   phone: view.phone,
@@ -114,18 +115,18 @@ export const toViewAdditionalInfo = (
     name: info.name,
     bankName: info.bankName,
     bankAccount: info.bankAccount,
-    invitationCode: info.invitationCode ?? undefined,
-    companyAddress: info.companyAddress ?? undefined,
+    invitationCode: nullToUndefined(info.invitationCode),
+    companyAddress: nullToUndefined(info.companyAddress),
     pca: info.pca,
-    contactPerson: info.contactPerson ?? undefined,
-    contactPersonPhone: info.contactPersonPhone ?? undefined,
+    contactPerson: nullToUndefined(info.contactPerson),
+    contactPersonPhone: nullToUndefined(info.contactPersonPhone),
     identity: info.identity,
     discriminator: info.discriminator,
     userId: info.userId,
-    referrer: info.referrer ?? undefined,
-    referrerName: info.inviterName ?? undefined,
-    inviterName: info.inviterName ?? undefined,
-    inviterDiscriminator: info.inviterDiscriminator ?? undefined,
+    referrer: nullToUndefined(info.referrer),
+    referrerName: nullToUndefined(info.inviterName),
+    inviterName: nullToUndefined(info.inviterName),
+    inviterDiscriminator: nullToUndefined(info.inviterDiscriminator),
     createdTime: info.createdTime,
     updatedTime: info.updatedTime,
   }

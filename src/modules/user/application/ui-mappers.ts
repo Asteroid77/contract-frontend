@@ -4,6 +4,7 @@ import type {
   SignInForm,
   UserAdditionalInfoForm,
 } from './models'
+import { trimString } from '@/modules/shared/application/mapper-utils'
 
 /**
  * 创建登录表单的初始 UI 模型
@@ -27,9 +28,9 @@ export const convertUIToSignInForm = (uiModel: SignInForm): SignInForm => {
   // 对于登录，通常需要 trim 手机号和验证码，密码一般不 trim（虽然用户可能无意输入空格）
   // 这里做简单的 trim
   const request: SignInForm = {
-    phone: uiModel.phone?.trim(),
+    phone: trimString(uiModel.phone),
     password: uiModel.password, // 密码保留原始输入
-    captcha: uiModel.captcha?.trim(),
+    captcha: trimString(uiModel.captcha),
     captchaKey: uiModel.captchaKey,
     remember: uiModel.remember,
   }
@@ -41,9 +42,9 @@ export const convertUIToSignInForm = (uiModel: SignInForm): SignInForm => {
 
 export const convertUIToRegisterForm = (uiModel: RegisterForm): RegisterForm => {
   return {
-    phone: uiModel.phone?.trim(),
+    phone: trimString(uiModel.phone),
     password: uiModel.password,
-    code: uiModel.code?.trim(),
+    code: trimString(uiModel.code),
     bizId: uiModel.bizId,
     dbCheckPassword: uiModel.dbCheckPassword,
   }
@@ -53,10 +54,10 @@ export const convertUIToPasswordRecoveryForm = (
   uiModel: PasswordRecoveryForm,
 ): PasswordRecoveryForm => {
   return {
-    phone: uiModel.phone?.trim(),
+    phone: trimString(uiModel.phone),
     password: uiModel.password,
     dbCheckPassword: uiModel.dbCheckPassword,
-    code: uiModel.code?.trim(),
+    code: trimString(uiModel.code),
     bizId: uiModel.bizId,
   }
 }
@@ -67,20 +68,20 @@ export const convertUIToUserAdditionalInfoForm = (
   return {
     // 必填项，不做空检查，交给 Validation 处理
     registerType: uiModel.registerType,
-    name: uiModel.name?.trim(),
+    name: trimString(uiModel.name),
     pca: uiModel.pca,
-    identity: uiModel.identity?.trim(),
-    bankName: uiModel.bankName?.trim(),
-    bankAccount: uiModel.bankAccount?.trim(),
+    identity: trimString(uiModel.identity),
+    bankName: trimString(uiModel.bankName),
+    bankAccount: trimString(uiModel.bankAccount),
 
     // 选填项，如果为空字符串则转为 undefined，或者保留空字符串视后端处理逻辑而定
     // 这里采用 safe trim 策略
     id: uiModel.id,
     userId: uiModel.userId,
-    invitationCode: uiModel.invitationCode?.trim(),
-    companyAddress: uiModel.companyAddress?.trim(),
-    contactPerson: uiModel.contactPerson?.trim(),
-    contactPersonPhone: uiModel.contactPersonPhone?.trim(),
+    invitationCode: trimString(uiModel.invitationCode),
+    companyAddress: trimString(uiModel.companyAddress),
+    contactPerson: trimString(uiModel.contactPerson),
+    contactPersonPhone: trimString(uiModel.contactPersonPhone),
     referrer: uiModel.referrer,
   }
 }
