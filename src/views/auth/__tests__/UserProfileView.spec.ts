@@ -2,6 +2,32 @@ import { defineComponent, h } from 'vue'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+type ApprovalStatusLike = 'pending' | 'handling' | 'approved' | 'rejected' | 'canceled'
+
+type LatestAdditionalInfoStatusLike = {
+  id: number | null
+  status: ApprovalStatusLike
+} | null
+
+type UserBaseInfoLike = {
+  name: string
+  phone: string
+  platform: 'WECHAT' | 'GITHUB' | 'NATIVE'
+}
+
+type UserProfileInfoLike = {
+  companyName: string
+}
+
+type LoadUserInfoDataLike = {
+  user: UserBaseInfoLike
+  profile: UserProfileInfoLike | null
+}
+
+type ServiceAgreementPageLike = {
+  total: number
+}
+
 const {
   routerPushSpy,
   accountState,
@@ -30,7 +56,7 @@ const {
   },
   statusQueryState: {
     data: {
-      value: null as any,
+      value: null as LatestAdditionalInfoStatusLike,
     },
   },
   loadUserInfoState: {
@@ -44,7 +70,7 @@ const {
         profile: {
           companyName: 'loaded-company',
         },
-      } as any,
+      } as LoadUserInfoDataLike,
     },
     isLoading: {
       value: false,
@@ -54,14 +80,14 @@ const {
     data: {
       value: {
         total: 2,
-      } as any,
+      } as ServiceAgreementPageLike,
     },
   },
   signPageState: {
     data: {
       value: {
         total: 3,
-      } as any,
+      } as ServiceAgreementPageLike,
     },
   },
   messageInfoSpy: vi.fn(),

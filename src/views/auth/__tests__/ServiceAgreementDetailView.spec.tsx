@@ -2,6 +2,23 @@ import { defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+type ServiceAgreementDetailLike = {
+  id: number
+  status: number
+}
+
+type ServiceAgreementFormValueLike = {
+  customerInfo: {
+    status: number
+  }
+  signInfo: Record<string, unknown>
+  attachmentInfo: Record<string, unknown>
+}
+
+type MutationCallbackPayload = {
+  id: number
+}
+
 const {
   routerPushSpy,
   printSpy,
@@ -24,7 +41,7 @@ const {
   convertSpy: vi.fn(),
   buildFieldsSpy: vi.fn(() => [{ key: 'companyName' }]),
   toDiffFormSpy: vi.fn((detail) => ({ mappedId: detail?.id ?? null })),
-  detailDataRef: { value: null as any },
+  detailDataRef: { value: null as ServiceAgreementDetailLike | null },
   detailLoadingRef: { value: false },
   formValueRef: {
     value: {
@@ -33,11 +50,11 @@ const {
       },
       signInfo: {},
       attachmentInfo: {},
-    } as any,
+    } as ServiceAgreementFormValueLike,
   },
   validateResultRef: { value: true },
-  recordCallbackRef: { value: undefined as ((resp: any) => void) | undefined },
-  signCallbackRef: { value: undefined as ((resp: any) => void) | undefined },
+  recordCallbackRef: { value: undefined as ((resp: MutationCallbackPayload) => void) | undefined },
+  signCallbackRef: { value: undefined as ((resp: MutationCallbackPayload) => void) | undefined },
 }))
 
 vi.mock('@/_utils/i18n', () => ({
@@ -89,14 +106,14 @@ vi.mock('@/modules/service-agreement/application/hooks/useSignService', () => ({
     data: detailDataRef,
     isLoading: detailLoadingRef,
   })),
-  useSubmitRecordMutation: vi.fn((callback?: (resp: any) => void) => {
+  useSubmitRecordMutation: vi.fn((callback?: (resp: MutationCallbackPayload) => void) => {
     recordCallbackRef.value = callback
     return {
       mutate: recordMutateSpy,
       isPending: { value: false },
     }
   }),
-  useSubmitSignMutation: vi.fn((callback?: (resp: any) => void) => {
+  useSubmitSignMutation: vi.fn((callback?: (resp: MutationCallbackPayload) => void) => {
     signCallbackRef.value = callback
     return {
       mutate: signMutateSpy,
