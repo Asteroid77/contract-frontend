@@ -9,6 +9,13 @@ import { userService } from '@/modules/user/application/service'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore.ts'
 import router from '@/router'
 import { buildOauth2AuthorizationUrl } from '@/modules/user/infrastructure/oauth-endpoints'
+import type {
+  ChangePasswordForm,
+  PasswordRecoveryForm,
+  RegisterForm,
+  SignInResponse,
+} from '@/modules/user/application/models'
+import type { SignInMutate } from '@/modules/user/application/hooks/useLogin'
 
 const { loginSpy, pushSpy } = vi.hoisted(() => ({
   loginSpy: vi.fn(),
@@ -46,18 +53,44 @@ vi.mock('@/modules/user/infrastructure/oauth-endpoints', () => ({
   buildOauth2AuthorizationUrl: vi.fn((platform: string) => `https://oauth.example/${platform}`),
 }))
 
+type MutationOptionsLike<TData, TVariables> = {
+  mutationFn: (variables: TVariables) => Promise<TData> | TData
+  onSuccess?: (data: TData, variables: TVariables) => Promise<unknown> | unknown
+}
+
+const getLatestMutationOptions = <TData, TVariables>(): MutationOptionsLike<TData, TVariables> => {
+  const latestCall = vi.mocked(useMutation).mock.calls.at(-1)
+  if (!latestCall) {
+    throw new Error('useMutation should be called before reading options')
+  }
+  return latestCall[0] as MutationOptionsLike<TData, TVariables>
+}
+
+type WindowOpenMock = ReturnType<
+  typeof vi.fn<(url?: string | URL, target?: string, features?: string) => WindowProxy | null>
+>
+
 describe('user auth-related hooks', () => {
+  let openMock: WindowOpenMock
+  let messageSuccessMock: ReturnType<typeof vi.fn<(message: string) => void>>
+
   beforeEach(() => {
     vi.clearAllMocks()
-    ;(window as any).$message = { success: vi.fn() }
-    ;(window as any).open = vi.fn(() => null)
+
+    messageSuccessMock = vi.fn<(message: string) => void>()
+    openMock = vi.fn<(url?: string | URL, target?: string, features?: string) => WindowProxy | null>(
+      () => null,
+    )
+
+    window.$message = { success: messageSuccessMock }
+    window.open = openMock
   })
 
   it('useChangePassword delegates mutationFn to userService.changePassword', async () => {
     vi.mocked(userService.changePassword).mockResolvedValue(true)
 
     useChangePassword()
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions<boolean, ChangePasswordForm>()
 
     const payload = {
       oldPassword: 'oldPwd',
@@ -74,7 +107,7 @@ describe('user auth-related hooks', () => {
     vi.mocked(userService.login).mockResolvedValue({ token: 'local-token' } as never)
 
     useLogin()
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions<SignInResponse, SignInMutate>()
 
     const payload = {
       mode: 'local',
@@ -118,7 +151,7 @@ describe('user auth-related hooks', () => {
     } as never)
 
     useLogin()
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions<SignInResponse, SignInMutate>()
 
     const payload = {
       mode: 'oauth2',
@@ -164,7 +197,7 @@ describe('user auth-related hooks', () => {
     } as never)
 
     useLogin()
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions<SignInResponse, SignInMutate>()
 
     const result = await options.mutationFn({
       mode: 'oauth2',
@@ -188,7 +221,7 @@ describe('user auth-related hooks', () => {
     } as never)
 
     useLogin()
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions<SignInResponse, SignInMutate>()
 
     await expect(
       options.mutationFn({
@@ -208,7 +241,7 @@ describe('user auth-related hooks', () => {
     } as never)
 
     useLogin()
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions<SignInResponse, SignInMutate>()
 
     await expect(
       options.mutationFn({
@@ -221,7 +254,7 @@ describe('user auth-related hooks', () => {
 
   it('useLogin onSuccess writes account and redirects to given target', async () => {
     useLogin()
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions<SignInResponse, SignInMutate>()
 
     const signInResponse = {
       token: 'token-a',
@@ -240,6 +273,7 @@ describe('user auth-related hooks', () => {
       roleList: [],
     }
 
+    if (!options.onSuccess) throw new Error('onSuccess should be defined')
     await options.onSuccess(signInResponse, {
       mode: 'local',
       data: {
@@ -258,8 +292,9 @@ describe('user auth-related hooks', () => {
 
   it('useLogin onSuccess redirects dashboard when redirect is missing', async () => {
     useLogin()
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions<SignInResponse, SignInMutate>()
 
+    if (!options.onSuccess) throw new Error('onSuccess should be defined')
     await options.onSuccess(
       {
         token: 'token-a',
@@ -288,8 +323,9 @@ describe('user auth-related hooks', () => {
 
   it('useLogin onSuccess keeps rememberMe when redirecting to 2FA verify', async () => {
     useLogin()
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions<SignInResponse, SignInMutate>()
 
+    if (!options.onSuccess) throw new Error('onSuccess should be defined')
     await options.onSuccess(
       {
         requireTwoFactor: true,
@@ -320,8 +356,9 @@ describe('user auth-related hooks', () => {
 
   it('useLogin onSuccess forwards oauth2 rememberMe when redirecting to 2FA verify', async () => {
     useLogin()
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions<SignInResponse, SignInMutate>()
 
+    if (!options.onSuccess) throw new Error('onSuccess should be defined')
     await options.onSuccess(
       {
         requireTwoFactor: true,
@@ -353,7 +390,8 @@ describe('user auth-related hooks', () => {
     } as never)
 
     useRegister()
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    type RegisterResponseLike = { userId: number; name?: string; phone?: string }
+    const options = getLatestMutationOptions<RegisterResponseLike, RegisterForm>()
 
     const payload = {
       phone: '13900000000',
@@ -365,6 +403,7 @@ describe('user auth-related hooks', () => {
     await options.mutationFn(payload)
     expect(userService.register).toHaveBeenCalledWith(payload)
 
+    if (!options.onSuccess) throw new Error('onSuccess should be defined')
     options.onSuccess({
       userId: 3,
       name: 'New User',
@@ -392,7 +431,7 @@ describe('user auth-related hooks', () => {
     vi.mocked(userService.passwordRecovery).mockResolvedValue(true as never)
 
     usePasswordRecovery()
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions<boolean, PasswordRecoveryForm>()
 
     const payload = {
       phone: '13900000000',
@@ -404,21 +443,22 @@ describe('user auth-related hooks', () => {
     await options.mutationFn(payload)
     expect(userService.passwordRecovery).toHaveBeenCalledWith(payload)
 
-    options.onSuccess()
-    expect((window as any).$message.success).toHaveBeenCalledWith('重置密码成功，请重新登录')
+    if (!options.onSuccess) throw new Error('onSuccess should be defined')
+    options.onSuccess(true, payload)
+    expect(messageSuccessMock).toHaveBeenCalledWith('重置密码成功，请重新登录')
     expect(router.push).toHaveBeenCalledWith({ name: 'login' })
   })
 
   it('useOauth2AuthorizationUrl opens centered popup with built url', () => {
     const openedWindow = { closed: false }
-    ;(window as any).open = vi.fn(() => openedWindow)
+    openMock.mockReturnValueOnce(openedWindow as unknown as WindowProxy)
 
     const result = useOauth2AuthorizationUrl('github')
 
     expect(buildOauth2AuthorizationUrl).toHaveBeenCalledWith('github', false)
-    expect((window as any).open).toHaveBeenCalledTimes(1)
+    expect(openMock).toHaveBeenCalledTimes(1)
 
-    const [url, target, features] = (window as any).open.mock.calls[0]
+    const [url, target, features] = openMock.mock.calls[0]
     expect(url).toBe('https://oauth.example/github')
     expect(target).toBe('Oauth2Auth')
     expect(features).toContain('width=550')

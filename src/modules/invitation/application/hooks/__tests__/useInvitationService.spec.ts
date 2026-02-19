@@ -35,6 +35,32 @@ const queryClient = {
   invalidateQueries: vi.fn(),
 }
 
+type QueryOptionsLike<TData = unknown> = {
+  queryKey: unknown
+  queryFn: (ctx: { queryKey: unknown; signal: AbortSignal }) => Promise<TData> | TData
+}
+
+type MutationOptionsLike<TData = unknown, TVariables = unknown> = {
+  mutationFn: (variables: TVariables) => Promise<TData> | TData
+  onSuccess?: () => void
+}
+
+const getLatestQueryOptions = <TData = unknown>(): QueryOptionsLike<TData> => {
+  const latestCall = vi.mocked(useQuery).mock.calls.at(-1)
+  if (!latestCall) {
+    throw new Error('useQuery should be called before reading options')
+  }
+  return latestCall[0] as QueryOptionsLike<TData>
+}
+
+const getLatestMutationOptions = <TData = unknown, TVariables = unknown>(): MutationOptionsLike<TData, TVariables> => {
+  const latestCall = vi.mocked(useMutation).mock.calls.at(-1)
+  if (!latestCall) {
+    throw new Error('useMutation should be called before reading options')
+  }
+  return latestCall[0] as MutationOptionsLike<TData, TVariables>
+}
+
 describe('useInvitationService hooks', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -53,7 +79,7 @@ describe('useInvitationService hooks', () => {
     vi.mocked(invitationService.getInvitationCodeList).mockResolvedValue(payload as never)
 
     useInvitationCodeListQuery()
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = getLatestQueryOptions<typeof payload>()
 
     expect(options.queryKey).toEqual(invitationKeys.lists())
 
@@ -72,7 +98,7 @@ describe('useInvitationService hooks', () => {
     vi.mocked(invitationService.getInvitedCount).mockResolvedValue(9)
 
     useInvitatedCountQuery()
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = getLatestQueryOptions<number>()
 
     expect(options.queryKey).toEqual(invitationKeys.count())
 
@@ -89,13 +115,14 @@ describe('useInvitationService hooks', () => {
 
   it('useCreateInvitationCodeMutation invalidates invitation list on success', async () => {
     useCreateInvitationCodeMutation()
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions<{ id: number }, void>()
 
     vi.mocked(invitationService.createInvitationCode).mockResolvedValue({ id: 1 } as never)
 
     await options.mutationFn()
     expect(invitationService.createInvitationCode).toHaveBeenCalledTimes(1)
 
+    if (!options.onSuccess) throw new Error('onSuccess should be defined')
     options.onSuccess()
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: invitationKeys.lists() })
   })
@@ -105,13 +132,14 @@ describe('useInvitationService hooks', () => {
     const payload = [{ id: 1, remark: 'new' }]
 
     useUpdateInvitationCodeMutation(callback)
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions<Array<{ id: number }>, typeof payload>()
 
     vi.mocked(invitationService.updateInvitationCode).mockResolvedValue([{ id: 1 }] as never)
 
     await options.mutationFn(payload)
     expect(invitationService.updateInvitationCode).toHaveBeenCalledWith(payload)
 
+    if (!options.onSuccess) throw new Error('onSuccess should be defined')
     options.onSuccess()
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: invitationKeys.lists() })
     expect(callback).toHaveBeenCalledTimes(1)
@@ -121,13 +149,14 @@ describe('useInvitationService hooks', () => {
     const callback = vi.fn()
 
     useDeleteInvitationCodeMutation(callback)
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions<boolean, number[]>()
 
     vi.mocked(invitationService.deleteInvitationCode).mockResolvedValue(true)
 
     await options.mutationFn([1, 2])
     expect(invitationService.deleteInvitationCode).toHaveBeenCalledWith([1, 2])
 
+    if (!options.onSuccess) throw new Error('onSuccess should be defined')
     options.onSuccess()
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: invitationKeys.lists() })
     expect(callback).toHaveBeenCalledTimes(1)

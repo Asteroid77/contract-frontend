@@ -14,6 +14,8 @@ import {
 import { serviceAgreementService } from '@/modules/service-agreement/application/service'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 import { fileKeys } from '@/modules/file/application/hooks/useFileService'
+import type { ServiceAgreementPageQuery } from '@/modules/service-agreement/application/models'
+import type { BasePageRequest } from '@/modules/shared/application/request/types'
 
 vi.mock('@tanstack/vue-query', () => ({
   keepPreviousData: 'KEEP_PREVIOUS_DATA',
@@ -43,6 +45,36 @@ const queryClient = {
   invalidateQueries: vi.fn(),
 }
 
+type QueryOptionsLike<TData = unknown> = {
+  queryKey: unknown
+  enabled?: { value: boolean }
+  placeholderData?: unknown
+  retry?: boolean
+  queryFn: (ctx: { queryKey: unknown; signal: AbortSignal }) => Promise<TData> | TData
+}
+
+type MutationOptionsLike<TData = unknown, TVariables = unknown> = {
+  mutationFn: (variables: TVariables) => Promise<TData> | TData
+  onSuccess?: (data: TData) => void
+  meta?: Record<string, unknown>
+}
+
+const getLatestQueryOptions = <TData = unknown>(): QueryOptionsLike<TData> => {
+  const latestCall = vi.mocked(useQuery).mock.calls.at(-1)
+  if (!latestCall) {
+    throw new Error('useQuery should be called before reading options')
+  }
+  return latestCall[0] as QueryOptionsLike<TData>
+}
+
+const getLatestMutationOptions = <TData = unknown, TVariables = unknown>(): MutationOptionsLike<TData, TVariables> => {
+  const latestCall = vi.mocked(useMutation).mock.calls.at(-1)
+  if (!latestCall) {
+    throw new Error('useMutation should be called before reading options')
+  }
+  return latestCall[0] as MutationOptionsLike<TData, TVariables>
+}
+
 describe('useSignService hooks', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -65,7 +97,7 @@ describe('useSignService hooks', () => {
     vi.mocked(serviceAgreementService.get).mockResolvedValue({ id: 9 } as never)
 
     useServiceAgreementDetail(id)
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = getLatestQueryOptions<{ id: number }>()
     expect(options.queryKey.value).toEqual(signKeys.detail(9))
     expect(options.enabled.value).toBe(true)
 
@@ -84,13 +116,13 @@ describe('useSignService hooks', () => {
   })
 
   it('useServiceAgreementPage keeps previous data and delegates queryFn', async () => {
-    const pageRequest = ref({
+    const pageRequest = ref<BasePageRequest<ServiceAgreementPageQuery>>({
       page: 1,
       size: 20,
       query: {
         filters: [],
       },
-    }) as any
+    })
     const payload = {
       records: [],
       total: 0,
@@ -98,7 +130,7 @@ describe('useSignService hooks', () => {
     vi.mocked(serviceAgreementService.page).mockResolvedValue(payload as never)
 
     useServiceAgreementPage(pageRequest)
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = getLatestQueryOptions<typeof payload>()
 
     expect(options.queryKey.value).toEqual(signKeys.list(pageRequest.value))
     expect(options.placeholderData).toBe('KEEP_PREVIOUS_DATA')
@@ -130,7 +162,7 @@ describe('useSignService hooks', () => {
     )
 
     usePreviewAttachments(paramsRef, enabled)
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = getLatestQueryOptions()
 
     expect(options.queryKey).toEqual(signKeys.preview(paramsRef.value))
     expect(options.enabled.value).toBe(true)
@@ -161,7 +193,10 @@ describe('useSignService hooks', () => {
     vi.mocked(serviceAgreementService.uploadFile).mockResolvedValue(uploaded as never)
 
     useUploadFileMutation(callback)
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions<
+      typeof uploaded,
+      { file: File; fileCategory: 'BILL'; onProgress: typeof onProgress }
+    >()
 
     await options.mutationFn({
       file,
@@ -171,6 +206,7 @@ describe('useSignService hooks', () => {
 
     expect(serviceAgreementService.uploadFile).toHaveBeenCalledWith(file, 'BILL', onProgress)
 
+    if (!options.onSuccess) throw new Error('onSuccess should be defined')
     options.onSuccess(uploaded)
 
     expect(queryClient.setQueryData).toHaveBeenCalledWith(fileKeys.detail(7), uploaded, {
@@ -191,11 +227,12 @@ describe('useSignService hooks', () => {
     vi.mocked(serviceAgreementService.sign).mockResolvedValue(payload as never)
 
     useSubmitSignMutation(callback)
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions<typeof payload, { id: number }>()
 
     await options.mutationFn({ id: 1 })
     expect(serviceAgreementService.sign).toHaveBeenCalledWith({ id: 1 })
 
+    if (!options.onSuccess) throw new Error('onSuccess should be defined')
     options.onSuccess(payload)
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: signKeys.lists() })
     expect(callback).toHaveBeenCalledWith(payload)
@@ -211,11 +248,12 @@ describe('useSignService hooks', () => {
     vi.mocked(serviceAgreementService.record).mockResolvedValue(payload as never)
 
     useSubmitRecordMutation(callback)
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions<typeof payload, { id: number }>()
 
     await options.mutationFn({ id: 9 })
     expect(serviceAgreementService.record).toHaveBeenCalledWith({ id: 9 })
 
+    if (!options.onSuccess) throw new Error('onSuccess should be defined')
     options.onSuccess(payload)
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: signKeys.lists() })
     expect(queryClient.setQueryData).toHaveBeenCalledWith(signKeys.detail(9), payload)
@@ -226,7 +264,7 @@ describe('useSignService hooks', () => {
     vi.mocked(serviceAgreementService.duplicateCheck).mockResolvedValue(true)
 
     useDuplicateCheckMutation()
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions<boolean, { companyName: string; pca: string }>()
 
     const result = await options.mutationFn({
       companyName: '测试公司',

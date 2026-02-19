@@ -41,6 +41,38 @@ const queryClient = {
   invalidateQueries: vi.fn(),
 }
 
+type QueryOptionsLike<TData = unknown> = {
+  queryKey: unknown
+  queryFn: (ctx: { queryKey: unknown }) => Promise<TData> | TData
+  placeholderData?: unknown
+  staleTime?: number
+  gcTime?: number
+  enabled?: unknown
+  refetchOnWindowFocus?: unknown
+}
+
+type MutationOptionsLike<TData = unknown, TVariables = unknown> = {
+  mutationFn: (variables: TVariables) => Promise<TData> | TData
+  mutationKey?: unknown
+  onSuccess?: (data: TData) => void
+}
+
+const getLatestQueryOptions = <TData = unknown>(): QueryOptionsLike<TData> => {
+  const latestCall = vi.mocked(useQuery).mock.calls.at(-1)
+  if (!latestCall) {
+    throw new Error('useQuery should be called before reading options')
+  }
+  return latestCall[0] as QueryOptionsLike<TData>
+}
+
+const getLatestMutationOptions = <TData = unknown, TVariables = unknown>(): MutationOptionsLike<TData, TVariables> => {
+  const latestCall = vi.mocked(useMutation).mock.calls.at(-1)
+  if (!latestCall) {
+    throw new Error('useMutation should be called before reading options')
+  }
+  return latestCall[0] as MutationOptionsLike<TData, TVariables>
+}
+
 describe('user query hooks', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -72,7 +104,7 @@ describe('user query hooks', () => {
 
   it('useLoadUserInfo configures query and delegates queryFn through request context', async () => {
     useLoadUserInfo('token-1')
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = getLatestQueryOptions()
 
     expect(options.queryKey).toEqual(userKeys.INFO('token-1'))
 
@@ -84,7 +116,7 @@ describe('user query hooks', () => {
 
   it('useLoadUserInfo keeps token in queryKey for cache partitioning', async () => {
     useLoadUserInfo('token-stale')
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = getLatestQueryOptions()
 
     await options.queryFn({ queryKey: userKeys.INFO('token-stale') })
 
@@ -105,7 +137,7 @@ describe('user query hooks', () => {
     }
 
     useUserPage(request)
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = getLatestQueryOptions()
 
     expect(options.queryKey.value).toEqual(userQueryKeys.list(request))
     expect(options.placeholderData).toBe(keepPreviousData)
@@ -130,7 +162,7 @@ describe('user query hooks', () => {
       gcTime: 456,
       refetchOnWindowFocus: true,
     })
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = getLatestQueryOptions()
 
     expect(options.queryKey.value).toEqual(userQueryKeys.list(request.value))
     expect(options.enabled).toBe(enabled)
@@ -143,7 +175,17 @@ describe('user query hooks', () => {
     const callback = vi.fn()
 
     useUserAdditionalInfoRequest(callback)
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions<
+      { id: number; processName: string; status: string },
+      {
+        registerType: number
+        name: string
+        bankName: string
+        bankAccount: string
+        pca: string
+        identity: string
+      }
+    >()
 
     const payload = {
       registerType: 1,
@@ -163,6 +205,7 @@ describe('user query hooks', () => {
       processName: '用户信息审批',
       status: 'pending',
     }
+    if (!options.onSuccess) throw new Error('onSuccess should be defined')
     options.onSuccess(response)
 
     expect(callback).toHaveBeenCalledWith(response)

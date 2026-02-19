@@ -31,6 +31,21 @@ const queryClient = {
   setQueryData: vi.fn(),
 }
 
+type QueryOptionsLike<TData = unknown> = {
+  queryKey: unknown
+  enabled: boolean
+  queryFn: (ctx: { queryKey: unknown; signal: AbortSignal }) => Promise<TData>
+  staleTime?: number | ((input: { state: { data: unknown } }) => number)
+}
+
+const getLatestQueryOptions = <TData = unknown>(): QueryOptionsLike<TData> => {
+  const latestCall = vi.mocked(useQuery).mock.calls.at(-1)
+  if (!latestCall) {
+    throw new Error('useQuery should be called before reading options')
+  }
+  return latestCall[0] as QueryOptionsLike<TData>
+}
+
 const createFileResponse = (id: number, expireTime: number) => ({
   id,
   fileName: `file-${id}.pdf`,
@@ -94,7 +109,7 @@ describe('useFileService hooks', () => {
 
   it('useFileDetailQuery rejects when fileId is missing', async () => {
     useFileDetailQuery(undefined)
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = getLatestQueryOptions()
 
     expect(options.queryKey).toEqual(fileKeys.detail(undefined))
     expect(options.enabled).toBe(false)
@@ -112,7 +127,7 @@ describe('useFileService hooks', () => {
     vi.mocked(fileService.getFileById).mockResolvedValue(payload as never)
 
     const query = useFileDetailQuery(7)
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = getLatestQueryOptions<typeof payload>()
 
     expect(options.queryKey).toEqual(fileKeys.detail(7))
     expect(options.enabled).toBe(true)
@@ -133,7 +148,7 @@ describe('useFileService hooks', () => {
     const fileIds = ref<number[]>([])
 
     useFilesDetailQuery(fileIds)
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = getLatestQueryOptions()
 
     expect(options.enabled).toBe(false)
 
@@ -156,7 +171,7 @@ describe('useFileService hooks', () => {
     vi.mocked(fileService.getFilesByIds).mockResolvedValue(files as never)
 
     useFilesDetailQuery(fileIds)
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = getLatestQueryOptions<typeof files>()
     const ctx = {
       queryKey: fileKeys.batchDetail([1, 2]),
       signal: new AbortController().signal,
@@ -174,6 +189,9 @@ describe('useFileService hooks', () => {
       updatedAt: now,
     })
     expect(result).toEqual(files)
+    if (typeof options.staleTime !== 'function') {
+      throw new Error('staleTime should be function')
+    }
     expect(options.staleTime({ state: { data: undefined } })).toBe(0)
     expect(options.staleTime({ state: { data: [] } })).toBe(0)
     expect(options.staleTime({ state: { data: files } })).toBe(60 * 1000)
@@ -188,7 +206,7 @@ describe('useFileService hooks', () => {
     vi.mocked(fileService.getFilesMetaByIds).mockResolvedValue(files as never)
 
     useFilesMetaDetailQuery(fileIds)
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = getLatestQueryOptions<typeof files>()
     const ctx = {
       queryKey: fileKeys.batchMetaDetail([10, 20]),
       signal: new AbortController().signal,
