@@ -1,6 +1,13 @@
 import { defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Ref } from 'vue'
+import type {
+  PreviewAttachmentsData,
+  PreviewAttachmentsQuery,
+} from '@/modules/service-agreement/application/models'
+
+type PreviewDataLike = Partial<PreviewAttachmentsData> | null
 
 const {
   previewDataRef,
@@ -10,19 +17,19 @@ const {
   capturedParamsRef,
 } = vi.hoisted(() => ({
   previewDataRef: {
-    value: null as any,
+    value: null as PreviewDataLike,
   },
   previewLoadingRef: {
     value: false,
   },
   validateErrorsRef: {
-    value: null as any,
+    value: null as unknown,
   },
   capturedEnabledRef: {
-    value: null as any,
+    value: null as Ref<boolean> | null,
   },
   capturedParamsRef: {
-    value: null as any,
+    value: null as Ref<PreviewAttachmentsQuery> | null,
   },
 }))
 
