@@ -2,11 +2,13 @@ import { defineComponent, type PropType, computed, onBeforeUnmount, onMounted, r
 import type { FilterCondition } from '@/modules/shared/domain/query'
 import { FilterOp } from '@/modules/shared/domain/query'
 import { FIELD_TYPE_OPERATORS, OPERATOR_CONFIG, type FieldConfig, FieldType } from '@/modules/shared/domain/advanced-query'
-import { $t, $te } from '@/_utils/i18n'
+import { $t } from '@/_utils/i18n'
 
 type EditingPart = 'field' | 'op' | 'value' | null
+type I18nKey = Parameters<typeof $t>[0]
 
 const pad2 = (n: number) => String(n).padStart(2, '0')
+const translateLabelKey = (key: string): string => $t(key as I18nKey) as string
 
 const formatDate = (d: Date) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
 const formatTimeHM = (d: Date) => `${pad2(d.getHours())}:${pad2(d.getMinutes())}`
@@ -80,9 +82,9 @@ export default defineComponent({
       document.removeEventListener('mousedown', handleClickOutside)
     })
 
-    const getOpLabel = (op: FilterOp) => $t(OPERATOR_CONFIG[op].labelKey as any) as string
+    const getOpLabel = (op: FilterOp) => translateLabelKey(OPERATOR_CONFIG[op].labelKey)
 
-    const maybeT = (text: string) => ($te(text) ? ($t(text as any) as string) : text)
+    const maybeT = (text: string) => translateLabelKey(text)
 
     const normalizeArrayValue = (value: unknown): Array<string | number> => {
       if (!Array.isArray(value)) return []
@@ -270,15 +272,15 @@ export default defineComponent({
         const leftValue =
           currentField.type === FieldType.DATE && typeof values[0] === 'number'
             ? formatDateInputValue(values[0])
-            : currentField.type === FieldType.DATETIME && typeof values[0] === 'number'
+          : currentField.type === FieldType.DATETIME && typeof values[0] === 'number'
               ? formatDateTimeInputValue(values[0])
-              : (values[0] as any) ?? ''
+              : (values[0] as string | number | undefined) ?? ''
         const rightValue =
           currentField.type === FieldType.DATE && typeof values[1] === 'number'
             ? formatDateInputValue(values[1])
-            : currentField.type === FieldType.DATETIME && typeof values[1] === 'number'
+          : currentField.type === FieldType.DATETIME && typeof values[1] === 'number'
               ? formatDateTimeInputValue(values[1])
-              : (values[1] as any) ?? ''
+              : (values[1] as string | number | undefined) ?? ''
 
         return (
           <div class="flex items-center gap-1">
@@ -339,11 +341,11 @@ export default defineComponent({
         const addOne = (raw: string) => {
           const trimmed = raw.trim()
           if (!trimmed) return
-          const parsed =
+          const parsed: string | number =
             currentField.type === FieldType.NUMBER ? Number(trimmed) : trimmed
           if (currentField.type === FieldType.NUMBER && Number.isNaN(parsed)) return
-          if (values.includes(parsed as any)) return
-          handleValueChange([...values, parsed as any])
+          if (values.includes(parsed)) return
+          handleValueChange([...values, parsed])
         }
 
         const addFromDraft = () => {
@@ -414,7 +416,7 @@ export default defineComponent({
           ? formatDateInputValue(props.condition.value)
           : currentField.type === FieldType.DATETIME && typeof props.condition.value === 'number'
             ? formatDateTimeInputValue(props.condition.value)
-            : (props.condition.value as any) ?? ''
+            : (props.condition.value as string | number | undefined) ?? ''
 
       return (
         <input
@@ -461,7 +463,7 @@ export default defineComponent({
                   : 'hover:bg-[var(--color-border)]/50',
               ]}
             >
-              {currentField ? ($t(currentField.labelKey as any) as string) : props.condition.field}
+              {currentField ? translateLabelKey(currentField.labelKey) : props.condition.field}
             </button>
 
             <span class="w-px h-3 bg-[var(--color-border)]" />
@@ -476,7 +478,7 @@ export default defineComponent({
                   : 'hover:bg-[var(--color-border)]/50',
               ]}
             >
-              {$t(opConfig.value.labelKey as any)}
+              {translateLabelKey(opConfig.value.labelKey)}
             </button>
 
             {opConfig.value.needValue && (
@@ -535,7 +537,7 @@ export default defineComponent({
                             : 'hover:bg-[var(--color-border)]',
                         ]}
                       >
-                        {$t(f.labelKey as any)}
+                        {translateLabelKey(f.labelKey)}
                       </button>
                     ))}
                   </div>

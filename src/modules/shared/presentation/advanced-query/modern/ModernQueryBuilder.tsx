@@ -4,6 +4,10 @@ import { FIELD_TYPE_OPERATORS, type FieldConfig, type FilterConditionItem, type 
 import FilterPill from './FilterPill'
 import { $t } from '@/_utils/i18n'
 
+type I18nKey = Parameters<typeof $t>[0]
+
+const translateLabel = (key: string): string => $t(key as I18nKey) as string
+
 const generateId = () =>
   globalThis.crypto?.randomUUID?.() ?? `${Date.now()}_${Math.random().toString(16).slice(2)}`
 
@@ -284,7 +288,7 @@ export default defineComponent({
             onClick={() => addFilter(f.key)}
             class="w-full text-left px-2 py-1.5 text-[11px] hover:bg-[var(--color-border)] transition-colors"
           >
-            {$t(f.labelKey as any)}
+            {translateLabel(f.labelKey)}
           </button>
         ))}
         <div class="border-t border-[var(--color-border)] mt-1 pt-1">
@@ -338,7 +342,7 @@ export default defineComponent({
             <FilterPill
               condition={filter}
               fields={props.fields}
-              onUpdate={(c) => updateGroupFilter(group.id, filter.id, { ...(c as any), id: filter.id })}
+              onUpdate={(c) => updateGroupFilter(group.id, filter.id, { ...c, id: filter.id })}
               onRemove={() => removeGroupFilter(group.id, filter.id)}
             />
           </span>
@@ -367,7 +371,7 @@ export default defineComponent({
                   onClick={() => addFilterToGroup(group.id, f.key)}
                   class="w-full text-left px-2 py-1 text-[10px] hover:bg-[var(--color-border)] transition-colors"
                 >
-                  {$t(f.labelKey as any)}
+                  {translateLabel(f.labelKey)}
                 </button>
               ))}
             </div>
@@ -408,7 +412,7 @@ export default defineComponent({
               <FilterPill
                 condition={filter}
                 fields={props.fields}
-                onUpdate={(c) => updateFilter(filter.id, { ...(c as any), id: filter.id })}
+                onUpdate={(c) => updateFilter(filter.id, { ...c, id: filter.id })}
                 onRemove={() => removeFilter(filter.id)}
               />
             </span>
