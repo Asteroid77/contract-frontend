@@ -1,4 +1,4 @@
-import { defineComponent, type PropType, ref, computed } from 'vue'
+import { defineComponent, type PropType, ref, computed, type VNodeChild } from 'vue'
 import { NButton, NCard, NImage, NImageGroup, NModal, NSpin } from 'naive-ui'
 import type {
   FieldDefinition,
@@ -211,7 +211,7 @@ export default defineComponent({
         const text = await resp.text()
         if (currentId !== previewRequestId) return
         previewText.value = text
-      } catch (e) {
+      } catch {
         if (currentId !== previewRequestId) return
         previewError.value = $t('common.diffCheck.message.textReadFallback') as string
       } finally {
@@ -627,18 +627,24 @@ export default defineComponent({
         <table class={isPrint.value ? 'print-table' : 'form-table'}>
           <tbody>
             {(() => {
-              const rows: any[] = []
+              type TableCellContent = VNodeChild
+              type TableRowPair = {
+                field: FieldDefinition
+                content: TableCellContent
+              }
+
+              const rows: TableCellContent[] = []
               const totalColumns = props.columnCount === 2 ? 4 : 2
               const valueColspan = props.columnCount === 2 ? 3 : 1
 
-              const renderSingleRow = (field: FieldDefinition, content: any) => (
+              const renderSingleRow = (field: FieldDefinition, content: TableCellContent) => (
                 <tr key={field.key}>
                   <td class="field-label">{field.label}</td>
                   <td colspan={valueColspan}>{content}</td>
                 </tr>
               )
 
-              const renderPairRow = (a: { field: FieldDefinition; content: any }, b?: { field: FieldDefinition; content: any }) => (
+              const renderPairRow = (a: TableRowPair, b?: TableRowPair) => (
                 <tr key={`${a.field.key}${b ? `__${b.field.key}` : ''}`}>
                   <td class="field-label">{a.field.label}</td>
                   <td>{a.content}</td>
@@ -656,7 +662,7 @@ export default defineComponent({
                 </tr>
               )
 
-              let pending: { field: FieldDefinition; content: any } | null = null
+              let pending: TableRowPair | null = null
               const flushPending = () => {
                 if (!pending) return
                 // 末尾剩余字段时，不再填充空列，直接独占一行（体验更一致，打印/屏幕都更“严肃”）
