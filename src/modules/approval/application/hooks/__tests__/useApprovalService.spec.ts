@@ -10,6 +10,11 @@ import {
 } from '@/modules/approval/application/hooks/useApprovalService'
 import { approvalService } from '@/modules/approval/application/service'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
+import type {
+  ApprovalInstance,
+  ApprovalOpinionForm,
+  LatestAdditionalInfoInstance,
+} from '@/modules/approval/application/models'
 
 vi.mock('@tanstack/vue-query', () => ({
   useMutation: vi.fn((options) => options),
@@ -30,6 +35,39 @@ vi.mock('@/app/infrastructure/query/query-request-context', () => ({
 
 const queryClient = {
   invalidateQueries: vi.fn(),
+}
+
+type HandleTaskMutationOptionsLike = {
+  onSuccess?: (data: ApprovalInstance<Record<string, unknown>>, variables: ApprovalOpinionForm) => void
+  onError?: (error: Error, variables: ApprovalOpinionForm) => void
+}
+
+type LatestAdditionalInfoStatusQueryOptionsLike = {
+  queryKey: unknown
+  enabled: {
+    value: boolean
+  }
+  staleTime: number
+  gcTime: number
+  refetchOnWindowFocus: boolean
+  refetchOnMount: boolean | 'always'
+  queryFn: (ctx: { queryKey: unknown }) => Promise<LatestAdditionalInfoInstance> | LatestAdditionalInfoInstance
+}
+
+const getLatestMutationOptions = (): HandleTaskMutationOptionsLike => {
+  const latestCall = vi.mocked(useMutation).mock.calls.at(-1)
+  if (!latestCall) {
+    throw new Error('useMutation should be called before reading options')
+  }
+  return latestCall[0] as HandleTaskMutationOptionsLike
+}
+
+const getLatestQueryOptions = (): LatestAdditionalInfoStatusQueryOptionsLike => {
+  const latestCall = vi.mocked(useQuery).mock.calls.at(-1)
+  if (!latestCall) {
+    throw new Error('useQuery should be called before reading options')
+  }
+  return latestCall[0] as LatestAdditionalInfoStatusQueryOptionsLike
 }
 
 const createApprovalInstance = (processName: '用户信息审批' | '备案/签约信息审批') => ({
@@ -63,7 +101,7 @@ describe('useApprovalService hooks', () => {
     const onSuccess = vi.fn()
 
     useHandleTask({ onSuccess })
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions()
 
     const variables = {
       taskId: 888,
@@ -72,6 +110,7 @@ describe('useApprovalService hooks', () => {
     }
     const data = createApprovalInstance('用户信息审批')
 
+    if (!options.onSuccess) throw new Error('onSuccess should be defined')
     options.onSuccess(data, variables)
 
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: approvalKeys.ALL })
@@ -90,7 +129,7 @@ describe('useApprovalService hooks', () => {
     const onError = vi.fn()
 
     useHandleTask({ onError })
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = getLatestMutationOptions()
 
     const data = createApprovalInstance('备案/签约信息审批')
     const variables = {
@@ -99,6 +138,7 @@ describe('useApprovalService hooks', () => {
       approved: false,
     }
 
+    if (!options.onSuccess) throw new Error('onSuccess should be defined')
     options.onSuccess(data, variables)
 
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: approvalKeys.ALL })
@@ -112,13 +152,14 @@ describe('useApprovalService hooks', () => {
     })
 
     const error = new Error('failed')
+    if (!options.onError) throw new Error('onError should be defined')
     options.onError(error, variables)
     expect(onError).toHaveBeenCalledWith(error, variables)
   })
 
   it('useLatestAdditionalInfoInstanceStatus uses defaults and runs query fn through request context', async () => {
     useLatestAdditionalInfoInstanceStatus()
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = getLatestQueryOptions()
 
     expect(options.queryKey).toBe(approvalInstanceKeys.LATEST_ADDITIONAL_INFO_INSTANCE)
     expect(options.enabled.value).toBe(true)
@@ -143,7 +184,7 @@ describe('useApprovalService hooks', () => {
       refetchOnWindowFocus: true,
       refetchOnMount: true,
     })
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = getLatestQueryOptions()
 
     expect(options.enabled.value).toBe(false)
     enabled.value = true
