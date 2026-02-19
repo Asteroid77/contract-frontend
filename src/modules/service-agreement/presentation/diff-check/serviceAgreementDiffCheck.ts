@@ -29,6 +29,8 @@ type ServiceAgreementWithFiles = Omit<ServiceAgreementRequestDTO, 'expirationTim
   servicePointSpecifications: ServicePointSpecificationInput[] | ServicePointSpecification[] | null
 }
 
+type ServicePointLike = ServicePointSpecificationInput | ServicePointSpecification
+
 const optionLabel = (options: { label: string; value: unknown }[], value: unknown): string => {
   if (value == null) return ''
   const hit = options.find((o) => o.value === value)
@@ -54,6 +56,22 @@ const formatCapacity = (value: unknown): string => {
 const formatVoltage = (value: unknown): string => {
   if (value == null || value === '') return ''
   return `${value} kV`
+}
+
+const toServicePointListItem = (
+  item: ServicePointLike,
+  idx: number,
+  usageLabel: (value: unknown) => string,
+): ListItemValue => {
+  const serviceAccount = item.serviceAccount || ''
+
+  return {
+    id: serviceAccount || item.id || idx,
+    serviceAccount,
+    transformerCapacity: formatCapacity(item.transformerCapacity),
+    electricityConsumptionType: usageLabel(item.electricityConsumptionType),
+    voltageClass: formatVoltage(item.voltageClass),
+  }
 }
 
 export const buildServiceAgreementDiffCheckFields = (): FieldDefinition[] => {
@@ -137,17 +155,10 @@ export const toServiceAgreementDiffCheckForm = (model: ServiceAgreementWithFiles
 
   const usageLabel = (v: unknown) => optionLabel(UsageCategoryOption, v)
 
-  const list = (model.servicePointSpecifications || []) as Array<ServicePointSpecificationInput | ServicePointSpecification>
-  const listItems: ListItemValue[] = list.map((item, idx) => {
-    const serviceAccount = (item as any).serviceAccount as string
-    return {
-      id: serviceAccount || (item as any).id || idx,
-      serviceAccount: serviceAccount || '',
-      transformerCapacity: formatCapacity((item as any).transformerCapacity),
-      electricityConsumptionType: usageLabel((item as any).electricityConsumptionType),
-      voltageClass: formatVoltage((item as any).voltageClass),
-    }
-  })
+  const list = model.servicePointSpecifications ?? []
+  const listItems: ListItemValue[] = list.map((item, idx) =>
+    toServicePointListItem(item, idx, usageLabel),
+  )
 
   base.servicePointSpecifications = listItems
   return base
