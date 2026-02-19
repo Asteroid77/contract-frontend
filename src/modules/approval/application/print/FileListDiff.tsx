@@ -152,7 +152,7 @@ const createFileIdMap = (files: OssCallbackView[] | undefined) => {
 
 export function useDistributeFiles(
   allFilesRef: Ref<OssCallbackView[] | undefined>,
-  dataSources: { old: Record<string, unknown>; new: Record<string, unknown> }, // 这里的 any 指代包含 xxxIds 的业务对象
+  dataSources: { old: Record<string, unknown>; new: Record<string, unknown> }, // 这里的对象表示包含 xxxIds 的业务对象
   rules: { key: string; title: string }[],
 ) {
   return computed(() => {

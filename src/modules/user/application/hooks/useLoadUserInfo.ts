@@ -11,7 +11,7 @@ export const userKeys = {
 /**
  * 加载用户数据hook
  * @param accessToken token
- * @returns UseQueryReturnType<SignInResponse, AxiosError<ServerResponse<unknown>, any>>
+ * @returns UseQueryReturnType<SignInResponse, AxiosError<unknown>>
  */
 export function useLoadUserInfo(accessToken: string) {
   return useQuery<SignInResponse, AxiosError<unknown>, SignInResponse>({
