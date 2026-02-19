@@ -6,6 +6,7 @@ import { routeIcons as icons } from '@/app/presentation/constants/route-icons'
 import { $t } from '@/_utils/i18n'
 
 export type IconNames = keyof typeof icons
+type I18nKey = Parameters<typeof $t>[0]
 /**
  * 将路由配置转换为Naive UI菜单数据结构
  * @param routes 路由配置数组
@@ -21,7 +22,11 @@ export function convertRoutesToMenuItems(routes: RouteRecordRaw[]) {
     if (!route.meta || !route.meta.name || route.meta.hideInMenu) return
 
     // 翻译菜单名称
-    const menuLabel = $t(route.meta.name as any)
+    const routeMetaName = route.meta.name
+    const menuLabel =
+      typeof routeMetaName === 'string'
+        ? ($t(routeMetaName as I18nKey) as string)
+        : ''
 
     // 创建菜单项
     const menuItem: MenuOption = {

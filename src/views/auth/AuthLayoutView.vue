@@ -10,6 +10,7 @@ import ErrorBoundary from '@/app/observability/components/ErrorBoundary'
 import { $t } from '@/_utils/i18n'
 
 const route = useRoute()
+type I18nKey = Parameters<typeof $t>[0]
 
 // 判断是否需要居中布局（如结果页）
 const needsCentering = computed(() => {
@@ -32,7 +33,8 @@ const contentClasses = computed(() => {
 
 // 翻译页面标题
 const pageTitle = computed(() => {
-  return route.meta.name ? $t(route.meta.name as any) : ''
+  if (typeof route.meta.name !== 'string') return ''
+  return $t(route.meta.name as I18nKey)
 })
 </script>
 <template>

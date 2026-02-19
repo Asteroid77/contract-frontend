@@ -1,4 +1,4 @@
-import { defineComponent, computed, ref, Transition, watch } from 'vue'
+import { defineComponent, computed, ref, Transition, watch, type Component } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { NDropdown, NTooltip, NScrollbar } from 'naive-ui'
 import {
@@ -185,15 +185,16 @@ export default defineComponent({
     const renderMenuIcon = (iconName?: string) => {
       if (!iconName) return null
 
-      const ResolvedIcon = resolveIcon(iconName as IconNames) as any
+      const ResolvedIcon = resolveIcon(iconName as IconNames)
       if (ResolvedIcon) {
-        return <ResolvedIcon class="w-5 h-5 shrink-0" />
+        const IconComponent = ResolvedIcon as Component
+        return <IconComponent class="w-5 h-5 shrink-0" />
       }
 
-      const IconRenderer = renderIcon(null, iconName) as any
+      const IconRenderer = renderIcon(null, iconName)
       return (
         <span class="text-[20px] leading-none shrink-0">
-          <IconRenderer />
+          {IconRenderer()}
         </span>
       )
     }
