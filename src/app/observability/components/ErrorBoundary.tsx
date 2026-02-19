@@ -13,6 +13,7 @@ import {
   ref,
   type ComponentPublicInstance,
   onErrorCaptured,
+  type VNodeChild,
 } from 'vue'
 import { $t } from '@/_utils/i18n'
 import { captureVueError } from '@/app/observability/collectors/error-collector'
@@ -201,9 +202,9 @@ export default defineComponent({
 
     /** Single property row */
     const renderPropRow = (
-      icon: () => any,
+      icon: () => VNodeChild,
       label: string,
-      value: () => any,
+      value: () => VNodeChild,
       alignTop = false,
     ) => (
       <div class={['error-boundary__prop-row', alignTop && 'error-boundary__prop-row--top']}>
