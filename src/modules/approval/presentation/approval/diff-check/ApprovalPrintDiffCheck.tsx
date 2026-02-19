@@ -7,7 +7,9 @@ import { match } from 'ts-pattern'
 import { computed, defineComponent, type PropType } from 'vue'
 import ApprovalContentDiffCheck from './ApprovalContentDiffCheck'
 
-const statusTextMap: Record<string, string> = {
+type I18nKey = Parameters<typeof $t>[0]
+
+const statusTextMap: Record<string, I18nKey> = {
   pending: 'domain.approval.status.pending',
   handling: 'domain.approval.status.processing',
   approved: 'domain.approval.status.approved',
@@ -17,8 +19,19 @@ const statusTextMap: Record<string, string> = {
 }
 
 const toStatusText = (status: string) => {
-  return $t((statusTextMap[status] || 'common.label.status') as any) as string
+  const key = statusTextMap[status] ?? 'common.label.status'
+  return $t(key) as string
 }
+
+const toActionLabelKey = (action: string): I18nKey =>
+  match(action)
+    .with('approve', () => 'domain.approval.action.pass')
+    .with('reject', () => 'domain.approval.action.reject')
+    .with('claim', () => 'common.action.claim')
+    .with('submit', () => 'common.action.submit')
+    .with('transfer', () => 'common.action.transfer')
+    .with('cancel', () => 'common.action.cancel')
+    .otherwise(() => 'common.label.action')
 
 export default defineComponent({
   name: 'ApprovalPrintDiffCheck',
@@ -113,16 +126,7 @@ export default defineComponent({
                   <td>{row.nodeName}</td>
                   <td>{showIncompletedUserName(row.operator)}</td>
                   <td>
-                    {$t(
-                      match(row.action)
-                        .with('approve', () => 'domain.approval.action.pass')
-                        .with('reject', () => 'domain.approval.action.reject')
-                        .with('claim', () => 'common.action.claim')
-                        .with('submit', () => 'common.action.submit')
-                        .with('transfer', () => 'common.action.transfer')
-                        .with('cancel', () => 'common.action.cancel')
-                        .otherwise(() => 'common.label.action') as any,
-                    )}
+                    {$t(toActionLabelKey(row.action))}
                   </td>
                   <td>{formatted(row.createdTime).standard}</td>
                   <td>{row.comment || '-'}</td>

@@ -9,6 +9,8 @@ import { match } from 'ts-pattern'
 import { findPathInTree } from '@/modules/shared/presentation/utils'
 import { DiffRenderer } from '@/modules/approval/presentation/print/DiffRenderer'
 
+type I18nKey = Parameters<typeof $t>[0]
+
 export default defineComponent({
   name: 'UserAdditionalInfoPrintTemplate',
   props: {
@@ -80,11 +82,7 @@ export default defineComponent({
     ) => {
       if (!data) return ''
 
-      const labelMap: Record<string, string> = {
-        name:
-          RegisterType.INDIVIDUAL === data['registerType']
-            ? 'domain.user.field.name'
-            : 'domain.user.field.usci',
+      const labelMap: Record<Exclude<(typeof orderItems)[number], 'name'>, I18nKey> = {
         registerType: 'domain.user.field.registerType',
         pca: 'domain.user.field.region',
         companyAddress: 'domain.user.field.companyAddress',
@@ -95,8 +93,13 @@ export default defineComponent({
         bankAccount: 'domain.user.field.bankAccount',
       }
 
-      const key = labelMap[itemKey] || 'common.label.unknown'
-      return `${$t(key as any)}:`
+      const key: I18nKey =
+        itemKey === 'name'
+          ? RegisterType.INDIVIDUAL === data.registerType
+            ? 'domain.user.field.name'
+            : 'domain.user.field.usci'
+          : labelMap[itemKey]
+      return `${$t(key)}:`
     }
 
     const shouldRenderItem = (

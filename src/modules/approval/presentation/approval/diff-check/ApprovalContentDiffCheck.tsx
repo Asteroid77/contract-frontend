@@ -15,6 +15,8 @@ import { uniq } from 'lodash'
 import { match } from 'ts-pattern'
 import { computed, defineComponent, type PropType } from 'vue'
 
+type I18nKey = Parameters<typeof $t>[0]
+
 const safeParse = <T extends object>(input: unknown): T => {
   if (!input) return {} as T
   try {
@@ -78,8 +80,7 @@ export default defineComponent({
 
     const userLabel = (itemKey: (typeof userOrder)[number], data: UserAdditionalInfo | null | undefined): string => {
       if (!data) return ''
-      const labelMap: Record<string, string> = {
-        name: RegisterType.INDIVIDUAL === data.registerType ? 'domain.user.field.name' : 'domain.user.field.usci',
+      const labelMap: Record<Exclude<(typeof userOrder)[number], 'name'>, I18nKey> = {
         registerType: 'domain.user.field.registerType',
         pca: 'domain.user.field.region',
         companyAddress: 'domain.user.field.companyAddress',
@@ -89,7 +90,13 @@ export default defineComponent({
         bankName: 'domain.user.field.bankName',
         bankAccount: 'domain.user.field.bankAccount',
       }
-      return $t((labelMap[itemKey] || 'common.label.unknown') as any) as string
+      const key: I18nKey =
+        itemKey === 'name'
+          ? RegisterType.INDIVIDUAL === data.registerType
+            ? 'domain.user.field.name'
+            : 'domain.user.field.usci'
+          : labelMap[itemKey]
+      return $t(key) as string
     }
 
     const userShouldShow = (key: keyof UserAdditionalInfo, data: UserAdditionalInfo | null): boolean => {
@@ -135,18 +142,18 @@ export default defineComponent({
     const approvalDataAgreement = computed(() => props.data.approvalData as unknown as ServiceAgreementRequestDTO)
     const sourceDataAgreement = computed(() => (props.data.sourceData as unknown as ServiceAgreementRequestDTO | null) ?? null)
 
-    const agreementRules = [
-      { key: 'billIds' },
-      { key: 'contractScanIds' },
-      { key: 'supplementaryAttachmentIds' },
+    const agreementFileIdKeys = [
+      'billIds',
+      'contractScanIds',
+      'supplementaryAttachmentIds',
     ] as const
 
     const allFileIds = computed(() => {
       const ids: number[] = []
       const collect = (obj: ServiceAgreementRequestDTO | null) => {
         if (!obj) return
-        agreementRules.forEach((r) => {
-          const arr = (obj as any)[r.key] as number[] | null | undefined
+        agreementFileIdKeys.forEach((key) => {
+          const arr = obj[key]
           if (Array.isArray(arr) && arr.length) ids.push(...arr)
         })
       }
@@ -172,7 +179,7 @@ export default defineComponent({
 
     const agreementData = computed<FormData>(() => {
       const model = {
-        ...(approvalDataAgreement.value as any),
+        ...approvalDataAgreement.value,
         contractScanFiles: pickFiles(approvalDataAgreement.value.contractScanIds),
         billFiles: pickFiles(approvalDataAgreement.value.billIds),
         supplementaryAttachmentFiles: pickFiles(approvalDataAgreement.value.supplementaryAttachmentIds),
@@ -183,7 +190,7 @@ export default defineComponent({
     const agreementOldData = computed<FormData | null>(() => {
       if (!sourceDataAgreement.value) return null
       const model = {
-        ...(sourceDataAgreement.value as any),
+        ...sourceDataAgreement.value,
         contractScanFiles: pickFiles(sourceDataAgreement.value.contractScanIds),
         billFiles: pickFiles(sourceDataAgreement.value.billIds),
         supplementaryAttachmentFiles: pickFiles(sourceDataAgreement.value.supplementaryAttachmentIds),

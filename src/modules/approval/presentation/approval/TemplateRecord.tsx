@@ -6,6 +6,18 @@ import { formatted } from '@/modules/shared/presentation/time'
 import { showIncompletedUserName } from '@/modules/approval/application/utils'
 import { match } from 'ts-pattern'
 
+type I18nKey = Parameters<typeof $t>[0]
+
+const getActionLabelKey = (action: string): I18nKey =>
+  match(action)
+    .with('approve', () => 'common.action.approve')
+    .with('reject', () => 'common.action.reject')
+    .with('claim', () => 'common.action.claim')
+    .with('submit', () => 'common.action.submit')
+    .with('transfer', () => 'common.action.transfer')
+    .with('cancel', () => 'common.action.cancel')
+    .otherwise(() => 'common.label.action')
+
 export default defineComponent({
   name: 'PrintHistoryList',
   props: {
@@ -51,16 +63,7 @@ export default defineComponent({
                   <td>
                     {
                       // Map actions to new common or domain keys
-                      $t(
-                        match(row.action)
-                          .with('approve', () => 'common.action.approve')
-                          .with('reject', () => 'common.action.reject')
-                          .with('claim', () => 'common.action.claim')
-                          .with('submit', () => 'common.action.submit')
-                          .with('transfer', () => 'common.action.transfer')
-                          .with('cancel', () => 'common.action.cancel')
-                          .otherwise(() => 'common.label.action') as any,
-                      )
+                      $t(getActionLabelKey(row.action))
                     }
                   </td>
                   <td>{formatted(row.createdTime).standard}</td>

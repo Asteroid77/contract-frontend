@@ -3,7 +3,9 @@ import type { ApprovalInstance } from '@/modules/approval/application/models'
 import { showIncompletedUserName } from '@/modules/approval/application/utils'
 import { defineComponent, type PropType, computed } from 'vue'
 
-const statusTextMap: Record<string, string> = {
+type I18nKey = Parameters<typeof $t>[0]
+
+const statusTextMap: Record<string, I18nKey> = {
   pending: 'domain.approval.status.pending',
   handling: 'domain.approval.status.processing',
   approved: 'domain.approval.status.approved',
@@ -13,7 +15,8 @@ const statusTextMap: Record<string, string> = {
 }
 
 const toStatusText = (status: string) => {
-  return $t((statusTextMap[status] || 'common.label.status') as any) as string
+  const key = statusTextMap[status] ?? 'common.label.status'
+  return $t(key) as string
 }
 
 export default defineComponent({
@@ -54,4 +57,3 @@ export default defineComponent({
     )
   },
 })
-

@@ -64,13 +64,13 @@ export const transformerCapacityRule: FormItemRule[] = [
 
 // 单个比例的校验规则（0-100之间的数字）
 // 映射 dynamic keys
-const pricingFieldMap: Record<string, string> = {
+const pricingFieldMap = {
   isTimeOfUsePricingEnabled: 'domain.agreement.field.touEnabled',
   peakPercentage: 'domain.agreement.field.peak',
   superPeakPercentage: 'domain.agreement.field.superPeak',
   standardPercentage: 'domain.agreement.field.standard',
   valleyPercentage: 'domain.agreement.field.valley',
-}
+} as const satisfies Record<keyof TimeOfUsePricingValue, Parameters<typeof $t>[0]>
 
 export const percentageRule: (
   path: keyof TimeOfUsePricingValue,
@@ -81,18 +81,18 @@ export const percentageRule: (
   formValue: Ref<FormInput<TimeOfUsePricingValue>>,
   formItemsRef: Ref<(FormItemInst | null)[]>,
 ) => {
-  const fieldKey = pricingFieldMap[path] || 'common.label.unknown'
+  const fieldKey = pricingFieldMap[path]
   return {
     type: 'number',
     required: true,
     validator(rule: FormItemRule, value: number) {
       if (value === null || value === undefined) {
-        return requireRule(rule, $t(fieldKey as any), value)
+        return requireRule(rule, $t(fieldKey), value)
       }
       if (value < 0 || value > 100) {
         return new Error(
           $t('domain.agreement.validation.touRange', {
-            field: $t(fieldKey as any),
+            field: $t(fieldKey),
             min: 0,
             max: 100,
           }),
