@@ -469,7 +469,7 @@ export default defineComponent({
               <ErrorBoundary key={route.fullPath}>
                 <RouterView>
                   {{
-                    default: ({ Component }: { Component: any }) =>
+                    default: ({ Component }) =>
                       Component && (
                         <Transition name="page" mode="out-in">
                           <Component key={route.fullPath} />

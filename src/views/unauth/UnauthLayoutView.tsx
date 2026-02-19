@@ -11,7 +11,7 @@ export default defineComponent({
           <ErrorBoundary>
             <RouterView
               v-slots={{
-                default: ({ Component }: { Component: any }) =>
+                default: ({ Component }) =>
                   Component && (
                     <Transition name="page" mode="out-in">
                       <Component />
