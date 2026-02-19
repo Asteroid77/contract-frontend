@@ -27,6 +27,13 @@ const createMockEl = () => ({
   remove: vi.fn(),
 }) as unknown as HTMLElement
 
+type CanDirectiveHooks = {
+  mounted?: (el: HTMLElement, binding: DirectiveBinding<string | string[]>) => void
+  updated?: (el: HTMLElement, binding: DirectiveBinding<string | string[]>) => void
+}
+
+const typedCanDirective = canDirective as CanDirectiveHooks
+
 describe('v-can directive', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -37,7 +44,7 @@ describe('v-can directive', () => {
 
     const el = createMockEl()
 
-    ;(canDirective as any).mounted?.(el, makeBinding('read:User'))
+    typedCanDirective.mounted?.(el, makeBinding('read:User'))
 
     expect(ability.can).toHaveBeenCalledWith('read', 'User')
     expect(el.remove).not.toHaveBeenCalled()
@@ -49,7 +56,7 @@ describe('v-can directive', () => {
 
     const el = createMockEl()
 
-    ;(canDirective as any).mounted?.(el, makeBinding('delete:User'))
+    typedCanDirective.mounted?.(el, makeBinding('delete:User'))
 
     expect(ability.can).toHaveBeenCalledWith('delete', 'User')
     expect(el.remove).toHaveBeenCalledTimes(1)
@@ -61,7 +68,7 @@ describe('v-can directive', () => {
 
     const el = createMockEl()
 
-    ;(canDirective as any).updated?.(el, makeBinding(['read:User', 'update:User']))
+    typedCanDirective.updated?.(el, makeBinding(['read:User', 'update:User']))
 
     expect(el.remove).toHaveBeenCalledTimes(1)
     expect(capturePermissionError).toHaveBeenCalledWith(
@@ -76,7 +83,7 @@ describe('v-can directive', () => {
 
     const el = createMockEl()
 
-    ;(canDirective as any).updated?.(el, makeBinding(['read:User', 'delete:User'], 'any'))
+    typedCanDirective.updated?.(el, makeBinding(['read:User', 'delete:User'], 'any'))
 
     expect(el.remove).not.toHaveBeenCalled()
     expect(capturePermissionError).not.toHaveBeenCalled()
