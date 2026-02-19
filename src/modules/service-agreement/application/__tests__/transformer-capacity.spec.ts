@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
+import type { ServicePointSpecification } from '@/modules/service-agreement/application/models'
 
 vi.mock('@/_utils/discrete_naive_api', () => ({
   message: {
@@ -21,9 +22,9 @@ describe('transformer capacity option helper', () => {
   })
 
   it('rejects invalid capacity label and clears model value', () => {
-    const formModel = ref({ transformerCapacity: 100 })
+    const formModel = ref<FormInput<ServicePointSpecification>>({ transformerCapacity: 100 })
 
-    const result = handleCapacityOptionCreate('abc', formModel as any)
+    const result = handleCapacityOptionCreate('abc', formModel)
 
     expect(result).toBeUndefined()
     expect(message.error).toHaveBeenCalledTimes(1)
@@ -31,9 +32,11 @@ describe('transformer capacity option helper', () => {
   })
 
   it('reuses existing standard option instead of creating new one', () => {
-    const formModel = ref({ transformerCapacity: undefined as number | undefined })
+    const formModel = ref<FormInput<ServicePointSpecification>>({
+      transformerCapacity: undefined as number | undefined,
+    })
 
-    const result = handleCapacityOptionCreate('30kva', formModel as any)
+    const result = handleCapacityOptionCreate('30kva', formModel)
 
     expect(result).toBeUndefined()
     expect(formModel.value.transformerCapacity).toBe(30)
@@ -41,9 +44,11 @@ describe('transformer capacity option helper', () => {
   })
 
   it('creates custom option once and reuses when called again', () => {
-    const formModel = ref({ transformerCapacity: undefined as number | undefined })
+    const formModel = ref<FormInput<ServicePointSpecification>>({
+      transformerCapacity: undefined as number | undefined,
+    })
 
-    const created = handleCapacityOptionCreate('333 kVA', formModel as any)
+    const created = handleCapacityOptionCreate('333 kVA', formModel)
 
     expect(created).toEqual({
       label: '333 kVA',
@@ -53,7 +58,7 @@ describe('transformer capacity option helper', () => {
 
     const sizeAfterCreate = CapacityOptions.value.length
 
-    const second = handleCapacityOptionCreate('333', formModel as any)
+    const second = handleCapacityOptionCreate('333', formModel)
 
     expect(second).toBeUndefined()
     expect(formModel.value.transformerCapacity).toBe(333)
@@ -61,9 +66,9 @@ describe('transformer capacity option helper', () => {
   })
 
   it('ignores empty input after cleanup', () => {
-    const formModel = ref({ transformerCapacity: 100 })
+    const formModel = ref<FormInput<ServicePointSpecification>>({ transformerCapacity: 100 })
 
-    const result = handleCapacityOptionCreate('   kva   ', formModel as any)
+    const result = handleCapacityOptionCreate('   kva   ', formModel)
 
     expect(result).toBeUndefined()
     expect(message.error).not.toHaveBeenCalled()

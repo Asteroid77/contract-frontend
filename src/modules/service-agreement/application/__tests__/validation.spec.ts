@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
+import type { FormItemInst, FormItemRule, FormRules } from 'naive-ui'
+import type { TimeOfUsePricingValue } from '@/modules/service-agreement/application/models'
 
 vi.mock('@/_utils/i18n', () => ({
   $t: vi.fn((key: string) => key),
@@ -13,9 +15,30 @@ import {
   serviceAccountRule,
 } from '@/modules/service-agreement/application/validation'
 
+type ValidatorLike = (rule: FormItemRule, value: unknown) => true | Error
+
+const getValidator = (rule: unknown): ValidatorLike => {
+  const validator = (rule as FormItemRule).validator
+  if (!validator) {
+    throw new Error('validator should be defined')
+  }
+  return (inputRule, value) => validator(inputRule, value) as true | Error
+}
+
+const getFieldRule = (rules: FormRules, key: string): FormItemRule => {
+  const rule = rules[key]
+  if (Array.isArray(rule)) {
+    throw new Error(`field ${key} should not be array rule in this test`)
+  }
+  if (!rule) {
+    throw new Error(`field ${key} rule should exist`)
+  }
+  return rule
+}
+
 describe('service-agreement validation', () => {
   it('serviceAccountRule validates digits-only and length range', () => {
-    const validator = serviceAccountRule[0].validator as any
+    const validator = getValidator(serviceAccountRule[0])
 
     const invalidChars = validator({}, 'abc123')
     expect(invalidChars).toBeInstanceOf(Error)
@@ -28,7 +51,7 @@ describe('service-agreement validation', () => {
   })
 
   it('percentageRule checks range and sum when TOU enabled', () => {
-    const formValue = ref({
+    const formValue = ref<FormInput<TimeOfUsePricingValue>>({
       isTimeOfUsePricingEnabled: true,
       peakPercentage: 20,
       superPeakPercentage: 20,
@@ -37,10 +60,13 @@ describe('service-agreement validation', () => {
     })
 
     const restoreValidation = vi.fn()
-    const formItemsRef = ref([{ restoreValidation }, null])
+    const formItemsRef = ref<(FormItemInst | null)[]>([
+      { restoreValidation } as unknown as FormItemInst,
+      null,
+    ])
 
-    const rule = percentageRule('peakPercentage', formValue as any, formItemsRef as any)
-    const validator = rule.validator as any
+    const rule = percentageRule('peakPercentage', formValue, formItemsRef)
+    const validator = getValidator(rule)
 
     expect(validator({}, 101)).toBeInstanceOf(Error)
 
@@ -56,7 +82,7 @@ describe('service-agreement validation', () => {
   })
 
   it('percentageRule skips total validation when TOU is disabled', () => {
-    const formValue = ref({
+    const formValue = ref<FormInput<TimeOfUsePricingValue>>({
       isTimeOfUsePricingEnabled: false,
       peakPercentage: 10,
       superPeakPercentage: 10,
@@ -64,9 +90,11 @@ describe('service-agreement validation', () => {
       valleyPercentage: 10,
     })
 
-    const formItemsRef = ref([{ restoreValidation: vi.fn() }])
-    const rule = percentageRule('peakPercentage', formValue as any, formItemsRef as any)
-    const validator = rule.validator as any
+    const formItemsRef = ref<(FormItemInst | null)[]>([
+      { restoreValidation: vi.fn() } as unknown as FormItemInst,
+    ])
+    const rule = percentageRule('peakPercentage', formValue, formItemsRef)
+    const validator = getValidator(rule)
 
     expect(validator({}, 10)).toBe(true)
   })
@@ -127,21 +155,21 @@ describe('service-agreement validation', () => {
 
     const rules = createPriceGroupRules(model as never)
 
-    expect((rules.priceType as any).validator({}, undefined)).toBe(true)
-    expect((rules.priceCategory as any).validator({}, undefined)).toBe(true)
+    expect(getValidator(getFieldRule(rules, 'priceType'))({}, undefined)).toBe(true)
+    expect(getValidator(getFieldRule(rules, 'priceCategory'))({}, undefined)).toBe(true)
 
-    expect((rules.fixedPrice as any).validator({}, '')).toBeInstanceOf(Error)
-    expect((rules.comment as any).validator({}, '')).toBeInstanceOf(Error)
+    expect(getValidator(getFieldRule(rules, 'fixedPrice'))({}, '')).toBeInstanceOf(Error)
+    expect(getValidator(getFieldRule(rules, 'comment'))({}, '')).toBeInstanceOf(Error)
 
     model.priceCategory = 2
-    expect((rules.fixedSpread as any).validator({}, '')).toBeInstanceOf(Error)
+    expect(getValidator(getFieldRule(rules, 'fixedSpread'))({}, '')).toBeInstanceOf(Error)
 
     model.priceCategory = 3
-    expect((rules.revenueShareRatio as any).validator({}, null)).toBeInstanceOf(Error)
+    expect(getValidator(getFieldRule(rules, 'revenueShareRatio'))({}, null)).toBeInstanceOf(Error)
   })
 
   it('previewAttachmentsRule requires code field', () => {
-    const validator = previewAttachmentsRule.code.validator as any
+    const validator = getValidator(previewAttachmentsRule.code)
 
     expect(validator({}, '')).toBeInstanceOf(Error)
     expect(validator({}, '1234')).toBe(true)

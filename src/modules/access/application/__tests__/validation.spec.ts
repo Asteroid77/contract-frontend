@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
+import type { FormItemRule, FormRules } from 'naive-ui'
 import {
   RegisterStep1FormRule,
   loginFormRules,
@@ -23,6 +24,21 @@ vi.mock('@/modules/shared/application/rules/RequireRule', () => ({
   requireRule: vi.fn(() => true),
 }))
 
+const getRuleArray = (rules: FormRules, key: string): FormItemRule[] => {
+  const rule = rules[key]
+  if (!Array.isArray(rule)) {
+    throw new Error(`field ${key} should be an array rule`)
+  }
+  return rule
+}
+
+const getValidator = (rule: FormItemRule): ((rule: FormItemRule, value: string) => true | Error | undefined) => {
+  if (!rule.validator) {
+    throw new Error('validator should be defined')
+  }
+  return (inputRule, value) => rule.validator!(inputRule, value) as true | Error | undefined
+}
+
 describe('access validation', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -41,10 +57,7 @@ describe('access validation', () => {
     vi.mocked(chinaMobilePhoneVerify).mockReturnValue(false)
 
     const rules = loginFormRules(ref({} as never))
-    const phoneFormatValidator = (rules.phone as any)[1].validator as (
-      rule: unknown,
-      value: string,
-    ) => true | Error
+    const phoneFormatValidator = getValidator(getRuleArray(rules, 'phone')[1])
 
     expect(phoneFormatValidator({}, '')).toBe(true)
 
@@ -58,10 +71,7 @@ describe('access validation', () => {
 
   it('login password length validator enforces min and max', () => {
     const rules = loginFormRules(ref({} as never))
-    const validator = (rules.password as any)[1].validator as (
-      rule: unknown,
-      value: string,
-    ) => true | Error
+    const validator = getValidator(getRuleArray(rules, 'password')[1])
 
     const tooShort = validator({}, '1234567')
     expect(tooShort).toBeInstanceOf(Error)
@@ -84,10 +94,7 @@ describe('access validation', () => {
 
   it('register and password-recovery confirm-password validators enforce mismatch rules', () => {
     const registerRules = RegisterStep1FormRule(ref({ password: 'password-a' } as never))
-    const registerConfirmValidator = (registerRules.dbCheckPassword as any)[2].validator as (
-      rule: unknown,
-      value: string,
-    ) => void | Error
+    const registerConfirmValidator = getValidator(getRuleArray(registerRules, 'dbCheckPassword')[2])
 
     const registerMismatch = registerConfirmValidator({}, 'password-b')
     expect(registerMismatch).toBeInstanceOf(Error)
@@ -96,10 +103,7 @@ describe('access validation', () => {
     expect(registerConfirmValidator({}, 'password-a')).toBeUndefined()
 
     const recoveryRules = passwordRecoveryFormRules(ref({ password: 'password-a' } as never))
-    const recoveryConfirmValidator = (recoveryRules.dbCheckPassword as any)[2].validator as (
-      rule: unknown,
-      value: string,
-    ) => true | Error
+    const recoveryConfirmValidator = getValidator(getRuleArray(recoveryRules, 'dbCheckPassword')[2])
 
     const recoveryMismatch = recoveryConfirmValidator({}, 'password-b')
     expect(recoveryMismatch).toBeInstanceOf(Error)
@@ -110,10 +114,7 @@ describe('access validation', () => {
 
   it('required-rule validators delegate to requireRule helper', () => {
     const rules = loginFormRules(ref({} as never))
-    const phoneRequiredValidator = (rules.phone as any)[0].validator as (
-      rule: unknown,
-      value: string,
-    ) => true | Error
+    const phoneRequiredValidator = getValidator(getRuleArray(rules, 'phone')[0])
 
     phoneRequiredValidator({}, '13800138000')
 

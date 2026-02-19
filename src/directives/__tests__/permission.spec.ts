@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { DirectiveBinding } from 'vue'
 
 const { hasRoleSpy, hasPermissionSpy, useAccountStoreSpy } = vi.hoisted(() => ({
   hasRoleSpy: vi.fn<(role: string) => boolean>(),
@@ -11,6 +12,26 @@ vi.mock('@/modules/user/application/stores/useAccountStore', () => ({
 }))
 
 import permissionDirective from '@/directives/permission'
+
+type PermissionBinding = DirectiveBinding<string | string[]>
+
+const createBinding = (
+  value: string | string[] | undefined,
+  arg?: string,
+): PermissionBinding =>
+  ({
+    instance: null,
+    value,
+    oldValue: undefined,
+    arg,
+    modifiers: {},
+    dir: {} as PermissionBinding['dir'],
+  }) as PermissionBinding
+
+const directive = permissionDirective as {
+  mounted?: (el: HTMLElement, binding: PermissionBinding) => void
+  updated?: (el: HTMLElement, binding: PermissionBinding) => void
+}
 
 describe('permission directive', () => {
   beforeEach(() => {
@@ -31,12 +52,7 @@ describe('permission directive', () => {
     const el = document.createElement('div')
     document.body.appendChild(el)
 
-    ;(permissionDirective as any).mounted?.(
-      el,
-      {
-        value: 'agreement:edit',
-      } as any,
-    )
+    directive.mounted?.(el, createBinding('agreement:edit'))
 
     expect(hasPermissionSpy).toHaveBeenCalledWith('agreement:edit')
     expect(el.isConnected).toBe(false)
@@ -46,13 +62,7 @@ describe('permission directive', () => {
     const el = document.createElement('div')
     document.body.appendChild(el)
 
-    ;(permissionDirective as any).mounted?.(
-      el,
-      {
-        arg: 'role',
-        value: 'admin',
-      } as any,
-    )
+    directive.mounted?.(el, createBinding('admin', 'role'))
 
     expect(hasRoleSpy).toHaveBeenCalledWith('admin')
     expect(hasPermissionSpy).not.toHaveBeenCalled()
@@ -65,12 +75,7 @@ describe('permission directive', () => {
     const el = document.createElement('div')
     document.body.appendChild(el)
 
-    ;(permissionDirective as any).updated?.(
-      el,
-      {
-        value: ['agreement:view', 'agreement:approve'],
-      } as any,
-    )
+    directive.updated?.(el, createBinding(['agreement:view', 'agreement:approve']))
 
     expect(hasPermissionSpy).toHaveBeenNthCalledWith(1, 'agreement:view')
     expect(hasPermissionSpy).toHaveBeenNthCalledWith(2, 'agreement:approve')
@@ -81,12 +86,7 @@ describe('permission directive', () => {
     const el = document.createElement('div')
     document.body.appendChild(el)
 
-    ;(permissionDirective as any).mounted?.(
-      el,
-      {
-        value: undefined,
-      } as any,
-    )
+    directive.mounted?.(el, createBinding(undefined))
 
     expect(hasRoleSpy).not.toHaveBeenCalled()
     expect(hasPermissionSpy).not.toHaveBeenCalled()

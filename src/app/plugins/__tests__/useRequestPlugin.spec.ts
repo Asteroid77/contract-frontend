@@ -43,26 +43,64 @@ vi.mock('@/app/infrastructure/request/request-id', () => ({
   readRequestIdFromHeaders: vi.fn(() => 'req-from-header'),
 }))
 
-const createQueryStub = (meta?: Record<string, unknown>) =>
-  ({
-    meta,
-    queryKey: ['approval', 'instance', 1],
-    state: {
-      status: 'error',
-      fetchStatus: 'idle',
-      fetchFailureCount: 1,
-      data: undefined,
-      dataUpdatedAt: 0,
-    },
-    options: {},
-    getObserversCount: () => 0,
-  }) as any
+type QueryStub = {
+  meta?: Record<string, unknown>
+  queryKey: unknown[]
+  state: {
+    status: string
+    fetchStatus: string
+    fetchFailureCount: number
+    data: unknown
+    dataUpdatedAt: number
+  }
+  options: Record<string, unknown>
+  getObserversCount: () => number
+}
 
-const createMutationStub = (meta?: Record<string, unknown>) =>
-  ({
-    meta,
-    mutationId: 123,
-  }) as any
+type MutationStub = {
+  meta?: Record<string, unknown>
+  mutationId: number
+}
+
+type QueryCacheConfigLike = {
+  onError: (error: Error, query: QueryStub) => void
+  onSuccess: (data: { detail: string }, query: QueryStub) => void
+  onSettled: (data: unknown, error: unknown, query: { queryKey: unknown[] }) => void
+}
+
+type MutationCacheConfigLike = {
+  onSuccess: (
+    data: { detail: string },
+    variables: unknown,
+    context: unknown,
+    mutation: MutationStub,
+  ) => void
+}
+
+const getQueryCacheConfig = (queryClient: QueryClient): QueryCacheConfigLike =>
+  (queryClient.getQueryCache() as unknown as { config: QueryCacheConfigLike }).config
+
+const getMutationCacheConfig = (queryClient: QueryClient): MutationCacheConfigLike =>
+  (queryClient.getMutationCache() as unknown as { config: MutationCacheConfigLike }).config
+
+const createQueryStub = (meta?: Record<string, unknown>): QueryStub => ({
+  meta,
+  queryKey: ['approval', 'instance', 1],
+  state: {
+    status: 'error',
+    fetchStatus: 'idle',
+    fetchFailureCount: 1,
+    data: undefined,
+    dataUpdatedAt: 0,
+  },
+  options: {},
+  getObserversCount: () => 0,
+})
+
+const createMutationStub = (meta?: Record<string, unknown>): MutationStub => ({
+  meta,
+  mutationId: 123,
+})
 
 describe('useRequestPlugin', () => {
   beforeEach(() => {
@@ -87,7 +125,7 @@ describe('useRequestPlugin', () => {
 
   it('queryCache onSettled clears query request id', () => {
     const queryClient = useRequestPlugin()[0].option?.queryClient as QueryClient
-    const queryCacheConfig = (queryClient.getQueryCache() as any).config
+    const queryCacheConfig = getQueryCacheConfig(queryClient)
 
     queryCacheConfig.onSettled(undefined, null, {
       queryKey: ['q', '1'],
@@ -98,7 +136,7 @@ describe('useRequestPlugin', () => {
 
   it('queryCache onError handles BusinessError and reports unique notification', () => {
     const queryClient = useRequestPlugin()[0].option?.queryClient as QueryClient
-    const queryCacheConfig = (queryClient.getQueryCache() as any).config
+    const queryCacheConfig = getQueryCacheConfig(queryClient)
 
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -120,7 +158,7 @@ describe('useRequestPlugin', () => {
 
   it('queryCache onError handles axios-like response error and includes request id', () => {
     const queryClient = useRequestPlugin()[0].option?.queryClient as QueryClient
-    const queryCacheConfig = (queryClient.getQueryCache() as any).config
+    const queryCacheConfig = getQueryCacheConfig(queryClient)
 
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -154,7 +192,7 @@ describe('useRequestPlugin', () => {
 
   it('queryCache onError ignores canceled error notifications', () => {
     const queryClient = useRequestPlugin()[0].option?.queryClient as QueryClient
-    const queryCacheConfig = (queryClient.getQueryCache() as any).config
+    const queryCacheConfig = getQueryCacheConfig(queryClient)
 
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -172,7 +210,7 @@ describe('useRequestPlugin', () => {
 
   it('mutationCache onSuccess shows default success notification', () => {
     const queryClient = useRequestPlugin()[0].option?.queryClient as QueryClient
-    const mutationCacheConfig = (queryClient.getMutationCache() as any).config
+    const mutationCacheConfig = getMutationCacheConfig(queryClient)
 
     mutationCacheConfig.onSuccess(
       {
@@ -193,7 +231,7 @@ describe('useRequestPlugin', () => {
 
   it('queryCache onSuccess can show notification when toastOnSuccess enabled', () => {
     const queryClient = useRequestPlugin()[0].option?.queryClient as QueryClient
-    const queryCacheConfig = (queryClient.getQueryCache() as any).config
+    const queryCacheConfig = getQueryCacheConfig(queryClient)
 
     queryCacheConfig.onSuccess(
       {
