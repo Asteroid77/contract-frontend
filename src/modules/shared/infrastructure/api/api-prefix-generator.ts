@@ -1,5 +1,4 @@
-// eslint-disable-next-line
-type Endpoint = (...args: any[]) => string
+type Endpoint = (...args: unknown[]) => string
 export const createPrefixedEndpoints = <T extends Record<string, string | Endpoint>>(
   prefix: string,
   endpoints: T,
