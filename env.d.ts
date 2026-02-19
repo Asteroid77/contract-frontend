@@ -39,3 +39,9 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+interface Window {
+  $message?: {
+    success: (message: string) => void
+  }
+}

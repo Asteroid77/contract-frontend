@@ -63,12 +63,19 @@ export default defineComponent({
       instance: ComponentPublicInstance | null,
       errorName: string,
     ): ComponentTraceItem[] {
+      const getComponentName = (
+        target: ComponentPublicInstance | null | undefined,
+      ): string | undefined => {
+        const options = target?.$options as { name?: unknown } | undefined
+        return typeof options?.name === 'string' ? options.name : undefined
+      }
+
       const trace: ComponentTraceItem[] = [
         { name: errorName, status: 'error' },
       ]
       let cur = instance?.$parent as ComponentPublicInstance | null
       while (cur) {
-  const name = (cur.$options as any)?.name
+        const name = getComponentName(cur)
         if (name) {
           trace.push({ name, status: 'active' })
         }
@@ -87,7 +94,8 @@ export default defineComponent({
 
     // ────────────────────── Error Capture ──────────────
     onErrorCaptured((err: Error, instance, info: string) => {
-      const name = (instance as any)?.$options?.name || 'Unknown'
+      const options = instance?.$options as { name?: unknown } | undefined
+      const name = typeof options?.name === 'string' ? options.name : 'Unknown'
 
       hasError.value = true
       capturedError.value = {

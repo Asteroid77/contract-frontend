@@ -1,6 +1,12 @@
 import { defineComponent, type PropType, ref, computed } from 'vue'
 import { NButton, NCard, NImage, NImageGroup, NModal, NSpin } from 'naive-ui'
-import type { FieldDefinition, FormData, ListItemValue, OssCallbackView } from '@/modules/shared/presentation/diff-check/domain/types/field'
+import type {
+  FieldDefinition,
+  FieldValue,
+  FormData,
+  ListItemValue,
+  OssCallbackView,
+} from '@/modules/shared/presentation/diff-check/domain/types/field'
 import type { FieldDiff, ListDiff, ListItemDiff } from '@/modules/shared/presentation/diff-check/domain/types/diff'
 import { DiffService } from '@/modules/shared/presentation/diff-check/domain/services/diffService'
 import InlineDiffValue from './InlineDiffValue'
@@ -451,7 +457,7 @@ export default defineComponent({
     }
 
     const formatForLength = (val: unknown): string => {
-      if (DiffService.isEmpty(val as any)) return ''
+      if (DiffService.isEmpty(val as FieldValue)) return ''
       if (typeof val === 'boolean') return val ? ($t('common.label.yes') as string) : ($t('common.label.no') as string)
       if (Array.isArray(val)) return $t('common.label.totalItems', { count: val.length }) as string
       return String(val)
