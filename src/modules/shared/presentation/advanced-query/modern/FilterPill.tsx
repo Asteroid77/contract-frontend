@@ -1,7 +1,7 @@
 import { defineComponent, type PropType, computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import type { FilterCondition } from '@/modules/shared/domain/query'
 import { FilterOp } from '@/modules/shared/domain/query'
-import { FIELD_TYPE_OPERATORS, OPERATOR_CONFIG, type FieldConfig, FieldType } from '@/modules/shared/domain/advanced-query'
+import { getFieldOperators, OPERATOR_CONFIG, type FieldConfig, FieldType } from '@/modules/shared/domain/advanced-query'
 import { $t } from '@/_utils/i18n'
 
 type EditingPart = 'field' | 'op' | 'value' | null
@@ -60,9 +60,7 @@ export default defineComponent({
     const opConfig = computed(() => OPERATOR_CONFIG[props.condition.op])
 
     const allowedOps = computed<FilterOp[]>(() => {
-      const currentField = field.value
-      if (!currentField) return Object.keys(OPERATOR_CONFIG) as FilterOp[]
-      return FIELD_TYPE_OPERATORS[currentField.type] ?? (Object.keys(OPERATOR_CONFIG) as FilterOp[])
+      return getFieldOperators(field.value)
     })
 
     const close = () => {
@@ -144,7 +142,12 @@ export default defineComponent({
     }
 
     const handleFieldChange = (key: string) => {
-      props.onUpdate({ ...props.condition, field: key, value: undefined })
+      const nextField = props.fields.find((f) => f.key === key)
+      const nextAllowedOps = getFieldOperators(nextField)
+      const nextOp = nextAllowedOps.includes(props.condition.op)
+        ? props.condition.op
+        : (nextAllowedOps[0] ?? FilterOp.EQ)
+      props.onUpdate({ ...props.condition, field: key, op: nextOp, value: undefined })
       openEditor('op')
     }
 

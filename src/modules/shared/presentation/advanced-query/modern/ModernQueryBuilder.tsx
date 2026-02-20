@@ -1,6 +1,6 @@
 import { defineComponent, type PropType, onBeforeUnmount, onMounted, ref, watch, computed } from 'vue'
 import { QueryLogic, type QueryFilters, type QueryGroup, FilterOp } from '@/modules/shared/domain/query'
-import { FIELD_TYPE_OPERATORS, type FieldConfig, type FilterConditionItem, type QueryGroupItem } from '@/modules/shared/domain/advanced-query'
+import { getFieldOperators, type FieldConfig, type FilterConditionItem, type QueryGroupItem } from '@/modules/shared/domain/advanced-query'
 import FilterPill from './FilterPill'
 import { $t } from '@/_utils/i18n'
 
@@ -112,7 +112,7 @@ export default defineComponent({
 
     const createFilter = (fieldKey: string): FilterConditionItem => {
       const field = props.fields.find((f) => f.key === fieldKey)
-      const allowedOps = field ? FIELD_TYPE_OPERATORS[field.type] : []
+      const allowedOps = field ? getFieldOperators(field) : []
       return {
         id: generateId(),
         field: fieldKey,
