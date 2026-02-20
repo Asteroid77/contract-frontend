@@ -54,6 +54,15 @@ const fields = [
   { key: 'age', labelKey: 'field.age', type: FieldType.NUMBER },
 ]
 
+const restrictedFields = [
+  {
+    key: 'name',
+    labelKey: 'field.name',
+    type: FieldType.STRING,
+    operators: [FilterOp.LIKE_RIGHT, FilterOp.EQ],
+  },
+]
+
 describe('ModernQueryBuilder', () => {
   beforeEach(() => {
     vi.restoreAllMocks()
@@ -110,6 +119,37 @@ describe('ModernQueryBuilder', () => {
       ],
     })
     expect(latestUpdate).toEqual(latestChange)
+  })
+
+  it('uses field configured operators when creating root filter', async () => {
+    const wrapper = mount(ModernQueryBuilder, {
+      props: {
+        fields: restrictedFields,
+      },
+    })
+
+    const addFilterButton = wrapper
+      .findAll('button')
+      .find((button) => button.text().includes('common.advancedQuery.action.filter'))
+    expect(addFilterButton).toBeDefined()
+
+    await addFilterButton!.trigger('click')
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'field.name')
+      ?.trigger('click')
+
+    const changeEmits = wrapper.emitted('change')
+    const latestChange = changeEmits?.[changeEmits.length - 1]?.[0]
+    expect(latestChange).toEqual({
+      filters: [
+        {
+          field: 'name',
+          op: FilterOp.LIKE_RIGHT,
+          value: undefined,
+        },
+      ],
+    })
   })
 
   it('adds group then clear all emits reset with empty query', async () => {

@@ -15,6 +15,21 @@ const baseFields = [
   { key: 'enabled', labelKey: 'field.enabled', type: FieldType.BOOLEAN },
 ]
 
+const restrictedFields = [
+  {
+    key: 'name',
+    labelKey: 'field.name',
+    type: FieldType.STRING,
+    operators: [FilterOp.EQ, FilterOp.LIKE],
+  },
+  {
+    key: 'age',
+    labelKey: 'field.age',
+    type: FieldType.NUMBER,
+    operators: [FilterOp.GE],
+  },
+]
+
 describe('FilterPill', () => {
   it('renders translated field/operator and value text', () => {
     const wrapper = mount(FilterPill, {
@@ -123,5 +138,61 @@ describe('FilterPill', () => {
     await wrapper.get('button[aria-label="t:common.action.delete"]').trigger('click')
 
     expect(onRemove).toHaveBeenCalledTimes(1)
+  })
+
+  it('shows only field configured operators in operator menu', async () => {
+    const wrapper = mount(FilterPill, {
+      props: {
+        condition: {
+          field: 'name',
+          op: FilterOp.EQ,
+          value: 'Alice',
+        },
+        fields: restrictedFields,
+        onUpdate: vi.fn(),
+        onRemove: vi.fn(),
+      },
+    })
+
+    await wrapper.findAll('button')[1]?.trigger('click')
+
+    const buttons = wrapper.findAll('button')
+    expect(
+      buttons.some((button) => button.text() === 't:common.advancedQuery.operator.eq'),
+    ).toBe(true)
+    expect(
+      buttons.some((button) => button.text() === 't:common.advancedQuery.operator.like'),
+    ).toBe(true)
+    expect(
+      buttons.some((button) => button.text() === 't:common.advancedQuery.operator.notLike'),
+    ).toBe(false)
+  })
+
+  it('switches to first allowed operator when current operator is not allowed by next field', async () => {
+    const onUpdate = vi.fn()
+    const wrapper = mount(FilterPill, {
+      props: {
+        condition: {
+          field: 'name',
+          op: FilterOp.LIKE,
+          value: 'Alice',
+        },
+        fields: restrictedFields,
+        onUpdate,
+        onRemove: vi.fn(),
+      },
+    })
+
+    await wrapper.findAll('button')[0]?.trigger('click')
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 't:field.age')
+      ?.trigger('click')
+
+    expect(onUpdate).toHaveBeenCalledWith({
+      field: 'age',
+      op: FilterOp.GE,
+      value: undefined,
+    })
   })
 })
