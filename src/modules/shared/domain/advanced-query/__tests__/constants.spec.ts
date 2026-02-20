@@ -3,6 +3,7 @@ import { FilterOp, QueryLogic } from '@/modules/shared/domain/query'
 import { FieldType } from '@/modules/shared/domain/advanced-query'
 import {
   FIELD_TYPE_OPERATORS,
+  getFieldOperators,
   getOperatorConfig,
   LOGIC_OPTIONS,
   OPERATOR_CONFIG,
@@ -47,5 +48,23 @@ describe('advanced-query/constants', () => {
       { labelKey: 'common.advancedQuery.logic.and', value: QueryLogic.AND },
       { labelKey: 'common.advancedQuery.logic.or', value: QueryLogic.OR },
     ])
+  })
+
+  it('returns configured operators when field defines a subset', () => {
+    expect(
+      getFieldOperators({
+        type: FieldType.STRING,
+        operators: [FilterOp.LIKE_RIGHT, FilterOp.EQ],
+      }),
+    ).toEqual([FilterOp.LIKE_RIGHT, FilterOp.EQ])
+  })
+
+  it('falls back to type operators when configured operators are invalid for type', () => {
+    expect(
+      getFieldOperators({
+        type: FieldType.NUMBER,
+        operators: [FilterOp.LIKE],
+      }),
+    ).toEqual(FIELD_TYPE_OPERATORS[FieldType.NUMBER])
   })
 })

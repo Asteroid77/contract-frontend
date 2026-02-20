@@ -1,5 +1,5 @@
 import { FilterOp, QueryLogic } from '@/modules/shared/domain/query'
-import { FieldType, type OperatorConfig } from './types'
+import { FieldType, type FieldConfig, type OperatorConfig } from './types'
 
 export const OPERATOR_CONFIG: Record<FilterOp, OperatorConfig> = {
   [FilterOp.EQ]: { value: FilterOp.EQ, labelKey: 'common.advancedQuery.operator.eq', needValue: true, valueCount: 1 },
@@ -61,6 +61,8 @@ export const OPERATOR_CONFIG: Record<FilterOp, OperatorConfig> = {
     valueCount: 1,
   },
 }
+
+const ALL_OPERATORS = Object.keys(OPERATOR_CONFIG) as FilterOp[]
 
 export const getOperatorConfig = (op: FilterOp): OperatorConfig => OPERATOR_CONFIG[op]
 
@@ -126,6 +128,17 @@ export const FIELD_TYPE_OPERATORS: Record<FieldType, FilterOp[]> = {
     FilterOp.IS_NULL,
     FilterOp.IS_NOT_NULL,
   ],
+}
+
+export const getFieldOperators = (field?: Pick<FieldConfig, 'type' | 'operators'>): FilterOp[] => {
+  if (!field) return ALL_OPERATORS
+
+  const defaultOperators = FIELD_TYPE_OPERATORS[field.type] ?? ALL_OPERATORS
+  if (!field.operators || field.operators.length === 0) return defaultOperators
+
+  const defaultSet = new Set(defaultOperators)
+  const filtered = field.operators.filter((op) => defaultSet.has(op))
+  return filtered.length > 0 ? filtered : defaultOperators
 }
 
 export const LOGIC_OPTIONS: Array<{ labelKey: string; value: QueryLogic }> = [

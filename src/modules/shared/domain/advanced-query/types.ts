@@ -16,6 +16,7 @@ export interface FieldConfig {
   labelKey: string
   type: FieldType
   options?: FieldOption[]
+  operators?: FilterOp[]
 }
 
 export interface OperatorConfig {
