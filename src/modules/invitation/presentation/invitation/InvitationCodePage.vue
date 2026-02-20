@@ -17,7 +17,6 @@ import {
   useInvitationCodeListQuery,
   useUpdateInvitationCodeMutation,
 } from '@/modules/invitation/application/hooks/useInvitationService'
-import clsx from 'clsx'
 import { invitationCodeStatus } from '@/modules/invitation/application/constants'
 import { useI18n } from 'vue-i18n'
 const { t: $t } = useI18n()
@@ -96,41 +95,43 @@ function clean() {
 const columns = createColumns()
 </script>
 <template>
-  <n-space :class="clsx('my-content')">
-    <n-button @click="() => createMutation.mutate()" :loading="createMutation.isPending.value">{{
-      $t('common.action.add')
-    }}</n-button>
-    <n-popconfirm @positive-click="update">
-      <template #trigger>
-        <n-button
-          :disabled="isDelOrSaveBtnDisabled"
-          type="primary"
-          :loading="updateMutation.isPending.value"
-          >{{ $t('common.action.save') }}</n-button
-        >
-      </template>
-      {{ $t('common.message.saveConfirm') }}
-    </n-popconfirm>
-    <n-popconfirm @positive-click="deleteFn">
-      <template #trigger>
-        <n-button
-          :disabled="isDelOrSaveBtnDisabled"
-          type="error"
-          :loading="deleteMutation.isPending.value"
-          >{{ $t('common.action.delete') }}</n-button
-        >
-      </template>
-      {{ $t('common.message.deleteConfirm') }}
-    </n-popconfirm>
-  </n-space>
-  <n-data-table
-    :bordered="false"
-    :single-line="false"
-    :columns="columns"
-    :data="invitationListQuery.data.value"
-    :loading="invitationListQuery.isLoading.value"
-    @update:checked-row-keys="handleCheck"
-    :row-key="(row) => row.id"
-    :checked-row-keys="selectedKeys"
-  />
+  <div class="my-content">
+    <n-space>
+      <n-button @click="() => createMutation.mutate()" :loading="createMutation.isPending.value">{{
+        $t('common.action.add')
+      }}</n-button>
+      <n-popconfirm @positive-click="update">
+        <template #trigger>
+          <n-button
+            :disabled="isDelOrSaveBtnDisabled"
+            type="primary"
+            :loading="updateMutation.isPending.value"
+            >{{ $t('common.action.save') }}</n-button
+          >
+        </template>
+        {{ $t('common.message.saveConfirm') }}
+      </n-popconfirm>
+      <n-popconfirm @positive-click="deleteFn">
+        <template #trigger>
+          <n-button
+            :disabled="isDelOrSaveBtnDisabled"
+            type="error"
+            :loading="deleteMutation.isPending.value"
+            >{{ $t('common.action.delete') }}</n-button
+          >
+        </template>
+        {{ $t('common.message.deleteConfirm') }}
+      </n-popconfirm>
+    </n-space>
+    <n-data-table
+      :bordered="false"
+      :single-line="false"
+      :columns="columns"
+      :data="invitationListQuery.data.value"
+      :loading="invitationListQuery.isLoading.value"
+      @update:checked-row-keys="handleCheck"
+      :row-key="(row) => row.id"
+      :checked-row-keys="selectedKeys"
+    />
+  </div>
 </template>
