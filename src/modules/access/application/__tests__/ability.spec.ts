@@ -53,6 +53,22 @@ describe('access ability', () => {
     expect(ability.can('delete', 'User')).toBe(false)
   })
 
+  it('defineAbilityFor supports action-first format and alias actions', () => {
+    const ability = defineAbilityFor(
+      [
+        { id: 1, name: 'view:user', description: 'view user' },
+        { id: 2, name: 'edit:user', description: 'edit user' },
+        { id: 3, name: 'disabled:user', description: 'disable user' },
+        { id: 4, name: 'list:user', description: 'list user' },
+      ],
+      [],
+    )
+
+    expect(ability.can('read', 'User')).toBe(true)
+    expect(ability.can('update', 'User')).toBe(true)
+    expect(ability.can('delete', 'User')).toBe(true)
+  })
+
   it('defineAbilityFor ignores invalid permission formats and warns', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 

@@ -46,6 +46,7 @@ export type Subject =
   | 'Business'       // 业务
   | 'Dashboard'      // 仪表盘
   | 'WorkOrder'      // 工单
+  | 'WorkOrderCategory'  // 工单分类
   | 'all'            // 所有资源
 
 /**
@@ -127,8 +128,12 @@ export function defineAbilityFor(
  *
  * 支持的格式：
  * - "user:create" -> { action: 'create', subject: 'User' }
+ * - "create:user" -> { action: 'create', subject: 'User' }
  * - "contract:*" -> { action: 'manage', subject: 'Contract' }
- * - "approval:read,update" -> 多个规则
+ * - "view:user" -> { action: 'read', subject: 'User' }
+ * - "edit:user" -> { action: 'update', subject: 'User' }
+ * - "disabled:user" -> { action: 'delete', subject: 'User' }
+ * - "list:user" -> { action: 'read', subject: 'User' }
  *
  * @param permissionName 权限名称
  */
@@ -139,22 +144,19 @@ function parsePermission(permissionName: string): { action: Action; subject: Sub
     return null
   }
 
-  const [subjectStr, actionStr] = parts
-  const subject = capitalizeFirstLetter(subjectStr) as Subject
-  const action = (actionStr === '*' ? 'manage' : actionStr) as Action
-
-  // 验证 subject 和 action 是否有效
-  if (!isValidSubject(subject)) {
-    console.warn(`[CASL] Invalid subject: ${subject}`)
-    return null
+  const [left, right] = parts
+  const direct = parsePermissionPair(left, right)
+  if (direct) {
+    return direct
   }
 
-  if (!isValidAction(action)) {
-    console.warn(`[CASL] Invalid action: ${action}`)
-    return null
+  const reversed = parsePermissionPair(right, left)
+  if (reversed) {
+    return reversed
   }
 
-  return { action, subject }
+  console.warn(`[CASL] Invalid permission value: ${permissionName}`)
+  return null
 }
 
 /**
@@ -186,6 +188,69 @@ function capitalizeFirstLetter(str: string): string {
 }
 
 /**
+ * 权限别名映射
+ * - 兼容后端常见命名：view/edit/disabled/list
+ */
+const ACTION_ALIAS_MAP: Record<string, Action> = {
+  '*': 'manage',
+  view: 'read',
+  list: 'read',
+  edit: 'update',
+  disabled: 'delete',
+  disable: 'delete',
+}
+
+const SUBJECT_ALIAS_MAP: Record<string, Subject> = {
+  user: 'User',
+  role: 'Role',
+  permission: 'Permission',
+  contract: 'Contract',
+  approval: 'Approval',
+  approvaltask: 'ApprovalTask',
+  approval_task: 'ApprovalTask',
+  'approval-task': 'ApprovalTask',
+  business: 'Business',
+  dashboard: 'Dashboard',
+  workorder: 'WorkOrder',
+  work_order: 'WorkOrder',
+  'work-order': 'WorkOrder',
+  workordercategory: 'WorkOrderCategory',
+  work_order_category: 'WorkOrderCategory',
+  'work-order-category': 'WorkOrderCategory',
+  all: 'all',
+}
+
+function normalizeAction(raw: string): Action | null {
+  const lowered = raw.trim().toLowerCase()
+  const aliasMapped = ACTION_ALIAS_MAP[lowered] ?? lowered
+  return isValidAction(aliasMapped) ? aliasMapped : null
+}
+
+function normalizeSubject(raw: string): Subject | null {
+  const lowered = raw.trim().toLowerCase()
+  const aliasMapped = SUBJECT_ALIAS_MAP[lowered]
+  if (aliasMapped) {
+    return aliasMapped
+  }
+
+  const byCapitalize = capitalizeFirstLetter(lowered)
+  if (isValidSubject(byCapitalize)) {
+    return byCapitalize
+  }
+
+  return null
+}
+
+function parsePermissionPair(subjectRaw: string, actionRaw: string): { action: Action; subject: Subject } | null {
+  const subject = normalizeSubject(subjectRaw)
+  const action = normalizeAction(actionRaw)
+  if (!subject || !action) {
+    return null
+  }
+  return { action, subject }
+}
+
+/**
  * 验证 Subject 是否有效
  */
 function isValidSubject(subject: string): subject is Subject {
@@ -199,6 +264,7 @@ function isValidSubject(subject: string): subject is Subject {
     'Business',
     'Dashboard',
     'WorkOrder',
+    'WorkOrderCategory',
     'all',
   ]
   return validSubjects.includes(subject as Subject)
