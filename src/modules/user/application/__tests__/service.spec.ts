@@ -1,13 +1,16 @@
 import { describe, expect, it, vi } from 'vitest'
 import { UserService } from '@/modules/user/application/service'
 import type { IUserRepository } from '@/modules/user/domain/repositories'
+import type { SignInResponse, SignInResponseComplete } from '@/modules/user/application/models'
 
 const createRepoMock = () => ({
   login: vi.fn(),
   register: vi.fn(),
   getCurrentUserInfo: vi.fn(),
+  getUserInfoById: vi.fn(),
   exchangeOAuth2Code: vi.fn(),
   changePassword: vi.fn(),
+  deleteUser: vi.fn(),
   listCurrentUserDevices: vi.fn(),
   revokeCurrentUserDevices: vi.fn(),
   additionalInfoRequest: vi.fn(),
@@ -20,6 +23,14 @@ const createService = () => {
   const service = new UserService(repo as unknown as IUserRepository)
 
   return { repo, service }
+}
+
+const expectCompleteSignIn = (response: SignInResponse): SignInResponseComplete => {
+  if (response.requireTwoFactor) {
+    throw new Error('Expected completed sign-in response in this test')
+  }
+
+  return response
 }
 
 describe('UserService', () => {
@@ -39,6 +50,8 @@ describe('UserService', () => {
       roleList: [],
       permissionList: [],
       needProfile: false,
+      requireTwoFactor: false,
+      twoFactorToken: null,
     })
 
     const result = await service.login({
@@ -56,10 +69,11 @@ describe('UserService', () => {
       captchaKey: 'captcha-key',
       rememberMe: true,
     })
-    expect(result.token).toBe('access-token')
-    expect(result.refreshToken).toBe('refresh-token')
-    expect(result.expiresIn).toBe(7200)
-    expect(result.user.active).toBe('1')
+    const completeResult = expectCompleteSignIn(result)
+    expect(completeResult.token).toBe('access-token')
+    expect(completeResult.refreshToken).toBe('refresh-token')
+    expect(completeResult.expiresIn).toBe(7200)
+    expect(completeResult.user.active).toBe('1')
   })
 
   it('maps register/getCurrentUserInfo/changePassword/passwordRecovery', async () => {
@@ -79,6 +93,8 @@ describe('UserService', () => {
       roleList: [],
       permissionList: [],
       needProfile: true,
+      requireTwoFactor: false,
+      twoFactorToken: null,
     })
     repo.changePassword.mockResolvedValue(true)
     repo.passwordRecovery.mockResolvedValue(true)
@@ -294,6 +310,7 @@ describe('UserService', () => {
           id: 100,
           phone: '13800000000',
           deleted: false,
+          totpEnabled: false,
           createdAt: '2026-02-09T10:00:00+08:00',
           deletedAt: null,
           name: '张三',
@@ -340,6 +357,7 @@ describe('UserService', () => {
       id: 100,
       phone: '13800000000',
       deleted: false,
+      totpEnabled: false,
       createdAt: '2026-02-09T10:00:00+08:00',
       deletedAt: null,
       name: '张三',
@@ -347,5 +365,58 @@ describe('UserService', () => {
       discriminator: 9527,
       platform: 'NATIVE',
     })
+  })
+
+  it('getUserInfoById maps profile to additional info and deleteUser delegates repository', async () => {
+    const { repo, service } = createService()
+
+    repo.getUserInfoById.mockResolvedValue({
+      base: {
+        id: 2,
+        phone: '13800000001',
+        isDeleted: false,
+      },
+      profile: {
+        id: 19,
+        registerType: 1,
+        name: '测试企业',
+        bankName: '工商银行',
+        bankAccount: '6222000',
+        invitationCode: null,
+        companyAddress: null,
+        pca: '110000,110100,110101',
+        contactPerson: null,
+        contactPersonPhone: null,
+        identity: '91110108MA01ZZZZZZ',
+        discriminator: 2001,
+        userId: 2,
+        referrer: null,
+        inviterName: null,
+        inviterDiscriminator: null,
+        createdTime: '2026-02-10T10:00:00+08:00',
+        updatedTime: '2026-02-10T10:10:00+08:00',
+      },
+      token: 'token-2',
+      roleList: [],
+      permissionList: [],
+      needProfile: false,
+      requireTwoFactor: false,
+      twoFactorToken: null,
+    })
+    repo.deleteUser.mockResolvedValue(true)
+
+    const profile = await service.getUserInfoById(2)
+    const deleted = await service.deleteUser(2)
+
+    expect(repo.getUserInfoById).toHaveBeenCalledWith(2)
+    expect(profile).toEqual(
+      expect.objectContaining({
+        id: 19,
+        name: '测试企业',
+        userId: 2,
+      }),
+    )
+    expect(repo.deleteUser).toHaveBeenCalledWith(2)
+    expect(deleted).toBe(true)
   })
 })

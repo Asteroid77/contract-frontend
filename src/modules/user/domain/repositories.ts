@@ -28,7 +28,9 @@ export interface IUserRepository {
   register(data: RegisterRequestDTO): Promise<number>
   exchangeOAuth2Code(data: OAuth2ExchangeRequestDTO): Promise<OAuth2ExchangeVo>
   getCurrentUserInfo(accessToken?: string): Promise<UserInfoVo>
+  getUserInfoById(userId: number): Promise<UserInfoVo>
   changePassword(data: ChangePasswordRequestDTO): Promise<boolean>
+  deleteUser(userId: number): Promise<boolean>
   listCurrentUserDevices(): Promise<UserDeviceSessionVo[]>
   revokeCurrentUserDevices(
     data: RevokeDeviceSessionsRequestDTO,

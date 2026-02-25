@@ -1,5 +1,10 @@
-import type { BaseQuery, ConditionWrapper } from '@/modules/shared/application/request/types'
+import type {
+  BasePageRequest,
+  BaseQuery,
+  ConditionWrapper,
+} from '@/modules/shared/application/request/types'
 import type { Permission, RoleVo } from '@/modules/access/domain/types'
+import type { QueryFilters } from '@/modules/shared/domain/query'
 
 export type PlatformEnum = 'WECHAT' | 'GITHUB' | 'NATIVE'
 export type RegisterType = 1 | 2
@@ -70,7 +75,7 @@ export interface SignInForm {
  * 登录成功后返回数据结构（未触发2FA）
  */
 export interface SignInResponseComplete {
-  requireTwoFactor: false
+  requireTwoFactor?: false
   user: UserInfo
   profile: UserAdditionalInfo | null
   token: string
@@ -157,6 +162,7 @@ export interface UserPageItem {
   id: number
   phone: string
   deleted: boolean
+  totpEnabled: boolean
   createdAt: string | Date
   deletedAt: string | Date | null
   platform?: PlatformEnum
@@ -174,6 +180,12 @@ export interface UserPageQuery extends BaseQuery {
   registerType?: ConditionWrapper<number>
   identity?: ConditionWrapper<string>
   discriminator?: ConditionWrapper<number>
+}
+
+export type UserPageFilterQuery = UserPageQuery | QueryFilters
+
+export type UserPageRequest = Omit<BasePageRequest<UserPageQuery>, 'query'> & {
+  query?: UserPageFilterQuery
 }
 
 // --- TOTP View Models ---

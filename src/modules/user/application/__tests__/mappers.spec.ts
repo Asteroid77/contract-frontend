@@ -14,6 +14,7 @@ import {
   toViewUserPage,
 } from '@/modules/user/application/mappers'
 import type { UserAdditionalInfoVo, UserInfoVo, UserPageVo } from '@/modules/user/domain/types'
+import type { SignInResponseComplete } from '@/modules/user/application/models'
 
 const createUserInfoVo = (overrides?: Partial<UserInfoVo>): UserInfoVo => ({
   base: {
@@ -27,10 +28,24 @@ const createUserInfoVo = (overrides?: Partial<UserInfoVo>): UserInfoVo => ({
   roleList: [],
   permissionList: [],
   needProfile: false,
+  requireTwoFactor: false,
+  twoFactorToken: null,
   ...overrides,
 })
 
-const createAdditionalInfoVo = (overrides?: Partial<UserAdditionalInfoVo>): UserAdditionalInfoVo => ({
+const expectCompleteSignIn = (
+  response: ReturnType<typeof toViewSignInResponse>,
+): SignInResponseComplete => {
+  if (response.requireTwoFactor) {
+    throw new Error('Expected completed sign-in response in this test')
+  }
+
+  return response
+}
+
+const createAdditionalInfoVo = (
+  overrides?: Partial<UserAdditionalInfoVo>,
+): UserAdditionalInfoVo => ({
   id: 9,
   registerType: 1,
   name: '张三公司',
@@ -56,6 +71,7 @@ const createUserPageVo = (overrides?: Partial<UserPageVo>): UserPageVo => ({
   id: 100,
   phone: '13800000000',
   deleted: false,
+  totpEnabled: false,
   createdAt: '2026-02-09T10:00:00+08:00',
   deletedAt: null,
   name: '张三',
@@ -192,19 +208,23 @@ describe('user application mappers', () => {
   })
 
   it('maps sign-in response and derives active by needProfile', () => {
-    const completedResult = toViewSignInResponse(
-      createUserInfoVo({
-        token: 'access-new',
-        refreshToken: 'refresh-new',
-        expiresIn: 7200,
-        needProfile: false,
-      }),
+    const completedResult = expectCompleteSignIn(
+      toViewSignInResponse(
+        createUserInfoVo({
+          token: 'access-new',
+          refreshToken: 'refresh-new',
+          expiresIn: 7200,
+          needProfile: false,
+        }),
+      ),
     )
 
-    const uncompletedResult = toViewSignInResponse(
-      createUserInfoVo({
-        needProfile: true,
-      }),
+    const uncompletedResult = expectCompleteSignIn(
+      toViewSignInResponse(
+        createUserInfoVo({
+          needProfile: true,
+        }),
+      ),
     )
 
     expect(completedResult.token).toBe('access-new')
@@ -268,6 +288,7 @@ describe('user application mappers', () => {
       id: 100,
       phone: '13800000000',
       deleted: false,
+      totpEnabled: false,
       createdAt: '2026-02-09T10:00:00+08:00',
       deletedAt: null,
       name: '张三',

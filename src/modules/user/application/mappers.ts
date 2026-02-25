@@ -175,6 +175,7 @@ export const toViewUserPage = (row: UserPageVo): UserPageItem => ({
   id: row.id,
   phone: row.phone,
   deleted: row.deleted,
+  totpEnabled: row.totpEnabled ?? row.totp_enabled ?? false,
   createdAt: row.createdAt,
   deletedAt: row.deletedAt ?? null,
   name: row.name,

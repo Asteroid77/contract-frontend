@@ -76,6 +76,8 @@ export type AuthRouteName =
   // 管理中心
   | 'manage'
   | 'manage-user-list'
+  | 'manage-user-detail'
+  | 'manage-user-edit'
   // 审批中心
   | 'approval'
   | 'approval-my-approval-instance-page'
@@ -138,6 +140,8 @@ export interface RouteParamsMap {
   sign: { id?: number | null }
   'sign-result': { status?: number | null; id?: number | null }
   'approval-preview-attachments': { type?: number | null; id?: number | null }
+  'manage-user-detail': { userId?: number | null }
+  'manage-user-edit': { userId?: number | null }
 }
 
 /**

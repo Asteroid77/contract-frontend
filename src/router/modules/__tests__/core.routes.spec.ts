@@ -53,9 +53,16 @@ describe('core route modules config', () => {
   it('manage routes preserve transition entry and nested child', () => {
     const manageRoot = manageRoutes.find((route) => route.name === 'manage')
     const manageUser = manageRoutes.find((route) => route.name === 'manage-user-list')
+    const manageUserDetail = manageRoutes.find((route) => route.name === 'manage-user-detail')
+    const manageUserEdit = manageRoutes.find((route) => route.name === 'manage-user-edit')
 
     expect(manageRoot?.meta?.isTransition).toBe(true)
     expect(manageUser?.meta?.parent).toBe('manage')
+    expect(manageUser?.meta?.ability).toEqual({ action: 'read', subject: 'User' })
+    expect(manageUserDetail?.meta?.parent).toBe('manage-user-list')
+    expect(manageUserDetail?.meta?.hideInMenu).toBe(true)
+    expect(manageUserEdit?.meta?.parent).toBe('manage-user-list')
+    expect(manageUserEdit?.meta?.hideInMenu).toBe(true)
   })
 
   it('error routes include 404 fallback redirect', () => {

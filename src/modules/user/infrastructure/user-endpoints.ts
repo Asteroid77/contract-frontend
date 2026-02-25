@@ -4,6 +4,7 @@ export const USER_ENDPOINTS = createPrefixedEndpoints('/user', {
   LOGIN: '/login',
   REGISTER: '/register',
   ME: '/me',
+  DETAIL: (...args: unknown[]) => `/${String(args[0] ?? '')}`,
   PASSWORD_CHANGE: '/password/change',
   DEVICES: '/devices',
   DEVICES_REVOKE: '/devices/revoke',

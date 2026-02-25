@@ -69,11 +69,24 @@ export const userRepository: IUserRepository = {
         token: accessToken,
       }
     }),
+  getUserInfoById: (userId: number) =>
+    useRequest<UserInfoVo, never>({
+      method: 'GET',
+      url: USER_ENDPOINTS.DETAIL(userId),
+      notify: {
+        success: false,
+      },
+    }).then((resp) => resp.data),
   changePassword: (data: ChangePasswordRequestDTO) =>
     useRequest<boolean, ChangePasswordRequestDTO>({
       method: 'POST',
       url: USER_ENDPOINTS.PASSWORD_CHANGE,
       data,
+    }).then((resp) => resp.data),
+  deleteUser: (userId: number) =>
+    useRequest<boolean, never>({
+      method: 'DELETE',
+      url: USER_ENDPOINTS.DETAIL(userId),
     }).then((resp) => resp.data),
   listCurrentUserDevices: () =>
     useRequest<UserDeviceSessionVo[], never>({

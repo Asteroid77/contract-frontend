@@ -1,8 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { userKeys, useLoadUserInfo } from '@/modules/user/application/hooks/useLoadUserInfo'
-import { userQueryKeys, useUserPage } from '@/modules/user/application/hooks/useUserPage'
+import {
+  userQueryKeys,
+  useDeleteUser,
+  useUserInfoById,
+  useUserPage,
+} from '@/modules/user/application/hooks/useUserPage'
 import { useUserAdditionalInfoRequest } from '@/modules/user/application/hooks/useUserAdditionalInfoRequest'
 import { userService } from '@/modules/user/application/service'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
@@ -23,6 +28,8 @@ vi.mock('@/modules/user/application/service', () => ({
   userService: {
     getCurrentUserInfo: vi.fn(),
     getUserPage: vi.fn(),
+    getUserInfoById: vi.fn(),
+    deleteUser: vi.fn(),
     additionalInfoRequest: vi.fn(),
   },
 }))
@@ -65,7 +72,10 @@ const getLatestQueryOptions = <TData = unknown>(): QueryOptionsLike<TData> => {
   return latestCall[0] as QueryOptionsLike<TData>
 }
 
-const getLatestMutationOptions = <TData = unknown, TVariables = unknown>(): MutationOptionsLike<TData, TVariables> => {
+const getLatestMutationOptions = <TData = unknown, TVariables = unknown>(): MutationOptionsLike<
+  TData,
+  TVariables
+> => {
   const latestCall = vi.mocked(useMutation).mock.calls.at(-1)
   if (!latestCall) {
     throw new Error('useMutation should be called before reading options')
@@ -86,6 +96,8 @@ describe('user query hooks', () => {
       size: 10,
       current: 1,
     } as never)
+    vi.mocked(userService.getUserInfoById).mockResolvedValue(null as never)
+    vi.mocked(userService.deleteUser).mockResolvedValue(true as never)
     vi.mocked(userService.additionalInfoRequest).mockResolvedValue({
       id: 101,
       processName: '用户信息审批',
@@ -100,6 +112,7 @@ describe('user query hooks', () => {
     expect(userQueryKeys.all).toEqual(['users'])
     expect(userQueryKeys.lists()).toEqual(['users', 'list'])
     expect(userQueryKeys.list({ page: 1 })).toEqual(['users', 'list', { page: 1 }])
+    expect(userQueryKeys.detail(2)).toEqual(['users', 'detail', 2])
   })
 
   it('useLoadUserInfo configures query and delegates queryFn through request context', async () => {
@@ -139,14 +152,14 @@ describe('user query hooks', () => {
     useUserPage(request)
     const options = getLatestQueryOptions()
 
-    expect(options.queryKey.value).toEqual(userQueryKeys.list(request))
+    expect((options.queryKey as { value: unknown }).value).toEqual(userQueryKeys.list(request))
     expect(options.placeholderData).toBe(keepPreviousData)
     expect(options.staleTime).toBe(5 * 60 * 1000)
     expect(options.gcTime).toBe(10 * 60 * 1000)
     expect(options.enabled).toBe(true)
     expect(options.refetchOnWindowFocus).toBe(false)
 
-    await options.queryFn({ queryKey: options.queryKey.value })
+    await options.queryFn({ queryKey: (options.queryKey as { value: unknown }).value })
 
     expect(withQueryRequestContext).toHaveBeenCalled()
     expect(userService.getUserPage).toHaveBeenCalledWith(request)
@@ -164,7 +177,9 @@ describe('user query hooks', () => {
     })
     const options = getLatestQueryOptions()
 
-    expect(options.queryKey.value).toEqual(userQueryKeys.list(request.value))
+    expect((options.queryKey as { value: unknown }).value).toEqual(
+      userQueryKeys.list(request.value),
+    )
     expect(options.enabled).toBe(enabled)
     expect(options.staleTime).toBe(123)
     expect(options.gcTime).toBe(456)
@@ -214,6 +229,40 @@ describe('user query hooks', () => {
     })
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
       queryKey: userQueryKeys.all,
+    })
+  })
+
+  it('useUserInfoById enables query only when userId is valid', async () => {
+    const userId = ref<number | null>(2)
+    useUserInfoById(userId, {
+      enabled: computed(() => true),
+    })
+    let options = getLatestQueryOptions()
+
+    expect((options.queryKey as { value: unknown }).value).toEqual(userQueryKeys.detail(2))
+    expect((options.enabled as { value: boolean }).value).toBe(true)
+
+    await options.queryFn({ queryKey: (options.queryKey as { value: unknown }).value })
+    expect(userService.getUserInfoById).toHaveBeenCalledWith(2)
+
+    userId.value = null
+    useUserInfoById(userId)
+    options = getLatestQueryOptions()
+    expect((options.enabled as { value: boolean }).value).toBe(false)
+  })
+
+  it('useDeleteUser invalidates user list cache on success', async () => {
+    useDeleteUser()
+    const options = getLatestMutationOptions<boolean, number>()
+
+    await options.mutationFn(99)
+    expect(userService.deleteUser).toHaveBeenCalledWith(99)
+
+    if (!options.onSuccess) throw new Error('onSuccess should be defined')
+    options.onSuccess(true)
+
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: userQueryKeys.lists(),
     })
   })
 })

@@ -6,6 +6,7 @@ describe('user-endpoints', () => {
     expect(USER_ENDPOINTS.LOGIN).toBe('/user/login')
     expect(USER_ENDPOINTS.REGISTER).toBe('/user/register')
     expect(USER_ENDPOINTS.ME).toBe('/user/me')
+    expect(USER_ENDPOINTS.DETAIL(99)).toBe('/user/99')
     expect(USER_ENDPOINTS.PASSWORD_CHANGE).toBe('/user/password/change')
     expect(USER_ENDPOINTS.DEVICES).toBe('/user/devices')
     expect(USER_ENDPOINTS.DEVICES_REVOKE).toBe('/user/devices/revoke')

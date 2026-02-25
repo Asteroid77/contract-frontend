@@ -11,11 +11,13 @@ import type {
   RevokeDeviceSessionsResult,
   SignInForm,
   SignInResponse,
+  SignInResponseComplete,
   UserAdditionalInfo,
   UserAdditionalInfoForm,
   UserDeviceSession,
   UserPageItem,
   UserPageQuery,
+  UserPageRequest,
 } from './models'
 import {
   toDomainAdditionalInfoRequest,
@@ -33,6 +35,8 @@ import {
 } from './mappers'
 import type { ApprovalInstance } from '@/modules/approval/domain/types'
 import type { IUserRepository } from '../domain/repositories'
+import type { QueryFilters } from '@/modules/shared/domain/query'
+import type { BasePageRequest as DomainBasePageRequest } from '@/modules/shared/domain/page'
 
 const mapAdditionalInfoApproval = (
   instance: ApprovalInstance<Record<string, unknown>>,
@@ -48,6 +52,46 @@ const mapAdditionalInfoApproval = (
   }
 }
 
+const isQueryFilters = (query: unknown): query is QueryFilters => {
+  if (!query || typeof query !== 'object') return false
+  return 'filters' in query || 'group' in query
+}
+
+const normalizeSize = (size?: BasePageRequest<UserPageQuery>['size']) => {
+  if (size == null) return undefined
+  if (typeof size === 'number') return size
+  if (typeof size === 'string') {
+    const parsed = Number(size)
+    return Number.isNaN(parsed) ? undefined : parsed
+  }
+  return undefined
+}
+
+const toDomainPageRequestSmart = (
+  pageRequest: UserPageRequest,
+): DomainBasePageRequest<QueryFilters> => {
+  if (isQueryFilters(pageRequest.query)) {
+    return {
+      page: pageRequest.page,
+      size: normalizeSize(pageRequest.size),
+      orders: pageRequest.orders?.map((item) => ({
+        column: item.column,
+        direction: item.direction ?? 'ASC',
+      })),
+      query: pageRequest.query,
+    }
+  }
+  return toDomainPageRequest(pageRequest as BasePageRequest<UserPageQuery>)
+}
+
+const ensureSignInResponseComplete = (response: SignInResponse): SignInResponseComplete => {
+  if (response.requireTwoFactor) {
+    throw new Error('Current user info requires two-factor verification unexpectedly')
+  }
+
+  return response
+}
+
 export class UserService {
   constructor(private readonly repo: IUserRepository) {}
 
@@ -59,8 +103,15 @@ export class UserService {
     return this.repo.register(toDomainRegisterRequest(data)).then(toViewRegisterResponse)
   }
 
-  getCurrentUserInfo(accessToken?: string): Promise<SignInResponse> {
-    return this.repo.getCurrentUserInfo(accessToken).then(toViewSignInResponse)
+  getCurrentUserInfo(accessToken?: string): Promise<SignInResponseComplete> {
+    return this.repo
+      .getCurrentUserInfo(accessToken)
+      .then(toViewSignInResponse)
+      .then(ensureSignInResponseComplete)
+  }
+
+  getUserInfoById(userId: number): Promise<UserAdditionalInfo | null> {
+    return this.repo.getUserInfoById(userId).then((info) => toViewAdditionalInfo(info.profile))
   }
 
   exchangeOAuth2Code(authCode: string): Promise<OAuth2ExchangeVo> {
@@ -69,6 +120,10 @@ export class UserService {
 
   changePassword(data: ChangePasswordForm): Promise<boolean> {
     return this.repo.changePassword(toDomainChangePasswordRequest(data))
+  }
+
+  deleteUser(userId: number): Promise<boolean> {
+    return this.repo.deleteUser(userId)
   }
 
   listCurrentUserDevices(): Promise<UserDeviceSession[]> {
@@ -89,8 +144,8 @@ export class UserService {
       .then(mapAdditionalInfoApproval)
   }
 
-  getUserPage(pageRequest: BasePageRequest<UserPageQuery>): Promise<IPage<UserPageItem>> {
-    return this.repo.getUserPage(toDomainPageRequest(pageRequest)).then((page) => ({
+  getUserPage(pageRequest: UserPageRequest): Promise<IPage<UserPageItem>> {
+    return this.repo.getUserPage(toDomainPageRequestSmart(pageRequest)).then((page) => ({
       ...page,
       records: page.records.map(toViewUserPage),
     }))

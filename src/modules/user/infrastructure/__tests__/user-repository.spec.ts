@@ -118,6 +118,28 @@ describe('userRepository contract', () => {
     expect(result).toEqual(payload)
   })
 
+  it('getUserInfoById requests /user/{id} and returns response data', async () => {
+    const payload = {
+      base: {
+        id: 2,
+      },
+      profile: null,
+    }
+
+    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+
+    const result = await userRepository.getUserInfoById(2)
+
+    expect(useRequest).toHaveBeenCalledWith({
+      method: 'GET',
+      url: USER_ENDPOINTS.DETAIL(2),
+      notify: {
+        success: false,
+      },
+    })
+    expect(result).toEqual(payload)
+  })
+
   it('changePassword forwards dto and returns response data', async () => {
     const payload = true
     const dto = {
@@ -255,6 +277,18 @@ describe('userRepository contract', () => {
       method: 'POST',
       url: USER_ENDPOINTS.PASSWORD_RECOVERY,
       data: dto,
+    })
+    expect(result).toBe(true)
+  })
+
+  it('deleteUser sends DELETE /user/{id} and returns response data', async () => {
+    vi.mocked(useRequest).mockResolvedValue({ data: true } as never)
+
+    const result = await userRepository.deleteUser(2)
+
+    expect(useRequest).toHaveBeenCalledWith({
+      method: 'DELETE',
+      url: USER_ENDPOINTS.DETAIL(2),
     })
     expect(result).toBe(true)
   })

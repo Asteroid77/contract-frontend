@@ -41,8 +41,8 @@ export interface UserInfoVo {
   roleList: RoleVo[]
   permissionList: Permission[]
   needProfile: boolean
-  requireTwoFactor: boolean
-  twoFactorToken: string | null
+  requireTwoFactor?: boolean
+  twoFactorToken?: string | null
 }
 
 export interface OAuth2ExchangeVo {
@@ -67,6 +67,8 @@ export interface UserPageVo {
   id: number
   phone: string
   deleted: boolean
+  totpEnabled?: boolean
+  totp_enabled?: boolean
   createdAt: string
   deletedAt: string | null
   name: string
