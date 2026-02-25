@@ -83,6 +83,11 @@ const getQueryCacheConfig = (queryClient: QueryClient): QueryCacheConfigLike =>
 const getMutationCacheConfig = (queryClient: QueryClient): MutationCacheConfigLike =>
   (queryClient.getMutationCache() as unknown as { config: MutationCacheConfigLike }).config
 
+const getQueryRetryOption = (queryClient: QueryClient) =>
+  queryClient.getDefaultOptions().queries?.retry as
+    | ((failureCount: number, error: unknown) => boolean)
+    | undefined
+
 const createQueryStub = (meta?: Record<string, unknown>): QueryStub => ({
   meta,
   queryKey: ['approval', 'instance', 1],
@@ -248,5 +253,40 @@ describe('useRequestPlugin', () => {
         content: 'query-success',
       }),
     )
+  })
+
+  it('query retry does not retry non-retryable 4xx business errors', () => {
+    const queryClient = useRequestPlugin()[0].option?.queryClient as QueryClient
+    const retry = getQueryRetryOption(queryClient)
+    const badRequestError = new BusinessError('bad request', 40000, '', '', 'about:blank', 400)
+
+    expect(retry).toBeTypeOf('function')
+    expect(retry?.(0, badRequestError)).toBe(false)
+  })
+
+  it('query retry retries on 5xx errors with max retry count', () => {
+    const queryClient = useRequestPlugin()[0].option?.queryClient as QueryClient
+    const retry = getQueryRetryOption(queryClient)
+    const serverError = new BusinessError('server error', 50000, '', '', 'about:blank', 500)
+
+    expect(retry).toBeTypeOf('function')
+    expect(retry?.(0, serverError)).toBe(true)
+    expect(retry?.(1, serverError)).toBe(true)
+    expect(retry?.(2, serverError)).toBe(false)
+  })
+
+  it('query retry retries transient network errors', () => {
+    const queryClient = useRequestPlugin()[0].option?.queryClient as QueryClient
+    const retry = getQueryRetryOption(queryClient)
+    const networkError = {
+      request: {},
+      response: undefined,
+      code: 'ERR_NETWORK',
+    }
+
+    axiosIsAxiosErrorSpy.mockReturnValue(true)
+
+    expect(retry).toBeTypeOf('function')
+    expect(retry?.(0, networkError)).toBe(true)
   })
 })

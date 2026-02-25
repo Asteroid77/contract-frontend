@@ -26,6 +26,50 @@ interface ProcessedError {
   content: string
   originalError: unknown
 }
+
+const MAX_QUERY_RETRY_COUNT = 2
+const RETRYABLE_CLIENT_STATUS_CODES = new Set([408, 429])
+
+function isRetryableHttpStatus(status: number): boolean {
+  return status >= 500 || RETRYABLE_CLIENT_STATUS_CODES.has(status)
+}
+
+function resolveErrorStatus(error: unknown): number | undefined {
+  if (error instanceof BusinessError) {
+    return error.status
+  }
+
+  if (axios.isAxiosError(error)) {
+    const problemDetails = error.response?.data as RFC7807Response<unknown> | undefined
+    return error.response?.status ?? problemDetails?.status
+  }
+
+  return undefined
+}
+
+function isRetryableNetworkError(error: unknown): boolean {
+  if (!axios.isAxiosError(error)) {
+    return false
+  }
+
+  // No response means transient network failures (dns/offline/connection reset).
+  if (error.request && !error.response) {
+    return true
+  }
+
+  return error.code === 'ECONNABORTED'
+}
+
+function shouldRetryQueryError(failureCount: number, error: unknown): boolean {
+  if (error instanceof Error && error.name === 'CanceledError') {
+    return false
+  }
+
+  const status = resolveErrorStatus(error)
+  const retryableError = typeof status === 'number' ? isRetryableHttpStatus(status) : isRetryableNetworkError(error)
+
+  return retryableError && failureCount < MAX_QUERY_RETRY_COUNT
+}
 /**
  * 解析 API 错误，提取出提示信息
  * @param error - 捕获到的未知错误
@@ -244,6 +288,7 @@ const globalSuccessHandler = (
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      retry: shouldRetryQueryError,
       select: (response: unknown) => {
         // return unwrapped data
         if (response && typeof response === 'object' && 'data' in response) {
