@@ -1,10 +1,16 @@
 import { createDiscreteApi, type NotificationOptions } from 'naive-ui'
-const { message, notification, dialog, loadingBar } = createDiscreteApi([
-  'message',
-  'notification',
-  'dialog',
-  'loadingBar',
-])
+import { computed } from 'vue'
+import { activeThemeOverrides, naiveTheme } from '@/app/presentation/theme/hooks/useTheme'
+
+const { message, notification, dialog, loadingBar } = createDiscreteApi(
+  ['message', 'notification', 'dialog', 'loadingBar'],
+  {
+    configProviderProps: computed(() => ({
+      theme: naiveTheme.value,
+      themeOverrides: activeThemeOverrides.value,
+    })),
+  },
+)
 /**
  * 使用 Set 来追踪当前正在显示的通知的 key。
  * key 通常是 error.message。

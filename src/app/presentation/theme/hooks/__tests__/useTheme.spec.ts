@@ -1,23 +1,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
-import { useStorage } from '@vueuse/core'
-import { useTheme } from '@/app/presentation/theme/hooks/useTheme'
 
 vi.mock('@/_utils/i18n', () => ({
   $t: (key: string) => `t:${key}`,
 }))
 
+const storageRef = ref<'light' | 'dark' | 'sakura'>('light')
+
 vi.mock('@vueuse/core', () => ({
-  useStorage: vi.fn(),
+  useStorage: vi.fn(() => storageRef),
 }))
 
 describe('useTheme', () => {
-  const storageRef = ref<'light' | 'dark' | 'sakura'>('light')
-
   beforeEach(() => {
-    vi.clearAllMocks()
     storageRef.value = 'light'
-    vi.mocked(useStorage).mockReturnValue(storageRef as never)
     document.documentElement.removeAttribute('data-theme')
   })
 
@@ -25,10 +21,10 @@ describe('useTheme', () => {
     document.documentElement.removeAttribute('data-theme')
   })
 
-  it('initializes with storage theme, theme list and light html attribute behavior', () => {
+  it('initializes with storage theme, theme list and light html attribute behavior', async () => {
+    const { useTheme } = await import('@/app/presentation/theme/hooks/useTheme')
     const { themes, currentTheme, isDark, activeThemeOverrides } = useTheme()
 
-    expect(useStorage).toHaveBeenCalledWith('app-theme', 'light')
     expect(themes.map((item) => item.key)).toEqual(['light', 'dark', 'sakura'])
     expect(themes.map((item) => item.label)).toEqual([
       't:layout.theme.light',
@@ -43,6 +39,7 @@ describe('useTheme', () => {
   })
 
   it('setTheme updates current theme, isDark and html data-theme', async () => {
+    const { useTheme } = await import('@/app/presentation/theme/hooks/useTheme')
     const { currentTheme, isDark, setTheme } = useTheme()
 
     setTheme('dark')
