@@ -9,8 +9,9 @@ type I18nKey = Parameters<typeof $t>[0]
 
 const getActionLabelKey = (action: string): I18nKey =>
   match(action)
+    .returnType<I18nKey>()
     .with('approve', () => 'common.action.approve')
-    .with('reject', () => 'common.action.reject')
+    .with('reject', () => 'domain.approval.action.reject')
     .with('claim', () => 'common.action.claim')
     .with('submit', () => 'common.action.submit')
     .with('transfer', () => 'common.action.transfer')
@@ -43,9 +44,7 @@ export default defineComponent({
               <tr key={row.id}>
                 <td>{row.nodeName}</td>
                 <td>{showIncompletedUserName(row.operator)}</td>
-                <td>
-                  {$t(getActionLabelKey(row.action))}
-                </td>
+                <td>{$t(getActionLabelKey(row.action))}</td>
                 <td>{formatted(row.createdTime).standard}</td>
                 <td>{row.comment || '-'}</td>
               </tr>
