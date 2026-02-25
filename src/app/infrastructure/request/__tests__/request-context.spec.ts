@@ -20,7 +20,7 @@ describe('request-context stack', () => {
         expect(current).toEqual({ requestId: 'req-1' })
 
         // 验证返回的是浅拷贝，不是栈内原对象
-        ;(current as any).requestId = 'mutated'
+        ;(current as { requestId: string }).requestId = 'mutated'
         expect(getCurrentRequestContext()).toEqual({ requestId: 'req-1' })
 
         return 'ok'

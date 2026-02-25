@@ -18,6 +18,11 @@ vi.mock('@/app/infrastructure/query/query-request-context', () => ({
   withQueryRequestContext: vi.fn((_queryKey, _ctx, runner) => runner()),
 }))
 
+type MockCaptchaQueryOptions = {
+  queryKey: readonly unknown[]
+  queryFn: (ctx: { queryKey: readonly unknown[]; signal: AbortSignal }) => Promise<unknown>
+}
+
 describe('useCaptcha', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -31,7 +36,7 @@ describe('useCaptcha', () => {
     vi.mocked(captchaService.getCaptcha).mockResolvedValue(payload as never)
 
     const queryResult = useCaptcha()
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = vi.mocked(useQuery).mock.calls[0][0] as MockCaptchaQueryOptions
 
     expect(options.queryKey).toEqual(['captcha'])
 

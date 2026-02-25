@@ -38,6 +38,25 @@ const queryClient = {
   invalidateQueries: vi.fn(),
 }
 
+type MockQueryOptions = {
+  queryKey: { value: readonly unknown[] }
+  enabled: { value: boolean }
+  staleTime?: number
+  gcTime?: number
+  refetchOnWindowFocus?: boolean
+  queryFn: (ctx: { queryKey: readonly unknown[] }) => unknown
+}
+
+type AssignRolePayload = {
+  roleId: number
+  userIds: number[]
+}
+
+type MockAssignRoleMutationOptions = {
+  mutationFn: (payload: AssignRolePayload) => Promise<unknown>
+  onSuccess: () => void
+}
+
 describe('useUserRoleService hooks', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -60,7 +79,7 @@ describe('useUserRoleService hooks', () => {
     const enabled = ref(true)
 
     useAssignedUsersByRole(roleId, { enabled })
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = vi.mocked(useQuery).mock.calls[0][0] as unknown as MockQueryOptions
 
     expect(options.queryKey.value).toEqual(['empty'])
     expect(options.enabled.value).toBe(false)
@@ -78,7 +97,7 @@ describe('useUserRoleService hooks', () => {
       gcTime: 222,
       refetchOnWindowFocus: true,
     })
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = vi.mocked(useQuery).mock.calls[0][0] as unknown as MockQueryOptions
 
     expect(options.queryKey.value).toEqual(userRoleKeys.assignedUsersByRole(10))
     expect(options.enabled.value).toBe(true)
@@ -94,7 +113,7 @@ describe('useUserRoleService hooks', () => {
 
   it('useAssignRoleToUsers invalidates role and user list caches', async () => {
     useAssignRoleToUsers()
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = vi.mocked(useMutation).mock.calls[0][0] as unknown as MockAssignRoleMutationOptions
 
     const payload = {
       roleId: 3,

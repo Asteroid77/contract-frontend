@@ -5,6 +5,11 @@ import ModernQueryBuilder from '@/modules/shared/presentation/advanced-query/mod
 import { FieldType } from '@/modules/shared/domain/advanced-query'
 import { FilterOp, QueryLogic } from '@/modules/shared/domain/query'
 
+type MockFilterCondition = {
+  field?: string
+  op?: string
+}
+
 vi.mock('@/_utils/i18n', () => ({
   $t: (key: string) => key,
 }))
@@ -31,16 +36,18 @@ vi.mock('@/modules/shared/presentation/advanced-query/modern/FilterPill', () => 
       },
     },
     setup(props) {
+      const condition = props.condition as MockFilterCondition
+      const onRemove = props.onRemove as (() => void) | undefined
       return () =>
         h('div', { 'data-test': 'filter-pill' }, [
-          h('span', { 'data-test': 'filter-pill-text' }, `${(props.condition as any).field}:${(props.condition as any).op}`),
+          h('span', { 'data-test': 'filter-pill-text' }, `${condition.field}:${condition.op}`),
           h('input', { 'data-test': 'pill-input' }),
           h(
             'button',
             {
               type: 'button',
               'data-test': 'pill-remove',
-              onClick: () => (props.onRemove as any)?.(),
+              onClick: () => onRemove?.(),
             },
             'remove',
           ),

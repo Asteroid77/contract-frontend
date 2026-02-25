@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { defineComponent, h, nextTick, ref } from 'vue'
+import { defineComponent, h, nextTick, ref, type Ref } from 'vue'
 import { mount } from '@vue/test-utils'
+
+type AssignedUsersRef = Ref<Array<{ id: number }> | undefined>
 
 const { mutateSpy, assignedUsersRefHolder } = vi.hoisted(() => ({
   mutateSpy: vi.fn(),
   assignedUsersRefHolder: {
-    value: null as any,
+    value: null as AssignedUsersRef | null,
   },
 }))
 
@@ -127,6 +129,9 @@ describe('RoleAssign', () => {
     expect(transfer.attributes('data-options-len')).toBe('2')
     expect(transfer.attributes('data-value')).toBe('[]')
 
+    if (!assignedUsersRefHolder.value) {
+      throw new Error('assigned users ref not initialized')
+    }
     assignedUsersRefHolder.value.value = [{ id: 2 }]
     await nextTick()
 

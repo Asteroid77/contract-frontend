@@ -140,6 +140,11 @@ vi.mock('@/modules/shared/presentation/widget/FormSkeleton', () => ({
 import ServiceAgreementForm from '@/modules/service-agreement/presentation/sign/ServiceAgreementForm'
 import { ServiceAgreementStatusEnum } from '@/modules/service-agreement/application/constants'
 
+type ButtonSlotPayload = {
+  handleValidate: () => Promise<boolean>
+  formValue: unknown
+}
+
 describe('ServiceAgreementForm', () => {
   it('shows sign and attachment sections only when status is Sign', () => {
     const signWrapper = mount(ServiceAgreementForm, {
@@ -168,7 +173,7 @@ describe('ServiceAgreementForm', () => {
   })
 
   it('exposes handleValidate in Button slot and returns validate result', async () => {
-    let slotPayload: any = null
+    let slotPayload: ButtonSlotPayload | null = null
 
     mount(ServiceAgreementForm, {
       props: {
@@ -177,24 +182,25 @@ describe('ServiceAgreementForm', () => {
         } as never,
       },
       slots: {
-        Button: (payload: { handleValidate: () => Promise<boolean>; formValue: unknown }) => {
+        Button: (payload: ButtonSlotPayload) => {
           slotPayload = payload
           return h('div', { 'data-test': 'button-slot' })
         },
       },
     })
 
-    if (!slotPayload) {
+    const resolvedSlotPayload = slotPayload as ButtonSlotPayload | null
+    if (!resolvedSlotPayload) {
       throw new Error('slot payload missing')
     }
-    expect(slotPayload.formValue).toBeTruthy()
+    expect(resolvedSlotPayload.formValue).toBeTruthy()
 
     validateErrorsState.value = [[{ field: 'customerInfo.companyName' }]]
-    const invalidResult = await slotPayload.handleValidate()
+    const invalidResult = await resolvedSlotPayload.handleValidate()
     expect(invalidResult).toBe(false)
 
     validateErrorsState.value = null
-    const validResult = await slotPayload.handleValidate()
+    const validResult = await resolvedSlotPayload.handleValidate()
     expect(validResult).toBe(true)
   })
 })

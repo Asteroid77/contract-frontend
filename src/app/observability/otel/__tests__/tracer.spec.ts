@@ -1,6 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ObservabilityConfig } from '@/app/observability/types'
 
+type MockSpan = {
+  setAttribute: (key: string, value: unknown) => void
+  setStatus: (status: unknown) => void
+  recordException: (error: unknown) => void
+  end?: () => void
+  spanContext: () => {
+    traceId: string
+    spanId: string
+  }
+}
+
 const {
   webTracerProviderCtor,
   providerRegisterSpy,
@@ -41,9 +52,9 @@ const {
     ERROR: 'error-code',
   }
 
-  const activeSpanRef: { current: any } = { current: undefined }
+  const activeSpanRef: { current: MockSpan | undefined } = { current: undefined }
 
-  const tracerStartActiveSpan = vi.fn((name: string, callback: (span: any) => unknown) => {
+  const tracerStartActiveSpan = vi.fn((name: string, callback: (span: MockSpan) => unknown) => {
     const span = {
       setAttribute: vi.fn(),
       setStatus: vi.fn(),

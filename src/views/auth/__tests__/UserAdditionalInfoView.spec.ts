@@ -2,6 +2,17 @@ import { defineComponent, h } from 'vue'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+type AdditionalInfoStatus = {
+  id: number
+  status: string
+} | null
+
+type LoadedProfileData = {
+  profile: {
+    name: string
+  }
+}
+
 const {
   routerPushSpy,
   routerReplaceSpy,
@@ -26,7 +37,7 @@ const {
   },
   statusQueryState: {
     data: {
-      value: null as any,
+      value: null as AdditionalInfoStatus,
     },
   },
   loadUserInfoState: {
@@ -35,7 +46,7 @@ const {
         profile: {
           name: 'loaded-profile',
         },
-      } as any,
+      } as LoadedProfileData,
     },
     isLoading: {
       value: false,

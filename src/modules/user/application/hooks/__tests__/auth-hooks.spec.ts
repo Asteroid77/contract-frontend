@@ -14,6 +14,7 @@ import type {
   PasswordRecoveryForm,
   RegisterForm,
   SignInResponse,
+  SignInResponseComplete,
 } from '@/modules/user/application/models'
 import type { SignInMutate } from '@/modules/user/application/hooks/useLogin'
 
@@ -78,9 +79,9 @@ describe('user auth-related hooks', () => {
     vi.clearAllMocks()
 
     messageSuccessMock = vi.fn<(message: string) => void>()
-    openMock = vi.fn<(url?: string | URL, target?: string, features?: string) => WindowProxy | null>(
-      () => null,
-    )
+    openMock = vi.fn<
+      (url?: string | URL, target?: string, features?: string) => WindowProxy | null
+    >(() => null)
 
     window.$message = { success: messageSuccessMock }
     window.open = openMock
@@ -109,7 +110,7 @@ describe('user auth-related hooks', () => {
     useLogin()
     const options = getLatestMutationOptions<SignInResponse, SignInMutate>()
 
-    const payload = {
+    const payload: SignInMutate = {
       mode: 'local',
       data: {
         phone: '13800138000',
@@ -153,7 +154,7 @@ describe('user auth-related hooks', () => {
     useLogin()
     const options = getLatestMutationOptions<SignInResponse, SignInMutate>()
 
-    const payload = {
+    const payload: SignInMutate = {
       mode: 'oauth2',
       authCode: 'oauth-auth-code',
       rememberMe: false,
@@ -256,7 +257,8 @@ describe('user auth-related hooks', () => {
     useLogin()
     const options = getLatestMutationOptions<SignInResponse, SignInMutate>()
 
-    const signInResponse = {
+    const signInResponse: SignInResponseComplete = {
+      requireTwoFactor: false,
       token: 'token-a',
       refreshToken: 'refresh-a',
       expiresIn: 3600,
@@ -297,6 +299,7 @@ describe('user auth-related hooks', () => {
     if (!options.onSuccess) throw new Error('onSuccess should be defined')
     await options.onSuccess(
       {
+        requireTwoFactor: false,
         token: 'token-a',
         expiresIn: 1800,
         user: {
@@ -404,13 +407,17 @@ describe('user auth-related hooks', () => {
     expect(userService.register).toHaveBeenCalledWith(payload)
 
     if (!options.onSuccess) throw new Error('onSuccess should be defined')
-    options.onSuccess({
-      userId: 3,
-      name: 'New User',
-      phone: '13900000000',
-    })
+    options.onSuccess(
+      {
+        userId: 3,
+        name: 'New User',
+        phone: '13900000000',
+      },
+      payload,
+    )
 
     expect(loginSpy).toHaveBeenCalledWith({
+      requireTwoFactor: false,
       user: {
         id: 3,
         name: 'New User',

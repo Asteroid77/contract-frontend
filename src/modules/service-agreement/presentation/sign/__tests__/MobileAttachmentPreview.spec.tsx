@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 
 vi.mock('@/_utils/i18n', () => ({
@@ -10,7 +10,11 @@ import MobileAttachmentPreview from '@/modules/service-agreement/presentation/si
 describe('MobileAttachmentPreview', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    ;(window as any).open = vi.fn(() => null)
+    vi.spyOn(window, 'open').mockImplementation(() => null)
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   it('renders empty state when no attachment ids exist', () => {
@@ -73,7 +77,7 @@ describe('MobileAttachmentPreview', () => {
 
     await cards[1].trigger('click')
 
-    expect((window as any).open).toHaveBeenCalledWith('https://oss/bill.pdf', '_blank')
+    expect(window.open).toHaveBeenCalledWith('https://oss/bill.pdf', '_blank')
   })
 
   it('opens and closes image viewer for image file click', async () => {

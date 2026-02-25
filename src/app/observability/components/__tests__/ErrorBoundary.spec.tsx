@@ -3,6 +3,7 @@ import { defineComponent, h, nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 import ErrorBoundary from '@/app/observability/components/ErrorBoundary'
 import { captureVueError } from '@/app/observability/collectors/error-collector'
+import type { FallbackSlotScope } from '@/app/observability/components/types'
 
 vi.mock('@/_utils/i18n', () => ({
   $t: (key: string) => `t:${key}`,
@@ -88,7 +89,7 @@ describe('ErrorBoundary', () => {
     const wrapper = mount(ErrorBoundary, {
       slots: {
         default: () => h(ThrowOnce),
-        fallback: ({ error, reset }: any) =>
+        fallback: ({ error, reset }: FallbackSlotScope) =>
           h('button', { 'data-test': 'fallback-reset', onClick: reset }, `fallback-${error.message}`),
       },
     })

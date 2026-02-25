@@ -70,7 +70,8 @@ vi.mock('naive-ui', () => ({
             'data-test': 'n-checkbox',
             'data-checked': String(props.checked),
             onClick: () => {
-              ;(props as any).onUpdateChecked?.(!props.checked)
+              const updateChecked = props.onUpdateChecked as ((checked: boolean) => void) | undefined
+              updateChecked?.(!props.checked)
             },
           },
           slots.default?.(),

@@ -22,7 +22,16 @@ const getValidator = (rule: unknown): ValidatorLike => {
   if (!validator) {
     throw new Error('validator should be defined')
   }
-  return (inputRule, value) => validator(inputRule, value) as true | Error
+
+  const strictValidator = validator as (
+    inputRule: FormItemRule,
+    value: unknown,
+    callback: (errors?: Error[]) => void,
+    source: Record<string, unknown>,
+    options: Record<string, unknown>,
+  ) => true | Error
+
+  return (inputRule, value) => strictValidator(inputRule, value, () => undefined, {}, {})
 }
 
 const getFieldRule = (rules: FormRules, key: string): FormItemRule => {

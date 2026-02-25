@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { isVNode } from 'vue'
+import { isVNode, type VNode } from 'vue'
 
 vi.mock('@/_utils/i18n', () => ({
   $t: (key: string) => key,
@@ -86,11 +86,11 @@ describe('ApprovalPrintFieldRenderUtil', () => {
 
     expect(isVNode(result)).toBe(true)
 
-    const vnode = result as any
+    const vnode = result as VNode
     expect(vnode.type).toBe('span')
     expect(vnode.props?.class).toBe('diff-container')
 
-    const children = vnode.children as any[]
+    const children = vnode.children as VNode[]
     expect(children).toHaveLength(2)
     expect(children[0]?.props?.class).toBe('diff-new')
     expect(JSON.stringify(children[0]?.children)).toContain('new-name')

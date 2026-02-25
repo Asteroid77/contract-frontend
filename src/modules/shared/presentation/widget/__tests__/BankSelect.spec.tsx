@@ -1,8 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
+import type { SelectOption } from 'naive-ui'
 import BankSelect from '@/modules/shared/presentation/widget/BankSelect'
 import { BankOption } from '@/modules/shared/application/constants/BankConstant'
+
+type RenderTagPayload = {
+  option: SelectOption
+}
 
 vi.mock('naive-ui', () => ({
   selectProps: {},
@@ -70,8 +75,8 @@ describe('BankSelect', () => {
     const wrapper = mount(BankSelect)
     const select = wrapper.findComponent({ name: 'MockNSelect' })
 
-    const renderLabel = select.props('renderLabel') as (option: any) => unknown
-    const renderTag = select.props('renderTag') as (payload: any) => unknown
+    const renderLabel = select.props('renderLabel') as (option: SelectOption) => unknown
+    const renderTag = select.props('renderTag') as (payload: RenderTagPayload) => unknown
 
     const labelVNode = renderLabel({ value: 'ICBC', label: '中国工商银行' })
     const tagVNode = renderTag({ option: { value: 'ICBC', label: '中国工商银行' } })

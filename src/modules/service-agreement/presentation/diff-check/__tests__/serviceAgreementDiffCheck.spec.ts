@@ -30,7 +30,8 @@ describe('serviceAgreementDiffCheck', () => {
         type: 'list',
       }),
     )
-    expect((servicePointField as any)?.children).toHaveLength(4)
+    const listField = servicePointField as { children?: unknown[] } | undefined
+    expect(listField?.children).toHaveLength(4)
   })
 
   it('toServiceAgreementDiffCheckForm maps labels and formats values when TOU enabled', () => {

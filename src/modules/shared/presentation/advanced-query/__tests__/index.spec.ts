@@ -4,7 +4,8 @@ import DirectModernQueryBuilder from '@/modules/shared/presentation/advanced-que
 
 describe('shared/presentation/advanced-query/index exports', () => {
   it('re-exports ModernQueryBuilder as default modern builder component', () => {
+    const component = ModernQueryBuilder as { name?: string }
     expect(ModernQueryBuilder).toBe(DirectModernQueryBuilder)
-    expect((ModernQueryBuilder as any).name).toBe('AdvancedQueryModernQueryBuilder')
+    expect(component.name).toBe('AdvancedQueryModernQueryBuilder')
   })
 })

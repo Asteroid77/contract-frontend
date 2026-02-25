@@ -2,6 +2,17 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 
+type MockUploadProps = {
+  fileList?: Array<Record<string, unknown>>
+  max?: number
+  customRequest?: (options: Record<string, unknown>) => void
+  createThumbnailUrl?: (...args: unknown[]) => unknown
+  renderIcon?: (...args: unknown[]) => unknown
+  listType?: string
+  accept?: string
+  'onUpdate:fileList'?: (list: unknown[]) => void
+}
+
 const {
   uploadPropsState,
   mutateSpy,
@@ -11,7 +22,7 @@ const {
   isSuccessState,
 } = vi.hoisted(() => ({
   uploadPropsState: {
-    value: null as Record<string, any> | null,
+    value: null as MockUploadProps | null,
   },
   mutateSpy: vi.fn(),
   messageSuccessSpy: vi.fn(),
@@ -101,7 +112,7 @@ vi.mock('naive-ui', () => ({
       },
     },
     setup(props) {
-      uploadPropsState.value = props as unknown as Record<string, any>
+      uploadPropsState.value = props as unknown as MockUploadProps
       return () =>
         h('div', {
           'data-test': 'n-upload',
@@ -145,10 +156,15 @@ describe('ImagesUploader', () => {
     await nextTick()
 
     expect(uploadPropsState.value).toBeTruthy()
-    expect(uploadPropsState.value!.fileList).toHaveLength(2)
-    expect(uploadPropsState.value!.fileList[0].id).toBe('1')
-    expect(uploadPropsState.value!.fileList[0].name).toBe('a.png')
-    expect(uploadPropsState.value!.fileList[0].url).toBe('https://a')
+    const fileList = uploadPropsState.value?.fileList
+    expect(fileList).toHaveLength(2)
+    const firstFile = fileList?.[0] as { id?: string; name?: string; url?: string } | undefined
+    if (!firstFile) {
+      throw new Error('first file is missing')
+    }
+    expect(firstFile.id).toBe('1')
+    expect(firstFile.name).toBe('a.png')
+    expect(firstFile.url).toBe('https://a')
   })
 
   it('emits numeric finished ids when file-list updates', async () => {

@@ -32,6 +32,33 @@ const queryClient = {
   invalidateQueries: vi.fn(),
 }
 
+type MockRolePageQueryOptions = {
+  queryKey: { value: readonly unknown[] }
+  queryFn: (ctx: { queryKey: readonly unknown[] }) => Promise<unknown>
+  staleTime: number
+  gcTime: number
+  enabled: boolean
+}
+
+type MockRolesByUserIdQueryOptions = {
+  queryKey: { value: readonly unknown[] }
+  queryFn: (ctx: { queryKey: readonly unknown[] }) => Promise<unknown>
+  enabled: { value: boolean }
+}
+
+type EditRolePayload = {
+  id?: number
+  name: string
+  description: string
+  permissionIds: number[]
+}
+
+type MockEditRoleMutationOptions = {
+  mutationFn: (payload: EditRolePayload) => Promise<unknown>
+  onSuccess: (_data: unknown, payload: EditRolePayload) => void
+  onError: (error: Error) => void
+}
+
 describe('useRoleService hooks', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -63,7 +90,7 @@ describe('useRoleService hooks', () => {
     }
 
     useRolePage(params)
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = vi.mocked(useQuery).mock.calls[0][0] as unknown as MockRolePageQueryOptions
 
     expect(options.queryKey.value).toEqual(roleKeys.list(params))
     expect(options.staleTime).toBe(5 * 60 * 1000)
@@ -81,7 +108,7 @@ describe('useRoleService hooks', () => {
     const enabled = ref(true)
 
     useRolesByUserId(userId, { enabled })
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = vi.mocked(useQuery).mock.calls[0][0] as unknown as MockRolesByUserIdQueryOptions
 
     expect(options.queryKey.value).toEqual(roleKeys.userRoles(0))
     expect(options.enabled.value).toBe(false)
@@ -101,7 +128,7 @@ describe('useRoleService hooks', () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     useEditRole()
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = vi.mocked(useMutation).mock.calls[0][0] as MockEditRoleMutationOptions
 
     const payload = {
       id: 9,

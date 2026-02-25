@@ -75,6 +75,11 @@ const loadUseSMS = async () => {
   return module.useSMS
 }
 
+type SmsMutationOptions = {
+  mutationFn: (phone: string) => Promise<unknown>
+  onSuccess: (data: { phone: string; bizId: string }, phone: string) => Promise<void>
+}
+
 describe('useSMS', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -115,7 +120,7 @@ describe('useSMS', () => {
     const cooldown = getSMSCoolDownSecond(phone)
     await flushPromises()
 
-    const mutation = sendSMSCode() as any
+    const mutation = sendSMSCode() as unknown as SmsMutationOptions
     const result = await mutation.mutationFn(phone)
     expect(result).toEqual(payload)
 
@@ -155,7 +160,7 @@ describe('useSMS', () => {
     getSMSCoolDownSecond(phone)
     await flushPromises()
 
-    const mutation = sendSMSCode() as any
+    const mutation = sendSMSCode() as unknown as SmsMutationOptions
     await mutation.onSuccess(payload, phone)
 
     expect(putMock).toHaveBeenCalledWith({

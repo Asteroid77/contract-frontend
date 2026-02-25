@@ -20,11 +20,22 @@ const getRuleArray = (rules: FormRules, key: string): FormItemRule[] => {
   return rule
 }
 
-const getValidator = (rule: FormItemRule): ((inputRule: FormItemRule, value: string) => true | Error) => {
+const getValidator = (
+  rule: FormItemRule,
+): ((inputRule: FormItemRule, value: string) => true | Error) => {
   if (!rule.validator) {
     throw new Error('validator should be defined')
   }
-  return (inputRule, value) => rule.validator!(inputRule, value) as true | Error
+
+  const validator = rule.validator as (
+    inputRule: FormItemRule,
+    value: string,
+    callback: (errors?: Error[]) => void,
+    source: Record<string, unknown>,
+    options: Record<string, unknown>,
+  ) => true | Error
+
+  return (inputRule, value) => validator(inputRule, value, () => undefined, {}, {})
 }
 
 describe('user additional info validation', () => {
@@ -67,14 +78,18 @@ describe('user additional info validation', () => {
     expect(getRuleArray(legalRules, 'contactPerson')[0].required).toBe(true)
     expect(getRuleArray(legalRules, 'contactPersonPhone')[0].required).toBe(true)
 
-    const individualRules = UserAdditionalInfoFormRules(ref({ registerType: RegisterType.INDIVIDUAL } as never))
+    const individualRules = UserAdditionalInfoFormRules(
+      ref({ registerType: RegisterType.INDIVIDUAL } as never),
+    )
     expect(getRuleArray(individualRules, 'companyAddress')[0].required).toBe(false)
     expect(getRuleArray(individualRules, 'contactPerson')[0].required).toBe(false)
     expect(getRuleArray(individualRules, 'contactPersonPhone')[0].required).toBe(false)
   })
 
   it('validates legal representative identity as 18 uppercase alnum code', () => {
-    const rules = UserAdditionalInfoFormRules(ref({ registerType: RegisterType.LEGAL_REPRESENTATIVE } as never))
+    const rules = UserAdditionalInfoFormRules(
+      ref({ registerType: RegisterType.LEGAL_REPRESENTATIVE } as never),
+    )
     const validator = getValidator(getRuleArray(rules, 'identity')[1])
 
     expect(validator({}, '91310000ABCDEFGH12')).toBe(true)
@@ -85,7 +100,9 @@ describe('user additional info validation', () => {
   })
 
   it('validates individual identity as citizen id-card format', () => {
-    const rules = UserAdditionalInfoFormRules(ref({ registerType: RegisterType.INDIVIDUAL } as never))
+    const rules = UserAdditionalInfoFormRules(
+      ref({ registerType: RegisterType.INDIVIDUAL } as never),
+    )
     const validator = getValidator(getRuleArray(rules, 'identity')[1])
 
     expect(validator({}, '11010519491231002X')).toBe(true)

@@ -2,6 +2,11 @@ import { defineComponent, h } from 'vue'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+type DropdownOption = {
+  key: string
+  label?: string
+}
+
 const {
   routeState,
   routerPushSpy,
@@ -243,10 +248,11 @@ vi.mock('naive-ui', () => ({
       },
     },
     setup(props, { slots }) {
+      const options = (props.options || []) as DropdownOption[]
       return () =>
         h('div', { 'data-test': 'n-dropdown' }, [
           h('div', { 'data-test': 'dropdown-trigger' }, slots.default?.()),
-          ...(props.options || []).map((option: any) =>
+          ...options.map((option) =>
             h(
               'button',
               {

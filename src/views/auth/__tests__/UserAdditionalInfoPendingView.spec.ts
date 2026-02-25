@@ -2,6 +2,11 @@ import { defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+type LatestAdditionalInfoStatus = {
+  id: number
+  status: string
+} | null
+
 const { routeState, routerPushSpy, routerReplaceSpy, latestStatusQueryState } = vi.hoisted(() => ({
   routeState: {
     query: {} as Record<string, unknown>,
@@ -10,7 +15,7 @@ const { routeState, routerPushSpy, routerReplaceSpy, latestStatusQueryState } = 
   routerReplaceSpy: vi.fn(),
   latestStatusQueryState: {
     data: {
-      value: null as any,
+      value: null as LatestAdditionalInfoStatus,
     },
     isLoading: {
       value: false,

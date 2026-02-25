@@ -80,8 +80,18 @@ vi.mock('@/modules/service-agreement/presentation/sign/AttachmentApprovalDiff', 
         h('section', {
           'data-test': 'attachment-approval-diff',
           'data-rules-len': String((props.rules || []).length),
-          'data-old-kind': props.filesMap?.old === undefined ? 'undefined' : props.filesMap?.old === null ? 'null' : 'object',
-          'data-new-kind': props.filesMap?.new === undefined ? 'undefined' : props.filesMap?.new === null ? 'null' : 'object',
+          'data-old-kind':
+            props.filesMap?.old === undefined
+              ? 'undefined'
+              : props.filesMap?.old === null
+                ? 'null'
+                : 'object',
+          'data-new-kind':
+            props.filesMap?.new === undefined
+              ? 'undefined'
+              : props.filesMap?.new === null
+                ? 'null'
+                : 'object',
         })
     },
   }),
@@ -102,9 +112,15 @@ vi.mock('naive-ui', () => ({
     },
     setup(props, { slots }) {
       return () =>
-        h('div', { 'data-test': 'n-result', 'data-title': props.title, 'data-description': props.description }, [
-          slots.footer?.(),
-        ])
+        h(
+          'div',
+          {
+            'data-test': 'n-result',
+            'data-title': props.title,
+            'data-description': props.description,
+          },
+          [slots.footer?.()],
+        )
     },
   }),
   NForm: defineComponent({
@@ -187,12 +203,13 @@ describe('PreviewAttachments view', () => {
       },
     })
 
-    expect(capturedEnabledRef.value.value).toBe(false)
+    expect(capturedEnabledRef.value).not.toBeNull()
+    expect(capturedEnabledRef.value!.value).toBe(false)
 
     const accessBtn = wrapper.get('button')
     await accessBtn.trigger('click')
 
-    expect(capturedEnabledRef.value.value).toBe(true)
+    expect(capturedEnabledRef.value!.value).toBe(true)
   })
 
   it('keeps preview query disabled when validation has errors', async () => {
@@ -205,12 +222,13 @@ describe('PreviewAttachments view', () => {
       },
     })
 
-    expect(capturedEnabledRef.value.value).toBe(false)
+    expect(capturedEnabledRef.value).not.toBeNull()
+    expect(capturedEnabledRef.value!.value).toBe(false)
 
     const accessBtn = wrapper.get('button')
     await accessBtn.trigger('click')
 
-    expect(capturedEnabledRef.value.value).toBe(false)
+    expect(capturedEnabledRef.value!.value).toBe(false)
   })
 
   it('maps old files to undefined for FORM_VIEW when oldFiles are absent', () => {

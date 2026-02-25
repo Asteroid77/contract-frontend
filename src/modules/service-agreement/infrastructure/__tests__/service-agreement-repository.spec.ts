@@ -1,10 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useRequest } from '@/modules/shared/infrastructure/useRequest'
 import { serviceAgreementRepository } from '@/modules/service-agreement/infrastructure/service-agreement-repository'
+import type { CustomAxiosRequestConfig } from '@/modules/shared/application/request/types'
 
 vi.mock('@/modules/shared/infrastructure/useRequest', () => ({
   useRequest: vi.fn(),
 }))
+
+type UploadRequestConfig = CustomAxiosRequestConfig<FormData> & {
+  onUploadProgress?: (event: { loaded: number; total?: number }) => void
+}
+
+type RecordedRequestConfig = {
+  method?: string
+  url?: string
+  headers?: Record<string, unknown>
+  data?: FormData
+}
 
 describe('serviceAgreementRepository contract', () => {
   beforeEach(() => {
@@ -16,23 +28,28 @@ describe('serviceAgreementRepository contract', () => {
     const progressSpy = vi.fn()
     const payload = { id: 1, path: 'https://oss/a.txt' }
 
-    vi.mocked(useRequest).mockImplementation((config: any) => {
-      config.onUploadProgress({ loaded: 1, total: 2 })
+    vi.mocked(useRequest).mockImplementation((config) => {
+      const uploadConfig = config as UploadRequestConfig
+      uploadConfig.onUploadProgress?.({ loaded: 1, total: 2 })
       return Promise.resolve({ data: payload } as never)
     })
 
     const result = await serviceAgreementRepository.uploadFile(file, 'BILL', progressSpy)
 
-    const requestConfig = vi.mocked(useRequest).mock.calls[0][0] as any
+    const requestConfig = vi.mocked(useRequest).mock.calls[0][0] as RecordedRequestConfig
 
     expect(requestConfig.method).toBe('POST')
     expect(requestConfig.url).toBe('/service_agreement/upload')
     expect(requestConfig.headers).toEqual({
       'Content-Type': undefined,
     })
-    expect(requestConfig.data).toBeInstanceOf(FormData)
-    expect(requestConfig.data.get('file')).toBe(file)
-    expect(requestConfig.data.get('fileCategory')).toBe('BILL')
+    const requestData = requestConfig.data
+    expect(requestData).toBeInstanceOf(FormData)
+    if (!(requestData instanceof FormData)) {
+      throw new Error('request payload is not FormData')
+    }
+    expect(requestData.get('file')).toBe(file)
+    expect(requestData.get('fileCategory')).toBe('BILL')
     expect(progressSpy).toHaveBeenCalledWith({ percent: 50 })
     expect(result).toEqual(payload)
   })

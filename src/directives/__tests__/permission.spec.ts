@@ -15,14 +15,11 @@ import permissionDirective from '@/directives/permission'
 
 type PermissionBinding = DirectiveBinding<string | string[]>
 
-const createBinding = (
-  value: string | string[] | undefined,
-  arg?: string,
-): PermissionBinding =>
+const createBinding = (value: string | string[] | undefined, arg?: string): PermissionBinding =>
   ({
     instance: null,
     value,
-    oldValue: undefined,
+    oldValue: null,
     arg,
     modifiers: {},
     dir: {} as PermissionBinding['dir'],

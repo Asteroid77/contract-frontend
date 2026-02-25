@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 
 const { historyRef } = vi.hoisted(() => ({
-  historyRef: { value: [] as any[] },
+  historyRef: { value: [] as Array<Record<string, unknown>> },
 }))
 
 vi.mock('@/_utils/i18n', () => ({

@@ -38,7 +38,10 @@ const queryClient = {
 }
 
 type HandleTaskMutationOptionsLike = {
-  onSuccess?: (data: ApprovalInstance<Record<string, unknown>>, variables: ApprovalOpinionForm) => void
+  onSuccess?: (
+    data: ApprovalInstance<Record<string, unknown>>,
+    variables: ApprovalOpinionForm,
+  ) => void
   onError?: (error: Error, variables: ApprovalOpinionForm) => void
 }
 
@@ -51,7 +54,9 @@ type LatestAdditionalInfoStatusQueryOptionsLike = {
   gcTime: number
   refetchOnWindowFocus: boolean
   refetchOnMount: boolean | 'always'
-  queryFn: (ctx: { queryKey: unknown }) => Promise<LatestAdditionalInfoInstance> | LatestAdditionalInfoInstance
+  queryFn: (ctx: {
+    queryKey: unknown
+  }) => Promise<LatestAdditionalInfoInstance> | LatestAdditionalInfoInstance
 }
 
 const getLatestMutationOptions = (): HandleTaskMutationOptionsLike => {
@@ -67,7 +72,7 @@ const getLatestQueryOptions = (): LatestAdditionalInfoStatusQueryOptionsLike => 
   if (!latestCall) {
     throw new Error('useQuery should be called before reading options')
   }
-  return latestCall[0] as LatestAdditionalInfoStatusQueryOptionsLike
+  return latestCall[0] as unknown as LatestAdditionalInfoStatusQueryOptionsLike
 }
 
 const createApprovalInstance = (processName: '用户信息审批' | '备案/签约信息审批') => ({
@@ -90,7 +95,9 @@ describe('useApprovalService hooks', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(useQueryClient).mockReturnValue(queryClient as never)
-    vi.mocked(approvalService.handleTask).mockResolvedValue(createApprovalInstance('用户信息审批') as never)
+    vi.mocked(approvalService.handleTask).mockResolvedValue(
+      createApprovalInstance('用户信息审批') as never,
+    )
     vi.mocked(approvalService.getLatestAdditionalInfoInstanceStatus).mockResolvedValue({
       id: 101,
       status: 'pending',
@@ -115,7 +122,9 @@ describe('useApprovalService hooks', () => {
 
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: approvalKeys.ALL })
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: approvalTaskKeys.ALL })
-    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: approvalInstanceKeys.ALL })
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: approvalInstanceKeys.ALL,
+    })
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
       queryKey: approvalInstanceKeys.LATEST_ADDITIONAL_INFO_INSTANCE,
     })
@@ -143,7 +152,9 @@ describe('useApprovalService hooks', () => {
 
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: approvalKeys.ALL })
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: approvalTaskKeys.ALL })
-    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: approvalInstanceKeys.ALL })
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: approvalInstanceKeys.ALL,
+    })
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
       queryKey: approvalInstanceKeys.INSTANCE_DETAIL(data.id),
     })

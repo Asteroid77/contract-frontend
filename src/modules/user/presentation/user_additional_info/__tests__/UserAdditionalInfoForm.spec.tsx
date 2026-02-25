@@ -114,6 +114,15 @@ import UserAdditionalInfoForm from '@/modules/user/presentation/user_additional_
 import { RegisterType } from '@/modules/user/application/constants'
 import type { UserAdditionalInfoForm as UserAdditionalInfoFormModel } from '@/modules/user/application/models'
 
+type UserAdditionalInfoFormVm = {
+  getFormInstance: () => {
+    validate: (...args: unknown[]) => unknown
+    restoreValidation: () => void
+    values: UserAdditionalInfoFormModel
+  }
+  getRequiredKeys: () => string[]
+}
+
 const createLegalForm = (): FormInput<UserAdditionalInfoFormModel> => ({
   registerType:
     RegisterType.LEGAL_REPRESENTATIVE as UserAdditionalInfoFormModel['registerType'],
@@ -172,9 +181,9 @@ describe('UserAdditionalInfoForm', () => {
       },
     })
 
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as unknown as UserAdditionalInfoFormVm
     const formInstance = vm.getFormInstance()
-    const requiredKeys = vm.getRequiredKeys() as string[]
+    const requiredKeys = vm.getRequiredKeys()
 
     expect(typeof formInstance.validate).toBe('function')
     expect(typeof formInstance.restoreValidation).toBe('function')

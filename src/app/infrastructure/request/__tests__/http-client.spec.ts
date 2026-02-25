@@ -15,6 +15,16 @@ vi.mock('@/app/infrastructure/request/get-backend-url', () => ({
   getBackendURL: backendUrlSpy,
 }))
 
+type HttpClientOptions = {
+  timeout: number
+  baseURL: string
+  withCredentials: boolean
+  headers: Record<string, string>
+  paramsSerializer: {
+    serialize: (params: Record<string, unknown>) => string
+  }
+}
+
 describe('http-client', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -27,7 +37,7 @@ describe('http-client', () => {
     expect(backendUrlSpy).toHaveBeenCalledTimes(1)
     expect(axiosCreateSpy).toHaveBeenCalledTimes(1)
 
-    const options = axiosCreateSpy.mock.calls[0][0] as any
+    const options = axiosCreateSpy.mock.calls[0][0] as HttpClientOptions
 
     expect(options.timeout).toBe(10000)
     expect(options.baseURL).toBe('https://api.example.com/api')
@@ -46,7 +56,7 @@ describe('http-client', () => {
   it('serializes query params with repeat array format', async () => {
     await import('@/app/infrastructure/request/http-client')
 
-    const options = axiosCreateSpy.mock.calls[0][0] as any
+    const options = axiosCreateSpy.mock.calls[0][0] as HttpClientOptions
     const serialized = options.paramsSerializer.serialize({
       ids: [1, 2],
       keyword: 'abc',

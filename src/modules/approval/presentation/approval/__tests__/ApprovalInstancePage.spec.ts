@@ -2,6 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 
+type MockDataTableColumn = {
+  key?: string
+  render?: (row: Record<string, unknown>) => unknown
+}
+
 const {
   routerPushSpy,
   claimMutateSpy,
@@ -117,7 +122,7 @@ vi.mock('naive-ui', () => ({
     },
     setup(props) {
       return () => {
-        const columns = (props.columns || []) as Array<Record<string, any>>
+        const columns = (props.columns || []) as MockDataTableColumn[]
         const rows = (props.data || []) as Array<Record<string, unknown>>
         const operateColumn = columns.find((column) => column.key === 'operate')
 

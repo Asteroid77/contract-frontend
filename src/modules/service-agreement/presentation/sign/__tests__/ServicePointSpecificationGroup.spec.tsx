@@ -2,6 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 
+type MockDataColumn = {
+  key?: string
+  render?: (row: unknown, rowIndex: number) => unknown
+}
+
 const { messageErrorSpy, motivateSpsSpy } = vi.hoisted(() => ({
   messageErrorSpy: vi.fn(),
   motivateSpsSpy: vi.fn(),
@@ -68,8 +73,9 @@ vi.mock('naive-ui', () => ({
       },
     },
     setup(props) {
-      return () =>
-        h(
+      return () => {
+        const columns = (props.columns || []) as MockDataColumn[]
+        return h(
           'div',
           { 'data-test': 'n-data-table' },
           (props.data || []).map((row, rowIndex) =>
@@ -79,7 +85,7 @@ vi.mock('naive-ui', () => ({
                 'data-test': 'n-data-row',
                 'data-row-index': String(rowIndex),
               },
-              (props.columns || []).map((column: any, columnIndex) => {
+              columns.map((column, columnIndex) => {
                 if (typeof column?.render === 'function') {
                   return h(
                     'div',
@@ -97,12 +103,17 @@ vi.mock('naive-ui', () => ({
                     'data-test': 'n-data-cell',
                     'data-col-index': String(columnIndex),
                   },
-                  String((row as Record<string, unknown>)[column?.key] ?? ''),
+                  String(
+                    typeof column?.key === 'string'
+                      ? (row as Record<string, unknown>)[column.key] ?? ''
+                      : '',
+                  ),
                 )
               }),
             ),
           ),
         )
+      }
     },
   }),
 }))

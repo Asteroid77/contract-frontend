@@ -11,13 +11,16 @@ import {
   showIncompletedUserName,
 } from '@/modules/approval/application/utils'
 import type { ApprovalInstance } from '@/modules/approval/domain/types'
-import type { SignInResponse } from '@/modules/user/application/models'
+import type { SignInResponseComplete } from '@/modules/user/application/models'
 
 vi.mock('@/_utils/i18n', () => ({
   $t: (key: string) => key,
 }))
 
-const createCurrentUser = (overrides: Partial<SignInResponse> = {}): SignInResponse => ({
+const createCurrentUser = (
+  overrides: Partial<SignInResponseComplete> = {},
+): SignInResponseComplete => ({
+  requireTwoFactor: false,
   user: {
     id: 66,
     name: '张三',
@@ -103,9 +106,7 @@ describe('approval utils', () => {
       reasonKey: 'approval.errors.taskAlreadyClaimed',
     })
 
-    expect(
-      canClaimTask(createInstance({ status: 'approved' }), createCurrentUser()),
-    ).toEqual({
+    expect(canClaimTask(createInstance({ status: 'approved' }), createCurrentUser())).toEqual({
       canClaim: false,
       reasonKey: 'approval.errors.instanceStatusInvalid',
       reasonParams: {
@@ -147,10 +148,7 @@ describe('approval utils', () => {
       reasonKey: 'approval.errors.noRolePermission',
     })
 
-    const claimable = canClaimTask(
-      createInstance({ candidateRoles: [1, 2] }),
-      createCurrentUser(),
-    )
+    const claimable = canClaimTask(createInstance({ candidateRoles: [1, 2] }), createCurrentUser())
 
     expect(claimable).toEqual({ canClaim: true })
   })

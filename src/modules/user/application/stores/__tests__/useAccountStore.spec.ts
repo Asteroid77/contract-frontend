@@ -3,6 +3,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
 import dexie from '@/app/infrastructure/storage/dexie'
 import { STORAGE_KEYS } from '@/constants/storage'
+import type { SignInResponseComplete } from '@/modules/user/application/models'
 import { updateAbility, clearAbility } from '@/modules/access/application/ability'
 import {
   clearAuthTokens,
@@ -37,7 +38,8 @@ vi.mock('@/modules/user/application/service', () => ({
   },
 }))
 
-const buildSignInResponse = () => ({
+const buildSignInResponse = (): SignInResponseComplete => ({
+  requireTwoFactor: false,
   user: {
     id: 10,
     name: 'Alice',
@@ -202,8 +204,7 @@ describe('useAccountStore', () => {
     store.logout()
 
     store.updateTokens('access-next', 'refresh-next', 1800)
-
-    resolveLogout?.()
+    ;(resolveLogout as (() => void) | null)?.()
     await Promise.resolve()
     await Promise.resolve()
 
@@ -215,9 +216,7 @@ describe('useAccountStore', () => {
   it('resets session when logout request hangs beyond timeout', async () => {
     vi.useFakeTimers()
     try {
-      vi.mocked(userService.logout).mockImplementation(
-        () => new Promise<boolean>(() => {}),
-      )
+      vi.mocked(userService.logout).mockImplementation(() => new Promise<boolean>(() => {}))
 
       const store = useAccountStore()
       store.login(buildSignInResponse())

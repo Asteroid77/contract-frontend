@@ -32,11 +32,22 @@ const getRuleArray = (rules: FormRules, key: string): FormItemRule[] => {
   return rule
 }
 
-const getValidator = (rule: FormItemRule): ((rule: FormItemRule, value: string) => true | Error | undefined) => {
+const getValidator = (
+  rule: FormItemRule,
+): ((rule: FormItemRule, value: string) => true | Error | undefined) => {
   if (!rule.validator) {
     throw new Error('validator should be defined')
   }
-  return (inputRule, value) => rule.validator!(inputRule, value) as true | Error | undefined
+
+  const validator = rule.validator as (
+    inputRule: FormItemRule,
+    value: string,
+    callback: (errors?: Error[]) => void,
+    source: Record<string, unknown>,
+    options: Record<string, unknown>,
+  ) => true | Error | undefined
+
+  return (inputRule, value) => validator(inputRule, value, () => undefined, {}, {})
 }
 
 describe('access validation', () => {
@@ -86,10 +97,22 @@ describe('access validation', () => {
 
   it('register and password-recovery validation expose required keys', () => {
     const registerResult = registerFormValidation(ref({ password: 'password1' } as never))
-    expect(registerResult.requiredKeys).toEqual(['phone', 'password', 'dbCheckPassword', 'code', 'bizId'])
+    expect(registerResult.requiredKeys).toEqual([
+      'phone',
+      'password',
+      'dbCheckPassword',
+      'code',
+      'bizId',
+    ])
 
     const recoveryResult = passwordRecoveryFormValidation(ref({ password: 'password2' } as never))
-    expect(recoveryResult.requiredKeys).toEqual(['phone', 'password', 'dbCheckPassword', 'code', 'bizId'])
+    expect(recoveryResult.requiredKeys).toEqual([
+      'phone',
+      'password',
+      'dbCheckPassword',
+      'code',
+      'bizId',
+    ])
   })
 
   it('register and password-recovery confirm-password validators enforce mismatch rules', () => {

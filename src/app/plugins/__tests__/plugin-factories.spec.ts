@@ -28,9 +28,10 @@ describe('plugin factories', () => {
   it('usePiniaPlugin returns pinia plugin instance', () => {
     const first = usePiniaPlugin()
     const second = usePiniaPlugin()
+    const plugin = first.plugin as { install?: unknown }
 
     expect(first.plugin).toBeTruthy()
-    expect(typeof (first.plugin as any).install).toBe('function')
+    expect(typeof plugin.install).toBe('function')
     expect(first.plugin).not.toBe(second.plugin)
   })
 })

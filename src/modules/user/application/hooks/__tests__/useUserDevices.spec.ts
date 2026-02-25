@@ -29,6 +29,23 @@ const queryClient = {
   invalidateQueries: vi.fn(),
 }
 
+type MockDevicesQueryOptions = {
+  queryKey: readonly unknown[]
+  queryFn: (ctx: { queryKey: readonly unknown[] }) => Promise<unknown>
+  staleTime: number
+  refetchOnWindowFocus: boolean
+}
+
+type RevokePayload = {
+  deviceIds: string[]
+  allowCurrentDevice: boolean
+}
+
+type MockRevokeMutationOptions = {
+  mutationFn: (payload: RevokePayload) => Promise<unknown>
+  onSuccess: () => void
+}
+
 describe('useUserDevices hooks', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -55,7 +72,7 @@ describe('useUserDevices hooks', () => {
 
   it('useCurrentUserDevicesQuery configures query and delegates queryFn correctly', async () => {
     useCurrentUserDevicesQuery()
-    const options = vi.mocked(useQuery).mock.calls[0][0] as any
+    const options = vi.mocked(useQuery).mock.calls[0][0] as MockDevicesQueryOptions
 
     expect(options.queryKey).toEqual(userDeviceKeys.list())
     expect(options.staleTime).toBe(30 * 1000)
@@ -69,7 +86,7 @@ describe('useUserDevices hooks', () => {
 
   it('useRevokeCurrentUserDevicesMutation delegates mutation and invalidates list on success', async () => {
     useRevokeCurrentUserDevicesMutation()
-    const options = vi.mocked(useMutation).mock.calls[0][0] as any
+    const options = vi.mocked(useMutation).mock.calls[0][0] as MockRevokeMutationOptions
 
     const payload = {
       deviceIds: ['device-a', 'device-b'],

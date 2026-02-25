@@ -29,14 +29,28 @@ vi.mock('@tanstack/query-persist-client-core', () => ({
 
 import { queryPersister } from '@/app/infrastructure/query/tanstack_query_persist_with_dexie'
 
+type QueryPersisterStorage = {
+  getItem: (key: string) => Promise<unknown>
+  setItem: (key: string, value: unknown) => Promise<void>
+  removeItem: (key: string) => Promise<void>
+}
+
+type QueryPersisterWithOptions = {
+  __options?: {
+    storage: QueryPersisterStorage
+  }
+}
+
 describe('query persister (dexie)', () => {
   it('creates persister with async storage adapter', () => {
+    const persister = queryPersister as QueryPersisterWithOptions
     expect(createPersisterMock).toHaveBeenCalledTimes(1)
-    expect((queryPersister as any).__options?.storage).toBeTruthy()
+    expect(persister.__options?.storage).toBeTruthy()
   })
 
   it('storage.getItem returns cached value or null', async () => {
-    const storage = (queryPersister as any).__options.storage
+    const persister = queryPersister as QueryPersisterWithOptions
+    const storage = persister.__options!.storage
 
     dbMock.queryCache.get.mockResolvedValueOnce({ key: 'k1', value: 'v1' })
     await expect(storage.getItem('k1')).resolves.toBe('v1')
@@ -46,7 +60,8 @@ describe('query persister (dexie)', () => {
   })
 
   it('storage.setItem and removeItem delegate to dexie queryCache table', async () => {
-    const storage = (queryPersister as any).__options.storage
+    const persister = queryPersister as QueryPersisterWithOptions
+    const storage = persister.__options!.storage
 
     await storage.setItem('k3', { foo: 'bar' })
     expect(dbMock.queryCache.put).toHaveBeenCalledWith({ key: 'k3', value: { foo: 'bar' } })
