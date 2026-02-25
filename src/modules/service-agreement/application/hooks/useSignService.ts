@@ -9,17 +9,20 @@ import type {
   ServiceAgreementDetail,
 } from '@/modules/service-agreement/application/models'
 import type { ServiceAgreementRequestDTO } from '@/modules/service-agreement/domain/dto'
-import type { BasePageRequest } from '@/modules/shared/application/request/types'
+import type { BasePageRequest, BaseQuery } from '@/modules/shared/application/request/types'
+import type { QueryFilters as DomainQueryFilters } from '@/modules/shared/domain/query'
 import type { ApprovalInstance } from '@/modules/approval/domain/types'
 import { computed, type Ref } from 'vue'
 import type { AxiosError } from 'axios'
 import type { FileCategory } from '@/modules/service-agreement/domain/enums'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 
+type QueryFilters = DomainQueryFilters & BaseQuery
+
 export const signKeys = {
   all: ['service-agreements'] as const,
   lists: () => [...signKeys.all, 'list'] as const,
-  list: (params: BasePageRequest<ServiceAgreementPageQuery>) =>
+  list: (params: BasePageRequest<ServiceAgreementPageQuery | QueryFilters>) =>
     [...signKeys.lists(), params] as const,
   detail: (id: number) => [...signKeys.all, 'detail', id] as const,
   preview: (params: PreviewAttachmentsQuery) => [...signKeys.all, 'preview', params] as const,
@@ -46,12 +49,14 @@ export const useServiceAgreementDetail = (id: Ref<number | null>) => {
  * 分页查询备案/签约列表
  */
 export const useServiceAgreementPage = (
-  pageRequest: Ref<BasePageRequest<ServiceAgreementPageQuery>>,
+  pageRequest: Ref<BasePageRequest<ServiceAgreementPageQuery | QueryFilters>>,
 ) => {
   return useQuery({
     queryKey: computed(() => signKeys.list(pageRequest.value)),
     queryFn: (ctx) =>
-      withQueryRequestContext(ctx.queryKey, ctx, () => serviceAgreementService.page(pageRequest.value)),
+      withQueryRequestContext(ctx.queryKey, ctx, () =>
+        serviceAgreementService.page(pageRequest.value),
+      ),
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000,
   })

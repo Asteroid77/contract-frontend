@@ -1,5 +1,7 @@
 import type { BasePageRequest, IPage } from '@/modules/shared/application/request/types'
 import { toDomainPageRequest } from '@/modules/shared/application/query/legacy-query-adapter'
+import type { QueryFilters } from '@/modules/shared/domain/query'
+import type { BasePageRequest as DomainBasePageRequest } from '@/modules/shared/domain/page'
 import { serviceAgreementRepository } from '../infrastructure/service-agreement-repository'
 import {
   toViewPreviewAttachments,
@@ -17,6 +19,45 @@ import type { FileCategory } from '../domain/enums'
 import { toOssCallbackView } from '@/modules/file/application/models'
 import type { ApprovalInstance } from '@/modules/approval/domain/types'
 import type { ServiceAgreementRequestDTO as DomainServiceAgreementRequestDTO } from '../domain/dto'
+
+type ServiceAgreementPageFilterQuery = ServiceAgreementPageQuery | QueryFilters
+
+type ServiceAgreementPageRequest = Omit<BasePageRequest<ServiceAgreementPageQuery>, 'query'> & {
+  query?: ServiceAgreementPageFilterQuery
+}
+
+const isQueryFilters = (query: unknown): query is QueryFilters => {
+  if (!query || typeof query !== 'object') return false
+  return 'filters' in query || 'group' in query
+}
+
+const normalizeSize = (size?: ServiceAgreementPageRequest['size']) => {
+  if (size == null) return undefined
+  if (typeof size === 'number') return size
+  if (typeof size === 'string') {
+    const parsed = Number(size)
+    return Number.isNaN(parsed) ? undefined : parsed
+  }
+  return undefined
+}
+
+const toDomainPageRequestSmart = (
+  pageRequest: ServiceAgreementPageRequest,
+): DomainBasePageRequest<QueryFilters> => {
+  if (isQueryFilters(pageRequest.query)) {
+    return {
+      page: pageRequest.page,
+      size: normalizeSize(pageRequest.size),
+      orders: pageRequest.orders?.map((item) => ({
+        column: item.column,
+        direction: item.direction ?? 'ASC',
+      })),
+      query: pageRequest.query,
+    }
+  }
+
+  return toDomainPageRequest(pageRequest as BasePageRequest<ServiceAgreementPageQuery>)
+}
 
 const toViewApprovalInstance = (
   instance: ApprovalInstance<DomainServiceAgreementRequestDTO>,
@@ -50,10 +91,8 @@ export const serviceAgreementService = {
   duplicateCheck: (companyName: string, pca: string) =>
     serviceAgreementRepository.duplicateCheck(companyName, pca),
   get: (id: number) => serviceAgreementRepository.get(id).then(toViewServiceAgreement),
-  page: (
-    pageRequest: BasePageRequest<ServiceAgreementPageQuery>,
-  ): Promise<IPage<ServiceAgreementPageItem>> =>
-    serviceAgreementRepository.page(toDomainPageRequest(pageRequest)).then((page) => ({
+  page: (pageRequest: ServiceAgreementPageRequest): Promise<IPage<ServiceAgreementPageItem>> =>
+    serviceAgreementRepository.page(toDomainPageRequestSmart(pageRequest)).then((page) => ({
       ...page,
       records: page.records.map(toViewServiceAgreementPage),
     })),

@@ -157,6 +157,53 @@ describe('serviceAgreementService', () => {
     })
   })
 
+  it('page passes QueryFilters request directly to repository', async () => {
+    const pageRequest = {
+      page: 2,
+      size: '20',
+      orders: [{ column: 'createdTime' }],
+      query: {
+        filters: [
+          {
+            field: 'status',
+            op: 'EQ',
+            value: 2,
+          },
+        ],
+      },
+    }
+    const payload = {
+      records: [{ id: 3 }],
+      total: 1,
+    }
+
+    vi.mocked(serviceAgreementRepository.page).mockResolvedValue(payload as never)
+    vi.mocked(toViewServiceAgreementPage).mockReturnValue({ id: 3, mapped: true } as never)
+
+    const result = await serviceAgreementService.page(pageRequest as never)
+
+    expect(toDomainPageRequest).not.toHaveBeenCalled()
+    expect(serviceAgreementRepository.page).toHaveBeenCalledWith({
+      page: 2,
+      size: 20,
+      orders: [{ column: 'createdTime', direction: 'ASC' }],
+      query: {
+        filters: [
+          {
+            field: 'status',
+            op: 'EQ',
+            value: 2,
+          },
+        ],
+      },
+    })
+    expect(toViewServiceAgreementPage).toHaveBeenCalledTimes(1)
+    expect(result).toEqual({
+      records: [{ id: 3, mapped: true }],
+      total: 1,
+    })
+  })
+
   it('getPreviewAttachments maps repository response', async () => {
     const params = {
       id: 1,

@@ -67,7 +67,10 @@ const getLatestQueryOptions = <TData = unknown>(): QueryOptionsLike<TData> => {
   return latestCall[0] as QueryOptionsLike<TData>
 }
 
-const getLatestMutationOptions = <TData = unknown, TVariables = unknown>(): MutationOptionsLike<TData, TVariables> => {
+const getLatestMutationOptions = <TData = unknown, TVariables = unknown>(): MutationOptionsLike<
+  TData,
+  TVariables
+> => {
   const latestCall = vi.mocked(useMutation).mock.calls.at(-1)
   if (!latestCall) {
     throw new Error('useMutation should be called before reading options')
@@ -98,8 +101,8 @@ describe('useSignService hooks', () => {
 
     useServiceAgreementDetail(id)
     const options = getLatestQueryOptions<{ id: number }>()
-    expect(options.queryKey.value).toEqual(signKeys.detail(9))
-    expect(options.enabled.value).toBe(true)
+    expect((options.queryKey as { value: unknown }).value).toEqual(signKeys.detail(9))
+    expect((options.enabled as { value: boolean }).value).toBe(true)
 
     const ctx = {
       queryKey: signKeys.detail(9),
@@ -107,21 +110,23 @@ describe('useSignService hooks', () => {
     }
     const result = await options.queryFn(ctx)
 
-    expect(withQueryRequestContext).toHaveBeenCalledWith(signKeys.detail(9), ctx, expect.any(Function))
+    expect(withQueryRequestContext).toHaveBeenCalledWith(
+      signKeys.detail(9),
+      ctx,
+      expect.any(Function),
+    )
     expect(serviceAgreementService.get).toHaveBeenCalledWith(9)
     expect(result).toEqual({ id: 9 })
 
     id.value = null
-    expect(options.enabled.value).toBe(false)
+    expect((options.enabled as { value: boolean }).value).toBe(false)
   })
 
   it('useServiceAgreementPage keeps previous data and delegates queryFn', async () => {
     const pageRequest = ref<BasePageRequest<ServiceAgreementPageQuery>>({
       page: 1,
       size: 20,
-      query: {
-        filters: [],
-      },
+      query: {},
     })
     const payload = {
       records: [],
@@ -132,7 +137,7 @@ describe('useSignService hooks', () => {
     useServiceAgreementPage(pageRequest)
     const options = getLatestQueryOptions<typeof payload>()
 
-    expect(options.queryKey.value).toEqual(signKeys.list(pageRequest.value))
+    expect((options.queryKey as { value: unknown }).value).toEqual(signKeys.list(pageRequest.value))
     expect(options.placeholderData).toBe('KEEP_PREVIOUS_DATA')
 
     const ctx = {
@@ -154,18 +159,16 @@ describe('useSignService hooks', () => {
     })
     const enabled = ref(true)
 
-    vi.mocked(serviceAgreementService.getPreviewAttachments).mockResolvedValue(
-      {
-        newFiles: {},
-        oldFiles: {},
-      } as never,
-    )
+    vi.mocked(serviceAgreementService.getPreviewAttachments).mockResolvedValue({
+      newFiles: {},
+      oldFiles: {},
+    } as never)
 
     usePreviewAttachments(paramsRef, enabled)
     const options = getLatestQueryOptions()
 
     expect(options.queryKey).toEqual(signKeys.preview(paramsRef.value))
-    expect(options.enabled.value).toBe(true)
+    expect((options.enabled as { value: boolean }).value).toBe(true)
     expect(options.retry).toBe(false)
 
     const ctx = {
@@ -178,7 +181,7 @@ describe('useSignService hooks', () => {
     expect(serviceAgreementService.getPreviewAttachments).toHaveBeenCalledWith(paramsRef.value)
 
     enabled.value = false
-    expect(options.enabled.value).toBe(false)
+    expect((options.enabled as { value: boolean }).value).toBe(false)
   })
 
   it('useUploadFileMutation writes file detail cache and executes callback', async () => {

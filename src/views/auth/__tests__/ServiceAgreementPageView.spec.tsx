@@ -2,6 +2,16 @@ import { defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+type ServiceAgreementRow = {
+  id: number | null
+  companyName: string
+}
+
+type ServiceAgreementPageResult = {
+  records: ServiceAgreementRow[]
+  total: number
+}
+
 const { pageResultRef, isPendingRef, refetchSpy, routerPushSpy } = vi.hoisted(() => ({
   pageResultRef: {
     value: {
@@ -12,7 +22,7 @@ const { pageResultRef, isPendingRef, refetchSpy, routerPushSpy } = vi.hoisted(()
         },
       ],
       total: 1,
-    } as any,
+    } as ServiceAgreementPageResult,
   },
   isPendingRef: {
     value: false,
@@ -98,7 +108,7 @@ vi.mock('@/modules/service-agreement/presentation/sign/ServiceAgreementPage', ()
             'data-rows': String((props.data || []).length),
             'data-loading': String(Boolean(props.loading)),
           },
-          [slots.actions?.(((props.data as any[])?.[0] ?? {}) as never)],
+          [slots.actions?.(((props.data as ServiceAgreementRow[] | undefined)?.[0] ?? {}) as never)],
         )
     },
   }),

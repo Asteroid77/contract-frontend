@@ -1,35 +1,31 @@
 import { defineComponent, ref, computed, reactive } from 'vue'
-import { NSpace, NInput, NSelect, NButton, type PaginationProps } from 'naive-ui'
+import { NSpace, NButton, type PaginationProps } from 'naive-ui'
 import ServiceAgreementPage from '@/modules/service-agreement/presentation/sign/ServiceAgreementPage'
-import { useServiceAgreementPage } from '@/modules/service-agreement/application/hooks/useSignService' // 替换为实际 hook 路径
-import { ServiceAgreementStatusOption } from '@/modules/service-agreement/application/constants' // 假设枚举路径
-import type { BasePageRequest } from '@/modules/shared/application/request/types'
-import type {
-  ServiceAgreementPageQuery,
-  ServiceAgreementPageItem,
-} from '@/modules/service-agreement/application/models'
+import { useServiceAgreementPage } from '@/modules/service-agreement/application/hooks/useSignService'
+import type { ServiceAgreementPageItem } from '@/modules/service-agreement/application/models'
+import { ModernQueryBuilder } from '@/modules/shared/presentation/advanced-query'
+import type { QueryFilters } from '@/modules/shared/domain/query'
+import type { BaseQuery } from '@/modules/shared/application/request/types'
+import { serviceAgreementAdvancedQueryFields } from '@/modules/service-agreement/presentation/sign/serviceAgreementAdvancedQueryFields'
 import { $t } from '@/_utils/i18n'
 import { useRouter } from 'vue-router'
 import type { RouteLocationAsRelativeGeneric } from 'vue-router'
 
+type ServiceAgreementQueryFilters = QueryFilters & BaseQuery
+type ServiceAgreementPageRequest = Parameters<typeof useServiceAgreementPage>[0]['value']
+
+const normalizeAppliedQuery = (
+  query: ServiceAgreementQueryFilters,
+): ServiceAgreementQueryFilters | null => (query.filters?.length || query.group ? query : null)
+
 export default defineComponent({
   name: 'ServiceAgreementView',
   setup() {
-    // 初始化分页查询参数
-    const pageRequest = ref<BasePageRequest<ServiceAgreementPageQuery>>({
-      page: 1,
-      size: 10,
-    })
+    const draftQueryFilters = ref<ServiceAgreementQueryFilters>({})
+    const appliedQueryFilters = ref<ServiceAgreementQueryFilters | null>(null)
 
-    // 调用 Hook
-    // data 对应后端返回的 Page 对象 (包含 records, total 等)
-    const { data: pageResult, isPending, refetch } = useServiceAgreementPage(pageRequest)
     const router = useRouter()
 
-    // 处理表格数据
-    const tableData = computed(() => pageResult.value?.records || [])
-
-    // 4. 构建 Naive UI 需要的分页对象 (PaginationInfo)
     const pagination: PaginationProps = reactive({
       page: 1,
       pageSize: 10,
@@ -44,14 +40,40 @@ export default defineComponent({
       },
     })
 
-    // 5. 搜索处理
-    const handleSearch = () => {
-      refetch()
+    const pageRequest = computed<ServiceAgreementPageRequest>(() => {
+      const request: ServiceAgreementPageRequest = {
+        page: pagination.page,
+        size: pagination.pageSize,
+      }
+      if (appliedQueryFilters.value) {
+        request.query = appliedQueryFilters.value
+      }
+      return request
+    })
+
+    const { data: pageResult, isPending, refetch } = useServiceAgreementPage(pageRequest)
+    const tableData = computed(() => pageResult.value?.records || [])
+
+    const handleSearch = (query?: QueryFilters) => {
+      const nextApplied = normalizeAppliedQuery(
+        (query ?? draftQueryFilters.value) as ServiceAgreementQueryFilters,
+      )
+      const shouldForceRefetch =
+        pagination.page === 1 &&
+        JSON.stringify(appliedQueryFilters.value ?? {}) === JSON.stringify(nextApplied ?? {})
+
+      appliedQueryFilters.value = nextApplied
+      pagination.page = 1
+      if (shouldForceRefetch) refetch()
     }
 
     const handleReset = () => {
-      delete pageRequest.value.query
-      handleSearch()
+      const shouldForceRefetch = pagination.page === 1 && appliedQueryFilters.value == null
+
+      draftQueryFilters.value = {}
+      appliedQueryFilters.value = null
+      pagination.page = 1
+      if (shouldForceRefetch) refetch()
     }
 
     const handleActions = (row: ServiceAgreementPageItem, mode: 'edit' | 'detail') => {
@@ -72,38 +94,25 @@ export default defineComponent({
 
     return () => (
       <NSpace vertical size="large">
-        {/* ----- 搜索区域示例 ----- */}
-        <NSpace>
-          <NInput
-            placeholder="搜索公司名称"
-            value={pageRequest.value.query?.companyName?.value}
-            onUpdateValue={(v) => {
-              if (pageRequest.value.query?.companyName) {
-                pageRequest.value.query.companyName.value = v
-              }
-            }}
-            style={{ width: '200px' }}
+        <NSpace vertical size={8}>
+          <ModernQueryBuilder
+            fields={serviceAgreementAdvancedQueryFields}
+            v-model:query={draftQueryFilters.value}
+            onSearch={handleSearch}
+            onReset={handleReset}
           />
-
-          <NSelect
-            placeholder="状态"
-            options={ServiceAgreementStatusOption}
-            value={pageRequest.value.query?.status?.value}
-            onUpdateValue={(v) => {
-              if (pageRequest.value.query?.status) {
-                pageRequest.value.query.status.value = v
-              }
-            }}
-            style={{ width: '150px' }}
-          />
-
-          <NButton type="primary" onClick={handleSearch} loading={isPending.value}>
-            {$t('common.action.search')}
-          </NButton>
-          <NButton onClick={handleReset}>{$t('common.action.reset')}</NButton>
+          <NSpace>
+            <NButton
+              type="primary"
+              onClick={() => handleSearch(draftQueryFilters.value)}
+              loading={isPending.value}
+            >
+              {$t('common.action.search')}
+            </NButton>
+            <NButton onClick={handleReset}>{$t('common.action.reset')}</NButton>
+          </NSpace>
         </NSpace>
 
-        {/* ----- 子组件调用 ----- */}
         <ServiceAgreementPage
           data={tableData.value}
           pagination={pagination}
