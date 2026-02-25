@@ -1,6 +1,12 @@
 <script setup lang="ts">
-import type { ApprovalInstance, ApprovalInstancesPageRequest } from '@/modules/approval/application/models'
-import { useApprovalInstancePage, useClaimTask } from '@/modules/approval/application/hooks/useApprovalService'
+import type {
+  ApprovalInstance,
+  ApprovalInstancesPageRequest,
+} from '@/modules/approval/application/models'
+import {
+  useApprovalInstancePage,
+  useClaimTask,
+} from '@/modules/approval/application/hooks/useApprovalService'
 import type { QueryFilters } from '@/modules/shared/domain/query'
 import {
   NButton,
@@ -18,7 +24,7 @@ import {
   showIncompletedUserName,
 } from '@/modules/approval/application/utils'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
-import type { SignInResponse } from '@/modules/user/application/models'
+import type { SignInResponseComplete } from '@/modules/user/application/models'
 import { formatted } from '@/modules/shared/presentation/time'
 import { useRouter } from 'vue-router'
 import StatusTag from './StatusTag'
@@ -34,7 +40,8 @@ type Row = ApprovalInstance<Record<string, unknown>>
 const draftQueryFilters = ref<QueryFilters>({})
 const appliedQueryFilters = ref<QueryFilters | null>(null)
 
-const normalizeAppliedQuery = (q: QueryFilters): QueryFilters | null => (q.filters?.length || q.group ? q : null)
+const normalizeAppliedQuery = (q: QueryFilters): QueryFilters | null =>
+  q.filters?.length || q.group ? q : null
 
 const searchData = computed(() => {
   const result: ApprovalInstancesPageRequest = {
@@ -133,7 +140,7 @@ const columns = computed<DataTableColumns<Row>>(() => [
     key: 'operate',
     render: (row) => {
       const buttonArray: ReturnType<typeof h>[] = []
-      const claimResult = canClaimTask(row, accountStore.account as SignInResponse)
+      const claimResult = canClaimTask(row, accountStore.account as SignInResponseComplete)
 
       buttonArray.push(
         h(
@@ -141,7 +148,9 @@ const columns = computed<DataTableColumns<Row>>(() => [
           { size: 'small', onClick: () => handleApprove(row) },
           {
             default: () =>
-              isApproveBtnVisible(row.status) ? $t('common.action.approve') : $t('common.action.view'),
+              isApproveBtnVisible(row.status)
+                ? $t('common.action.approve')
+                : $t('common.action.view'),
           },
         ),
       )
@@ -151,7 +160,8 @@ const columns = computed<DataTableColumns<Row>>(() => [
             NPopconfirm,
             { onPositiveClick: () => handleClaim(row) },
             {
-              trigger: () => h(NButton, { size: 'small' }, { default: () => $t('common.action.claim') }),
+              trigger: () =>
+                h(NButton, { size: 'small' }, { default: () => $t('common.action.claim') }),
               default: () => $t('domain.approval.message.claimConfirm', { id: row.taskId }),
             },
           ),

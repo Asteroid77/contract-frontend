@@ -25,6 +25,7 @@ const toStatusText = (status: string) => {
 
 const toActionLabelKey = (action: string): I18nKey =>
   match(action)
+    .returnType<I18nKey>()
     .with('approve', () => 'domain.approval.action.pass')
     .with('reject', () => 'domain.approval.action.reject')
     .with('claim', () => 'common.action.claim')
@@ -67,7 +68,8 @@ export default defineComponent({
           <div class="print-header-center">
             <h1>{props.data.processName}</h1>
             <div style="font-size:12px;color:#000;">
-              {$t('common.diffCheck.print.docNo')}：{props.data.id} | {$t('common.diffCheck.print.generatedAt')}：{now}
+              {$t('common.diffCheck.print.docNo')}：{props.data.id} |{' '}
+              {$t('common.diffCheck.print.generatedAt')}：{now}
             </div>
           </div>
           <div class="print-header-qr">
@@ -78,18 +80,31 @@ export default defineComponent({
 
         <div style="margin-bottom:16px;font-size:11px;">
           <strong>{$t('common.diffCheck.print.legend.title')}：</strong>
-          <span style="text-decoration:line-through;margin-left:8px;">{$t('common.diffCheck.print.legend.strikeThrough')}</span> = {$t('common.diffCheck.print.legend.originalValue')} |
-          <span style="font-weight:bold;border-bottom:1px solid #000;margin-left:8px;">{$t('common.diffCheck.print.legend.boldUnderline')}</span> = {$t('common.diffCheck.print.legend.newValue')} |
-          [{$t('common.action.add')}] = {$t('common.diffCheck.print.legend.addedItem')} | [{$t('common.action.delete')}] = {$t('common.diffCheck.print.legend.removedItem')}
+          <span style="text-decoration:line-through;margin-left:8px;">
+            {$t('common.diffCheck.print.legend.strikeThrough')}
+          </span>{' '}
+          = {$t('common.diffCheck.print.legend.originalValue')} |
+          <span style="font-weight:bold;border-bottom:1px solid #000;margin-left:8px;">
+            {$t('common.diffCheck.print.legend.boldUnderline')}
+          </span>{' '}
+          = {$t('common.diffCheck.print.legend.newValue')} | [{$t('common.action.add')}] ={' '}
+          {$t('common.diffCheck.print.legend.addedItem')} | [{$t('common.action.delete')}] ={' '}
+          {$t('common.diffCheck.print.legend.removedItem')}
         </div>
 
-        <div style="font-weight: bold; margin: 12px 0 8px;">{$t('domain.approval.section.baseInfo')}</div>
+        <div style="font-weight: bold; margin: 12px 0 8px;">
+          {$t('domain.approval.section.baseInfo')}
+        </div>
         <table class="print-table">
           <tbody>
             <tr>
-              <td style={{ width: '20%', fontWeight: 'bold' }}>{$t('domain.approval.field.process')}</td>
+              <td style={{ width: '20%', fontWeight: 'bold' }}>
+                {$t('domain.approval.field.process')}
+              </td>
               <td style={{ width: '30%' }}>{props.data.processName}</td>
-              <td style={{ width: '20%', fontWeight: 'bold' }}>{$t('domain.approval.field.currentNode')}</td>
+              <td style={{ width: '20%', fontWeight: 'bold' }}>
+                {$t('domain.approval.field.currentNode')}
+              </td>
               <td style={{ width: '30%' }}>{props.data.nodeName}</td>
             </tr>
             <tr>
@@ -105,10 +120,14 @@ export default defineComponent({
           </tbody>
         </table>
 
-        <div style="font-weight: bold; margin: 16px 0 8px;">{$t('domain.approval.section.content')}</div>
+        <div style="font-weight: bold; margin: 16px 0 8px;">
+          {$t('domain.approval.section.content')}
+        </div>
         <ApprovalContentDiffCheck data={props.data} variant="print" disableListToggle />
 
-        <div style="font-weight: bold; margin: 16px 0 8px;">{$t('domain.approval.section.history')}</div>
+        <div style="font-weight: bold; margin: 16px 0 8px;">
+          {$t('domain.approval.section.history')}
+        </div>
         <table class="print-table">
           <thead>
             <tr>
@@ -125,9 +144,7 @@ export default defineComponent({
                 <tr key={row.id}>
                   <td>{row.nodeName}</td>
                   <td>{showIncompletedUserName(row.operator)}</td>
-                  <td>
-                    {$t(toActionLabelKey(row.action))}
-                  </td>
+                  <td>{$t(toActionLabelKey(row.action))}</td>
                   <td>{formatted(row.createdTime).standard}</td>
                   <td>{row.comment || '-'}</td>
                 </tr>

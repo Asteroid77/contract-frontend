@@ -4,7 +4,7 @@ import type {
   ApprovalInstanceStatus,
   ApprovalTaskStatus,
 } from '@/modules/approval/application/models'
-import type { SignInResponse } from '@/modules/user/application/models'
+import type { SignInResponseComplete } from '@/modules/user/application/models'
 
 export type ClaimTaskError = {
   canClaim: boolean
@@ -19,7 +19,7 @@ export type ClaimTaskError = {
  */
 export function canClaimTask(
   instance: ApprovalInstance<Record<string, unknown>>,
-  currentUser: SignInResponse,
+  currentUser: SignInResponseComplete,
 ): ClaimTaskError {
   // 1. 检查任务是否存在
   if (!instance.taskId) {
@@ -75,7 +75,7 @@ export function canClaimTask(
   }
 
   // 3. 检查角色权限
-  const userRoleIds = currentUser.roleList?.map((role) => role.id) || []
+  const userRoleIds = currentUser.roleList?.map((role: { id: number }) => role.id) || []
   const requiredRoleIds = instance.candidateRoles || []
 
   const hasRequiredRole =
@@ -138,7 +138,7 @@ export function canApproveTask(
  */
 export function checkTasksClaimable(
   instances: ApprovalInstance<Record<string, unknown>>[],
-  currentUser: SignInResponse,
+  currentUser: SignInResponseComplete,
 ) {
   const result = new Map()
 
@@ -178,15 +178,11 @@ export function isCancelAccessible(
   return ['handling', 'pending'].includes(status) && applicantId === userId
 }
 
-export function isApproveBtnVisible(
-  status: ApprovalInstanceStatus | undefined | null,
-) {
+export function isApproveBtnVisible(status: ApprovalInstanceStatus | undefined | null) {
   if (!status || status === 'pending') return false
   return !['rejected', 'canceled', 'approved'].includes(status)
 }
-export function isApprovalFinish(
-  status: ApprovalInstanceStatus | undefined | null,
-) {
+export function isApprovalFinish(status: ApprovalInstanceStatus | undefined | null) {
   if (!status || status === 'pending') return false
   return ['rejected', 'canceled', 'approved'].includes(status)
 }

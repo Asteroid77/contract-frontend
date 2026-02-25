@@ -1,4 +1,4 @@
-import { defineComponent, computed, ref, Transition, watch, type Component } from 'vue'
+import { defineComponent, computed, ref, h, Transition, watch, type Component } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { NDropdown, NTooltip, NScrollbar } from 'naive-ui'
 import {
@@ -137,7 +137,9 @@ export default defineComponent({
       },
     ])
 
-    const sidebarPlatformLabel = computed(() => t(resolvePlatformLabelKey(accountStore.user.platform)))
+    const sidebarPlatformLabel = computed(() =>
+      t(resolvePlatformLabelKey(accountStore.user.platform)),
+    )
 
     const shouldShowSidebarPlatform = computed(() => accountStore.user.platform !== 'NATIVE')
 
@@ -187,16 +189,11 @@ export default defineComponent({
 
       const ResolvedIcon = resolveIcon(iconName as IconNames)
       if (ResolvedIcon) {
-        const IconComponent = ResolvedIcon as Component
-        return <IconComponent class="w-5 h-5 shrink-0" />
+        return h(ResolvedIcon, { class: 'w-5 h-5 shrink-0' })
       }
 
       const IconRenderer = renderIcon(null, iconName)
-      return (
-        <span class="text-[20px] leading-none shrink-0">
-          {IconRenderer()}
-        </span>
-      )
+      return <span class="text-[20px] leading-none shrink-0">{IconRenderer()}</span>
     }
 
     const renderThemeIcon = () => {
@@ -232,15 +229,13 @@ export default defineComponent({
           ]}
         >
           <div class="h-16 flex items-center justify-center border-b border-[var(--color-border)] shrink-0 px-3">
-            <div class={[
-              'flex items-center transition-all duration-300',
-              siderCollapsed.value ? '' : 'gap-2',
-            ]}>
-              <img
-                src={logoSvgUrl}
-                alt={t('common.brand.name')}
-                class="w-10 h-10 object-contain"
-              />
+            <div
+              class={[
+                'flex items-center transition-all duration-300',
+                siderCollapsed.value ? '' : 'gap-2',
+              ]}
+            >
+              <img src={logoSvgUrl} alt={t('common.brand.name')} class="w-10 h-10 object-contain" />
               {!siderCollapsed.value && (
                 <span class="text-lg font-semibold tracking-wide text-[var(--color-primary)] whitespace-nowrap">
                   {t('common.brand.name')}
@@ -402,21 +397,13 @@ export default defineComponent({
                 </button>
               </NDropdown>
 
-              <NDropdown
-                options={themeOptions.value}
-                onSelect={handleThemeChange}
-                trigger="click"
-              >
+              <NDropdown options={themeOptions.value} onSelect={handleThemeChange} trigger="click">
                 <button class="p-2 rounded-lg hover:bg-[var(--color-border)] text-[var(--color-text-body)]">
                   {renderThemeIcon()}
                 </button>
               </NDropdown>
 
-              <NDropdown
-                options={userOptions.value}
-                onSelect={handleUserAction}
-                trigger="click"
-              >
+              <NDropdown options={userOptions.value} onSelect={handleUserAction} trigger="click">
                 <button class="p-1 rounded-lg hover:bg-[var(--color-border)] text-[var(--color-text-body)]">
                   <PersonCircleOutline class="w-6 h-6" />
                 </button>
@@ -469,12 +456,18 @@ export default defineComponent({
               <ErrorBoundary key={route.fullPath}>
                 <RouterView>
                   {{
-                    default: ({ Component }) =>
-                      Component && (
-                        <Transition name="page" mode="out-in">
-                          <Component key={route.fullPath} />
-                        </Transition>
-                      ),
+                    default: ({
+                      Component: RouteComponent,
+                    }: {
+                      Component: Component | undefined
+                    }) =>
+                      RouteComponent
+                        ? h(
+                            Transition,
+                            { name: 'page', mode: 'out-in' },
+                            { default: () => h(RouteComponent, { key: route.fullPath }) },
+                          )
+                        : null,
                   }}
                 </RouterView>
               </ErrorBoundary>

@@ -20,6 +20,11 @@ const REFRESH_FAILURE_MAX_COOLDOWN_MS = 12000
 const REFRESH_FAILURE_WINDOW_MS = 30000
 const REFRESH_FAILURE_STATE_STORAGE_KEY = 'AUTH_REFRESH_FAILURE_STATE'
 const REFRESH_SUPPRESSED_DURING_LOGOUT_ERROR = 'Refresh suppressed during logout'
+const AUTH_STORAGE_KEYS = new Set<string>([
+  STORAGE_KEYS.ACCESS_TOKEN,
+  STORAGE_KEYS.REFRESH_TOKEN,
+  STORAGE_KEYS.ACCESS_TOKEN_EXPIRES_AT,
+])
 
 interface RefreshTokenResponseDTO {
   accessToken: string
@@ -67,8 +72,7 @@ export const getStoredAccessToken = (): string | null =>
 export const getStoredRefreshToken = (): string | null =>
   localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)
 
-export const hasStoredRefreshToken = (): boolean =>
-  Boolean(getStoredRefreshToken())
+export const hasStoredRefreshToken = (): boolean => Boolean(getStoredRefreshToken())
 
 export const getStoredAccessTokenExpiresAt = (): number | null => {
   const raw = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN_EXPIRES_AT)
@@ -137,11 +141,7 @@ const onAuthStorageChanged = (event: StorageEvent): void => {
     return
   }
 
-  if (event.key && ![
-    STORAGE_KEYS.ACCESS_TOKEN,
-    STORAGE_KEYS.REFRESH_TOKEN,
-    STORAGE_KEYS.ACCESS_TOKEN_EXPIRES_AT,
-  ].includes(event.key)) {
+  if (event.key && !AUTH_STORAGE_KEYS.has(event.key)) {
     return
   }
 
@@ -216,8 +216,7 @@ export const setLogoutInProgress = (inProgress: boolean): void => {
 
 export const isLogoutInProgress = (): boolean => logoutInProgress
 
-const sleep = (ms: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms))
+const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
 function createRefreshLockOwnerId(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -235,9 +234,11 @@ function parseRefreshLockPayload(raw: string | null): RefreshLockPayload | null 
     if (!payload || typeof payload !== 'object') {
       return null
     }
-    if (typeof payload.ownerId !== 'string'
-      || typeof payload.refreshToken !== 'string'
-      || typeof payload.expireAt !== 'number') {
+    if (
+      typeof payload.ownerId !== 'string' ||
+      typeof payload.refreshToken !== 'string' ||
+      typeof payload.expireAt !== 'number'
+    ) {
       return null
     }
     return payload as RefreshLockPayload
@@ -299,7 +300,10 @@ function releaseRefreshLock(lockPayload: RefreshLockPayload | null): void {
   if (!current) {
     return
   }
-  if (current.ownerId === lockPayload.ownerId && current.refreshToken === lockPayload.refreshToken) {
+  if (
+    current.ownerId === lockPayload.ownerId &&
+    current.refreshToken === lockPayload.refreshToken
+  ) {
     localStorage.removeItem(REFRESH_LOCK_STORAGE_KEY)
   }
 }
@@ -322,10 +326,12 @@ function parseRefreshFailureState(raw: string | null): RefreshFailureState | nul
       return null
     }
 
-    if (typeof payload.refreshToken !== 'string'
-      || typeof payload.failureCount !== 'number'
-      || typeof payload.lastFailedAt !== 'number'
-      || typeof payload.blockedUntil !== 'number') {
+    if (
+      typeof payload.refreshToken !== 'string' ||
+      typeof payload.failureCount !== 'number' ||
+      typeof payload.lastFailedAt !== 'number' ||
+      typeof payload.blockedUntil !== 'number'
+    ) {
       return null
     }
 
@@ -485,9 +491,7 @@ const requestRefreshToken = async (refreshToken: string): Promise<AuthTokenPair>
   return nextTokens
 }
 
-const recoverTokensFromConcurrentRefresh = (
-  currentRefreshToken: string,
-): AuthTokenPair | null => {
+const recoverTokensFromConcurrentRefresh = (currentRefreshToken: string): AuthTokenPair | null => {
   const latestAccessToken = getStoredAccessToken()
   const latestRefreshToken = getStoredRefreshToken()
 
@@ -552,8 +556,9 @@ const shouldClearTokensAfterRefreshFailure = (error: unknown): boolean => {
     return true
   }
 
-  return code === ResponseCode.OAUTH2_TOKEN_VERIFY_ERROR ||
-    code === ResponseCode.OAUTH2_TOKEN_EXPIRED
+  return (
+    code === ResponseCode.OAUTH2_TOKEN_VERIFY_ERROR || code === ResponseCode.OAUTH2_TOKEN_EXPIRED
+  )
 }
 
 export const forceRefreshAccessToken = async (): Promise<AuthTokenPair> => {

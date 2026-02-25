@@ -1,7 +1,7 @@
 import Dexie from 'dexie'
 import type { EntityTable } from 'dexie'
 import type { RestSmsCd } from './defineRestSMSCd'
-import type { SignInResponse } from '@/modules/user/application/models'
+import type { SignInResponseComplete } from '@/modules/user/application/models'
 import type { QueryCacheEntry } from './QueryCache'
 
 /**
@@ -10,7 +10,7 @@ import type { QueryCacheEntry } from './QueryCache'
  */
 declare interface DexieTables {
   restcd: EntityTable<RestSmsCd, 'id'>
-  userinfo: EntityTable<SignInResponse, 'token'>
+  userinfo: EntityTable<SignInResponseComplete, 'token'>
   queryCache: EntityTable<QueryCacheEntry, 'key'>
 }
 export type DexieDB = Dexie & DexieTables

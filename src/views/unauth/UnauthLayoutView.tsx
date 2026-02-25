@@ -1,4 +1,4 @@
-import { defineComponent, Transition } from 'vue'
+import { defineComponent, h, Transition, type Component } from 'vue'
 import { RouterView } from 'vue-router'
 import ErrorBoundary from '@/app/observability/components/ErrorBoundary'
 
@@ -11,12 +11,14 @@ export default defineComponent({
           <ErrorBoundary>
             <RouterView
               v-slots={{
-                default: ({ Component }) =>
-                  Component && (
-                    <Transition name="page" mode="out-in">
-                      <Component />
-                    </Transition>
-                  ),
+                default: ({ Component: RouteComponent }: { Component: Component | undefined }) =>
+                  RouteComponent
+                    ? h(
+                        Transition,
+                        { name: 'page', mode: 'out-in' },
+                        { default: () => h(RouteComponent) },
+                      )
+                    : null,
               }}
             />
           </ErrorBoundary>

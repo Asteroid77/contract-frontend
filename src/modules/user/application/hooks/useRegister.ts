@@ -14,6 +14,7 @@ export function useRegister() {
     mutationFn: (data: RegisterForm) => userService.register(data),
     onSuccess: (data) => {
       useAccountStore().login({
+        requireTwoFactor: false,
         user: {
           id: data.userId,
           name: data.name || '',
