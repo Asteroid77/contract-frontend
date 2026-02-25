@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { NResult, NButton } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
+const { t: $t } = useI18n()
 const router = useRouter()
 
 const goBack = () => {
@@ -17,13 +19,13 @@ const goHome = () => {
   <div class="flex items-center justify-center h-full">
     <n-result
       status="404"
-      title="404 页面不存在"
-      description="抱歉，您访问的页面不存在"
+      :title="$t('common.error.404')"
+      :description="$t('common.error.404Desc')"
     >
       <template #footer>
-        <n-button @click="goBack">返回上一页</n-button>
+        <n-button @click="goBack">{{ $t('common.action.back') }}</n-button>
         <n-button type="primary" @click="goHome" class="ml-2">
-          返回首页
+          {{ $t('common.action.home') }}
         </n-button>
       </template>
     </n-result>

@@ -417,7 +417,8 @@ const i18NInfo = {
         title: 'Notifications',
         push: {
           title: 'Push Notifications',
-          description: 'Reserved push notification capability. It will be enabled after backend support is ready',
+          description:
+            'Reserved push notification capability. It will be enabled after backend support is ready',
         },
       },
       security: {
@@ -439,7 +440,8 @@ const i18NInfo = {
           revokeConfirmTitle: 'Confirm Device Revocation',
           revokeConfirmContent: 'Revoke selected {count} device(s)?',
           revokeSuccess: '{count} device(s) revoked',
-          revokeSkippedCurrentDevice: 'Current device is protected and cannot be revoked (skipped {count})',
+          revokeSkippedCurrentDevice:
+            'Current device is protected and cannot be revoked (skipped {count})',
           currentDevice: 'Current Device',
           field: {
             deviceId: 'Device Session ID',
@@ -478,8 +480,7 @@ const i18NInfo = {
       },
       twoFactor: {
         title: 'Two-Factor Authentication (2FA)',
-        description:
-          'Add an extra layer of security using Time-based One-Time Passwords (TOTP)',
+        description: 'Add an extra layer of security using Time-based One-Time Passwords (TOTP)',
         enableAction: 'Enable 2FA',
         disableAction: 'Disable 2FA',
         regenerateAction: 'Regenerate Backup Codes',
@@ -498,8 +499,7 @@ const i18NInfo = {
           step3Title: 'Save Backup Codes',
           step3Description:
             'Save these backup codes in a safe place. Each code can only be used once. Use them to log in if you lose access to your authenticator app.',
-          step3Warning:
-            'You will not be able to view these codes again after closing this window',
+          step3Warning: 'You will not be able to view these codes again after closing this window',
           copied: 'Copied to clipboard',
         },
         disable: {
@@ -511,8 +511,7 @@ const i18NInfo = {
         },
         regenerate: {
           title: 'Regenerate Backup Codes',
-          description:
-            'All existing backup codes will be invalidated after regeneration',
+          description: 'All existing backup codes will be invalidated after regeneration',
           confirmAction: 'Confirm Regeneration',
         },
         wechatHint:
@@ -523,7 +522,8 @@ const i18NInfo = {
         description: 'Deleting your account is irreversible. Please proceed with caution',
         action: 'Delete Account',
         confirmTitle: 'Confirm Account Deletion',
-        confirmContent: 'Delete account API is not connected yet. This action is currently a reserved entry',
+        confirmContent:
+          'Delete account API is not connected yet. This action is currently a reserved entry',
         todo: 'Delete account API is not connected yet',
       },
     },
@@ -616,6 +616,10 @@ const i18NInfo = {
         identity: 'Invalid ID number',
         usci: 'Invalid USCI',
         bankAccount: 'Invalid account number',
+      },
+      status: {
+        active: 'Active',
+        inactive: 'Inactive',
       },
       approval: {
         title: 'Information Submitted',
@@ -808,6 +812,7 @@ const i18NInfo = {
         digits: 'Digits only',
         length: 'Usually 10-20 digits',
         duplicate: 'Duplicate account number',
+        invalidCapacity: '"{label}" is not a valid capacity value. Please enter a positive number.',
       },
     },
     workOrder: {
@@ -867,10 +872,34 @@ const i18NInfo = {
         rejectRemark: 'Reason (optional)',
         scoreHint: 'Rate this service',
         completedAt: 'Completed At',
+        initiator: 'Initiator',
+        claimer: 'Claimed By',
       },
       userType: {
         user: 'User',
         handler: 'Handler',
+      },
+    },
+    workOrderCategory: {
+      title: 'Work Order Categories',
+      field: {
+        name: 'Category Name',
+        permissionCode: 'Permission Code',
+      },
+      action: {
+        add: 'Add Category',
+        edit: 'Edit Category',
+      },
+      validation: {
+        nameMaxLength: 'Category name cannot exceed 100 characters',
+        permissionCodeMaxLength: 'Permission code cannot exceed 100 characters',
+        nameExists: 'Category name already exists',
+      },
+      message: {
+        deleteConfirm: 'Delete this category?',
+        createSuccess: 'Category created',
+        updateSuccess: 'Category updated',
+        deleteSuccess: 'Category deleted',
       },
     },
     marketing: {

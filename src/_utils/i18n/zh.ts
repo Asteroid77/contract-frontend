@@ -438,7 +438,8 @@ export default {
           revokeConfirmTitle: '确认踢下线',
           revokeConfirmContent: '将踢下线选中的 {count} 台设备，是否继续？',
           revokeSuccess: '已踢下线 {count} 台设备',
-          revokeSkippedCurrentDevice: '为保护当前会话，无法将当前所在设备踢下线（已跳过 {count} 台）',
+          revokeSkippedCurrentDevice:
+            '为保护当前会话，无法将当前所在设备踢下线（已跳过 {count} 台）',
           currentDevice: '当前设备',
           field: {
             deviceId: '设备会话ID',
@@ -610,6 +611,10 @@ export default {
         identity: '请输入正确的身份证号',
         usci: '请输入正确的社会统一信用代码',
         bankAccount: '请输入正确的银行卡号',
+      },
+      status: {
+        active: '激活',
+        inactive: '未激活',
       },
       approval: {
         title: '您的信息已提审',
@@ -802,6 +807,7 @@ export default {
         digits: '营销户号必须为纯数字',
         length: '营销户号长度通常为10到20位,请核对电费单',
         duplicate: '当前列表中存在重复的营销户号，请检查',
+        invalidCapacity: '"{label}" 不是一个有效的容量值，请输入正数。',
       },
     },
     workOrder: {
@@ -861,10 +867,34 @@ export default {
         rejectRemark: '拒绝原因（可选）',
         scoreHint: '请为本次服务评分',
         completedAt: '完成时间',
+        initiator: '发起人',
+        claimer: '领取人',
       },
       userType: {
         user: '用户',
         handler: '处理人',
+      },
+    },
+    workOrderCategory: {
+      title: '工单分类管理',
+      field: {
+        name: '分类名称',
+        permissionCode: '权限标识',
+      },
+      action: {
+        add: '新增分类',
+        edit: '编辑分类',
+      },
+      validation: {
+        nameMaxLength: '分类名称不能超过100个字符',
+        permissionCodeMaxLength: '权限标识不能超过100个字符',
+        nameExists: '分类名称已存在',
+      },
+      message: {
+        deleteConfirm: '确定删除该分类?',
+        createSuccess: '分类创建成功',
+        updateSuccess: '分类更新成功',
+        deleteSuccess: '分类删除成功',
       },
     },
     marketing: {

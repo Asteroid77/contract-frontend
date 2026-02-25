@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { NResult, NButton } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const { t: $t } = useI18n()
 
 const goBack = () => {
   router.back()
@@ -17,13 +19,13 @@ const goHome = () => {
   <div class="flex items-center justify-center h-full">
     <n-result
       status="403"
-      title="403 无权限"
-      description="抱歉，您没有权限访问此页面"
+      :title="$t('common.error.403')"
+      :description="$t('common.error.403Desc')"
     >
       <template #footer>
-        <n-button @click="goBack">返回上一页</n-button>
+        <n-button @click="goBack">{{ $t('common.action.back') }}</n-button>
         <n-button type="primary" @click="goHome" class="ml-2">
-          返回首页
+          {{ $t('common.action.home') }}
         </n-button>
       </template>
     </n-result>

@@ -1,4 +1,5 @@
 import { message } from '@/_utils/discrete_naive_api'
+import { $t } from '@/_utils/i18n'
 import type { ServicePointSpecification } from '@/modules/service-agreement/application/models'
 import { ref, type Ref } from 'vue'
 import { TransformerCapacityOption } from '@/modules/service-agreement/application/constants'
@@ -18,7 +19,7 @@ export const handleCapacityOptionCreate = (
   const newValue = parseFloat(cleanedLabel)
 
   if (isNaN(newValue) || newValue <= 0) {
-    message.error(`"${label}" 不是一个有效的容量值，请输入正数。`)
+    message.error($t('domain.servicePoint.validation.invalidCapacity', { label }))
     // 创建失败时，最好将 v-model 清空或重置，防止非法字符串留在输入框
     formModel.value.transformerCapacity = undefined
     return
