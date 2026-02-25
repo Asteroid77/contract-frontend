@@ -1,7 +1,9 @@
 import { workOrderRepository } from '../infrastructure/work-order-repository'
 import { handlerRepository } from '../infrastructure/handler-repository'
+import { categoryRepository } from '../infrastructure/category-repository'
 import type {
   CreateWorkOrderDTO,
+  WorkOrderCategoryForm,
   WorkOrderReplyDTO,
   WorkOrderScoreDTO,
   WorkOrderListParams,
@@ -33,4 +35,10 @@ export const workOrderService = {
   addHandlerReply: (id: number, dto: WorkOrderReplyDTO) => handlerRepository.addReply(id, dto),
   handlerComplete: (id: number) => handlerRepository.complete(id),
   getPerformance: () => handlerRepository.getPerformance(),
+
+  // Category admin
+  getCategories: () => categoryRepository.getAll(),
+  createCategory: (dto: WorkOrderCategoryForm) => categoryRepository.create(dto),
+  updateCategory: (id: number, dto: WorkOrderCategoryForm) => categoryRepository.update(id, dto),
+  deleteCategory: (id: number) => categoryRepository.remove(id),
 }

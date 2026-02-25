@@ -5,7 +5,9 @@ export interface WorkOrderSummaryVO {
   categoryId: number
   categoryName: string
   userId: number
+  userName?: string | null
   currentHandlerId: number | null
+  currentHandlerName?: string | null
   title: string
   status: WorkOrderStatus
   score: number | null
@@ -23,6 +25,7 @@ export interface WorkOrderReplyVO {
   id: number
   workOrderId: number
   userId: number
+  userName?: string | null
   userType: WorkOrderUserType
   content: string
   createdTime: string
@@ -31,6 +34,12 @@ export interface WorkOrderReplyVO {
 export interface WorkOrderCategoryVO {
   id: number
   name: string
+  permissionCode: string
+}
+
+export interface WorkOrderCategoryForm {
+  name: string
+  permissionCode: string
 }
 
 export interface WorkOrderPerformanceVO {

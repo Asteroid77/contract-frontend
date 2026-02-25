@@ -23,7 +23,8 @@ export const workOrderKeys = {
   DETAIL: (id: number) => ['work-orders', 'detail', id] as const,
   REPLIES: (id: number) => ['work-orders', 'replies', id] as const,
   HANDLER_ALL: ['work-orders', 'handler'] as const,
-  HANDLER_LIST: (params: WorkOrderListParams) => ['work-orders', 'handler', 'list', params] as const,
+  HANDLER_LIST: (params: WorkOrderListParams) =>
+    ['work-orders', 'handler', 'list', params] as const,
   HANDLER_CATEGORIES: ['work-orders', 'handler', 'categories'] as const,
   HANDLER_PENDING_COUNT: ['work-orders', 'handler', 'pending-count'] as const,
   HANDLER_PERFORMANCE: ['work-orders', 'handler', 'performance'] as const,
@@ -47,22 +48,28 @@ export const useWorkOrderList = (
   })
 }
 
-export const useWorkOrderDetail = (id: Ref<number>) => {
+export const useWorkOrderDetail = (
+  id: Ref<number>,
+  options?: { enabled?: Ref<boolean> | boolean },
+) => {
   return useQuery<WorkOrderDetailVO, AxiosError<unknown>, WorkOrderDetailVO>({
     queryKey: computed(() => workOrderKeys.DETAIL(id.value)),
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () => workOrderService.getDetail(id.value)),
-    enabled: computed(() => !!id.value && id.value > 0),
+    enabled: computed(() => unref(options?.enabled ?? true) && !!id.value && id.value > 0),
     placeholderData: (previousData) => previousData,
   })
 }
 
-export const useWorkOrderReplies = (id: Ref<number>) => {
+export const useWorkOrderReplies = (
+  id: Ref<number>,
+  options?: { enabled?: Ref<boolean> | boolean },
+) => {
   return useQuery<WorkOrderReplyVO[], AxiosError<unknown>, WorkOrderReplyVO[]>({
     queryKey: computed(() => workOrderKeys.REPLIES(id.value)),
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () => workOrderService.getReplies(id.value)),
-    enabled: computed(() => !!id.value && id.value > 0),
+    enabled: computed(() => unref(options?.enabled ?? true) && !!id.value && id.value > 0),
     placeholderData: (previousData) => previousData,
   })
 }
@@ -83,12 +90,14 @@ export const useCreateWorkOrder = () => {
 
 export const useAddReply = () => {
   const queryClient = useQueryClient()
-  return useMutation<WorkOrderReplyVO, AxiosError, { workOrderId: number; dto: WorkOrderReplyDTO }>({
-    mutationFn: ({ workOrderId, dto }) => workOrderService.addReply(workOrderId, dto),
-    onSuccess: (_, { workOrderId }) => {
-      queryClient.invalidateQueries({ queryKey: workOrderKeys.REPLIES(workOrderId) })
+  return useMutation<WorkOrderReplyVO, AxiosError, { workOrderId: number; dto: WorkOrderReplyDTO }>(
+    {
+      mutationFn: ({ workOrderId, dto }) => workOrderService.addReply(workOrderId, dto),
+      onSuccess: (_, { workOrderId }) => {
+        queryClient.invalidateQueries({ queryKey: workOrderKeys.REPLIES(workOrderId) })
+      },
     },
-  })
+  )
 }
 
 export const useCancelWorkOrder = () => {
@@ -186,7 +195,9 @@ export const useHandlerWorkOrderList = (
   return useQuery<IPage<WorkOrderSummaryVO>, AxiosError<unknown>, IPage<WorkOrderSummaryVO>>({
     queryKey: computed(() => workOrderKeys.HANDLER_LIST(unref(params))),
     queryFn: (ctx) =>
-      withQueryRequestContext(ctx.queryKey, ctx, () => workOrderService.getHandlerList(unref(params))),
+      withQueryRequestContext(ctx.queryKey, ctx, () =>
+        workOrderService.getHandlerList(unref(params)),
+      ),
     enabled: computed(() => unref(options?.enabled ?? true)),
     staleTime: 30 * 1000,
     placeholderData: (previousData) => previousData,
@@ -203,7 +214,10 @@ export const useHandlerPendingCount = (options?: { enabled?: Ref<boolean> | bool
   })
 }
 
-export const useHandlerDetail = (id: Ref<number>, options?: { enabled?: Ref<boolean> | boolean }) => {
+export const useHandlerDetail = (
+  id: Ref<number>,
+  options?: { enabled?: Ref<boolean> | boolean },
+) => {
   return useQuery<WorkOrderDetailVO, AxiosError<unknown>, WorkOrderDetailVO>({
     queryKey: computed(() => workOrderKeys.DETAIL(id.value)),
     queryFn: (ctx) =>
@@ -213,11 +227,16 @@ export const useHandlerDetail = (id: Ref<number>, options?: { enabled?: Ref<bool
   })
 }
 
-export const useHandlerReplies = (id: Ref<number>, options?: { enabled?: Ref<boolean> | boolean }) => {
+export const useHandlerReplies = (
+  id: Ref<number>,
+  options?: { enabled?: Ref<boolean> | boolean },
+) => {
   return useQuery<WorkOrderReplyVO[], AxiosError<unknown>, WorkOrderReplyVO[]>({
     queryKey: computed(() => workOrderKeys.REPLIES(id.value)),
     queryFn: (ctx) =>
-      withQueryRequestContext(ctx.queryKey, ctx, () => workOrderService.getHandlerReplies(id.value)),
+      withQueryRequestContext(ctx.queryKey, ctx, () =>
+        workOrderService.getHandlerReplies(id.value),
+      ),
     enabled: computed(() => unref(options?.enabled ?? true) && !!id.value && id.value > 0),
     placeholderData: (previousData) => previousData,
   })
@@ -265,12 +284,14 @@ export const useHandlerComplete = () => {
 
 export const useHandlerAddReply = () => {
   const queryClient = useQueryClient()
-  return useMutation<WorkOrderReplyVO, AxiosError, { workOrderId: number; dto: WorkOrderReplyDTO }>({
-    mutationFn: ({ workOrderId, dto }) => workOrderService.addHandlerReply(workOrderId, dto),
-    onSuccess: (_, { workOrderId }) => {
-      queryClient.invalidateQueries({ queryKey: workOrderKeys.REPLIES(workOrderId) })
+  return useMutation<WorkOrderReplyVO, AxiosError, { workOrderId: number; dto: WorkOrderReplyDTO }>(
+    {
+      mutationFn: ({ workOrderId, dto }) => workOrderService.addHandlerReply(workOrderId, dto),
+      onSuccess: (_, { workOrderId }) => {
+        queryClient.invalidateQueries({ queryKey: workOrderKeys.REPLIES(workOrderId) })
+      },
     },
-  })
+  )
 }
 
 export const useHandlerPerformance = (options?: { enabled?: Ref<boolean> | boolean }) => {

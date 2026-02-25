@@ -6,6 +6,7 @@ import {
   NButton,
   NDivider,
   NText,
+  NTag,
   NCard,
   NResult,
   NPopconfirm,
@@ -34,6 +35,7 @@ import {
 } from '../application/hooks/useWorkOrderService'
 import { useWorkOrderUpload } from '../application/hooks/useWorkOrderUpload'
 import { WorkOrderStatus, WorkOrderUserType } from '../domain/enums'
+import type { WorkOrderReplyVO } from '../domain/types'
 import WorkOrderStatusBadge from './WorkOrderStatusBadge'
 import WorkOrderScoreSection from './WorkOrderScoreSection.vue'
 import { formatted } from '@/modules/shared/presentation/time'
@@ -53,18 +55,16 @@ const workOrderId = computed(() => {
 })
 
 const isHandler = computed(() => accountStore.hasRole('work_order_handler'))
+const currentUserId = computed(() => accountStore.account?.user?.id ?? accountStore.user.id)
 
 // Queries - use handler or user endpoints based on role
-const userDetailQuery = useWorkOrderDetail(workOrderId)
+const userDetailQuery = useWorkOrderDetail(workOrderId, {
+  enabled: computed(() => !isHandler.value),
+})
 const handlerDetailQuery = useHandlerDetail(workOrderId, { enabled: isHandler })
 const detailQuery = computed(() => (isHandler.value ? handlerDetailQuery : userDetailQuery))
 
-const userRepliesQuery = useWorkOrderReplies(workOrderId)
-const handlerRepliesQuery = useHandlerReplies(workOrderId, { enabled: isHandler })
-const repliesQuery = computed(() => (isHandler.value ? handlerRepliesQuery : userRepliesQuery))
-
 const detail = computed(() => detailQuery.value.data.value)
-const replies = computed(() => repliesQuery.value.data.value ?? [])
 
 // Mutations
 const userAddReply = useAddReply()
@@ -84,20 +84,58 @@ const rejectRemark = ref('')
 // Permission checks
 const isOwner = computed(() => detail.value && accountStore.isOwner(detail.value.userId))
 const isCurrentHandler = computed(
-  () => detail.value && detail.value.currentHandlerId === accountStore.account?.user?.id,
+  () => detail.value && detail.value.currentHandlerId === currentUserId.value,
 )
 
-const canReply = computed(() => {
+const canReplyAsHandler = computed(() => {
+  if (!detail.value) return false
+  return (
+    isHandler.value && isCurrentHandler.value && detail.value.status === WorkOrderStatus.PROCESSING
+  )
+})
+
+const canReplyAsUser = computed(() => {
   if (!detail.value) return false
   const status = detail.value.status
-  if (isHandler.value) {
-    return isCurrentHandler.value && status === WorkOrderStatus.PROCESSING
+  if (status === WorkOrderStatus.COMPLETED || status === WorkOrderStatus.CANCELLED) {
+    return false
   }
-  return status !== WorkOrderStatus.COMPLETED && status !== WorkOrderStatus.CANCELLED
+  // Users with handler role can still reply as initiator when not handling this ticket.
+  return !isHandler.value || isOwner.value
+})
+
+const replyApiMode = computed<'user' | 'handler' | null>(() => {
+  if (!workOrderId.value) return null
+  if (!isHandler.value) return 'user'
+  if (!detail.value) return null
+
+  if (canReplyAsHandler.value || !isOwner.value) {
+    return 'handler'
+  }
+
+  return 'user'
+})
+
+const userRepliesQuery = useWorkOrderReplies(workOrderId, {
+  enabled: computed(() => replyApiMode.value === 'user'),
+})
+const handlerRepliesQuery = useHandlerReplies(workOrderId, {
+  enabled: computed(() => replyApiMode.value === 'handler'),
+})
+const repliesQuery = computed(() =>
+  replyApiMode.value === 'handler' ? handlerRepliesQuery : userRepliesQuery,
+)
+const replies = computed(() => repliesQuery.value.data.value ?? [])
+
+const canReply = computed(() => {
+  return canReplyAsHandler.value || canReplyAsUser.value
 })
 
 const canCancel = computed(
-  () => isOwner.value && detail.value?.status !== WorkOrderStatus.CANCELLED && detail.value?.status !== WorkOrderStatus.COMPLETED,
+  () =>
+    isOwner.value &&
+    detail.value?.status !== WorkOrderStatus.CANCELLED &&
+    detail.value?.status !== WorkOrderStatus.COMPLETED,
 )
 const canComplete = computed(
   () =>
@@ -113,20 +151,45 @@ const canReject = computed(
     detail.value?.status === WorkOrderStatus.PROCESSING &&
     detail.value?.currentHandlerId != null,
 )
-const canClaim = computed(
-  () => isHandler.value && detail.value?.status === WorkOrderStatus.PENDING,
-)
+const canClaim = computed(() => isHandler.value && detail.value?.status === WorkOrderStatus.PENDING)
 const canRelease = computed(
-  () => isHandler.value && isCurrentHandler.value && detail.value?.status === WorkOrderStatus.PROCESSING,
+  () =>
+    isHandler.value &&
+    isCurrentHandler.value &&
+    detail.value?.status === WorkOrderStatus.PROCESSING,
 )
-const canScore = computed(
-  () => isOwner.value && detail.value?.status === WorkOrderStatus.COMPLETED,
-)
+const canScore = computed(() => isOwner.value && detail.value?.status === WorkOrderStatus.COMPLETED)
+
+const initiatorName = computed(() => {
+  if (!detail.value) return '-'
+  if (detail.value.userName) return detail.value.userName
+  if (accountStore.isOwner(detail.value.userId) && accountStore.user.name) {
+    return accountStore.user.name
+  }
+  return `#${detail.value.userId}`
+})
+
+const claimerName = computed(() => {
+  if (!detail.value || detail.value.currentHandlerId == null) return null
+  if (detail.value.currentHandlerName) return detail.value.currentHandlerName
+  if (detail.value.currentHandlerId === currentUserId.value && accountStore.user.name) {
+    return accountStore.user.name
+  }
+  return `#${detail.value.currentHandlerId}`
+})
+
+const replyAuthorName = (reply: WorkOrderReplyVO) => {
+  if (reply.userName) return reply.userName
+  if (reply.userId === currentUserId.value && accountStore.user.name) {
+    return accountStore.user.name
+  }
+  return `#${reply.userId}`
+}
 
 const handleReply = () => {
   if (!replyContent.value.trim() || !workOrderId.value) return
   const dto = { content: replyContent.value.trim() }
-  const mutation = isHandler.value ? handlerAddReplyMutation : userAddReply
+  const mutation = canReplyAsHandler.value ? handlerAddReplyMutation : userAddReply
 
   mutation.mutate(
     { workOrderId: workOrderId.value, dto },
@@ -201,12 +264,29 @@ const handleRelease = () => {
         <n-space align="center" :size="12">
           <h2 style="margin: 0">{{ detail.title }}</h2>
           <WorkOrderStatusBadge :status="detail.status" />
+          <n-popconfirm v-if="canCancel" @positive-click="handleCancel">
+            <template #trigger>
+              <n-tag size="small" type="warning" round style="cursor: pointer">
+                {{ $t('domain.workOrder.action.cancel') }}
+              </n-tag>
+            </template>
+            {{ $t('domain.workOrder.message.cancelConfirm') }}
+          </n-popconfirm>
         </n-space>
         <n-space :size="16">
           <n-text depth="3">{{ detail.categoryName }}</n-text>
           <n-text depth="3">{{ formatted(detail.createdTime).standard }}</n-text>
           <n-text v-if="detail.completedAt" depth="3">
-            {{ $t('domain.workOrder.label.completedAt') }}: {{ formatted(detail.completedAt).standard }}
+            {{ $t('domain.workOrder.label.completedAt') }}:
+            {{ formatted(detail.completedAt).standard }}
+          </n-text>
+        </n-space>
+        <n-space :size="16">
+          <n-text depth="3">
+            {{ $t('domain.workOrder.label.initiator') }}: {{ initiatorName }}
+          </n-text>
+          <n-text v-if="claimerName" depth="3">
+            {{ $t('domain.workOrder.label.claimer') }}: {{ claimerName }}
           </n-text>
         </n-space>
       </n-space>
@@ -238,15 +318,6 @@ const handleRelease = () => {
             </n-button>
           </template>
           {{ $t('domain.workOrder.message.completeConfirm') }}
-        </n-popconfirm>
-
-        <n-popconfirm v-if="canCancel" @positive-click="handleCancel">
-          <template #trigger>
-            <n-button size="small" type="warning">
-              {{ $t('domain.workOrder.action.cancel') }}
-            </n-button>
-          </template>
-          {{ $t('domain.workOrder.message.cancelConfirm') }}
         </n-popconfirm>
 
         <n-popconfirm v-if="canReopen" @positive-click="handleReopen">
@@ -303,15 +374,23 @@ const handleRelease = () => {
           :bordered="true"
           size="small"
           :style="{
-            borderLeft: reply.userType === 'HANDLER' ? '3px solid var(--n-color-target)' : '3px solid var(--n-border-color)',
+            borderLeft:
+              reply.userType === 'HANDLER'
+                ? '3px solid var(--n-color-target)'
+                : '3px solid var(--n-border-color)',
           }"
         >
           <template #header>
             <n-space align="center" :size="8">
               <n-text strong>
-                {{ reply.userType === WorkOrderUserType.HANDLER
-                  ? $t('domain.workOrder.label.handlerReply')
-                  : $t('domain.workOrder.label.userReply') }}
+                {{ replyAuthorName(reply) }}
+              </n-text>
+              <n-text depth="3" style="font-size: 12px">
+                {{
+                  reply.userType === WorkOrderUserType.HANDLER
+                    ? $t('domain.workOrder.label.handlerReply')
+                    : $t('domain.workOrder.label.userReply')
+                }}
               </n-text>
               <n-text depth="3" style="font-size: 12px">
                 {{ formatted(reply.createdTime).standard }}
@@ -332,18 +411,23 @@ const handleRelease = () => {
             :preview="false"
             @on-upload-img="onUploadImg"
           />
-          <n-space justify="end">
-            <n-button
-              type="primary"
-              :disabled="!replyContent.trim()"
-              :loading="userAddReply.isPending.value || handlerAddReplyMutation.isPending.value"
-              @click="handleReply"
-            >
-              {{ $t('domain.workOrder.action.reply') }}
-            </n-button>
-          </n-space>
         </n-space>
       </n-card>
+
+      <n-space justify="end">
+        <n-button @click="$router.back()">
+          {{ $t('common.action.back') }}
+        </n-button>
+        <n-button
+          v-if="canReply"
+          type="primary"
+          :disabled="!replyContent.trim()"
+          :loading="userAddReply.isPending.value || handlerAddReplyMutation.isPending.value"
+          @click="handleReply"
+        >
+          {{ $t('domain.workOrder.action.reply') }}
+        </n-button>
+      </n-space>
     </n-space>
   </n-spin>
 </template>

@@ -17,6 +17,7 @@ import type { WorkOrderSummaryVO, WorkOrderListParams } from '../domain/types'
 import WorkOrderStatusBadge from './WorkOrderStatusBadge'
 import WorkOrderCreateModal from './WorkOrderCreateModal.vue'
 import { formatted } from '@/modules/shared/presentation/time'
+import WorkOrderCategorySelect from './WorkOrderCategorySelect'
 
 const router = useRouter()
 const { t: $t } = useI18n()
@@ -37,12 +38,6 @@ const statusOptions = computed(() => [
 ])
 
 const categoriesQuery = useHandlerCategories({ enabled: isHandler })
-
-const categoryOptions = computed(() => {
-  const base = [{ label: $t('domain.workOrder.label.allCategory'), value: undefined }]
-  const cats = categoriesQuery.data.value?.map((c) => ({ label: c.name, value: c.id })) ?? []
-  return [...base, ...cats]
-})
 
 const pagination: PaginationProps = reactive({
   page: 1,
@@ -127,13 +122,7 @@ const handleCreateSuccess = () => {
   <n-space vertical :size="16">
     <n-space justify="space-between" align="center">
       <n-space :size="12" align="center">
-        <n-select
-          v-model:value="selectedCategoryId"
-          :options="categoryOptions"
-          :placeholder="$t('domain.workOrder.label.allCategory')"
-          clearable
-          style="width: 200px"
-        />
+        <WorkOrderCategorySelect v-model:value="selectedCategoryId" :showAdd="true" :showEdit="true" :showDelete="true" :showSearch="true" />
         <n-select
           v-model:value="selectedStatus"
           :options="statusOptions"

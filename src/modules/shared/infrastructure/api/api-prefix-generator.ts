@@ -1,4 +1,6 @@
-type Endpoint = (...args: unknown[]) => string
+type Endpoint = {
+  bivarianceHack(...args: unknown[]): string
+}['bivarianceHack']
 export const createPrefixedEndpoints = <T extends Record<string, string | Endpoint>>(
   prefix: string,
   endpoints: T,

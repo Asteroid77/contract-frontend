@@ -1,18 +1,17 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { NModal, NCard, NForm, NFormItem, NInput, NSelect, NButton, NSpace } from 'naive-ui'
+import { NModal, NCard, NForm, NFormItem, NInput, NButton, NSpace } from 'naive-ui'
 import { message } from '@/_utils/discrete_naive_api'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import { useI18n } from 'vue-i18n'
 import { useCreateWorkOrder } from '../application/hooks/useWorkOrderService'
 import { useWorkOrderUpload } from '../application/hooks/useWorkOrderUpload'
-import type { WorkOrderCategoryVO } from '../domain/types'
 import { useRouter } from 'vue-router'
+import WorkOrderCategorySelect from './WorkOrderCategorySelect'
 
-const props = defineProps<{
+defineProps<{
   show: boolean
-  categories: WorkOrderCategoryVO[]
 }>()
 
 const emit = defineEmits<{
@@ -28,10 +27,6 @@ const { onUploadImg } = useWorkOrderUpload()
 const categoryId = ref<number | undefined>(undefined)
 const title = ref('')
 const content = ref('')
-
-const categoryOptions = computed(() =>
-  props.categories.map((c) => ({ label: c.name, value: c.id })),
-)
 
 const canSubmit = computed(() => !!categoryId.value && !!title.value.trim() && !!content.value.trim())
 
@@ -72,11 +67,7 @@ const handleSubmit = () => {
     >
       <n-form label-placement="top">
         <n-form-item :label="$t('domain.workOrder.field.category')">
-          <n-select
-            v-model:value="categoryId"
-            :options="categoryOptions"
-            :placeholder="$t('common.placeholder.select', { label: $t('domain.workOrder.field.category') })"
-          />
+          <WorkOrderCategorySelect v-model:value="categoryId" :showSearch="true" :showEdit="true" :showDelete="true" :showAdd="true"/>
         </n-form-item>
         <n-form-item :label="$t('domain.workOrder.field.title')">
           <n-input
