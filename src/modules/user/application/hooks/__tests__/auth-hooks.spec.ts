@@ -18,9 +18,10 @@ import type {
 } from '@/modules/user/application/models'
 import type { SignInMutate } from '@/modules/user/application/hooks/useLogin'
 
-const { loginSpy, pushSpy } = vi.hoisted(() => ({
+const { loginSpy, pushSpy, discreteMessageSuccessSpy } = vi.hoisted(() => ({
   loginSpy: vi.fn(),
   pushSpy: vi.fn(),
+  discreteMessageSuccessSpy: vi.fn(),
 }))
 
 vi.mock('@tanstack/vue-query', () => ({
@@ -54,6 +55,16 @@ vi.mock('@/modules/user/infrastructure/oauth-endpoints', () => ({
   buildOauth2AuthorizationUrl: vi.fn((platform: string) => `https://oauth.example/${platform}`),
 }))
 
+vi.mock('@/_utils/discrete_naive_api', () => ({
+  message: {
+    success: discreteMessageSuccessSpy,
+  },
+}))
+
+vi.mock('@/_utils/i18n', () => ({
+  $t: (key: string) => key,
+}))
+
 type MutationOptionsLike<TData, TVariables> = {
   mutationFn: (variables: TVariables) => Promise<TData> | TData
   onSuccess?: (data: TData, variables: TVariables) => Promise<unknown> | unknown
@@ -73,17 +84,14 @@ type WindowOpenMock = ReturnType<
 
 describe('user auth-related hooks', () => {
   let openMock: WindowOpenMock
-  let messageSuccessMock: ReturnType<typeof vi.fn<(message: string) => void>>
 
   beforeEach(() => {
     vi.clearAllMocks()
 
-    messageSuccessMock = vi.fn<(message: string) => void>()
     openMock = vi.fn<
       (url?: string | URL, target?: string, features?: string) => WindowProxy | null
     >(() => null)
 
-    window.$message = { success: messageSuccessMock }
     window.open = openMock
   })
 
@@ -452,7 +460,9 @@ describe('user auth-related hooks', () => {
 
     if (!options.onSuccess) throw new Error('onSuccess should be defined')
     options.onSuccess(true, payload)
-    expect(messageSuccessMock).toHaveBeenCalledWith('重置密码成功，请重新登录')
+    expect(discreteMessageSuccessSpy).toHaveBeenCalledWith(
+      'layout.profile.security.changePassword.success',
+    )
     expect(router.push).toHaveBeenCalledWith({ name: 'login' })
   })
 

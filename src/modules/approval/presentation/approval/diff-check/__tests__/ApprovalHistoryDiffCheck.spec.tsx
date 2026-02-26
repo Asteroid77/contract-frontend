@@ -51,7 +51,7 @@ describe('ApprovalHistoryDiffCheck', () => {
 
     expect(text).toContain('节点B')
     expect(text).toContain('masked:李四')
-    expect(text).toContain('common.action.reject')
+    expect(text).toContain('domain.approval.action.reject')
     expect(text).toContain('不同意')
   })
 
