@@ -1,0 +1,82 @@
+version: 1
+status: draft-enforced
+owner: frontend
+
+unit_system:
+  root_font_size: 16px
+  default_unit: rem
+  secondary_unit: em
+  px_whitelist:
+    - border-width: 1px
+    - breakpoints: [767px, 768px, 1023px, 1024px, 1280px, 1440px, 1920px]
+    - elevation_internal: [1px, 2px, 4px, 8px, 16px, 32px]
+    - print: [mm, pt]
+
+grid_system:
+  base_unit_mobile: 4px
+  base_unit_desktop: 8px
+  max_content_width: 1200px
+  design_canvas_desktop: 1440px
+  mobile:
+    columns: 4
+    gutter: 16px
+    margin_x: 16px
+    primary_viewport: 375px
+    extended_viewport: 414px
+  desktop:
+    columns: 12
+    gutter: 24px
+    margin_x: 120px
+    primary_viewport: 1440px
+    extended_viewports: [1280px, 1920px]
+
+breakpoints:
+  mobile: '0-767px'
+  tablet: '768-1023px'
+  desktop: '1024px+'
+
+spacing_scale:
+  steps_px: [4, 8, 16, 24, 32, 48, 64, 80, 120]
+  steps_rem: [0.25rem, 0.5rem, 1rem, 1.5rem, 2rem, 3rem, 4rem, 5rem, 7.5rem]
+
+typography:
+  modular_scale_ratio: 1.25
+  font_sizes_px: [12, 14, 16, 20, 24, 32, 40]
+  font_sizes_rem: [0.75rem, 0.875rem, 1rem, 1.25rem, 1.5rem, 2rem, 2.5rem]
+  line_height:
+    heading: '1.2-1.4'
+    body: '1.5-1.8'
+
+radius:
+  allowed_px: [4, 8, 12, 16, 9999]
+  allowed_rem: [0.25rem, 0.5rem, 0.75rem, 1rem]
+
+elevation:
+  level_1: '0 1px 2px rgba(0,0,0,0.05)'
+  level_2: '0 4px 8px rgba(0,0,0,0.08)'
+  level_3: '0 8px 16px rgba(0,0,0,0.12)'
+  level_4: '0 16px 32px rgba(0,0,0,0.16)'
+
+layout_requirements:
+  container_queries: required_for_component_level_responsive
+  subgrid: required_for_form_alignment_when_grid_based
+  max_content_width: 1200px
+
+migration_exceptions:
+  container_query_subgrid:
+    deferred_low_priority_forms:
+      - path: src/views/unauth/LoginView.tsx
+        reason: single-column auth form; current layout does not benefit from subgrid split
+      - path: src/views/unauth/RegisterView.tsx
+        reason: single-column auth form; current layout does not benefit from subgrid split
+      - path: src/views/unauth/PasswordRecoveryView.tsx
+        reason: single-column auth form; current layout does not benefit from subgrid split
+      - path: src/views/unauth/TwoFactorVerifyView.tsx
+        reason: compact verification form with no multi-column label-control alignment need
+      - path: src/views/auth/components/TotpSettingsSection.vue
+        reason: dedicated 2FA widget with action-first layout; no grid-form structure to align
+      - path: src/modules/approval/presentation/approval/TemplateActions.tsx
+        reason: action-button toolbar component, not a data-entry form layout
+    revisit_trigger:
+      - field count or layout complexity increases to multi-column form patterns
+      - responsive behavior requirements cannot be met with existing single-column layout
