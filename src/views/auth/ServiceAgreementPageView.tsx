@@ -10,6 +10,7 @@ import { serviceAgreementAdvancedQueryFields } from '@/modules/service-agreement
 import { $t } from '@/_utils/i18n'
 import { useRouter } from 'vue-router'
 import type { RouteLocationAsRelativeGeneric } from 'vue-router'
+import { useIsMobile } from '@/app/presentation/hooks/useIsMobile'
 
 type ServiceAgreementQueryFilters = QueryFilters & BaseQuery
 type ServiceAgreementPageRequest = Parameters<typeof useServiceAgreementPage>[0]['value']
@@ -25,6 +26,7 @@ export default defineComponent({
     const appliedQueryFilters = ref<ServiceAgreementQueryFilters | null>(null)
 
     const router = useRouter()
+    const isMobile = useIsMobile(768)
 
     const pagination: PaginationProps = reactive({
       page: 1,
@@ -103,6 +105,7 @@ export default defineComponent({
           />
           <NSpace>
             <NButton
+              size={isMobile.value ? 'small' : undefined}
               type="primary"
               onClick={() => handleSearch(draftQueryFilters.value)}
               loading={isPending.value}
