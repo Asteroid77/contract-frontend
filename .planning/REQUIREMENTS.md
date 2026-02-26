@@ -70,33 +70,33 @@ Explicitly excluded. Documented to prevent scope creep.
 
 Which phases cover which requirements. Updated during roadmap creation.
 
-| Requirement | Phase | Status  |
-| ----------- | ----- | ------- |
-| INTK-01     | TBD   | Pending |
-| INTK-02     | TBD   | Pending |
-| INTK-03     | TBD   | Pending |
-| RSCH-01     | TBD   | Pending |
-| RSCH-02     | TBD   | Pending |
-| RSCH-03     | TBD   | Pending |
-| REQS-01     | TBD   | Pending |
-| REQS-02     | TBD   | Pending |
-| REQS-03     | TBD   | Pending |
-| RMAP-01     | TBD   | Pending |
-| RMAP-02     | TBD   | Pending |
-| RMAP-03     | TBD   | Pending |
-| GOVR-01     | TBD   | Pending |
-| GOVR-02     | TBD   | Pending |
-| GOVR-03     | TBD   | Pending |
-| INTG-01     | TBD   | Pending |
-| INTG-02     | TBD   | Pending |
+| Requirement | Phase   | Status  |
+| ----------- | ------- | ------- |
+| INTK-01     | Phase 1 | Pending |
+| INTK-02     | Phase 1 | Pending |
+| INTK-03     | Phase 1 | Pending |
+| RSCH-01     | Phase 2 | Pending |
+| RSCH-02     | Phase 2 | Pending |
+| RSCH-03     | Phase 2 | Pending |
+| REQS-01     | Phase 3 | Pending |
+| REQS-02     | Phase 3 | Pending |
+| REQS-03     | Phase 3 | Pending |
+| RMAP-01     | Phase 4 | Pending |
+| RMAP-02     | Phase 4 | Pending |
+| RMAP-03     | Phase 4 | Pending |
+| GOVR-01     | Phase 1 | Pending |
+| GOVR-02     | Phase 4 | Pending |
+| GOVR-03     | Phase 4 | Pending |
+| INTG-01     | Phase 2 | Pending |
+| INTG-02     | Phase 4 | Pending |
 
 **Coverage:**
 
 - v1 requirements: 17 total
-- Mapped to phases: 0
-- Unmapped: 17 ⚠️
+- Mapped to phases: 17
+- Unmapped: 0 ✓
 
 ---
 
 _Requirements defined: 2026-02-26_
-_Last updated: 2026-02-26 after initial definition_
+_Last updated: 2026-02-26 after roadmap creation_
