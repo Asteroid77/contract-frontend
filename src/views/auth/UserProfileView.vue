@@ -72,6 +72,8 @@ const avatarText = computed(() => {
   if (!displayName || displayName === '-') return 'U'
   return displayName.slice(0, 1)
 })
+const actionIconSize = 'var(--spacing-16)'
+const avatarUploadActionSize = 'var(--spacing-32)'
 
 const signedCount = computed(() => signPage.data.value?.total ?? 0)
 const filingCount = computed(() => filingPage.data.value?.total ?? 0)
@@ -143,7 +145,7 @@ const handleViewApproval = () => {
       </div>
       <n-button type="error" ghost @click="handleLogout">
         <template #icon>
-          <LogOutOutline class="w-4 h-4" />
+          <LogOutOutline :style="{ width: actionIconSize, height: actionIconSize }" />
         </template>
         {{ $t('auth.action.logout') }}
       </n-button>
@@ -163,11 +165,16 @@ const handleViewApproval = () => {
               </n-avatar>
               <button
                 type="button"
-                class="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[var(--color-primary)] text-[var(--color-bg-card)] flex items-center justify-center hover:bg-[var(--color-primary-hover)] transition-colors"
+                class="absolute bottom-0 right-0 rounded-full bg-[var(--color-primary)] text-[var(--color-bg-card)] flex items-center justify-center hover:bg-[var(--color-primary-hover)] transition-colors"
+                :style="{
+                  width: avatarUploadActionSize,
+                  minWidth: avatarUploadActionSize,
+                  height: avatarUploadActionSize,
+                }"
                 :title="$t('layout.profile.avatar.upload')"
                 @click="handleAvatarUpload"
               >
-                <CameraOutline class="w-4 h-4" />
+                <CameraOutline :style="{ width: actionIconSize, height: actionIconSize }" />
               </button>
             </div>
 
@@ -177,12 +184,8 @@ const handleViewApproval = () => {
               </div>
 
               <n-flex vertical :size="4" class="text-sm text-[var(--color-text-body)]">
-                <div>
-                  {{ $t('layout.profile.field.username') }}：{{ profileName }}
-                </div>
-                <div>
-                  {{ $t('layout.profile.field.phone') }}：{{ phoneNumber }}
-                </div>
+                <div>{{ $t('layout.profile.field.username') }}：{{ profileName }}</div>
+                <div>{{ $t('layout.profile.field.phone') }}：{{ phoneNumber }}</div>
                 <div v-if="shouldShowPlatform">
                   {{ $t('layout.profile.field.platform') }}：{{ platformLabel }}
                 </div>
@@ -193,7 +196,11 @@ const handleViewApproval = () => {
       </n-grid-item>
 
       <n-grid-item :span="24" :md="12">
-        <n-card class="notion-card" :title="$t('layout.profile.accountStatistics')" :bordered="false">
+        <n-card
+          class="notion-card"
+          :title="$t('layout.profile.accountStatistics')"
+          :bordered="false"
+        >
           <n-grid :cols="2" :x-gap="12" :y-gap="12">
             <n-grid-item>
               <n-statistic :label="$t('layout.profile.stats.signedCount')" :value="signedCount" />

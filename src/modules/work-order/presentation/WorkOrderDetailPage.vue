@@ -258,15 +258,15 @@ const handleRelease = () => {
   </n-result>
 
   <n-spin v-else :show="detailQuery.isLoading.value">
-    <n-space v-if="detail" vertical :size="20" style="max-width: 960px; margin: 0 auto">
+    <n-space v-if="detail" class="work-order-detail-page" vertical :size="24">
       <!-- Header -->
       <n-space vertical :size="8">
         <n-space align="center" :size="12">
-          <h2 style="margin: 0">{{ detail.title }}</h2>
+          <h2 class="m-0">{{ detail.title }}</h2>
           <WorkOrderStatusBadge :status="detail.status" />
           <n-popconfirm v-if="canCancel" @positive-click="handleCancel">
             <template #trigger>
-              <n-tag size="small" type="warning" round style="cursor: pointer">
+              <n-tag size="small" type="warning" round class="cursor-pointer">
                 {{ $t('domain.workOrder.action.cancel') }}
               </n-tag>
             </template>
@@ -362,7 +362,7 @@ const handleRelease = () => {
 
       <!-- Replies -->
       <n-space vertical :size="16">
-        <h3 style="margin: 0">{{ $t('domain.workOrder.action.reply') }} ({{ replies.length }})</h3>
+        <h3 class="m-0">{{ $t('domain.workOrder.action.reply') }} ({{ replies.length }})</h3>
 
         <n-text v-if="replies.length === 0" depth="3">
           {{ $t('domain.workOrder.message.noReplies') }}
@@ -376,8 +376,8 @@ const handleRelease = () => {
           :style="{
             borderLeft:
               reply.userType === 'HANDLER'
-                ? '3px solid var(--n-color-target)'
-                : '3px solid var(--n-border-color)',
+                ? '0.25rem solid var(--n-color-target)'
+                : '0.25rem solid var(--n-border-color)',
           }"
         >
           <template #header>
@@ -385,14 +385,14 @@ const handleRelease = () => {
               <n-text strong>
                 {{ replyAuthorName(reply) }}
               </n-text>
-              <n-text depth="3" style="font-size: 12px">
+              <n-text depth="3" class="text-[0.75rem]">
                 {{
                   reply.userType === WorkOrderUserType.HANDLER
                     ? $t('domain.workOrder.label.handlerReply')
                     : $t('domain.workOrder.label.userReply')
                 }}
               </n-text>
-              <n-text depth="3" style="font-size: 12px">
+              <n-text depth="3" class="text-[0.75rem]">
                 {{ formatted(reply.createdTime).standard }}
               </n-text>
             </n-space>
@@ -407,7 +407,7 @@ const handleRelease = () => {
           <MdEditor
             v-model="replyContent"
             :language="'zh-CN'"
-            style="width: 100%"
+            class="w-full"
             :preview="false"
             @on-upload-img="onUploadImg"
           />
@@ -431,3 +431,18 @@ const handleRelease = () => {
     </n-space>
   </n-spin>
 </template>
+
+<style scoped>
+.work-order-detail-page {
+  width: 100%;
+  max-width: var(--layout-content-max-width);
+  margin: 0 auto;
+  padding-inline: var(--spacing-md);
+}
+
+@media (min-width: 768px) {
+  .work-order-detail-page {
+    padding-inline: var(--spacing-lg);
+  }
+}
+</style>

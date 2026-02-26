@@ -71,9 +71,7 @@ export default defineComponent({
         return typeof options?.name === 'string' ? options.name : undefined
       }
 
-      const trace: ComponentTraceItem[] = [
-        { name: errorName, status: 'error' },
-      ]
+      const trace: ComponentTraceItem[] = [{ name: errorName, status: 'error' }]
       let cur = instance?.$parent as ComponentPublicInstance | null
       while (cur) {
         const name = getComponentName(cur)
@@ -104,10 +102,7 @@ export default defineComponent({
         info,
         stack: err.stack || '',
         capturedAt: formatTimestamp(new Date()),
-        componentTrace: buildTrace(
-          instance as ComponentPublicInstance,
-          name,
-        ),
+        componentTrace: buildTrace(instance as ComponentPublicInstance, name),
       }
 
       // Record to observability system
@@ -143,9 +138,7 @@ export default defineComponent({
         `Captured at: ${e.capturedAt}`,
         '',
         'Component Trace:',
-        ...e.componentTrace.map(
-          (c) => `  <${c.name}> [${c.status}]`,
-        ),
+        ...e.componentTrace.map((c) => `  <${c.name}> [${c.status}]`),
         '',
         'Stack Trace:',
         e.stack,
@@ -177,9 +170,13 @@ export default defineComponent({
               stroke-width="1"
             />
             <circle
-              cx="14" cy="16" r="5"
-              fill="var(--eb-red)" fill-opacity="0.15"
-              stroke="var(--eb-red)" stroke-width="1.2"
+              cx="14"
+              cy="16"
+              r="5"
+              fill="var(--eb-red)"
+              fill-opacity="0.15"
+              stroke="var(--eb-red)"
+              stroke-width="1.2"
             />
             <path d="M14 13.5v3" stroke="var(--eb-red)" stroke-width="1.4" stroke-linecap="round" />
             <circle cx="14" cy="18.5" r="0.7" fill="var(--eb-red)" />
@@ -191,12 +188,8 @@ export default defineComponent({
     /** Title block */
     const renderTitle = (err: CapturedError) => (
       <div class="error-boundary__header">
-        <h1 class="error-boundary__title">
-          {props.errorTitle || err.message}
-        </h1>
-        {props.errorDescription && (
-          <p class="error-boundary__subtitle">{props.errorDescription}</p>
-        )}
+        <h1 class="error-boundary__title">{props.errorTitle || err.message}</h1>
+        {props.errorDescription && <p class="error-boundary__subtitle">{props.errorDescription}</p>}
       </div>
     )
 
@@ -208,11 +201,11 @@ export default defineComponent({
       alignTop = false,
     ) => (
       <div class={['error-boundary__prop-row', alignTop && 'error-boundary__prop-row--top']}>
-        <div class="error-boundary__prop-label" style={alignTop ? { paddingTop: '6px' } : {}}>
+        <div class="error-boundary__prop-label" style={alignTop ? { paddingTop: '0.5rem' } : {}}>
           {icon()}
           {label}
         </div>
-        <div class="error-boundary__prop-value" style={alignTop ? { paddingTop: '2px' } : {}}>
+        <div class="error-boundary__prop-value" style={alignTop ? { paddingTop: '0.25rem' } : {}}>
           {value()}
         </div>
       </div>
@@ -222,7 +215,13 @@ export default defineComponent({
     const renderChevron = () => (
       <span class="error-boundary__area-sep">
         <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-          <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          <path
+            d="M6 4l4 4-4 4"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
         </svg>
       </span>
     )
@@ -237,7 +236,12 @@ export default defineComponent({
             () => (
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                 <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" />
-                <path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                <path
+                  d="M8 5v3l2 2"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
               </svg>
             ),
             $t('observability.errorBoundary.props.status'),
@@ -253,7 +257,13 @@ export default defineComponent({
           {renderPropRow(
             () => (
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <path d="M5 3l-3 5 3 5M11 3l3 5-3 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                <path
+                  d="M5 3l-3 5 3 5M11 3l3 5-3 5"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
               </svg>
             ),
             $t('observability.errorBoundary.props.source'),
@@ -284,15 +294,26 @@ export default defineComponent({
           {renderPropRow(
             () => (
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5" />
-                <path d="M2 6.5h12M5 2v2M11 2v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                <rect
+                  x="2"
+                  y="3"
+                  width="12"
+                  height="11"
+                  rx="1.5"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                />
+                <path
+                  d="M2 6.5h12M5 2v2M11 2v2"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
               </svg>
             ),
             $t('observability.errorBoundary.props.capturedAt'),
             () => (
-              <span style={{ color: 'var(--eb-text-secondary)' }}>
-                {err.capturedAt}
-              </span>
+              <span style={{ color: 'var(--eb-text-secondary)' }}>{err.capturedAt}</span>
             ),
           )}
 
@@ -300,7 +321,12 @@ export default defineComponent({
           {renderPropRow(
             () => (
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <path d="M2 4l6-2 6 2v6l-6 4-6-4V4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                <path
+                  d="M2 4l6-2 6 2v6l-6 4-6-4V4z"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linejoin="round"
+                />
               </svg>
             ),
             $t('observability.errorBoundary.props.areas'),
@@ -324,7 +350,7 @@ export default defineComponent({
                             : 'error-boundary__dot--green',
                         ]}
                       />
-                      <span class="error-boundary__tag--mono" style={{ fontSize: '11px' }}>
+                      <span class="error-boundary__tag--mono" style={{ fontSize: '0.75rem' }}>
                         &lt;{comp.name}&gt;
                       </span>
                     </span>
@@ -360,7 +386,7 @@ export default defineComponent({
     const renderStackTrace = (err: CapturedError) => {
       const lines = err.stack.split('\n')
       return (
-        <div style={{ marginBottom: '20px' }}>
+        <div style={{ marginBottom: '1.5rem' }}>
           <h3 class="error-boundary__section-title">
             <span class="error-boundary__section-hash">#</span>
             {$t('observability.errorBoundary.sections.errorDetails')}
@@ -378,8 +404,21 @@ export default defineComponent({
     /** File icon for tree: error variant */
     const FileIconError = () => (
       <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-        <path d="M4 2.5A1.5 1.5 0 015.5 1H12l4 4v11.5a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 014 16.5v-14z" fill="var(--eb-red-bg)" stroke="var(--eb-red)" stroke-width="1" />
-        <circle cx="10" cy="11" r="3.5" fill="var(--eb-red)" fill-opacity="0.2" stroke="var(--eb-red)" stroke-width="0.8" />
+        <path
+          d="M4 2.5A1.5 1.5 0 015.5 1H12l4 4v11.5a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 014 16.5v-14z"
+          fill="var(--eb-red-bg)"
+          stroke="var(--eb-red)"
+          stroke-width="1"
+        />
+        <circle
+          cx="10"
+          cy="11"
+          r="3.5"
+          fill="var(--eb-red)"
+          fill-opacity="0.2"
+          stroke="var(--eb-red)"
+          stroke-width="0.8"
+        />
         <path d="M10 9v2.5" stroke="var(--eb-red)" stroke-width="1" stroke-linecap="round" />
         <circle cx="10" cy="13" r="0.5" fill="var(--eb-red)" />
       </svg>
@@ -388,16 +427,38 @@ export default defineComponent({
     /** File icon for tree: normal variant */
     const FileIconNormal = () => (
       <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-        <path d="M4 2.5A1.5 1.5 0 015.5 1H12l4 4v11.5a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 014 16.5v-14z" fill="#f0f0f0" stroke="#c0c0c0" stroke-width="1" />
-        <path d="M12 1l4 4h-3.5a.5.5 0 01-.5-.5V1z" fill="#e0e0e0" stroke="#c0c0c0" stroke-width="0.8" />
-        <path d="M7 9h6M7 12h4" stroke="#a0a0a0" stroke-width="0.8" stroke-linecap="round" />
+        <path
+          d="M4 2.5A1.5 1.5 0 015.5 1H12l4 4v11.5a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 014 16.5v-14z"
+          fill="var(--color-bg-body)"
+          stroke="var(--color-border)"
+          stroke-width="1"
+        />
+        <path
+          d="M12 1l4 4h-3.5a.5.5 0 01-.5-.5V1z"
+          fill="var(--color-bg-card)"
+          stroke="var(--color-border)"
+          stroke-width="0.8"
+        />
+        <path
+          d="M7 9h6M7 12h4"
+          stroke="var(--color-text-light)"
+          stroke-width="0.8"
+          stroke-linecap="round"
+        />
       </svg>
     )
 
     /** Tree connector icon */
     const TreeConnector = () => (
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-        <path d="M4 2v6h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.5" />
+        <path
+          d="M4 2v6h8"
+          stroke="currentColor"
+          stroke-width="1.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          opacity="0.5"
+        />
       </svg>
     )
 
@@ -405,7 +466,7 @@ export default defineComponent({
     const renderComponentTree = (err: CapturedError) => {
       const reversed = [...err.componentTrace].reverse()
       return (
-        <div style={{ marginBottom: '20px' }}>
+        <div style={{ marginBottom: '1.5rem' }}>
           <h3 class="error-boundary__section-title">
             <span class="error-boundary__section-hash">#</span>
             {$t('observability.errorBoundary.sections.componentTrace')}
@@ -415,13 +476,10 @@ export default defineComponent({
               const isErr = comp.status === 'error'
               return (
                 <div
-                  class={[
-                    'error-boundary__tree-row',
-                    isErr && 'error-boundary__tree-row--error',
-                  ]}
+                  class={['error-boundary__tree-row', isErr && 'error-boundary__tree-row--error']}
                 >
                   {/* Indent */}
-                  <div style={{ width: `${i * 20}px`, flexShrink: '0' }} />
+                  <div style={{ width: `${i * 1.25}rem`, flexShrink: '0' }} />
 
                   {/* Connector */}
                   {i > 0 && (
@@ -451,7 +509,7 @@ export default defineComponent({
                       'error-boundary__tag',
                       isErr ? 'error-boundary__tag--error' : 'error-boundary__tag--active',
                     ]}
-                    style={{ fontSize: '11px', marginRight: '12px' }}
+                    style={{ fontSize: '0.75rem', marginRight: '0.75rem' }}
                   >
                     <span
                       class={[
@@ -465,9 +523,7 @@ export default defineComponent({
                   </span>
 
                   {/* Info text */}
-                  {comp.info && (
-                    <span class="error-boundary__tree-info">{comp.info}</span>
-                  )}
+                  {comp.info && <span class="error-boundary__tree-info">{comp.info}</span>}
                 </div>
               )
             })}
@@ -478,32 +534,60 @@ export default defineComponent({
 
     /** Action buttons row */
     const renderActions = () => (
-      <div style={{ marginBottom: '48px' }}>
+      <div style={{ marginBottom: '3rem' }}>
         <h3 class="error-boundary__section-title">
           <span class="error-boundary__section-hash">#</span>
           {$t('observability.errorBoundary.sections.actions')}
         </h3>
         <div class="error-boundary__actions">
-          <button
-            class="error-boundary__btn error-boundary__btn--primary"
-            onClick={handleReset}
-          >
+          <button class="error-boundary__btn error-boundary__btn--primary" onClick={handleReset}>
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M2 8a6 6 0 0110.47-4M14 2v4h-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M14 8a6 6 0 01-10.47 4M2 14v-4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              <path
+                d="M2 8a6 6 0 0110.47-4M14 2v4h-4"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M14 8a6 6 0 01-10.47 4M2 14v-4h4"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
             </svg>
             {$t('observability.errorBoundary.actions.retry')}
           </button>
           <button class="error-boundary__btn" onClick={handleRefresh}>
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M13.65 4A7 7 0 002 8a7 7 0 0011.65 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              <path
+                d="M13.65 4A7 7 0 002 8a7 7 0 0011.65 4"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
             </svg>
             {$t('observability.errorBoundary.actions.refresh')}
           </button>
           <button class="error-boundary__btn" onClick={handleCopyError}>
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <rect x="5" y="5" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.5" />
-              <path d="M3 11V3h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              <rect
+                x="5"
+                y="5"
+                width="8"
+                height="8"
+                rx="1"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+              <path
+                d="M3 11V3h8"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
             </svg>
             {$t('observability.errorBoundary.actions.copyError')}
           </button>
@@ -514,13 +598,16 @@ export default defineComponent({
     /** Floating toast */
     const renderToast = () => (
       <div
-        class={[
-          'error-boundary__toast',
-          toastVisible.value && 'error-boundary__toast--visible',
-        ]}
+        class={['error-boundary__toast', toastVisible.value && 'error-boundary__toast--visible']}
       >
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          <path
+            d="M3 8.5l3 3 7-7"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
         </svg>
         <span>{toastMessage.value}</span>
       </div>
@@ -537,14 +624,20 @@ export default defineComponent({
         <div class="error-boundary__reset-banner-inner">
           <div class="error-boundary__reset-icon">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M3 8.5l3 3 7-7" stroke="var(--eb-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <path
+                d="M3 8.5l3 3 7-7"
+                stroke="var(--eb-green)"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
             </svg>
           </div>
           <div>
-            <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--eb-text)' }}>
+            <div style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--eb-text)' }}>
               {$t('observability.errorBoundary.resetBanner.title')}
             </div>
-            <div style={{ fontSize: '12px', color: 'var(--eb-text-secondary)' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--eb-text-secondary)' }}>
               {$t('observability.errorBoundary.resetBanner.description')}
             </div>
           </div>

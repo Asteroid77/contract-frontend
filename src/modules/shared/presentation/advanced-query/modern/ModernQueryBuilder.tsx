@@ -1,6 +1,24 @@
-import { defineComponent, type PropType, onBeforeUnmount, onMounted, ref, watch, computed } from 'vue'
-import { QueryLogic, type QueryFilters, type QueryGroup, FilterOp } from '@/modules/shared/domain/query'
-import { getFieldOperators, type FieldConfig, type FilterConditionItem, type QueryGroupItem } from '@/modules/shared/domain/advanced-query'
+import {
+  defineComponent,
+  type PropType,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+  computed,
+} from 'vue'
+import {
+  QueryLogic,
+  type QueryFilters,
+  type QueryGroup,
+  FilterOp,
+} from '@/modules/shared/domain/query'
+import {
+  getFieldOperators,
+  type FieldConfig,
+  type FilterConditionItem,
+  type QueryGroupItem,
+} from '@/modules/shared/domain/advanced-query'
 import FilterPill from './FilterPill'
 import { $t } from '@/_utils/i18n'
 
@@ -257,7 +275,10 @@ export default defineComponent({
     const updateGroupFilter = (groupId: string, filterId: string, next: FilterConditionItem) => {
       groups.value = groups.value.map((g) =>
         g.id === groupId
-          ? { ...g, filters: g.filters.map((f) => (f.id === filterId ? { ...next, id: filterId } : f)) }
+          ? {
+              ...g,
+              filters: g.filters.map((f) => (f.id === filterId ? { ...next, id: filterId } : f)),
+            }
           : g,
       )
     }
@@ -278,7 +299,7 @@ export default defineComponent({
 
     const renderFieldMenu = () => (
       <div class="absolute top-full left-0 mt-1 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-lg shadow-lg z-50 min-w-28 py-1">
-        <div class="px-2 py-1 text-[9px] text-[var(--color-text-light)] uppercase tracking-wide border-b border-[var(--color-border)]">
+        <div class="px-2 py-1 text-xs text-[var(--color-text-light)] uppercase tracking-wide border-b border-[var(--color-border)]">
           {$t('common.advancedQuery.dropdown.selectFieldTitle')}
         </div>
         {props.fields.map((f) => (
@@ -286,7 +307,7 @@ export default defineComponent({
             key={f.key}
             type="button"
             onClick={() => addFilter(f.key)}
-            class="w-full text-left px-2 py-1.5 text-[11px] hover:bg-[var(--color-border)] transition-colors"
+            class="w-full text-left px-2 py-2 text-xs hover:bg-[var(--color-border)] transition-colors"
           >
             {translateLabel(f.labelKey)}
           </button>
@@ -298,7 +319,7 @@ export default defineComponent({
               addGroup()
               showFieldMenu.value = false
             }}
-            class="w-full text-left px-2 py-1.5 text-[11px] text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 transition-colors"
+            class="w-full text-left px-2 py-2 text-xs text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 transition-colors"
           >
             + {$t('common.advancedQuery.action.addGroup')}
           </button>
@@ -310,7 +331,7 @@ export default defineComponent({
       <button
         type="button"
         onClick={toggleRootLogic}
-        class="px-1 py-0.5 text-[10px] font-medium text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 rounded transition-colors"
+        class="px-1 py-1 text-xs font-medium text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 rounded transition-colors"
         title={$t('common.advancedQuery.tooltip.toggleLogic') as string}
       >
         {rootLogic.value === QueryLogic.AND
@@ -320,8 +341,8 @@ export default defineComponent({
     )
 
     const renderGroup = (group: QueryGroupItem) => (
-      <div class="inline-flex items-center gap-1 px-1.5 py-1 bg-[var(--color-bg-body)] border border-[var(--color-border)] rounded-lg group">
-        <span class="text-[9px] text-[var(--color-text-light)]">(</span>
+      <div class="inline-flex items-center gap-1 px-2 py-1 bg-[var(--color-bg-body)] border border-[var(--color-border)] rounded-lg group">
+        <span class="text-xs text-[var(--color-text-light)]">(</span>
 
         {group.filters.map((filter, index) => (
           <span key={filter.id} class="contents">
@@ -329,9 +350,12 @@ export default defineComponent({
               <button
                 type="button"
                 onClick={() =>
-                  updateGroupLogic(group.id, group.logic === QueryLogic.AND ? QueryLogic.OR : QueryLogic.AND)
+                  updateGroupLogic(
+                    group.id,
+                    group.logic === QueryLogic.AND ? QueryLogic.OR : QueryLogic.AND,
+                  )
                 }
-                class="px-1 py-0.5 text-[9px] font-medium text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 rounded transition-colors"
+                class="px-1 py-1 text-xs font-medium text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 rounded transition-colors"
                 title={$t('common.advancedQuery.tooltip.toggleLogic') as string}
               >
                 {group.logic === QueryLogic.AND
@@ -348,18 +372,26 @@ export default defineComponent({
           </span>
         ))}
 
-        <div class="relative" ref={showGroupFieldMenu.value === group.id ? groupMenuRef : undefined}>
+        <div
+          class="relative"
+          ref={showGroupFieldMenu.value === group.id ? groupMenuRef : undefined}
+        >
           <button
             type="button"
             onClick={() => {
               showGroupFieldMenu.value = showGroupFieldMenu.value === group.id ? null : group.id
               showFieldMenu.value = false
             }}
-            class="w-4 h-4 flex items-center justify-center text-[var(--color-text-light)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 rounded transition-colors"
+            class="w-[var(--spacing-16)] h-[var(--spacing-16)] flex items-center justify-center text-[var(--color-text-light)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 rounded transition-colors"
             aria-label={$t('common.advancedQuery.action.filter') as string}
           >
             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
             </svg>
           </button>
           {showGroupFieldMenu.value === group.id && (
@@ -369,7 +401,7 @@ export default defineComponent({
                   key={f.key}
                   type="button"
                   onClick={() => addFilterToGroup(group.id, f.key)}
-                  class="w-full text-left px-2 py-1 text-[10px] hover:bg-[var(--color-border)] transition-colors"
+                  class="w-full text-left px-2 py-1 text-xs hover:bg-[var(--color-border)] transition-colors"
                 >
                   {translateLabel(f.labelKey)}
                 </button>
@@ -378,16 +410,21 @@ export default defineComponent({
           )}
         </div>
 
-        <span class="text-[9px] text-[var(--color-text-light)]">)</span>
+        <span class="text-xs text-[var(--color-text-light)]">)</span>
 
         <button
           type="button"
           onClick={() => removeGroup(group.id)}
-          class="w-0 group-hover:w-4 h-4 flex items-center justify-center text-[var(--color-text-light)] hover:text-red-500 transition-all overflow-hidden"
+          class="w-0 group-hover:w-[var(--spacing-16)] h-[var(--spacing-16)] flex items-center justify-center text-[var(--color-text-light)] hover:text-red-500 transition-all overflow-hidden"
           aria-label={$t('common.advancedQuery.action.removeGroup') as string}
         >
           <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>
@@ -395,7 +432,7 @@ export default defineComponent({
 
     return () => (
       <div
-        class="text-[11px]"
+        class="text-xs"
         onKeydown={(e) => {
           if (e.key !== 'Enter') return
           const target = e.target as HTMLElement | null
@@ -405,7 +442,7 @@ export default defineComponent({
           emit('search', buildQuery())
         }}
       >
-        <div class="flex flex-wrap items-center gap-1.5">
+        <div class="flex flex-wrap items-center gap-2">
           {filters.value.map((filter, index) => (
             <span key={filter.id} class="contents">
               {index > 0 && renderRootConnector()}
@@ -435,7 +472,12 @@ export default defineComponent({
               class="inline-flex items-center gap-1 h-6 px-2 text-[var(--color-text-light)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 border border-dashed border-[var(--color-border)] hover:border-[var(--color-accent)] rounded-full transition-colors"
             >
               <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
               </svg>
               <span>{$t('common.advancedQuery.action.filter')}</span>
             </button>
@@ -457,7 +499,7 @@ export default defineComponent({
         </div>
 
         {!hasConditions.value && (
-          <div class="mt-2 text-[10px] text-[var(--color-text-light)]">
+          <div class="mt-2 text-xs text-[var(--color-text-light)]">
             {$t('common.advancedQuery.hint.empty')}
           </div>
         )}

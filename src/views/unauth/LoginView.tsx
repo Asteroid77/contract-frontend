@@ -52,8 +52,7 @@ export default defineComponent({
         return
       }
 
-      const authCode =
-        typeof event.data?.authCode === 'string' ? event.data.authCode.trim() : ''
+      const authCode = typeof event.data?.authCode === 'string' ? event.data.authCode.trim() : ''
       const hasOauthError =
         typeof event.data?.error === 'string' && event.data.error.trim().length > 0
       const hasCallbackUrl =
@@ -150,7 +149,10 @@ export default defineComponent({
                 onClick={() => refreshCaptcha()}
               >
                 {captchaLoading.value || !captchaData.value?.image ? (
-                  <RefreshOutline class="w-4 h-4 animate-spin text-[var(--color-text-light)]" />
+                  <RefreshOutline
+                    class="animate-spin text-[var(--color-text-light)]"
+                    style={{ width: 'var(--spacing-16)', height: 'var(--spacing-16)' }}
+                  />
                 ) : (
                   <img
                     src={captchaData.value.image}
@@ -197,9 +199,7 @@ export default defineComponent({
             <LogoGithub class="w-5 h-5" />
             <span class="text-sm">GitHub</span>
           </button>
-          <button
-            class="flex items-center justify-center gap-2 px-6 py-2.5 border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-border)] transition-colors text-green-600"
-          >
+          <button class="flex items-center justify-center gap-2 px-6 py-2.5 border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-border)] transition-colors text-green-600">
             <LogoWechat class="w-5 h-5" />
             <span class="text-sm">QQ</span>
           </button>

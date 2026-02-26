@@ -1,7 +1,12 @@
 import { defineComponent, type PropType, computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import type { FilterCondition } from '@/modules/shared/domain/query'
 import { FilterOp } from '@/modules/shared/domain/query'
-import { getFieldOperators, OPERATOR_CONFIG, type FieldConfig, FieldType } from '@/modules/shared/domain/advanced-query'
+import {
+  getFieldOperators,
+  OPERATOR_CONFIG,
+  type FieldConfig,
+  FieldType,
+} from '@/modules/shared/domain/advanced-query'
 import { $t } from '@/_utils/i18n'
 
 type EditingPart = 'field' | 'op' | 'value' | null
@@ -13,8 +18,10 @@ const translateLabelKey = (key: string): string => $t(key as I18nKey) as string
 const formatDate = (d: Date) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
 const formatTimeHM = (d: Date) => `${pad2(d.getHours())}:${pad2(d.getMinutes())}`
 const formatDateInputValue = (ts: number) => formatDate(new Date(ts))
-const formatDateTimeInputValue = (ts: number) => `${formatDate(new Date(ts))}T${formatTimeHM(new Date(ts))}`
-const formatDateTimeDisplayValue = (ts: number) => `${formatDate(new Date(ts))} ${formatTimeHM(new Date(ts))}`
+const formatDateTimeInputValue = (ts: number) =>
+  `${formatDate(new Date(ts))}T${formatTimeHM(new Date(ts))}`
+const formatDateTimeDisplayValue = (ts: number) =>
+  `${formatDate(new Date(ts))} ${formatTimeHM(new Date(ts))}`
 
 const parseDateInputValue = (value: string): number | undefined => {
   const trimmed = value.trim()
@@ -86,7 +93,9 @@ export default defineComponent({
 
     const normalizeArrayValue = (value: unknown): Array<string | number> => {
       if (!Array.isArray(value)) return []
-      return value.filter((v): v is string | number => typeof v === 'string' || typeof v === 'number')
+      return value.filter(
+        (v): v is string | number => typeof v === 'string' || typeof v === 'number',
+      )
     }
 
     const formatValue = () => {
@@ -100,8 +109,10 @@ export default defineComponent({
           const right = value[1]
           const formatOne = (v: unknown) => {
             if (v === undefined || v === null || v === '') return '?'
-            if (field.value?.type === FieldType.DATE && typeof v === 'number') return formatDateInputValue(v)
-            if (field.value?.type === FieldType.DATETIME && typeof v === 'number') return formatDateTimeDisplayValue(v)
+            if (field.value?.type === FieldType.DATE && typeof v === 'number')
+              return formatDateInputValue(v)
+            if (field.value?.type === FieldType.DATETIME && typeof v === 'number')
+              return formatDateTimeDisplayValue(v)
             return String(v)
           }
           return `${formatOne(left)} ~ ${formatOne(right)}`
@@ -194,7 +205,7 @@ export default defineComponent({
                   close()
                 }}
                 class={[
-                  'px-2 py-1 text-[10px] rounded transition-colors',
+                  'px-2 py-1 text-xs rounded transition-colors',
                   props.condition.value === opt.value
                     ? 'bg-[var(--color-accent)] text-white'
                     : 'hover:bg-[var(--color-border)]',
@@ -225,8 +236,10 @@ export default defineComponent({
                     type="button"
                     onClick={() => toggle(opt.value)}
                     class={[
-                      'w-full text-left px-2 py-1 text-[10px] rounded transition-colors',
-                      selected ? 'bg-[var(--color-accent)] text-white' : 'hover:bg-[var(--color-border)]',
+                      'w-full text-left px-2 py-1 text-xs rounded transition-colors',
+                      selected
+                        ? 'bg-[var(--color-accent)] text-white'
+                        : 'hover:bg-[var(--color-border)]',
                     ]}
                   >
                     {maybeT(opt.label)}
@@ -247,7 +260,7 @@ export default defineComponent({
                   close()
                 }}
                 class={[
-                  'w-full text-left px-2 py-1 text-[10px] rounded transition-colors',
+                  'w-full text-left px-2 py-1 text-xs rounded transition-colors',
                   props.condition.value === opt.value
                     ? 'bg-[var(--color-accent)] text-white'
                     : 'hover:bg-[var(--color-border)]',
@@ -262,7 +275,9 @@ export default defineComponent({
 
       // BETWEEN
       if ([FilterOp.BETWEEN, FilterOp.NOT_BETWEEN].includes(props.condition.op)) {
-        const values = Array.isArray(props.condition.value) ? props.condition.value : [undefined, undefined]
+        const values = Array.isArray(props.condition.value)
+          ? props.condition.value
+          : [undefined, undefined]
         const inputType: 'number' | 'date' | 'datetime-local' | 'text' =
           currentField.type === FieldType.NUMBER
             ? 'number'
@@ -275,15 +290,15 @@ export default defineComponent({
         const leftValue =
           currentField.type === FieldType.DATE && typeof values[0] === 'number'
             ? formatDateInputValue(values[0])
-          : currentField.type === FieldType.DATETIME && typeof values[0] === 'number'
+            : currentField.type === FieldType.DATETIME && typeof values[0] === 'number'
               ? formatDateTimeInputValue(values[0])
-              : (values[0] as string | number | undefined) ?? ''
+              : ((values[0] as string | number | undefined) ?? '')
         const rightValue =
           currentField.type === FieldType.DATE && typeof values[1] === 'number'
             ? formatDateInputValue(values[1])
-          : currentField.type === FieldType.DATETIME && typeof values[1] === 'number'
+            : currentField.type === FieldType.DATETIME && typeof values[1] === 'number'
               ? formatDateTimeInputValue(values[1])
-              : (values[1] as string | number | undefined) ?? ''
+              : ((values[1] as string | number | undefined) ?? '')
 
         return (
           <div class="flex items-center gap-1">
@@ -304,10 +319,10 @@ export default defineComponent({
                         : raw
                 handleValueChange([next, values[1]])
               }}
-              class="w-20 px-1.5 py-1 text-[10px] bg-[var(--color-bg-body)] border border-[var(--color-border)] rounded focus:outline-none focus:border-[var(--color-accent)]"
+              class="w-20 px-2 py-1 text-xs bg-[var(--color-bg-body)] border border-[var(--color-border)] rounded focus:outline-none focus:border-[var(--color-accent)]"
               placeholder={$t('common.advancedQuery.placeholder.min') as string}
             />
-            <span class="text-[10px] text-[var(--color-text-light)]">~</span>
+            <span class="text-xs text-[var(--color-text-light)]">~</span>
             <input
               type={inputType}
               value={rightValue}
@@ -325,7 +340,7 @@ export default defineComponent({
                         : raw
                 handleValueChange([values[0], next])
               }}
-              class="w-20 px-1.5 py-1 text-[10px] bg-[var(--color-bg-body)] border border-[var(--color-border)] rounded focus:outline-none focus:border-[var(--color-accent)]"
+              class="w-20 px-2 py-1 text-xs bg-[var(--color-bg-body)] border border-[var(--color-border)] rounded focus:outline-none focus:border-[var(--color-accent)]"
               placeholder={$t('common.advancedQuery.placeholder.max') as string}
             />
           </div>
@@ -366,7 +381,7 @@ export default defineComponent({
             {values.map((v, idx) => (
               <span
                 key={`${String(v)}_${idx}`}
-                class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[var(--color-border)]/50 text-[10px] text-[var(--color-text)]"
+                class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--color-border)]/50 text-xs text-[var(--color-text)]"
               >
                 {String(v)}
                 <button
@@ -396,7 +411,7 @@ export default defineComponent({
                   removeAt(values.length - 1)
                 }
               }}
-              class="min-w-20 flex-1 px-1.5 py-1 text-[10px] bg-[var(--color-bg-body)] border border-[var(--color-border)] rounded focus:outline-none focus:border-[var(--color-accent)]"
+              class="min-w-20 flex-1 px-2 py-1 text-xs bg-[var(--color-bg-body)] border border-[var(--color-border)] rounded focus:outline-none focus:border-[var(--color-accent)]"
               placeholder={$t('common.advancedQuery.placeholder.tagInput') as string}
               autofocus
             />
@@ -411,15 +426,15 @@ export default defineComponent({
           : currentField.type === FieldType.DATE
             ? 'date'
             : currentField.type === FieldType.DATETIME
-                ? 'datetime-local'
-                : 'text'
+              ? 'datetime-local'
+              : 'text'
 
       const inputValue =
         currentField.type === FieldType.DATE && typeof props.condition.value === 'number'
           ? formatDateInputValue(props.condition.value)
           : currentField.type === FieldType.DATETIME && typeof props.condition.value === 'number'
             ? formatDateTimeInputValue(props.condition.value)
-            : (props.condition.value as string | number | undefined) ?? ''
+            : ((props.condition.value as string | number | undefined) ?? '')
 
       return (
         <input
@@ -442,7 +457,7 @@ export default defineComponent({
           onKeydown={(e) => {
             if ((e as KeyboardEvent).key === 'Enter') close()
           }}
-          class="w-32 px-1.5 py-1 text-[10px] bg-[var(--color-bg-body)] border border-[var(--color-border)] rounded focus:outline-none focus:border-[var(--color-accent)]"
+          class="w-32 px-2 py-1 text-xs bg-[var(--color-bg-body)] border border-[var(--color-border)] rounded focus:outline-none focus:border-[var(--color-accent)]"
           placeholder={$t('common.advancedQuery.placeholder.input') as string}
           autofocus
         />
@@ -455,7 +470,7 @@ export default defineComponent({
 
       return (
         <div ref={pillRef} class="relative inline-flex">
-          <div class="group inline-flex items-center h-6 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-full text-[11px] overflow-hidden hover:border-[var(--color-accent)] transition-colors cursor-pointer">
+          <div class="group inline-flex items-center h-6 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-full text-xs overflow-hidden hover:border-[var(--color-accent)] transition-colors cursor-pointer">
             <button
               type="button"
               onClick={() => openEditor('field')}
@@ -515,17 +530,22 @@ export default defineComponent({
               aria-label={$t('common.action.delete') as string}
             >
               <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
 
           {isOpen.value && (
             <div class="absolute top-full left-0 mt-1 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-lg shadow-lg z-50 min-w-40">
-              <div class="p-1.5">
+              <div class="p-2">
                 {editingPart.value === 'field' && (
-                  <div class="space-y-0.5">
-                    <div class="px-2 py-1 text-[9px] text-[var(--color-text-light)] uppercase tracking-wide">
+                  <div class="space-y-1">
+                    <div class="px-2 py-1 text-xs text-[var(--color-text-light)] uppercase tracking-wide">
                       {$t('common.advancedQuery.dropdown.selectFieldTitle')}
                     </div>
                     {props.fields.map((f) => (
@@ -534,7 +554,7 @@ export default defineComponent({
                         type="button"
                         onClick={() => handleFieldChange(f.key)}
                         class={[
-                          'w-full text-left px-2 py-1 text-[11px] rounded transition-colors',
+                          'w-full text-left px-2 py-1 text-xs rounded transition-colors',
                           props.condition.field === f.key
                             ? 'bg-[var(--color-accent)] text-white'
                             : 'hover:bg-[var(--color-border)]',
@@ -547,8 +567,8 @@ export default defineComponent({
                 )}
 
                 {editingPart.value === 'op' && (
-                  <div class="space-y-0.5">
-                    <div class="px-2 py-1 text-[9px] text-[var(--color-text-light)] uppercase tracking-wide">
+                  <div class="space-y-1">
+                    <div class="px-2 py-1 text-xs text-[var(--color-text-light)] uppercase tracking-wide">
                       {$t('common.advancedQuery.dropdown.selectOperatorTitle')}
                     </div>
                     <div class="max-h-40 overflow-y-auto">
@@ -558,7 +578,7 @@ export default defineComponent({
                           type="button"
                           onClick={() => handleOpChange(op)}
                           class={[
-                            'w-full text-left px-2 py-1 text-[11px] rounded transition-colors',
+                            'w-full text-left px-2 py-1 text-xs rounded transition-colors',
                             props.condition.op === op
                               ? 'bg-[var(--color-accent)] text-white'
                               : 'hover:bg-[var(--color-border)]',
@@ -572,8 +592,8 @@ export default defineComponent({
                 )}
 
                 {editingPart.value === 'value' && (
-                  <div class="space-y-0.5">
-                    <div class="px-2 py-1 text-[9px] text-[var(--color-text-light)] uppercase tracking-wide">
+                  <div class="space-y-1">
+                    <div class="px-2 py-1 text-xs text-[var(--color-text-light)] uppercase tracking-wide">
                       {$t('common.advancedQuery.dropdown.inputValueTitle')}
                     </div>
                     {renderValueEditor()}

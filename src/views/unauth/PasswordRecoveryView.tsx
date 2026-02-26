@@ -28,7 +28,9 @@ export default defineComponent({
     const useSMSCode = sendSMSCode()
 
     const sendBtnLabel = computed(() =>
-      formData.value.phone ? getSendBtnLabelText(formData.value.phone).value : t('common.action.send'),
+      formData.value.phone
+        ? getSendBtnLabelText(formData.value.phone).value
+        : t('common.action.send'),
     )
 
     const canSendCode = computed(() => {
@@ -74,7 +76,7 @@ export default defineComponent({
           class="flex items-center gap-1 text-[var(--color-text-light)] hover:text-[var(--color-text-main)] mb-6 transition-colors"
           onClick={() => router.push({ name: 'login' })}
         >
-          <ArrowBackOutline class="w-4 h-4" />
+          <ArrowBackOutline style={{ width: 'var(--spacing-16)', height: 'var(--spacing-16)' }} />
           <span class="text-sm">{t('auth.action.backToLogin')}</span>
         </button>
 
@@ -126,7 +128,9 @@ export default defineComponent({
               v-model:value={formData.value.dbCheckPassword}
               type="password"
               showPasswordOn="click"
-              placeholder={t('common.placeholder.input', { label: t('auth.field.confirmNewPassword') })}
+              placeholder={t('common.placeholder.input', {
+                label: t('auth.field.confirmNewPassword'),
+              })}
               size="large"
             />
           </NFormItem>
