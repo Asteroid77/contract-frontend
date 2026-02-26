@@ -12,7 +12,7 @@ type ServiceAgreementPageResult = {
   total: number
 }
 
-const { pageResultRef, isPendingRef, refetchSpy, routerPushSpy } = vi.hoisted(() => ({
+const { pageResultRef, isPendingRef, refetchSpy, routerPushSpy, isMobileRef } = vi.hoisted(() => ({
   pageResultRef: {
     value: {
       records: [
@@ -29,6 +29,9 @@ const { pageResultRef, isPendingRef, refetchSpy, routerPushSpy } = vi.hoisted(()
   },
   refetchSpy: vi.fn(),
   routerPushSpy: vi.fn(),
+  isMobileRef: {
+    value: false,
+  },
 }))
 
 vi.mock('@/_utils/i18n', () => ({
@@ -39,6 +42,10 @@ vi.mock('vue-router', () => ({
   useRouter: () => ({
     push: routerPushSpy,
   }),
+}))
+
+vi.mock('@/app/presentation/hooks/useIsMobile', () => ({
+  useIsMobile: vi.fn(() => isMobileRef),
 }))
 
 vi.mock('naive-ui', () => ({
@@ -67,9 +74,14 @@ vi.mock('naive-ui', () => ({
         type: Function,
         required: false,
       },
+      size: {
+        type: String,
+        required: false,
+      },
     },
     setup(props, { slots }) {
-      return () => h('button', { onClick: props.onClick }, slots.default?.())
+      return () =>
+        h('button', { onClick: props.onClick, 'data-size': props.size }, slots.default?.())
     },
   }),
 }))
@@ -108,7 +120,11 @@ vi.mock('@/modules/service-agreement/presentation/sign/ServiceAgreementPage', ()
             'data-rows': String((props.data || []).length),
             'data-loading': String(Boolean(props.loading)),
           },
-          [slots.actions?.(((props.data as ServiceAgreementRow[] | undefined)?.[0] ?? {}) as never)],
+          [
+            slots.actions?.(
+              ((props.data as ServiceAgreementRow[] | undefined)?.[0] ?? {}) as never,
+            ),
+          ],
         )
     },
   }),
@@ -129,6 +145,7 @@ describe('ServiceAgreementPageView', () => {
       total: 1,
     }
     isPendingRef.value = false
+    isMobileRef.value = false
   })
 
   it('passes table data and loading state to ServiceAgreementPage', () => {
@@ -141,7 +158,9 @@ describe('ServiceAgreementPageView', () => {
 
   it('clicking search button calls refetch', async () => {
     const wrapper = mount(ServiceAgreementPageView)
-    const searchBtn = wrapper.findAll('button').find((button) => button.text() === 'common.action.search')
+    const searchBtn = wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'common.action.search')
 
     if (!searchBtn) {
       throw new Error('search button missing')
@@ -152,9 +171,25 @@ describe('ServiceAgreementPageView', () => {
     expect(refetchSpy).toHaveBeenCalledTimes(1)
   })
 
+  it('uses a smaller search button size on mobile', () => {
+    isMobileRef.value = true
+    const wrapper = mount(ServiceAgreementPageView)
+    const searchBtn = wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'common.action.search')
+
+    if (!searchBtn) {
+      throw new Error('search button missing')
+    }
+
+    expect(searchBtn.attributes('data-size')).toBe('small')
+  })
+
   it('edit action navigates to sign route with mode and id', async () => {
     const wrapper = mount(ServiceAgreementPageView)
-    const editBtn = wrapper.findAll('button').find((button) => button.text() === 'common.action.edit')
+    const editBtn = wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'common.action.edit')
 
     if (!editBtn) {
       throw new Error('edit button missing')
@@ -173,7 +208,9 @@ describe('ServiceAgreementPageView', () => {
 
   it('detail action navigates to sign route with detail mode', async () => {
     const wrapper = mount(ServiceAgreementPageView)
-    const detailBtn = wrapper.findAll('button').find((button) => button.text() === 'common.action.view')
+    const detailBtn = wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'common.action.view')
 
     if (!detailBtn) {
       throw new Error('detail button missing')
@@ -202,7 +239,9 @@ describe('ServiceAgreementPageView', () => {
     }
 
     const wrapper = mount(ServiceAgreementPageView)
-    const editBtn = wrapper.findAll('button').find((button) => button.text() === 'common.action.edit')
+    const editBtn = wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'common.action.edit')
 
     if (!editBtn) {
       throw new Error('edit button missing')
