@@ -21,7 +21,7 @@ export default defineComponent({
     }
 
     return () => (
-      <>
+      <div class="sa-form-grid">
         {/* 所有的价格相关逻辑都被这一个组件取代了！ */}
         <PriceGroupWidget
           // 手动切片，只传递 PriceGroupWidget 需要的数据
@@ -59,7 +59,7 @@ export default defineComponent({
             onUpdate:value={(val) => updateModel({ servicePointSpecifications: val })}
           />
         </NFormItem>
-      </>
+      </div>
     )
   },
 })

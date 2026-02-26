@@ -14,6 +14,7 @@ import { WarningOutlined } from '@vicons/antd'
 import type { ValidateError } from '@/types/vendor/naive-ui'
 import { createServiceAgreementRules } from '@/modules/service-agreement/application/validation'
 import FormSkeleton from '@/modules/shared/presentation/widget/FormSkeleton'
+import './styles/SignFormGrid.css'
 
 export default defineComponent({
   props: {

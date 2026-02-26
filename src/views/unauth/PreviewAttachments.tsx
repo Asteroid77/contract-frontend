@@ -9,6 +9,7 @@ import clsx from 'clsx'
 import { NButton, NForm, NInput, NResult, type FormInst } from 'naive-ui'
 import { computed, ref, type PropType } from 'vue'
 import { defineComponent } from 'vue'
+import './PreviewAttachments.css'
 
 export default defineComponent({
   props: {
@@ -29,7 +30,6 @@ export default defineComponent({
     const preview = usePreviewAttachments(requestParameters, enableQuery)
     const access = () => {
       formRef.value?.validate((errors) => {
-        console.log('errors', errors)
         if (!errors || !errors?.length) {
           enableQuery.value = true
         }
@@ -67,14 +67,23 @@ export default defineComponent({
             class={clsx('w-full', 'h-full', '  ')}
             v-slots={{
               footer: () => (
-                <NForm model={formData.value} rules={previewAttachmentsRule} ref={formRef}>
+                <NForm
+                  model={formData.value}
+                  rules={previewAttachmentsRule}
+                  ref={formRef}
+                  class="preview-attachments-form-grid"
+                >
                   <AppFormItem label={$t('domain.agreement.print.code')} path={'code'}>
                     <NInput
                       value={formData.value.code}
                       onUpdateValue={(e) => (formData.value.code = e)}
                     ></NInput>
                   </AppFormItem>
-                  <NButton onClick={access} loading={preview.isLoading.value}>
+                  <NButton
+                    onClick={access}
+                    loading={preview.isLoading.value}
+                    class="preview-attachments-form-grid__submit"
+                  >
                     {$t('domain.agreement.preview.accessAction')}
                   </NButton>
                 </NForm>

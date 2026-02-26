@@ -11,6 +11,7 @@ import PCACascader from '@/modules/shared/presentation/widget/PCACascader'
 import BankSelect from '@/modules/shared/presentation/widget/BankSelect'
 import type { FormValidate } from 'naive-ui/lib/form/src/interface'
 import { useSubscribeForm } from '@/modules/shared/application/form/useSubscribeForm'
+import './UserAdditionalInfoForm.css'
 
 export const userAdditionalInfoFormProps = {
   initialValue: {
@@ -59,49 +60,97 @@ export default defineComponent({
     expose(exposeDefined)
     const legalRepresentativeGroup = () => (
       <>
-        <NFormItem label={$t('domain.user.field.companyName')} path="name">
+        <NFormItem
+          class="user-additional-info-form__item"
+          label={$t('domain.user.field.companyName')}
+          path="name"
+        >
           <NInput v-model:value={formValue.value.name}></NInput>
         </NFormItem>
-        <NFormItem label={$t('domain.user.field.region')} path="pca">
+        <NFormItem
+          class="user-additional-info-form__item user-additional-info-form__item--full"
+          label={$t('domain.user.field.region')}
+          path="pca"
+        >
           <PCACascader v-model:value={formValue.value.pca}></PCACascader>
         </NFormItem>
-        <NFormItem label={$t('domain.user.field.companyAddress')} path="companyAddress">
+        <NFormItem
+          class="user-additional-info-form__item user-additional-info-form__item--full"
+          label={$t('domain.user.field.companyAddress')}
+          path="companyAddress"
+        >
           <NInput v-model:value={formValue.value.companyAddress} />
         </NFormItem>
-        <NFormItem label={$t('domain.user.field.contactPerson')} path="contactPerson">
+        <NFormItem
+          class="user-additional-info-form__item"
+          label={$t('domain.user.field.contactPerson')}
+          path="contactPerson"
+        >
           <NInput v-model:value={formValue.value.contactPerson} />
         </NFormItem>
-        <NFormItem label={$t('domain.user.field.contactPhone')} path="contactPersonPhone">
+        <NFormItem
+          class="user-additional-info-form__item"
+          label={$t('domain.user.field.contactPhone')}
+          path="contactPersonPhone"
+        >
           <NInput v-model:value={formValue.value.contactPersonPhone} />
         </NFormItem>
-        <NFormItem label={$t('domain.user.field.usci')} path="identity">
+        <NFormItem
+          class="user-additional-info-form__item"
+          label={$t('domain.user.field.usci')}
+          path="identity"
+        >
           <NInput v-model:value={formValue.value.identity} />
         </NFormItem>
       </>
     )
     const individualGroup = () => (
       <>
-        <NFormItem label={$t('domain.user.field.name')} path="name">
+        <NFormItem
+          class="user-additional-info-form__item"
+          label={$t('domain.user.field.name')}
+          path="name"
+        >
           <NInput v-model:value={formValue.value.name}></NInput>
         </NFormItem>
-        <NFormItem label={$t('domain.user.field.region')} path="pca">
+        <NFormItem
+          class="user-additional-info-form__item user-additional-info-form__item--full"
+          label={$t('domain.user.field.region')}
+          path="pca"
+        >
           <PCACascader v-model:value={formValue.value.pca}></PCACascader>
         </NFormItem>
-        <NFormItem label={$t('domain.user.field.identity')} path="identity">
+        <NFormItem
+          class="user-additional-info-form__item"
+          label={$t('domain.user.field.identity')}
+          path="identity"
+        >
           <NInput v-model:value={formValue.value.identity} />
         </NFormItem>
       </>
     )
     const commonBottomGroup = () => (
       <>
-        <NFormItem label={$t('domain.user.field.bankName')} path="bankName">
+        <NFormItem
+          class="user-additional-info-form__item"
+          label={$t('domain.user.field.bankName')}
+          path="bankName"
+        >
           <BankSelect v-model:value={formValue.value.bankName}></BankSelect>
         </NFormItem>
-        <NFormItem label={$t('domain.user.field.bankAccount')} path="bankAccount">
+        <NFormItem
+          class="user-additional-info-form__item"
+          label={$t('domain.user.field.bankAccount')}
+          path="bankAccount"
+        >
           <NInput v-model:value={formValue.value.bankAccount}></NInput>
         </NFormItem>
         {isNew.value && (
-          <NFormItem label={$t('domain.user.field.invitationCode')} path="invitationCode">
+          <NFormItem
+            class="user-additional-info-form__item"
+            label={$t('domain.user.field.invitationCode')}
+            path="invitationCode"
+          >
             <NInput v-model:value={formValue.value.invitationCode}></NInput>
           </NFormItem>
         )}
@@ -109,8 +158,18 @@ export default defineComponent({
     )
     return () => (
       <>
-        <NForm ref="formRef" rules={validation.rules} model={formValue.value} disabled={props.type === 'detail'}>
-          <NFormItem label={$t('auth.register.type')} path="registerType">
+        <NForm
+          ref="formRef"
+          rules={validation.rules}
+          model={formValue.value}
+          disabled={props.type === 'detail'}
+          class="user-additional-info-form"
+        >
+          <NFormItem
+            class="user-additional-info-form__item"
+            label={$t('auth.register.type')}
+            path="registerType"
+          >
             <NSelect
               v-model:value={formValue.value.registerType}
               options={RegisterTypeOption}

@@ -1,0 +1,64 @@
+.sa-form-grid {
+  container-name: sa-form-grid;
+  container-type: inline-size;
+  --sa-form-control-max-inline-size: 28rem;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--spacing-16);
+  row-gap: var(--spacing-16);
+}
+
+.sa-form-grid > :where(:not(.n-form-item)) {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.sa-form-grid :where(.n-form-item) {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  column-gap: var(--spacing-16);
+  margin-bottom: 0;
+}
+
+.sa-form-grid :where(.n-form-item .n-form-item-label) {
+  grid-column: span 4;
+}
+
+.sa-form-grid :where(.n-form-item .n-form-item-blank) {
+  grid-column: span 8;
+  min-width: 0;
+}
+
+.sa-form-grid
+  :where(
+    .n-form-item .n-form-item-blank > .n-input,
+    .n-form-item .n-form-item-blank > .n-input-number,
+    .n-form-item .n-form-item-blank > .n-select,
+    .n-form-item .n-form-item-blank > .n-cascader,
+    .n-form-item .n-form-item-blank > .n-date-picker,
+    .n-form-item .n-form-item-blank > .n-time-picker,
+    .n-form-item .n-form-item-blank > .n-auto-complete
+  ) {
+  max-inline-size: var(--sa-form-control-max-inline-size);
+}
+
+@container sa-form-grid (max-width: 48rem) {
+  .sa-form-grid :where(.n-form-item .n-form-item-label),
+  .sa-form-grid :where(.n-form-item .n-form-item-blank) {
+    grid-column: 1 / -1;
+  }
+
+  .sa-form-grid
+    :where(
+      .n-form-item .n-form-item-blank > .n-input,
+      .n-form-item .n-form-item-blank > .n-input-number,
+      .n-form-item .n-form-item-blank > .n-select,
+      .n-form-item .n-form-item-blank > .n-cascader,
+      .n-form-item .n-form-item-blank > .n-date-picker,
+      .n-form-item .n-form-item-blank > .n-time-picker,
+      .n-form-item .n-form-item-blank > .n-auto-complete
+    ) {
+    max-inline-size: 100%;
+  }
+}

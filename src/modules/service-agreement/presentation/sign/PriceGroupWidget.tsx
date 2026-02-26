@@ -72,7 +72,7 @@ export default defineComponent({
     )
 
     return () => (
-      <>
+      <div class="sa-form-grid">
         <AppFormItem
           label={$t('domain.agreement.field.priceModel')}
           path={`${props.path}.priceModel`}
@@ -134,7 +134,10 @@ export default defineComponent({
         )}
 
         {showFixedPrice.value && (
-          <AppFormItem label={$t('domain.agreement.field.fixedPrice')} path={`${props.path}.fixedPrice`}>
+          <AppFormItem
+            label={$t('domain.agreement.field.fixedPrice')}
+            path={`${props.path}.fixedPrice`}
+          >
             <NInputNumber
               class="w-full"
               value={Number(props.modelValue.fixedPrice)}
@@ -169,7 +172,7 @@ export default defineComponent({
             />
           </AppFormItem>
         )}
-      </>
+      </div>
     )
   },
 })

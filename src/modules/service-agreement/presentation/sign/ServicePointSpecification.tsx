@@ -2,7 +2,10 @@ import { $t } from '@/_utils/i18n'
 import type { ServicePointSpecification } from '@/modules/service-agreement/application/models'
 import { NForm, NInput, NSelect, type FormInst } from 'naive-ui'
 import { ref } from 'vue'
-import { UsageCategoryOption, VoltageLevelOptions } from '@/modules/service-agreement/application/constants'
+import {
+  UsageCategoryOption,
+  VoltageLevelOptions,
+} from '@/modules/service-agreement/application/constants'
 import {
   serviceAccountRule,
   transformerCapacityRule,
@@ -13,6 +16,7 @@ import { CapacityOptions } from '@/modules/service-agreement/application/transfo
 import { cloneDeep } from 'lodash'
 import { dialog } from '@/_utils/discrete_naive_api'
 import AppFormItem from '@/modules/shared/presentation/widget/AppFormItem'
+import './styles/SignFormGrid.css'
 
 export function motivateSPS(
   callback: (formValue: ServicePointSpecification) => void | false | true,
@@ -38,7 +42,7 @@ export function motivateSPS(
     maskClosable: true,
     onPositiveClick: handlePositiveClick,
     content: () => (
-      <NForm model={formData.value} ref={formRef}>
+      <NForm model={formData.value} ref={formRef} class="sa-form-grid">
         <AppFormItem
           rule={serviceAccountRule}
           label={$t('domain.servicePoint.field.accountNo')}

@@ -32,7 +32,7 @@ export default defineComponent({
     }
 
     return () => (
-      <>
+      <div class="sa-form-grid">
         {/* 签约状态 */}
         <AppFormItem label={$t('common.label.status')} path={`${props.path}.status`}>
           <NSelect
@@ -43,7 +43,10 @@ export default defineComponent({
         </AppFormItem>
 
         {/* 企业名称 */}
-        <AppFormItem label={$t('domain.agreement.field.companyName')} path={`${props.path}.companyName`}>
+        <AppFormItem
+          label={$t('domain.agreement.field.companyName')}
+          path={`${props.path}.companyName`}
+        >
           <NInput
             value={props.modelValue.companyName}
             onUpdate:value={(val) => updateModel({ companyName: val })}
@@ -78,7 +81,10 @@ export default defineComponent({
         </AppFormItem>
 
         {/* 联系人 */}
-        <AppFormItem label={$t('domain.agreement.field.contact')} path={`${props.path}.liaisonName`}>
+        <AppFormItem
+          label={$t('domain.agreement.field.contact')}
+          path={`${props.path}.liaisonName`}
+        >
           <NInput
             value={props.modelValue.liaisonName}
             onUpdate:value={(val) => updateModel({ liaisonName: val })}
@@ -86,10 +92,7 @@ export default defineComponent({
         </AppFormItem>
 
         {/* 联系人电话 */}
-        <AppFormItem
-          label={$t('domain.agreement.field.phone')}
-          path={`${props.path}.liaisonPhone`}
-        >
+        <AppFormItem label={$t('domain.agreement.field.phone')} path={`${props.path}.liaisonPhone`}>
           <NInput
             value={props.modelValue.liaisonPhone}
             onUpdate:value={(val) => updateModel({ liaisonPhone: val })}
@@ -142,7 +145,7 @@ export default defineComponent({
             type="textarea"
           />
         </AppFormItem>
-      </>
+      </div>
     )
   },
 })

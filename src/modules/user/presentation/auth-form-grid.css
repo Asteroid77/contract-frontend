@@ -1,0 +1,37 @@
+.auth-form-grid {
+  container-name: auth-form-grid;
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--spacing-16);
+  row-gap: var(--spacing-16);
+}
+
+.auth-form-grid > :where(:not(.n-form-item)) {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.auth-form-grid :where(.n-form-item) {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  column-gap: var(--spacing-16);
+  margin-bottom: 0;
+}
+
+.auth-form-grid :where(.n-form-item .n-form-item-label) {
+  grid-column: span 4;
+}
+
+.auth-form-grid :where(.n-form-item .n-form-item-blank) {
+  grid-column: span 8;
+  min-width: 0;
+}
+
+@container auth-form-grid (max-width: 48rem) {
+  .auth-form-grid :where(.n-form-item .n-form-item-label),
+  .auth-form-grid :where(.n-form-item .n-form-item-blank) {
+    grid-column: 1 / -1;
+  }
+}

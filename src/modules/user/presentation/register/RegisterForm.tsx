@@ -15,6 +15,7 @@ import { RouterLink } from 'vue-router'
 import { useSMS } from '@/modules/captcha/application/hooks/useSMS'
 import type { FormInst } from 'naive-ui/lib'
 import { $t } from '@/_utils/i18n'
+import '@/modules/user/presentation/auth-form-grid.css'
 const { getSendBtnLabelText, getSMSCoolDownSecond, sendSMSCode } = useSMS()
 export default defineComponent({
   props: {
@@ -65,7 +66,14 @@ export default defineComponent({
           ref="formRef"
           model={formData.value}
           rules={validation.rules}
-          class={clsx('login-form', 'bg-background', 'p-section', 'sm:mb-section', 'sm:rounded-lg')}
+          class={clsx(
+            'login-form',
+            'auth-form-grid',
+            'bg-background',
+            'p-section',
+            'sm:mb-section',
+            'sm:rounded-lg',
+          )}
         >
           <h2
             class={clsx('mb-content', 'text-center', 'text-3xl', 'font-medium', 'text-gray-800')}

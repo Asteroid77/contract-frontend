@@ -17,6 +17,7 @@ import { RouterLink } from 'vue-router'
 import type { FormInst } from 'naive-ui/lib'
 import { createSignInModel } from '@/modules/user/application/ui-mappers'
 import { $t } from '@/_utils/i18n'
+import '@/modules/user/presentation/auth-form-grid.css'
 
 export default defineComponent({
   props: {
@@ -64,7 +65,7 @@ export default defineComponent({
           ref="formRef"
           model={formData.value}
           rules={validation.rules}
-          class={clsx('flex', 'flex-col', 'sm:mb-content', 'sm:rounded-lg')}
+          class={clsx('auth-form-grid', 'flex', 'flex-col', 'sm:mb-content', 'sm:rounded-lg')}
         >
           <NFormItem path="phone" label={$t('auth.field.phone')}>
             <NInput

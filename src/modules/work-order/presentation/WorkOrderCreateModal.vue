@@ -28,7 +28,9 @@ const categoryId = ref<number | undefined>(undefined)
 const title = ref('')
 const content = ref('')
 
-const canSubmit = computed(() => !!categoryId.value && !!title.value.trim() && !!content.value.trim())
+const canSubmit = computed(
+  () => !!categoryId.value && !!title.value.trim() && !!content.value.trim(),
+)
 
 const handleClose = () => {
   emit('update:show', false)
@@ -61,18 +63,26 @@ const handleSubmit = () => {
     <n-card
       :title="$t('domain.workOrder.action.create')"
       :bordered="false"
-      style="width: 720px; max-width: 90vw"
+      class="work-order-create-modal-card"
       closable
       @close="handleClose"
     >
-      <n-form label-placement="top">
+      <n-form class="work-order-create-form-grid">
         <n-form-item :label="$t('domain.workOrder.field.category')">
-          <WorkOrderCategorySelect v-model:value="categoryId" :showSearch="true" :showEdit="true" :showDelete="true" :showAdd="true"/>
+          <WorkOrderCategorySelect
+            v-model:value="categoryId"
+            :showSearch="true"
+            :showEdit="true"
+            :showDelete="true"
+            :showAdd="true"
+          />
         </n-form-item>
         <n-form-item :label="$t('domain.workOrder.field.title')">
           <n-input
             v-model:value="title"
-            :placeholder="$t('common.placeholder.input', { label: $t('domain.workOrder.field.title') })"
+            :placeholder="
+              $t('common.placeholder.input', { label: $t('domain.workOrder.field.title') })
+            "
             maxlength="100"
             show-count
           />
@@ -103,3 +113,44 @@ const handleSubmit = () => {
     </n-card>
   </n-modal>
 </template>
+
+<style scoped>
+.work-order-create-modal-card {
+  inline-size: 45rem;
+  max-inline-size: 90vw;
+}
+
+.work-order-create-form-grid {
+  container-name: work-order-create-form-grid;
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--spacing-16);
+  row-gap: var(--spacing-16);
+}
+
+.work-order-create-form-grid :deep(.n-form-item) {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  column-gap: var(--spacing-16);
+  margin-bottom: 0;
+}
+
+.work-order-create-form-grid :deep(.n-form-item .n-form-item-label) {
+  grid-column: span 4;
+  margin-bottom: 0;
+}
+
+.work-order-create-form-grid :deep(.n-form-item .n-form-item-blank) {
+  grid-column: span 8;
+  min-width: 0;
+}
+
+@container work-order-create-form-grid (max-width: 48rem) {
+  .work-order-create-form-grid :deep(.n-form-item .n-form-item-label),
+  .work-order-create-form-grid :deep(.n-form-item .n-form-item-blank) {
+    grid-column: 1 / -1;
+  }
+}
+</style>

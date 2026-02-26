@@ -12,6 +12,7 @@ import {
 import { useCategoryRules } from '../application/rules/categoryRules'
 import { can } from '@/modules/access/application/ability'
 import type { WorkOrderCategoryForm } from '../domain/types'
+import './WorkOrderCategorySelect.css'
 
 export default defineComponent({
   name: 'WorkOrderCategorySelect',
@@ -60,7 +61,7 @@ export default defineComponent({
               },
               model: formValue.value,
               rules,
-              labelPlacement: 'top',
+              class: 'work-order-category-form-grid',
             },
             {
               default: () => [

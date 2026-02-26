@@ -1,0 +1,39 @@
+.preview-attachments-form-grid {
+  container-name: preview-attachments-form-grid;
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--spacing-16);
+  row-gap: var(--spacing-16);
+}
+
+.preview-attachments-form-grid :where(.n-form-item) {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  column-gap: var(--spacing-16);
+  margin-bottom: 0;
+}
+
+.preview-attachments-form-grid :where(.n-form-item .n-form-item-label) {
+  grid-column: span 4;
+  margin-bottom: 0;
+}
+
+.preview-attachments-form-grid :where(.n-form-item .n-form-item-blank) {
+  grid-column: span 8;
+  min-width: 0;
+}
+
+.preview-attachments-form-grid__submit {
+  grid-column: 5 / span 8;
+  justify-self: start;
+}
+
+@container preview-attachments-form-grid (max-width: 48rem) {
+  .preview-attachments-form-grid :where(.n-form-item .n-form-item-label),
+  .preview-attachments-form-grid :where(.n-form-item .n-form-item-blank),
+  .preview-attachments-form-grid__submit {
+    grid-column: 1 / -1;
+  }
+}
