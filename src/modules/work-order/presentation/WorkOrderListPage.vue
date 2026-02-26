@@ -11,19 +11,25 @@ import { computed, h, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
-import { useWorkOrderList, useHandlerWorkOrderList, useHandlerCategories } from '../application/hooks/useWorkOrderService'
+import {
+  useWorkOrderList,
+  useHandlerWorkOrderList,
+  useHandlerCategories,
+} from '../application/hooks/useWorkOrderService'
 import { WorkOrderStatus } from '../domain/enums'
 import type { WorkOrderSummaryVO, WorkOrderListParams } from '../domain/types'
 import WorkOrderStatusBadge from './WorkOrderStatusBadge'
 import WorkOrderCreateModal from './WorkOrderCreateModal.vue'
 import { formatted } from '@/modules/shared/presentation/time'
 import WorkOrderCategorySelect from './WorkOrderCategorySelect'
+import { useIsMobile } from '@/app/presentation/hooks/useIsMobile'
 
 const router = useRouter()
 const { t: $t } = useI18n()
 const accountStore = useAccountStore()
 
 const isHandler = computed(() => accountStore.hasRole('work_order_handler'))
+const isMobile = useIsMobile(768)
 
 const showCreateModal = ref(false)
 const selectedCategoryId = ref<number | undefined>(undefined)
@@ -81,30 +87,53 @@ const columns = computed<DataTableColumns<Row>>(() => [
     title: $t('domain.workOrder.field.title'),
     key: 'title',
     ellipsis: { tooltip: true },
+    render: (row) =>
+      isMobile.value
+        ? h('div', { class: 'min-w-0' }, [
+            h(
+              'div',
+              { class: 'text-sm font-medium text-[var(--color-text-main)] truncate' },
+              row.title,
+            ),
+            h(
+              'div',
+              { class: 'text-xs text-[var(--color-text-light)] truncate mt-1' },
+              `${row.categoryName || '-'} · ${formatted(row.createdTime).standard}`,
+            ),
+          ])
+        : row.title,
   },
-  {
-    title: $t('domain.workOrder.field.category'),
-    key: 'categoryName',
-    width: 160,
-  },
+  ...(isMobile.value
+    ? []
+    : [
+        {
+          title: $t('domain.workOrder.field.category'),
+          key: 'categoryName',
+          width: 160,
+        },
+      ]),
   {
     title: $t('domain.workOrder.field.status'),
     key: 'status',
-    width: 120,
+    width: isMobile.value ? 96 : 120,
     render: (row) => h(WorkOrderStatusBadge, { status: row.status }),
   },
-  {
-    title: $t('domain.workOrder.field.score'),
-    key: 'score',
-    width: 80,
-    render: (row) => (row.score != null ? `${row.score}` : '-'),
-  },
-  {
-    title: $t('common.time.created'),
-    key: 'createdTime',
-    width: 180,
-    render: (row) => formatted(row.createdTime).standard,
-  },
+  ...(isMobile.value
+    ? []
+    : [
+        {
+          title: $t('domain.workOrder.field.score'),
+          key: 'score',
+          width: 80,
+          render: (row: Row) => (row.score != null ? `${row.score}` : '-'),
+        },
+        {
+          title: $t('common.time.created'),
+          key: 'createdTime',
+          width: 180,
+          render: (row: Row) => formatted(row.createdTime).standard,
+        },
+      ]),
 ])
 
 const rowProps = (row: Row) => ({
@@ -122,7 +151,13 @@ const handleCreateSuccess = () => {
   <n-space vertical :size="16">
     <n-space justify="space-between" align="center">
       <n-space :size="12" align="center">
-        <WorkOrderCategorySelect v-model:value="selectedCategoryId" :showAdd="true" :showEdit="true" :showDelete="true" :showSearch="true" />
+        <WorkOrderCategorySelect
+          v-model:value="selectedCategoryId"
+          :showAdd="true"
+          :showEdit="true"
+          :showDelete="true"
+          :showSearch="true"
+        />
         <n-select
           v-model:value="selectedStatus"
           :options="statusOptions"

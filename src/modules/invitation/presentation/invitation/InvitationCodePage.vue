@@ -19,9 +19,57 @@ import {
 } from '@/modules/invitation/application/hooks/useInvitationService'
 import { invitationCodeStatus } from '@/modules/invitation/application/constants'
 import { useI18n } from 'vue-i18n'
+import { useIsMobile } from '@/app/presentation/hooks/useIsMobile'
 const { t: $t } = useI18n()
 const invitationListQuery = useInvitationCodeListQuery()
-function createColumns(): DataTableColumns<InvitationCode> {
+const isMobile = useIsMobile(768)
+
+const renderStatusLabel = (row: InvitationCode) => {
+  return row.status === invitationCodeStatus.active
+    ? $t('domain.invitation.status.active')
+    : $t('domain.invitation.status.inactive')
+}
+
+function createColumns(mobile: boolean): DataTableColumns<InvitationCode> {
+  if (mobile) {
+    return [
+      {
+        type: 'selection',
+      },
+      {
+        title: $t('domain.invitation.field.code'),
+        key: 'code',
+        render(row) {
+          return h('div', { class: 'min-w-0' }, [
+            h(
+              'div',
+              { class: 'text-sm font-medium text-[var(--color-text-main)] truncate' },
+              row.code,
+            ),
+            h(
+              'div',
+              { class: 'text-xs text-[var(--color-text-light)] truncate mt-1' },
+              renderStatusLabel(row),
+            ),
+          ])
+        },
+      },
+      {
+        title: $t('common.field.remark'),
+        key: 'remark',
+        render(row) {
+          return h(NInput, {
+            value: row.remark || updateDataMap.value[row.id],
+            placeholder: '',
+            onUpdateValue(v: string) {
+              updateDataMap.value = { ...updateDataMap.value, [row.id]: v }
+            },
+          })
+        },
+      },
+    ]
+  }
+
   return [
     {
       type: 'selection',
@@ -34,9 +82,7 @@ function createColumns(): DataTableColumns<InvitationCode> {
       title: $t('common.label.status'),
       key: 'status',
       render(row) {
-        return row.status === invitationCodeStatus.active
-          ? $t('domain.invitation.status.active')
-          : $t('domain.invitation.status.inactive')
+        return renderStatusLabel(row)
       },
     },
     {
@@ -85,14 +131,13 @@ const deleteFn = () => {
 }
 
 function handleCheck(rowKeys: DataTableRowKey[]) {
-  console.log('rowKeys', rowKeys)
   selectedKeys.value = rowKeys as number[]
 }
 function clean() {
   selectedKeys.value = []
 }
 
-const columns = createColumns()
+const columns = computed(() => createColumns(isMobile.value))
 </script>
 <template>
   <div class="my-content">

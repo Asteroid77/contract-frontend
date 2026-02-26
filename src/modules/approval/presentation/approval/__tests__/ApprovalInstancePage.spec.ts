@@ -203,6 +203,31 @@ vi.mock('@/modules/shared/presentation/advanced-query', () => ({
       return () => h('div', { 'data-test': 'modern-query-builder' })
     },
   }),
+  QueryActionButtons: defineComponent({
+    name: 'QueryActionButtons',
+    emits: ['search', 'reset'],
+    setup(_, { emit }) {
+      return () =>
+        h('div', { 'data-test': 'query-action-buttons' }, [
+          h(
+            'button',
+            {
+              'data-test': 'n-button',
+              onClick: () => emit('search'),
+            },
+            'common.action.search',
+          ),
+          h(
+            'button',
+            {
+              'data-test': 'n-button',
+              onClick: () => emit('reset'),
+            },
+            'common.action.reset',
+          ),
+        ])
+    },
+  }),
 }))
 
 vi.mock('@/modules/approval/presentation/approval/StatusTag', () => ({

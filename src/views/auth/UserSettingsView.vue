@@ -32,6 +32,7 @@ import {
 import type { UserDeviceSession } from '@/modules/user/application/models'
 import { formatted } from '@/modules/shared/presentation/time'
 import TotpSettingsSection from './components/TotpSettingsSection.vue'
+import { useIsMobile } from '@/app/presentation/hooks/useIsMobile'
 
 const { t: $t } = useI18n()
 const { currentTheme, setTheme } = useTheme()
@@ -114,46 +115,93 @@ const localeOptions = [
 ]
 
 const currentLocale = computed(() => language.value)
+const isMobile = useIsMobile(768)
 
-const deviceColumns = computed<DataTableColumns<UserDeviceSession>>(() => [
-  {
-    type: 'selection',
-  },
-  {
-    title: $t('layout.profile.security.devices.field.deviceId'),
-    key: 'deviceId',
-  },
-  {
-    title: $t('layout.profile.security.devices.field.clientIp'),
-    key: 'clientIp',
-    render: (row) => row.clientIp || $t('common.label.unknown'),
-  },
-  {
-    title: $t('layout.profile.security.devices.field.userAgent'),
-    key: 'userAgent',
-    render: (row) => row.userAgent || $t('common.label.unknown'),
-  },
-  {
-    title: $t('layout.profile.security.devices.field.lastActiveAt'),
-    key: 'lastActiveAt',
-    render: (row) => formatted(row.lastActiveAt).standard,
-  },
-  {
-    title: $t('layout.profile.security.devices.field.currentDevice'),
-    key: 'currentDevice',
-    render: (row) =>
-      row.currentDevice
-        ? h(
-            NTag,
-            {
-              type: 'success',
-              bordered: false,
-            },
-            { default: () => $t('layout.profile.security.devices.currentDevice') },
-          )
-        : '-',
-  },
-])
+const renderCurrentDevice = (row: UserDeviceSession) =>
+  row.currentDevice
+    ? h(
+        NTag,
+        {
+          type: 'success',
+          bordered: false,
+        },
+        { default: () => $t('layout.profile.security.devices.currentDevice') },
+      )
+    : '-'
+
+const deviceColumns = computed<DataTableColumns<UserDeviceSession>>(() => {
+  const unknown = $t('common.label.unknown')
+
+  if (isMobile.value) {
+    return [
+      {
+        type: 'selection',
+      },
+      {
+        title: $t('layout.profile.security.devices.field.deviceId'),
+        key: 'deviceId',
+        render: (row) =>
+          h('div', { class: 'min-w-0' }, [
+            h(
+              'div',
+              { class: 'text-sm font-medium text-[var(--color-text-main)] truncate' },
+              row.deviceId || unknown,
+            ),
+            h(
+              'div',
+              { class: 'text-xs text-[var(--color-text-light)] truncate mt-1' },
+              `${$t('layout.profile.security.devices.field.clientIp')}: ${row.clientIp || unknown}`,
+            ),
+            h(
+              'div',
+              { class: 'text-xs text-[var(--color-text-light)] truncate mt-1' },
+              row.userAgent || unknown,
+            ),
+          ]),
+      },
+      {
+        title: $t('layout.profile.security.devices.field.lastActiveAt'),
+        key: 'lastActiveAt',
+        render: (row) => formatted(row.lastActiveAt).standard,
+      },
+      {
+        title: $t('layout.profile.security.devices.field.currentDevice'),
+        key: 'currentDevice',
+        render: (row) => renderCurrentDevice(row),
+      },
+    ]
+  }
+
+  return [
+    {
+      type: 'selection',
+    },
+    {
+      title: $t('layout.profile.security.devices.field.deviceId'),
+      key: 'deviceId',
+    },
+    {
+      title: $t('layout.profile.security.devices.field.clientIp'),
+      key: 'clientIp',
+      render: (row) => row.clientIp || unknown,
+    },
+    {
+      title: $t('layout.profile.security.devices.field.userAgent'),
+      key: 'userAgent',
+      render: (row) => row.userAgent || unknown,
+    },
+    {
+      title: $t('layout.profile.security.devices.field.lastActiveAt'),
+      key: 'lastActiveAt',
+      render: (row) => formatted(row.lastActiveAt).standard,
+    },
+    {
+      title: $t('layout.profile.security.devices.field.currentDevice'),
+      key: 'currentDevice',
+      render: (row) => renderCurrentDevice(row),
+    },
+  ]
+})
 
 const hasSelectedDevices = computed(() => selectedDeviceIds.value.length > 0)
 
@@ -347,20 +395,21 @@ const handleRevokeSelectedDevices = async () => {
         </div>
 
         <div class="w-full">
-          <div class="w-full" style="max-width: 560px">
+          <div class="settings-password-form-shell">
             <n-form
               ref="changePasswordFormRef"
               :model="changePasswordFormValue"
               :rules="changePasswordRules"
-              label-placement="top"
-              class="w-full"
+              class="w-full settings-password-form-grid"
             >
               <n-form-item path="oldPassword" :label="$t('auth.field.oldPassword')">
                 <n-input
                   v-model:value="changePasswordFormValue.oldPassword"
                   type="password"
                   show-password-on="click"
-                  :placeholder="$t('common.placeholder.input', { label: $t('auth.field.oldPassword') })"
+                  :placeholder="
+                    $t('common.placeholder.input', { label: $t('auth.field.oldPassword') })
+                  "
                 />
               </n-form-item>
 
@@ -369,7 +418,9 @@ const handleRevokeSelectedDevices = async () => {
                   v-model:value="changePasswordFormValue.newPassword"
                   type="password"
                   show-password-on="click"
-                  :placeholder="$t('common.placeholder.input', { label: $t('auth.field.newPassword') })"
+                  :placeholder="
+                    $t('common.placeholder.input', { label: $t('auth.field.newPassword') })
+                  "
                 />
               </n-form-item>
 
@@ -378,12 +429,14 @@ const handleRevokeSelectedDevices = async () => {
                   v-model:value="changePasswordFormValue.confirmNewPassword"
                   type="password"
                   show-password-on="click"
-                  :placeholder="$t('common.placeholder.input', { label: $t('auth.field.confirmNewPassword') })"
+                  :placeholder="
+                    $t('common.placeholder.input', { label: $t('auth.field.confirmNewPassword') })
+                  "
                   @keyup.enter="submitChangePassword"
                 />
               </n-form-item>
 
-              <n-flex justify="end" :size="8">
+              <n-flex class="settings-password-form-actions" justify="end" :size="8">
                 <n-button
                   :disabled="changePasswordMutation.isPending.value"
                   @click="resetChangePasswordForm"
@@ -416,10 +469,18 @@ const handleRevokeSelectedDevices = async () => {
         <div class="w-full">
           <n-flex class="mb-3" justify="space-between" align="center" :size="8">
             <div class="text-sm text-[var(--color-text-light)]">
-              {{ $t('layout.profile.security.devices.selectedCount', { count: selectedDeviceIds.length }) }}
+              {{
+                $t('layout.profile.security.devices.selectedCount', {
+                  count: selectedDeviceIds.length,
+                })
+              }}
             </div>
             <n-flex :size="8">
-              <n-button secondary :loading="userDevicesQuery.isFetching.value" @click="handleRefreshDevices">
+              <n-button
+                secondary
+                :loading="userDevicesQuery.isFetching.value"
+                @click="handleRefreshDevices"
+              >
                 {{ $t('layout.profile.security.devices.refreshAction') }}
               </n-button>
               <n-button
@@ -469,3 +530,53 @@ const handleRevokeSelectedDevices = async () => {
     </n-card>
   </n-flex>
 </template>
+
+<style scoped>
+.settings-password-form-shell {
+  width: 100%;
+  max-inline-size: 35rem;
+}
+
+.settings-password-form-grid {
+  container-name: settings-password-form-grid;
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--spacing-16);
+  row-gap: var(--spacing-16);
+}
+
+.settings-password-form-grid :deep(.n-form-item) {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  column-gap: var(--spacing-16);
+  margin-bottom: 0;
+}
+
+.settings-password-form-grid :deep(.n-form-item .n-form-item-label) {
+  grid-column: span 4;
+  margin-bottom: 0;
+}
+
+.settings-password-form-grid :deep(.n-form-item .n-form-item-blank) {
+  grid-column: span 8;
+  min-width: 0;
+}
+
+.settings-password-form-actions {
+  grid-column: 5 / span 8;
+  min-width: 0;
+}
+
+@container settings-password-form-grid (max-width: 48rem) {
+  .settings-password-form-grid :deep(.n-form-item .n-form-item-label),
+  .settings-password-form-grid :deep(.n-form-item .n-form-item-blank) {
+    grid-column: 1 / -1;
+  }
+
+  .settings-password-form-actions {
+    grid-column: 1 / -1;
+  }
+}
+</style>

@@ -5,6 +5,7 @@ import { defineComponent, type PropType, computed } from 'vue'
 import { motivateSPS } from './ServicePointSpecification'
 import { UsageCategoryOption } from '@/modules/service-agreement/application/constants'
 import { message } from '@/_utils/discrete_naive_api'
+import { useIsMobile } from '@/app/presentation/hooks/useIsMobile'
 
 export default defineComponent({
   name: 'service-point-specification-group',
@@ -17,6 +18,11 @@ export default defineComponent({
   emits: ['update:value'],
   setup(props, { emit }) {
     const list = computed(() => props.value || [])
+    const isMobile = useIsMobile(768)
+
+    const usageCategoryLabel = (rowData: ServicePointSpecification) =>
+      UsageCategoryOption.find((item) => item.value === rowData.electricityConsumptionType)
+        ?.label ?? '-'
 
     const updateList = (newList: ServicePointSpecification[]) => {
       emit('update:value', newList)
@@ -35,33 +41,54 @@ export default defineComponent({
       return false
     }
 
-    const columns = computed<DataTableColumns<ServicePointSpecification>>(() => [
-      {
-        type: 'selection',
-      },
-      {
-        title: $t('domain.servicePoint.field.accountNo'),
-        key: 'serviceAccount',
-      },
-      {
-        title: $t('domain.servicePoint.field.capacity'),
-        key: 'transformerCapacity',
-      },
-      {
-        title: $t('domain.servicePoint.field.category'),
-        key: 'electricityConsumptionType',
-        render: (rowData) => {
-          console.log('electricityConsumptionType', rowData?.electricityConsumptionType)
-          return UsageCategoryOption.find(
-            (item) => item.value === rowData.electricityConsumptionType,
-          )?.label
-        },
-      },
-      {
-        title: $t('domain.servicePoint.field.voltage'),
-        key: 'voltageClass',
-      },
-      {
+    const columns = computed<DataTableColumns<ServicePointSpecification>>(() => {
+      const tableColumns: DataTableColumns<ServicePointSpecification> = []
+
+      if (isMobile.value) {
+        tableColumns.push({
+          title: $t('domain.servicePoint.field.accountNo'),
+          key: 'serviceAccount',
+          render: (rowData: ServicePointSpecification) =>
+            (
+              <div class="min-w-0">
+                <div class="text-sm font-medium text-[var(--color-text-main)] truncate">
+                  {rowData.serviceAccount}
+                </div>
+                <div class="text-xs text-[var(--color-text-light)] truncate mt-1">
+                  {usageCategoryLabel(rowData)}
+                </div>
+                <div class="text-xs text-[var(--color-text-light)] truncate mt-1">
+                  {`${$t('domain.servicePoint.field.capacity')}: ${rowData.transformerCapacity} · ${$t('domain.servicePoint.field.voltage')}: ${rowData.voltageClass}`}
+                </div>
+              </div>
+            ) as never,
+        })
+      } else {
+        tableColumns.push(
+          {
+            type: 'selection',
+          },
+          {
+            title: $t('domain.servicePoint.field.accountNo'),
+            key: 'serviceAccount',
+          },
+          {
+            title: $t('domain.servicePoint.field.capacity'),
+            key: 'transformerCapacity',
+          },
+          {
+            title: $t('domain.servicePoint.field.category'),
+            key: 'electricityConsumptionType',
+            render: (rowData: ServicePointSpecification) => usageCategoryLabel(rowData),
+          },
+          {
+            title: $t('domain.servicePoint.field.voltage'),
+            key: 'voltageClass',
+          },
+        )
+      }
+
+      tableColumns.push({
         title: $t('common.action.operate'),
         key: 'action',
         render: (rowData, rowIndex) => (
@@ -101,8 +128,10 @@ export default defineComponent({
             </NButton>
           </NFlex>
         ),
-      },
-    ])
+      })
+
+      return tableColumns
+    })
 
     const handleAdd = () => {
       motivateSPS((formValue) => {

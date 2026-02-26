@@ -36,15 +36,16 @@ const {
   dialogWarningSpy: vi.fn(),
   changePasswordMutateAsyncSpy: vi.fn(),
   changePasswordPendingRef: { value: false },
-  userDevicesDataRef: { value: [
-    {
-      deviceId: 'dev-1',
-      clientIp: '127.0.0.1',
-      userAgent: 'UA',
-      lastActiveAt: '2026-02-10T00:00:00Z',
-      currentDevice: true,
-    },
-  ],
+  userDevicesDataRef: {
+    value: [
+      {
+        deviceId: 'dev-1',
+        clientIp: '127.0.0.1',
+        userAgent: 'UA',
+        lastActiveAt: '2026-02-10T00:00:00Z',
+        currentDevice: true,
+      },
+    ],
   },
   userDevicesLoadingRef: { value: false },
   userDevicesFetchingRef: { value: false },
@@ -252,6 +253,29 @@ vi.mock('naive-ui', () => ({
 
 import UserSettingsView from '@/views/auth/UserSettingsView.vue'
 
+const TotpSettingsSectionStub = defineComponent({
+  name: 'TotpSettingsSection',
+  setup() {
+    return () =>
+      h(
+        'button',
+        {
+          onClick: () => messageInfoSpy('layout.profile.twoFactor.todo'),
+        },
+        'layout.profile.twoFactor.action',
+      )
+  },
+})
+
+const mountView = () =>
+  mount(UserSettingsView, {
+    global: {
+      stubs: {
+        TotpSettingsSection: TotpSettingsSectionStub,
+      },
+    },
+  })
+
 const findButtonByText = (wrapper: VueWrapper, text: string) => {
   const button = wrapper.findAll('button').find((item) => item.text() === text)
   if (!button) {
@@ -288,7 +312,7 @@ describe('UserSettingsView', () => {
   })
 
   it('handles theme and language changes via select components', async () => {
-    const wrapper = mount(UserSettingsView)
+    const wrapper = mountView()
 
     const selects = wrapper.findAll('[data-test="n-select"]')
     await selects[0].trigger('click')
@@ -299,7 +323,7 @@ describe('UserSettingsView', () => {
   })
 
   it('submits change password success path and redirects to login', async () => {
-    const wrapper = mount(UserSettingsView)
+    const wrapper = mountView()
 
     const submitBtn = findButtonByText(wrapper, 'layout.profile.security.changePassword.action')
     await submitBtn.trigger('click')
@@ -316,7 +340,7 @@ describe('UserSettingsView', () => {
   it('shows error message when change password returns false', async () => {
     changePasswordMutateAsyncSpy.mockResolvedValue(false)
 
-    const wrapper = mount(UserSettingsView)
+    const wrapper = mountView()
 
     const submitBtn = findButtonByText(wrapper, 'layout.profile.security.changePassword.action')
     await submitBtn.trigger('click')
@@ -327,7 +351,7 @@ describe('UserSettingsView', () => {
   })
 
   it('refreshes device list via refresh action', async () => {
-    const wrapper = mount(UserSettingsView)
+    const wrapper = mountView()
 
     const refreshBtn = findButtonByText(wrapper, 'layout.profile.security.devices.refreshAction')
     await refreshBtn.trigger('click')
@@ -336,7 +360,7 @@ describe('UserSettingsView', () => {
   })
 
   it('warns when revoking without selected devices', async () => {
-    const wrapper = mount(UserSettingsView)
+    const wrapper = mountView()
 
     const revokeBtn = findButtonByText(wrapper, 'layout.profile.security.devices.revokeAction')
     await revokeBtn.trigger('click')
@@ -346,7 +370,7 @@ describe('UserSettingsView', () => {
   })
 
   it('revokes selected devices after dialog confirmation', async () => {
-    const wrapper = mount(UserSettingsView)
+    const wrapper = mountView()
 
     await wrapper.get('[data-test="select-device"]').trigger('click')
 
@@ -365,11 +389,13 @@ describe('UserSettingsView', () => {
       allowCurrentDevice: false,
     })
     expect(messageSuccessSpy).toHaveBeenCalledWith('layout.profile.security.devices.revokeSuccess')
-    expect(messageWarningSpy).toHaveBeenCalledWith('layout.profile.security.devices.revokeSkippedCurrentDevice')
+    expect(messageWarningSpy).toHaveBeenCalledWith(
+      'layout.profile.security.devices.revokeSkippedCurrentDevice',
+    )
   })
 
   it('handles 2FA and dangerous delete actions', async () => {
-    const wrapper = mount(UserSettingsView)
+    const wrapper = mountView()
 
     const twoFaBtn = findButtonByText(wrapper, 'layout.profile.twoFactor.action')
     await twoFaBtn.trigger('click')

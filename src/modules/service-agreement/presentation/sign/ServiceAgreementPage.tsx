@@ -1,11 +1,12 @@
 import { $t } from '@/_utils/i18n'
 import type { ServiceAgreementPageItem } from '@/modules/service-agreement/application/models'
 import { type DataTableColumns, NDataTable, type PaginationProps } from 'naive-ui'
-import { defineComponent, type PropType } from 'vue'
+import { computed, defineComponent, h, type PropType } from 'vue'
 import areaData from '@/modules/shared/application/constants/PCA.json'
 import { TreeLookup } from '@/modules/shared/presentation/lookup'
 import { ServiceAgreementStatusOption } from '@/modules/service-agreement/application/constants'
 import { SelectLookup } from '@/modules/shared/presentation/lookup'
+import { useIsMobile } from '@/app/presentation/hooks/useIsMobile'
 export default defineComponent({
   name: 'service-agreement-page',
   props: {
@@ -25,7 +26,51 @@ export default defineComponent({
   setup(props, { slots }) {
     const treeLookup = new TreeLookup(areaData)
     const selectLookup = new SelectLookup(ServiceAgreementStatusOption)
-    function createColumns(): DataTableColumns<ServiceAgreementPageItem> {
+    const isMobile = useIsMobile(768)
+
+    function createColumns(mobile: boolean): DataTableColumns<ServiceAgreementPageItem> {
+      if (mobile) {
+        const mobileColumns = [
+          {
+            title: $t('domain.agreement.field.companyName'),
+            key: 'companyName',
+            render: (row: ServiceAgreementPageItem) =>
+              h('div', { class: 'min-w-0' }, [
+                h(
+                  'div',
+                  { class: 'text-sm font-medium text-[var(--color-text-main)] truncate' },
+                  row.companyName,
+                ),
+                h(
+                  'div',
+                  { class: 'text-xs text-[var(--color-text-light)] truncate mt-1' },
+                  treeLookup.getFullPath(row.companyArea),
+                ),
+              ]),
+          },
+          {
+            title: $t('common.label.status'),
+            key: 'status',
+            render: (row: ServiceAgreementPageItem) =>
+              h(
+                'span',
+                { class: 'text-xs text-[var(--color-text-main)]' },
+                selectLookup.getLabel(row.status),
+              ),
+          },
+        ] as DataTableColumns<ServiceAgreementPageItem>
+
+        if (slots.actions) {
+          mobileColumns.push({
+            title: $t('common.action.operate'),
+            key: 'operate',
+            render: (row) => slots.actions!(row),
+          })
+        }
+
+        return mobileColumns
+      }
+
       const baseColumn = [
         {
           title: $t('domain.agreement.field.companyName'),
@@ -64,14 +109,16 @@ export default defineComponent({
       }
       return baseColumn
     }
-    const columns = createColumns()
+    const columns = computed(() => createColumns(isMobile.value))
+
     return () => (
       <>
         <NDataTable
-          columns={columns}
+          columns={columns.value}
           data={props.data}
           pagination={props.pagination}
           bordered={false}
+          singleLine={false}
           loading={props.loading}
         />
       </>

@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest'
-import { defineComponent, h } from 'vue'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { defineComponent, h, nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 
 vi.mock('@/_utils/i18n', () => ({
@@ -86,7 +86,20 @@ const rows = [
   },
 ]
 
+const setViewportWidth = (width: number) => {
+  Object.defineProperty(window, 'innerWidth', {
+    configurable: true,
+    writable: true,
+    value: width,
+  })
+  window.dispatchEvent(new Event('resize'))
+}
+
 describe('ServiceAgreementPage', () => {
+  beforeEach(() => {
+    setViewportWidth(1280)
+  })
+
   it('builds default columns and renders lookup values', () => {
     const wrapper = mount(ServiceAgreementPage, {
       props: {
@@ -114,7 +127,8 @@ describe('ServiceAgreementPage', () => {
         data: rows,
       },
       slots: {
-        actions: (row) => h('span', { 'data-test': 'action-slot' }, String((row as { id: number }).id)),
+        actions: (row) =>
+          h('span', { 'data-test': 'action-slot' }, String((row as { id: number }).id)),
       },
     })
 
@@ -123,5 +137,25 @@ describe('ServiceAgreementPage', () => {
 
     const action = wrapper.get('[data-test="action-slot"]')
     expect(action.text()).toBe('1')
+  })
+
+  it('uses compact columns on mobile viewport', async () => {
+    setViewportWidth(375)
+
+    const wrapper = mount(ServiceAgreementPage, {
+      props: {
+        data: rows,
+      },
+      slots: {
+        actions: (row) =>
+          h('span', { 'data-test': 'action-slot' }, String((row as { id: number }).id)),
+      },
+    })
+
+    await nextTick()
+
+    const table = wrapper.get('[data-test="n-data-table"]')
+    expect(table.attributes('data-columns-len')).toBe('3')
+    expect(table.attributes('data-area')).toBe('')
   })
 })

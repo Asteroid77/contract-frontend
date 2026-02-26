@@ -12,7 +12,7 @@ type ServiceAgreementPageResult = {
   total: number
 }
 
-const { pageResultRef, isPendingRef, refetchSpy, routerPushSpy, isMobileRef } = vi.hoisted(() => ({
+const { pageResultRef, isPendingRef, refetchSpy, routerPushSpy } = vi.hoisted(() => ({
   pageResultRef: {
     value: {
       records: [
@@ -29,9 +29,6 @@ const { pageResultRef, isPendingRef, refetchSpy, routerPushSpy, isMobileRef } = 
   },
   refetchSpy: vi.fn(),
   routerPushSpy: vi.fn(),
-  isMobileRef: {
-    value: false,
-  },
 }))
 
 vi.mock('@/_utils/i18n', () => ({
@@ -42,10 +39,6 @@ vi.mock('vue-router', () => ({
   useRouter: () => ({
     push: routerPushSpy,
   }),
-}))
-
-vi.mock('@/app/presentation/hooks/useIsMobile', () => ({
-  useIsMobile: vi.fn(() => isMobileRef),
 }))
 
 vi.mock('naive-ui', () => ({
@@ -145,7 +138,6 @@ describe('ServiceAgreementPageView', () => {
       total: 1,
     }
     isPendingRef.value = false
-    isMobileRef.value = false
   })
 
   it('passes table data and loading state to ServiceAgreementPage', () => {
@@ -171,18 +163,24 @@ describe('ServiceAgreementPageView', () => {
     expect(refetchSpy).toHaveBeenCalledTimes(1)
   })
 
-  it('uses a smaller search button size on mobile', () => {
-    isMobileRef.value = true
+  it('uses tiny size for search and reset actions from shared query actions', () => {
     const wrapper = mount(ServiceAgreementPageView)
     const searchBtn = wrapper
       .findAll('button')
       .find((button) => button.text() === 'common.action.search')
+    const resetBtn = wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'common.action.reset')
 
     if (!searchBtn) {
       throw new Error('search button missing')
     }
+    if (!resetBtn) {
+      throw new Error('reset button missing')
+    }
 
-    expect(searchBtn.attributes('data-size')).toBe('small')
+    expect(searchBtn.attributes('data-size')).toBe('tiny')
+    expect(resetBtn.attributes('data-size')).toBe('tiny')
   })
 
   it('edit action navigates to sign route with mode and id', async () => {

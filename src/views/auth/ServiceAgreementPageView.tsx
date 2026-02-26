@@ -3,14 +3,16 @@ import { NSpace, NButton, type PaginationProps } from 'naive-ui'
 import ServiceAgreementPage from '@/modules/service-agreement/presentation/sign/ServiceAgreementPage'
 import { useServiceAgreementPage } from '@/modules/service-agreement/application/hooks/useSignService'
 import type { ServiceAgreementPageItem } from '@/modules/service-agreement/application/models'
-import { ModernQueryBuilder } from '@/modules/shared/presentation/advanced-query'
+import {
+  ModernQueryBuilder,
+  QueryActionButtons,
+} from '@/modules/shared/presentation/advanced-query'
 import type { QueryFilters } from '@/modules/shared/domain/query'
 import type { BaseQuery } from '@/modules/shared/application/request/types'
 import { serviceAgreementAdvancedQueryFields } from '@/modules/service-agreement/presentation/sign/serviceAgreementAdvancedQueryFields'
 import { $t } from '@/_utils/i18n'
 import { useRouter } from 'vue-router'
 import type { RouteLocationAsRelativeGeneric } from 'vue-router'
-import { useIsMobile } from '@/app/presentation/hooks/useIsMobile'
 
 type ServiceAgreementQueryFilters = QueryFilters & BaseQuery
 type ServiceAgreementPageRequest = Parameters<typeof useServiceAgreementPage>[0]['value']
@@ -26,7 +28,6 @@ export default defineComponent({
     const appliedQueryFilters = ref<ServiceAgreementQueryFilters | null>(null)
 
     const router = useRouter()
-    const isMobile = useIsMobile(768)
 
     const pagination: PaginationProps = reactive({
       page: 1,
@@ -103,17 +104,11 @@ export default defineComponent({
             onSearch={handleSearch}
             onReset={handleReset}
           />
-          <NSpace>
-            <NButton
-              size={isMobile.value ? 'small' : undefined}
-              type="primary"
-              onClick={() => handleSearch(draftQueryFilters.value)}
-              loading={isPending.value}
-            >
-              {$t('common.action.search')}
-            </NButton>
-            <NButton onClick={handleReset}>{$t('common.action.reset')}</NButton>
-          </NSpace>
+          <QueryActionButtons
+            searchLoading={isPending.value}
+            onSearch={() => handleSearch(draftQueryFilters.value)}
+            onReset={handleReset}
+          />
         </NSpace>
 
         <ServiceAgreementPage

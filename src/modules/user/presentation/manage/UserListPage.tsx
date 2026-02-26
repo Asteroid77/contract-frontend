@@ -12,11 +12,15 @@ import {
 import type { QueryFilters } from '@/modules/shared/domain/query'
 import type { UserPageItem, UserPageRequest } from '@/modules/user/application/models'
 import { useDeleteUser, useUserPage } from '@/modules/user/application/hooks/useUserPage'
-import { ModernQueryBuilder } from '@/modules/shared/presentation/advanced-query'
+import {
+  ModernQueryBuilder,
+  QueryActionButtons,
+} from '@/modules/shared/presentation/advanced-query'
 import { userListAdvancedQueryFields } from './userListAdvancedQueryFields'
 import { RegisterTypeOption } from '@/modules/user/application/constants'
 import { resolvePlatformLabelKey } from '@/modules/user/application/utils/platform'
 import { usePermission } from '@/modules/access/application/hooks/useCan'
+import { useIsMobile } from '@/app/presentation/hooks/useIsMobile'
 
 const normalizeAppliedQuery = (query: QueryFilters): QueryFilters | null =>
   query.filters?.length || query.group ? query : null
@@ -30,6 +34,7 @@ export default defineComponent({
     const canEdit = usePermission('update', 'User')
     const canView = usePermission('read', 'User')
     const canDisable = usePermission('delete', 'User')
+    const isMobile = useIsMobile(768)
 
     const draftQueryFilters = ref<QueryFilters>({})
     const appliedQueryFilters = ref<QueryFilters | null>(null)
@@ -98,100 +103,139 @@ export default defineComponent({
 
     const userActiveLabel = (deleted: boolean) => activationLabel(!deleted)
 
+    const renderOperate = (row: UserPageItem) => {
+      const actionButtons: ReturnType<typeof h>[] = []
+
+      if (canEdit.value) {
+        actionButtons.push(
+          h(
+            NButton,
+            {
+              size: 'small',
+              onClick: () => {
+                router.push({ name: 'manage-user-edit', params: { userId: row.id } })
+              },
+            },
+            { default: () => $t('common.action.edit') },
+          ),
+        )
+      }
+
+      if (canView.value) {
+        actionButtons.push(
+          h(
+            NButton,
+            {
+              size: 'small',
+              onClick: () => {
+                router.push({ name: 'manage-user-detail', params: { userId: row.id } })
+              },
+            },
+            { default: () => $t('common.action.view') },
+          ),
+        )
+      }
+
+      if (canDisable.value) {
+        actionButtons.push(
+          h(
+            NPopconfirm,
+            {
+              onPositiveClick: () => handleDelete(row.id),
+            },
+            {
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: 'small',
+                    type: 'error',
+                    loading: deleteMutation.isPending.value,
+                  },
+                  { default: () => $t('common.action.delete') },
+                ),
+              default: () => $t('common.message.deleteConfirm'),
+            },
+          ),
+        )
+      }
+
+      if (actionButtons.length === 0) return '-'
+      return h(NSpace, {}, { default: () => actionButtons })
+    }
+
     const columns = computed<DataTableColumns<UserPageItem>>(() => [
-      {
-        title: $t('domain.user.field.name'),
-        key: 'name',
-        render: (row) => displayName(row),
-      },
-      {
-        title: $t('domain.user.field.registerType'),
-        key: 'registerType',
-        render: (row) => registerTypeLabel(row.registerType),
-      },
-      {
-        title: $t('layout.profile.field.phone'),
-        key: 'phone',
-      },
-      {
-        title: $t('layout.profile.field.platform'),
-        key: 'platform',
-        render: (row) => $t(resolvePlatformLabelKey(row.platform)),
-      },
-      {
-        title: $t('layout.profile.twoFactor.title'),
-        key: 'totpEnabled',
-        render: (row) => activationLabel(row.totpEnabled),
-      },
-      {
-        title: $t('common.label.status'),
-        key: 'deleted',
-        render: (row) => userActiveLabel(row.deleted),
-      },
-      {
-        title: $t('common.action.operate'),
-        key: 'operate',
-        render: (row) => {
-          const actionButtons: ReturnType<typeof h>[] = []
-
-          if (canEdit.value) {
-            actionButtons.push(
-              h(
-                NButton,
-                {
-                  size: 'small',
-                  onClick: () => {
-                    router.push({ name: 'manage-user-edit', params: { userId: row.id } })
-                  },
-                },
-                { default: () => $t('common.action.edit') },
-              ),
-            )
-          }
-
-          if (canView.value) {
-            actionButtons.push(
-              h(
-                NButton,
-                {
-                  size: 'small',
-                  onClick: () => {
-                    router.push({ name: 'manage-user-detail', params: { userId: row.id } })
-                  },
-                },
-                { default: () => $t('common.action.view') },
-              ),
-            )
-          }
-
-          if (canDisable.value) {
-            actionButtons.push(
-              h(
-                NPopconfirm,
-                {
-                  onPositiveClick: () => handleDelete(row.id),
-                },
-                {
-                  trigger: () =>
-                    h(
-                      NButton,
-                      {
-                        size: 'small',
-                        type: 'error',
-                        loading: deleteMutation.isPending.value,
-                      },
-                      { default: () => $t('common.action.delete') },
-                    ),
-                  default: () => $t('common.message.deleteConfirm'),
-                },
-              ),
-            )
-          }
-
-          if (actionButtons.length === 0) return '-'
-          return h(NSpace, {}, { default: () => actionButtons })
-        },
-      },
+      ...(isMobile.value
+        ? [
+            {
+              title: $t('domain.user.field.name'),
+              key: 'name',
+              render: (row: UserPageItem) =>
+                h('div', { class: 'min-w-0' }, [
+                  h(
+                    'div',
+                    { class: 'text-sm font-medium text-[var(--color-text-main)] truncate' },
+                    displayName(row),
+                  ),
+                  h(
+                    'div',
+                    { class: 'text-xs text-[var(--color-text-light)] truncate mt-1' },
+                    `${row.phone || '-'} · ${registerTypeLabel(row.registerType)}`,
+                  ),
+                  h(
+                    'div',
+                    { class: 'text-xs text-[var(--color-text-light)] truncate mt-1' },
+                    $t(resolvePlatformLabelKey(row.platform)),
+                  ),
+                ]),
+            },
+            {
+              title: $t('common.label.status'),
+              key: 'deleted',
+              render: (row: UserPageItem) => userActiveLabel(row.deleted),
+            },
+            {
+              title: $t('common.action.operate'),
+              key: 'operate',
+              render: (row: UserPageItem) => renderOperate(row),
+            },
+          ]
+        : [
+            {
+              title: $t('domain.user.field.name'),
+              key: 'name',
+              render: (row: UserPageItem) => displayName(row),
+            },
+            {
+              title: $t('domain.user.field.registerType'),
+              key: 'registerType',
+              render: (row: UserPageItem) => registerTypeLabel(row.registerType),
+            },
+            {
+              title: $t('layout.profile.field.phone'),
+              key: 'phone',
+            },
+            {
+              title: $t('layout.profile.field.platform'),
+              key: 'platform',
+              render: (row: UserPageItem) => $t(resolvePlatformLabelKey(row.platform)),
+            },
+            {
+              title: $t('layout.profile.twoFactor.title'),
+              key: 'totpEnabled',
+              render: (row: UserPageItem) => activationLabel(row.totpEnabled),
+            },
+            {
+              title: $t('common.label.status'),
+              key: 'deleted',
+              render: (row: UserPageItem) => userActiveLabel(row.deleted),
+            },
+            {
+              title: $t('common.action.operate'),
+              key: 'operate',
+              render: (row: UserPageItem) => renderOperate(row),
+            },
+          ]),
     ])
 
     return () => (
@@ -203,14 +247,10 @@ export default defineComponent({
             onSearch={handleSearch}
             onReset={handleReset}
           />
-          <NSpace>
-            <NButton size="small" type="primary" onClick={() => handleSearch(draftQueryFilters.value)}>
-              {$t('common.action.search')}
-            </NButton>
-            <NButton size="small" onClick={handleReset}>
-              {$t('common.action.reset')}
-            </NButton>
-          </NSpace>
+          <QueryActionButtons
+            onSearch={() => handleSearch(draftQueryFilters.value)}
+            onReset={handleReset}
+          />
         </NSpace>
 
         <NDataTable

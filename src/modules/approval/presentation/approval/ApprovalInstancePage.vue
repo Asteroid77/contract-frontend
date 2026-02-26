@@ -29,11 +29,16 @@ import { formatted } from '@/modules/shared/presentation/time'
 import { useRouter } from 'vue-router'
 import StatusTag from './StatusTag'
 import { useI18n } from 'vue-i18n'
-import { ModernQueryBuilder } from '@/modules/shared/presentation/advanced-query'
+import {
+  ModernQueryBuilder,
+  QueryActionButtons,
+} from '@/modules/shared/presentation/advanced-query'
 import { approvalInstanceAdvancedQueryFields } from './approvalInstanceAdvancedQueryFields'
+import { useIsMobile } from '@/app/presentation/hooks/useIsMobile'
 const router = useRouter()
 const { t: $t } = useI18n()
 const accountStore = useAccountStore()
+const isMobile = useIsMobile(768)
 
 type Row = ApprovalInstance<Record<string, unknown>>
 
@@ -101,74 +106,110 @@ const handleClaim = (row: Row) => {
   claimMutation.mutate(row.taskId)
 }
 
+const renderOperate = (row: Row) => {
+  const buttonArray: ReturnType<typeof h>[] = []
+  const claimResult = canClaimTask(row, accountStore.account as SignInResponseComplete)
+
+  buttonArray.push(
+    h(
+      NButton,
+      { size: 'small', onClick: () => handleApprove(row) },
+      {
+        default: () =>
+          isApproveBtnVisible(row.status) ? $t('common.action.approve') : $t('common.action.view'),
+      },
+    ),
+  )
+  if (claimResult.canClaim) {
+    buttonArray.push(
+      h(
+        NPopconfirm,
+        { onPositiveClick: () => handleClaim(row) },
+        {
+          trigger: () =>
+            h(NButton, { size: 'small' }, { default: () => $t('common.action.claim') }),
+          default: () => $t('domain.approval.message.claimConfirm', { id: row.taskId }),
+        },
+      ),
+    )
+  }
+  return h(NSpace, {}, { default: () => buttonArray })
+}
+
 const columns = computed<DataTableColumns<Row>>(() => [
-  {
-    title: $t('domain.approval.field.process'),
-    key: 'processName',
-  },
-  {
-    title: $t('domain.approval.field.nodeName'),
-    key: 'nodeName',
-  },
-  {
-    title: $t('common.label.status'),
-    key: 'status',
-    render: (row) => h(StatusTag(row.status, 'Instance')),
-  },
-  {
-    title: $t('common.label.status'),
-    key: 'taskStatus',
-    render: (row) => h(StatusTag(row.taskStatus, 'Task', isApprovalFinish(row.status))),
-  },
-  {
-    title: $t('domain.approval.field.approver'),
-    key: 'assigneeName',
-    render: (row) => showIncompletedUserName(row.assigneeName),
-  },
-  {
-    title: $t('domain.approval.field.applicant'),
-    key: 'applicantName',
-    render: (row) => showIncompletedUserName(row.applicantName),
-  },
-  {
-    title: $t('common.time.created'),
-    key: 'createdTime',
-    render: (row) => formatted(row.createdTime).standard,
-  },
+  ...(isMobile.value
+    ? [
+        {
+          title: $t('domain.approval.field.process'),
+          key: 'processName',
+          render: (row: Row) =>
+            h('div', { class: 'min-w-0' }, [
+              h(
+                'div',
+                { class: 'text-sm font-medium text-[var(--color-text-main)] truncate' },
+                row.processName,
+              ),
+              h(
+                'div',
+                { class: 'text-xs text-[var(--color-text-light)] truncate mt-1' },
+                `${row.nodeName} · ${showIncompletedUserName(row.applicantName)}`,
+              ),
+              h(
+                'div',
+                { class: 'text-xs text-[var(--color-text-light)] truncate mt-1' },
+                formatted(row.createdTime).standard,
+              ),
+            ]),
+        },
+        {
+          title: $t('common.label.status'),
+          key: 'status',
+          render: (row: Row) =>
+            h('div', { class: 'flex flex-col gap-1' }, [
+              h(StatusTag(row.status, 'Instance')),
+              h(StatusTag(row.taskStatus, 'Task', isApprovalFinish(row.status))),
+            ]),
+        },
+      ]
+    : [
+        {
+          title: $t('domain.approval.field.process'),
+          key: 'processName',
+        },
+        {
+          title: $t('domain.approval.field.nodeName'),
+          key: 'nodeName',
+        },
+        {
+          title: $t('common.label.status'),
+          key: 'status',
+          render: (row: Row) => h(StatusTag(row.status, 'Instance')),
+        },
+        {
+          title: $t('common.label.status'),
+          key: 'taskStatus',
+          render: (row: Row) => h(StatusTag(row.taskStatus, 'Task', isApprovalFinish(row.status))),
+        },
+        {
+          title: $t('domain.approval.field.approver'),
+          key: 'assigneeName',
+          render: (row: Row) => showIncompletedUserName(row.assigneeName),
+        },
+        {
+          title: $t('domain.approval.field.applicant'),
+          key: 'applicantName',
+          render: (row: Row) => showIncompletedUserName(row.applicantName),
+        },
+        {
+          title: $t('common.time.created'),
+          key: 'createdTime',
+          render: (row: Row) => formatted(row.createdTime).standard,
+        },
+      ]),
   {
     title: $t('common.action.operate'),
     key: 'operate',
-    render: (row) => {
-      const buttonArray: ReturnType<typeof h>[] = []
-      const claimResult = canClaimTask(row, accountStore.account as SignInResponseComplete)
-
-      buttonArray.push(
-        h(
-          NButton,
-          { size: 'small', onClick: () => handleApprove(row) },
-          {
-            default: () =>
-              isApproveBtnVisible(row.status)
-                ? $t('common.action.approve')
-                : $t('common.action.view'),
-          },
-        ),
-      )
-      if (claimResult.canClaim) {
-        buttonArray.push(
-          h(
-            NPopconfirm,
-            { onPositiveClick: () => handleClaim(row) },
-            {
-              trigger: () =>
-                h(NButton, { size: 'small' }, { default: () => $t('common.action.claim') }),
-              default: () => $t('domain.approval.message.claimConfirm', { id: row.taskId }),
-            },
-          ),
-        )
-      }
-      return h(NSpace, {}, { default: () => buttonArray })
-    },
+    render: (row) => renderOperate(row),
   },
 ])
 </script>
@@ -181,12 +222,7 @@ const columns = computed<DataTableColumns<Row>>(() => [
         @search="handleSearch"
         @reset="handleReset"
       />
-      <n-space>
-        <n-button size="small" type="primary" @click="handleSearch(draftQueryFilters)">
-          {{ $t('common.action.search') }}
-        </n-button>
-        <n-button size="small" @click="handleReset">{{ $t('common.action.reset') }}</n-button>
-      </n-space>
+      <QueryActionButtons @search="handleSearch(draftQueryFilters)" @reset="handleReset" />
     </n-space>
 
     <n-data-table
