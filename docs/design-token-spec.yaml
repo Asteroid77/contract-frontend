@@ -1,0 +1,78 @@
+version: 1
+structure: Category/Property/Modifier
+
+naming:
+  color: color/<property>/<modifier>
+  spacing: spacing/<value>
+  font: font/<property>/<modifier>
+  radius: radius/<modifier>
+  elevation: elevation/<level>
+
+colors:
+  semantic:
+    color/primary/default: '{color/primitive/slate-700}'
+    color/primary/hover: '{color/primitive/slate-600}'
+    color/semantic/error: '{color/primitive/red-500}'
+    color/semantic/success: '{color/primitive/green-500}'
+  primitive:
+    color/primitive/slate-700: '#334155'
+    color/primitive/slate-600: '#475569'
+    color/primitive/red-500: '#EF4444'
+    color/primitive/green-500: '#22C55E'
+
+spacing:
+  spacing/4: 0.25rem
+  spacing/8: 0.5rem
+  spacing/16: 1rem
+  spacing/24: 1.5rem
+  spacing/32: 2rem
+  spacing/48: 3rem
+  spacing/64: 4rem
+  spacing/80: 5rem
+  spacing/120: 7.5rem
+
+font:
+  font/body/small:
+    size: 0.875rem
+    line_height: 1.5rem
+    weight: 400
+  font/body/default:
+    size: 1rem
+    line_height: 1.5rem
+    weight: 400
+  font/heading/h1:
+    size: 2.5rem
+    line_height: 3rem
+    weight: 700
+
+radius:
+  radius/sm: 0.25rem
+  radius/md: 0.5rem
+  radius/lg: 1rem
+  radius/full: 9999px
+
+elevation:
+  elevation/1: '0 1px 2px rgba(0,0,0,0.05)'
+  elevation/2: '0 4px 8px rgba(0,0,0,0.08)'
+  elevation/3: '0 8px 16px rgba(0,0,0,0.12)'
+  elevation/4: '0 16px 32px rgba(0,0,0,0.16)'
+
+card_patterns:
+  horizontal:
+    layout: flex
+    img_ratio: '4:3'
+    min_height: 12.5rem
+  vertical:
+    layout: flex-col
+    img_ratio: '16:9'
+
+compatibility:
+  legacy_css_vars:
+    - --color-primary
+    - --color-primary-hover
+    - --color-accent
+    - --spacing-xs
+    - --radius-sm
+  migration:
+    - old_variables_kept_temporarily
+    - new_category_property_modifier_variables_generated_in_parallel

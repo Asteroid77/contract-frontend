@@ -1,19 +1,39 @@
 import { describe, expect, it } from 'vitest'
-import { colorTokens, commonTokens } from '@/app/presentation/theme/ThemeToken'
+import {
+  colorTokens,
+  commonTokens,
+  primitiveColorTokens,
+  semanticColorTokens,
+  spacingScaleTokens,
+} from '@/app/presentation/theme/ThemeToken'
 
 describe('ThemeToken', () => {
-  it('contains common layout and spacing tokens', () => {
-    expect(commonTokens.radiusSm).toBe('4px')
-    expect(commonTokens.radiusMd).toBe('8px')
-    expect(commonTokens.radiusLg).toBe('12px')
+  it('contains common layout and spacing tokens in rem', () => {
+    expect(commonTokens.radiusSm).toBe('0.25rem')
+    expect(commonTokens.radiusMd).toBe('0.5rem')
+    expect(commonTokens.radiusLg).toBe('0.75rem')
 
-    expect(commonTokens.siderWidth).toBe('240px')
-    expect(commonTokens.siderCollapsedWidth).toBe('64px')
-    expect(commonTokens.headerHeight).toBe('64px')
+    expect(commonTokens.siderWidth).toBe('15rem')
+    expect(commonTokens.siderCollapsedWidth).toBe('4rem')
+    expect(commonTokens.headerHeight).toBe('4rem')
 
-    expect(commonTokens.spacingXs).toBe('4px')
-    expect(commonTokens.spacingMd).toBe('16px')
-    expect(commonTokens.spacingXl).toBe('32px')
+    expect(commonTokens.layoutMaxWidth).toBe('90rem')
+    expect(commonTokens.layoutContentMaxWidth).toBe('75rem')
+
+    expect(commonTokens.spacingXs).toBe('0.25rem')
+    expect(commonTokens.spacingMd).toBe('1rem')
+    expect(commonTokens.spacingXl).toBe('2rem')
+    expect(spacingScaleTokens['spacing/120']).toBe('7.5rem')
+  })
+
+  it('contains primitive and semantic color tokens', () => {
+    expect(primitiveColorTokens['red-500']).toBe('#EF4444')
+    expect(primitiveColorTokens['green-500']).toBe('#22C55E')
+
+    expect(semanticColorTokens.light['color/semantic/error']).toBe('#EF4444')
+    expect(semanticColorTokens.dark['color/semantic/success']).toBe('#4ADE80')
+
+    expect(semanticColorTokens.light['color/primary/default']).toBe(colorTokens.light.primary)
   })
 
   it('contains light/dark/sakura color schemes with required fields', () => {

@@ -66,6 +66,16 @@
   .fade-leave-to {
     opacity: 0;
   }
+
+  .crumb-fade-enter-active,
+  .crumb-fade-leave-active {
+    transition: opacity 0.16s ease;
+  }
+
+  .crumb-fade-enter-from,
+  .crumb-fade-leave-to {
+    opacity: 0;
+  }
 }
 /*
  * ==========================================================================
@@ -115,5 +125,4 @@
   .notion-card:hover {
     box-shadow: var(--shadow-md);
   }
-
 }
