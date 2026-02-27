@@ -529,6 +529,7 @@ const i18NInfo = {
     },
     menu: {
       title: 'Menu',
+      historyTabs: 'History Tabs',
       field: {
         name: 'Name',
         type: 'Type',

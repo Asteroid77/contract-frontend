@@ -1,6 +1,6 @@
 import { defineComponent, computed, ref, h, Transition, watch, type Component } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
-import { NDropdown, NTooltip, NScrollbar } from 'naive-ui'
+import { NDropdown, NTooltip, NScrollbar, NDrawer } from 'naive-ui'
 import {
   ChevronBackOutline,
   ChevronForwardOutline,
@@ -63,7 +63,13 @@ export default defineComponent({
 
     const siderCollapsed = ref(false)
     const mobileMenuOpen = ref(false)
+    const mobileTabsDrawerOpen = ref(false)
+    const actionIconSize = 'var(--spacing-16)'
+    const sidebarAvatarSize = 'var(--spacing-32)'
     const currentLocale = computed<LocaleType>(() => language.value)
+    const siderWidth = computed(() =>
+      siderCollapsed.value ? 'var(--sider-collapsed-width)' : 'var(--sider-width)',
+    )
 
     const menuItems = computed(() => {
       return authRoutes
@@ -128,12 +134,12 @@ export default defineComponent({
       {
         label: t('layout.menu.settings'),
         key: 'settings',
-        icon: () => <SettingsOutline class="w-4 h-4" />,
+        icon: () => <SettingsOutline style={{ width: actionIconSize, height: actionIconSize }} />,
       },
       {
         label: t('auth.action.logout'),
         key: 'logout',
-        icon: () => <LogOutOutline class="w-4 h-4" />,
+        icon: () => <LogOutOutline style={{ width: actionIconSize, height: actionIconSize }} />,
       },
     ])
 
@@ -142,12 +148,32 @@ export default defineComponent({
     )
 
     const shouldShowSidebarPlatform = computed(() => accountStore.user.platform !== 'NATIVE')
+    const mobileTabsDrawerWidth = 'min(calc(var(--sider-width) + var(--spacing-80)), 88vw)'
+    const activeTabTitle = computed(() => {
+      const activePath = tabsStore.activeTab || route.fullPath
+      const activeTab = tabsStore.tabList.find((tab) => tab.path === activePath)
+      if (activeTab) {
+        return `${t(activeTab.titleKey)}${activeTab.titleSuffix ?? ''}`
+      }
+
+      if (breadcrumbs.value.length > 0) {
+        return breadcrumbs.value[breadcrumbs.value.length - 1].title
+      }
+
+      if (route.meta?.name) {
+        return t(route.meta.name as string)
+      }
+
+      return t('layout.menu.home')
+    })
+    const additionalTabCount = computed(() => Math.max(tabsStore.tabList.length - 1, 0))
 
     watch(
       () => route.fullPath,
       () => {
         tabsStore.addTab(route)
         mobileMenuOpen.value = false
+        mobileTabsDrawerOpen.value = false
       },
       { immediate: true },
     )
@@ -184,6 +210,20 @@ export default defineComponent({
       }
     }
 
+    const handleMobileTabSelect = (path: string) => {
+      tabsStore.setActiveTab(path)
+      router.push(path)
+      mobileTabsDrawerOpen.value = false
+    }
+
+    const handleMobileTabClose = (event: MouseEvent, path: string) => {
+      event.stopPropagation()
+      handleTabClose(path)
+      if (tabsStore.tabList.length <= 1) {
+        mobileTabsDrawerOpen.value = false
+      }
+    }
+
     const renderMenuIcon = (iconName?: string) => {
       if (!iconName) return null
 
@@ -213,7 +253,7 @@ export default defineComponent({
         <Transition name="fade">
           {mobileMenuOpen.value && (
             <div
-              class="fixed inset-0 bg-black/50 z-40 md:hidden"
+              class="fixed inset-0 bg-[var(--color-primitive-slate-950)]/45 z-40 md:hidden"
               onClick={() => {
                 mobileMenuOpen.value = false
               }}
@@ -224,11 +264,18 @@ export default defineComponent({
         <aside
           class={[
             'fixed md:relative z-50 h-full bg-[var(--color-bg-card)] border-r border-[var(--color-border)] transition-all duration-300 flex flex-col',
-            siderCollapsed.value ? 'w-16' : 'w-60',
             mobileMenuOpen.value ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
           ]}
+          style={{
+            width: siderWidth.value,
+            minWidth: siderWidth.value,
+            flexBasis: siderWidth.value,
+          }}
         >
-          <div class="h-16 flex items-center justify-center border-b border-[var(--color-border)] shrink-0 px-3">
+          <div
+            class="h-16 flex items-center justify-center border-b border-[var(--color-border)] shrink-0 px-3"
+            style={{ height: 'var(--header-height)', minHeight: 'var(--header-height)' }}
+          >
             <div
               class={[
                 'flex items-center transition-all duration-300',
@@ -285,14 +332,24 @@ export default defineComponent({
                   ]}
                   onClick={() => router.push({ name: 'user-settings' })}
                 >
-                  <SettingsOutline class="w-5 h-5 shrink-0" />
+                  <SettingsOutline
+                    class="shrink-0"
+                    style={{ width: actionIconSize, height: actionIconSize }}
+                  />
                 </div>
 
                 <div
                   class="flex items-center justify-center p-2 rounded-lg cursor-pointer transition-colors hover:bg-[var(--color-border)]"
                   onClick={() => router.push({ name: 'user-profile' })}
                 >
-                  <div class="w-8 h-8 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-[var(--color-bg-card)] text-sm font-medium shrink-0">
+                  <div
+                    class="rounded-full bg-[var(--color-primary)] flex items-center justify-center text-[var(--color-bg-card)] text-sm font-medium shrink-0"
+                    style={{
+                      width: sidebarAvatarSize,
+                      minWidth: sidebarAvatarSize,
+                      height: sidebarAvatarSize,
+                    }}
+                  >
                     {(accountStore.user.name || 'U').slice(0, 1)}
                   </div>
                 </div>
@@ -303,7 +360,14 @@ export default defineComponent({
                   class="flex-1 flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors hover:bg-[var(--color-border)]"
                   onClick={() => router.push({ name: 'user-profile' })}
                 >
-                  <div class="w-8 h-8 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-[var(--color-bg-card)] text-sm font-medium shrink-0">
+                  <div
+                    class="rounded-full bg-[var(--color-primary)] flex items-center justify-center text-[var(--color-bg-card)] text-sm font-medium shrink-0"
+                    style={{
+                      width: sidebarAvatarSize,
+                      minWidth: sidebarAvatarSize,
+                      height: sidebarAvatarSize,
+                    }}
+                  >
                     {(accountStore.user.name || 'U').slice(0, 1)}
                   </div>
                   <div class="flex-1 min-w-0">
@@ -330,7 +394,10 @@ export default defineComponent({
                   ]}
                   onClick={() => router.push({ name: 'user-settings' })}
                 >
-                  <SettingsOutline class="w-5 h-5 shrink-0" />
+                  <SettingsOutline
+                    class="shrink-0"
+                    style={{ width: actionIconSize, height: actionIconSize }}
+                  />
                 </div>
               </div>
             )}
@@ -360,7 +427,10 @@ export default defineComponent({
         </aside>
 
         <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <header class="h-16 bg-[var(--color-bg-card)] border-b border-[var(--color-border)] flex items-center px-4 gap-4 shrink-0">
+          <header
+            class="h-16 bg-[var(--color-bg-card)] border-b border-[var(--color-border)] flex items-center px-4 gap-4 shrink-0"
+            style={{ height: 'var(--header-height)', minHeight: 'var(--header-height)' }}
+          >
             <button
               class="md:hidden p-2 rounded-lg hover:bg-[var(--color-border)] text-[var(--color-text-body)]"
               onClick={() => {
@@ -370,11 +440,13 @@ export default defineComponent({
               <MenuOutline class="w-5 h-5" />
             </button>
 
-            <div class="flex-1 flex items-center gap-2 text-sm min-w-0 overflow-x-auto">
+            <div class="hidden md:flex flex-1 items-center gap-2 text-sm min-w-0 overflow-x-auto md:pl-[var(--spacing-sm)]">
               {breadcrumbs.value.map((crumb, index) => (
                 <div class="flex items-center gap-2 shrink-0" key={`${crumb.path}-${index}`}>
                   {index > 0 && (
-                    <ChevronForwardOutline class="w-4 h-4 text-[var(--color-text-light)]" />
+                    <span class="text-sm font-medium leading-none text-[var(--color-text-light)] shrink-0">
+                      {'>'}
+                    </span>
                   )}
                   <span
                     class={[
@@ -388,6 +460,31 @@ export default defineComponent({
                   </span>
                 </div>
               ))}
+            </div>
+
+            <div class="md:hidden flex-1 min-w-0 flex items-center justify-end gap-2 overflow-hidden">
+              <button
+                class="min-w-0 max-w-full px-3 py-1.5 rounded-md text-sm font-medium text-[var(--color-text-main)] bg-[var(--color-border)]/70 truncate"
+                onClick={() => {
+                  if (additionalTabCount.value > 0) {
+                    mobileTabsDrawerOpen.value = true
+                  }
+                }}
+                data-test="auth-mobile-active-tab"
+              >
+                {activeTabTitle.value}
+              </button>
+              {additionalTabCount.value > 0 && (
+                <button
+                  class="px-2.5 py-1.5 rounded-md text-xs font-medium text-[var(--color-text-body)] bg-[var(--color-border)] hover:bg-[var(--color-border)]/80 transition-colors"
+                  onClick={() => {
+                    mobileTabsDrawerOpen.value = true
+                  }}
+                  data-test="auth-mobile-tabs-toggle"
+                >
+                  {`+${additionalTabCount.value}`}
+                </button>
+              )}
             </div>
 
             <div class="flex items-center gap-2">
@@ -411,7 +508,7 @@ export default defineComponent({
             </div>
           </header>
 
-          <div class="h-10 bg-[var(--color-bg-card)] border-b border-[var(--color-border)] px-2 shrink-0">
+          <div class="hidden md:block h-10 bg-[var(--color-bg-card)] border-b border-[var(--color-border)] px-2 shrink-0">
             <NScrollbar xScrollable trigger="hover" size={3} class="h-full" contentClass="h-full">
               <div class="h-full flex items-center gap-1 w-max min-w-full">
                 {tabsStore.tabList.map((tab) => (
@@ -434,7 +531,7 @@ export default defineComponent({
                         class={[
                           'opacity-0 group-hover:opacity-100 p-0.5 rounded transition-opacity',
                           tabsStore.activeTab === tab.path
-                            ? 'hover:bg-white/20'
+                            ? 'hover:bg-[var(--color-bg-card)]/20'
                             : 'hover:bg-[var(--color-text-light)]/20',
                         ]}
                         onClick={(event) => {
@@ -451,8 +548,65 @@ export default defineComponent({
             </NScrollbar>
           </div>
 
+          <NDrawer
+            show={mobileTabsDrawerOpen.value}
+            placement="right"
+            width={mobileTabsDrawerWidth}
+            onUpdateShow={(show) => {
+              mobileTabsDrawerOpen.value = show
+            }}
+          >
+            <div class="h-full bg-[var(--color-bg-card)] border-l border-[var(--color-border)] flex flex-col">
+              <div class="h-12 px-4 border-b border-[var(--color-border)] relative flex items-center justify-center shrink-0">
+                <span class="max-w-[70%] text-center truncate text-sm font-semibold text-[var(--color-text-main)]">
+                  {t('layout.menu.historyTabs')}
+                </span>
+                <button
+                  class="absolute right-4 p-1.5 rounded-md text-[var(--color-text-light)] hover:text-[var(--color-text-main)] hover:bg-[var(--color-border)]"
+                  onClick={() => {
+                    mobileTabsDrawerOpen.value = false
+                  }}
+                  data-test="auth-mobile-tabs-close"
+                >
+                  <CloseOutline class="w-4 h-4" />
+                </button>
+              </div>
+              <div class="flex-1 overflow-y-auto p-2">
+                {tabsStore.tabList.map((tab) => (
+                  <div
+                    key={`mobile-${tab.path}`}
+                    class={[
+                      'flex items-center gap-2 rounded-md px-3 py-2 text-sm cursor-pointer transition-colors mb-1 group',
+                      tabsStore.activeTab === tab.path
+                        ? 'bg-[var(--color-primary)] text-[var(--color-bg-card)]'
+                        : 'text-[var(--color-text-body)] hover:bg-[var(--color-border)]',
+                    ]}
+                    onClick={() => handleMobileTabSelect(tab.path)}
+                    data-test={`auth-mobile-tab-item-${tab.path}`}
+                  >
+                    <span class="flex-1 min-w-0 truncate">{`${t(tab.titleKey)}${tab.titleSuffix ?? ''}`}</span>
+                    {tabsStore.tabList.length > 1 && (
+                      <button
+                        class={[
+                          'p-0.5 rounded transition-colors',
+                          tabsStore.activeTab === tab.path
+                            ? 'hover:bg-[var(--color-bg-card)]/20'
+                            : 'hover:bg-[var(--color-text-light)]/20',
+                        ]}
+                        onClick={(event) => handleMobileTabClose(event, tab.path)}
+                        data-test={`auth-mobile-tab-close-${tab.path}`}
+                      >
+                        <CloseOutline class="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </NDrawer>
+
           <main class="flex-1 overflow-auto">
-            <div class="max-w-[1200px] mx-auto w-full p-4 md:p-6 min-h-full">
+            <div class="max-w-[var(--layout-content-max-width)] mx-auto w-full p-4 md:p-6 min-h-full">
               <ErrorBoundary key={route.fullPath}>
                 <RouterView>
                   {{

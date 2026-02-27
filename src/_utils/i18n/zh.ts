@@ -524,6 +524,7 @@ export default {
     },
     menu: {
       title: '菜单',
+      historyTabs: '历史标签页',
       field: {
         name: '菜单名称',
         type: '菜单类型',

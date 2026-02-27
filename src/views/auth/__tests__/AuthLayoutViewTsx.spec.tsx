@@ -278,20 +278,45 @@ vi.mock('naive-ui', () => ({
       return () => h('div', { 'data-test': 'n-scrollbar' }, slots.default?.())
     },
   }),
+  NDrawer: defineComponent({
+    name: 'NDrawer',
+    props: {
+      show: {
+        type: Boolean,
+        required: false,
+      },
+      onUpdateShow: {
+        type: Function,
+        required: false,
+      },
+    },
+    setup(props, { slots }) {
+      return () =>
+        h(
+          'div',
+          {
+            'data-test': 'n-drawer',
+            'data-show': String(Boolean(props.show)),
+          },
+          slots.default?.(),
+        )
+    },
+  }),
 }))
 
 import AuthLayoutView from '@/views/auth/AuthLayoutView'
 
 const findClickableByText = (wrapper: VueWrapper, text: string) => {
-  const node = wrapper.findAll("*").find((item) => {
-    const className = item.attributes("class") || ""
-    return item.text().includes(text) && (
-      item.element.tagName.toLowerCase() === "button" || className.includes("cursor-pointer")
+  const node = wrapper.findAll('*').find((item) => {
+    const className = item.attributes('class') || ''
+    return (
+      item.text().includes(text) &&
+      (item.element.tagName.toLowerCase() === 'button' || className.includes('cursor-pointer'))
     )
   })
 
   if (!node) {
-    throw new Error("clickable node not found: " + text)
+    throw new Error('clickable node not found: ' + text)
   }
 
   return node
@@ -355,12 +380,10 @@ describe('AuthLayoutView.tsx', () => {
 
     routerPushSpy.mockClear()
 
-    const closeTabButton = wrapper
-      .findAll('button')
-      .find((buttonItem) => {
-        const hasCloseIcon = buttonItem.find('[data-test="icon-close"]').exists()
-        return hasCloseIcon && buttonItem.classes().includes('opacity-0')
-      })
+    const closeTabButton = wrapper.findAll('button').find((buttonItem) => {
+      const hasCloseIcon = buttonItem.find('[data-test="icon-close"]').exists()
+      return hasCloseIcon && buttonItem.classes().includes('opacity-0')
+    })
 
     if (!closeTabButton) {
       throw new Error('close tab button not found')
@@ -379,5 +402,43 @@ describe('AuthLayoutView.tsx', () => {
 
     expect(setActiveTabSpy).toHaveBeenCalledWith('/reports')
     expect(routerPushSpy).toHaveBeenCalledWith('/reports')
+  })
+
+  it('opens mobile tabs drawer and supports select/close actions', async () => {
+    const wrapper = mount(AuthLayoutView)
+
+    expect(wrapper.get('[data-test="n-drawer"]').attributes('data-show')).toBe('false')
+    expect(wrapper.get('[data-test="auth-mobile-tabs-toggle"]').text()).toContain('+1')
+
+    await wrapper.get('[data-test="auth-mobile-tabs-toggle"]').trigger('click')
+    expect(wrapper.get('[data-test="n-drawer"]').attributes('data-show')).toBe('true')
+    expect(wrapper.text()).toContain('layout.menu.historyTabs')
+
+    const mobileReportTab = wrapper
+      .findAll('[data-test]')
+      .find((node) => node.attributes('data-test') === 'auth-mobile-tab-item-/reports')
+
+    if (!mobileReportTab) {
+      throw new Error('mobile tab item not found')
+    }
+
+    await mobileReportTab.trigger('click')
+    expect(setActiveTabSpy).toHaveBeenCalledWith('/reports')
+    expect(routerPushSpy).toHaveBeenCalledWith('/reports')
+
+    routerPushSpy.mockClear()
+    await wrapper.get('[data-test="auth-mobile-tabs-toggle"]').trigger('click')
+
+    const mobileCloseButton = wrapper
+      .findAll('[data-test]')
+      .find((node) => node.attributes('data-test') === 'auth-mobile-tab-close-/dashboard')
+
+    if (!mobileCloseButton) {
+      throw new Error('mobile tab close button not found')
+    }
+
+    await mobileCloseButton.trigger('click')
+    expect(removeTabSpy).toHaveBeenCalledWith('/dashboard')
+    expect(routerPushSpy).toHaveBeenCalledWith('/after-close')
   })
 })
