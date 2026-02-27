@@ -8,6 +8,7 @@ import {
   FieldType,
 } from '@/modules/shared/domain/advanced-query'
 import { $t } from '@/_utils/i18n'
+import SelectLike, { type SelectLikeOption } from './SelectLike'
 
 type EditingPart = 'field' | 'op' | 'value' | null
 type I18nKey = Parameters<typeof $t>[0]
@@ -36,6 +37,18 @@ const parseDateTimeInputValue = (value: string): number | undefined => {
   const ts = new Date(trimmed).getTime()
   return Number.isNaN(ts) ? undefined : ts
 }
+
+const resolveInputSize = (value: string | number | undefined, fallback = 8): number => {
+  const contentLength = String(value ?? '').trim().length
+  return Math.min(32, Math.max(fallback, contentLength + 2))
+}
+
+const resolveInputSizingStyle = (value: string | number | undefined, fallback = 8) => ({
+  width: `${resolveInputSize(value, fallback)}ch`,
+  minWidth: `${fallback}ch`,
+  maxWidth: 'min(32ch, 70vw)',
+  fieldSizing: 'content' as const,
+})
 
 export default defineComponent({
   name: 'AdvancedQueryFilterPill',
@@ -207,7 +220,7 @@ export default defineComponent({
                 class={[
                   'px-2 py-1 text-xs rounded transition-colors',
                   props.condition.value === opt.value
-                    ? 'bg-[var(--color-accent)] text-white'
+                    ? 'bg-[var(--color-primary)] text-[var(--color-bg-card)]'
                     : 'hover:bg-[var(--color-border)]',
                 ]}
               >
@@ -220,56 +233,42 @@ export default defineComponent({
 
       // ENUM
       if (currentField.type === FieldType.ENUM && currentField.options) {
+        const enumOptions: SelectLikeOption[] = currentField.options.map((opt) => ({
+          label: maybeT(opt.label),
+          value: opt.value,
+        }))
+
         if ([FilterOp.IN, FilterOp.NOT_IN].includes(props.condition.op)) {
           const values = normalizeArrayValue(props.condition.value)
-          const toggle = (v: string | number) => {
-            const has = values.includes(v)
-            handleValueChange(has ? values.filter((x) => x !== v) : [...values, v])
-          }
+
           return (
-            <div class="max-h-40 overflow-y-auto">
-              {currentField.options.map((opt) => {
-                const selected = values.includes(opt.value)
-                return (
-                  <button
-                    key={String(opt.value)}
-                    type="button"
-                    onClick={() => toggle(opt.value)}
-                    class={[
-                      'w-full text-left px-2 py-1 text-xs rounded transition-colors',
-                      selected
-                        ? 'bg-[var(--color-accent)] text-white'
-                        : 'hover:bg-[var(--color-border)]',
-                    ]}
-                  >
-                    {maybeT(opt.label)}
-                  </button>
-                )
-              })}
-            </div>
+            <SelectLike
+              value={values}
+              options={enumOptions}
+              multiple
+              clearable
+              filterable
+              maxTagCount="responsive"
+              size="small"
+              onUpdateValue={(nextValue) => {
+                handleValueChange(Array.isArray(nextValue) ? nextValue : [])
+              }}
+            />
           )
         }
+
         return (
-          <div class="max-h-32 overflow-y-auto">
-            {currentField.options.map((opt) => (
-              <button
-                key={String(opt.value)}
-                type="button"
-                onClick={() => {
-                  handleValueChange(opt.value)
-                  close()
-                }}
-                class={[
-                  'w-full text-left px-2 py-1 text-xs rounded transition-colors',
-                  props.condition.value === opt.value
-                    ? 'bg-[var(--color-accent)] text-white'
-                    : 'hover:bg-[var(--color-border)]',
-                ]}
-              >
-                {maybeT(opt.label)}
-              </button>
-            ))}
-          </div>
+          <SelectLike
+            value={props.condition.value as string | number | null | undefined}
+            options={enumOptions}
+            clearable
+            filterable
+            size="small"
+            onUpdateValue={(nextValue) => {
+              handleValueChange(nextValue)
+              close()
+            }}
+          />
         )
       }
 
@@ -300,10 +299,22 @@ export default defineComponent({
               ? formatDateTimeInputValue(values[1])
               : ((values[1] as string | number | undefined) ?? '')
 
+        const baseInputSize =
+          currentField.type === FieldType.DATETIME
+            ? 16
+            : currentField.type === FieldType.DATE
+              ? 10
+              : 8
+
+        const leftInputSize = resolveInputSize(leftValue, baseInputSize)
+        const rightInputSize = resolveInputSize(rightValue, baseInputSize)
+
         return (
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-1 w-full">
             <input
               type={inputType}
+              size={leftInputSize}
+              style={resolveInputSizingStyle(leftValue, baseInputSize)}
               value={leftValue}
               onInput={(e) => {
                 const raw = (e.target as HTMLInputElement).value
@@ -319,12 +330,14 @@ export default defineComponent({
                         : raw
                 handleValueChange([next, values[1]])
               }}
-              class="w-20 px-2 py-1 text-xs bg-[var(--color-bg-body)] border border-[var(--color-border)] rounded focus:outline-none focus:border-[var(--color-accent)]"
+              class="min-w-0 px-2 py-1 text-xs bg-[var(--color-bg-body)] border border-[var(--color-border)] rounded focus:outline-none focus:border-[var(--color-primary)]"
               placeholder={$t('common.advancedQuery.placeholder.min') as string}
             />
             <span class="text-xs text-[var(--color-text-light)]">~</span>
             <input
               type={inputType}
+              size={rightInputSize}
+              style={resolveInputSizingStyle(rightValue, baseInputSize)}
               value={rightValue}
               onInput={(e) => {
                 const raw = (e.target as HTMLInputElement).value
@@ -340,7 +353,7 @@ export default defineComponent({
                         : raw
                 handleValueChange([values[0], next])
               }}
-              class="w-20 px-2 py-1 text-xs bg-[var(--color-bg-body)] border border-[var(--color-border)] rounded focus:outline-none focus:border-[var(--color-accent)]"
+              class="min-w-0 px-2 py-1 text-xs bg-[var(--color-bg-body)] border border-[var(--color-border)] rounded focus:outline-none focus:border-[var(--color-primary)]"
               placeholder={$t('common.advancedQuery.placeholder.max') as string}
             />
           </div>
@@ -381,12 +394,12 @@ export default defineComponent({
             {values.map((v, idx) => (
               <span
                 key={`${String(v)}_${idx}`}
-                class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--color-border)]/50 text-xs text-[var(--color-text)]"
+                class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--color-border)]/50 text-xs text-[var(--color-text-body)]"
               >
                 {String(v)}
                 <button
                   type="button"
-                  class="text-[var(--color-text-light)] hover:text-red-500"
+                  class="text-[var(--color-text-light)] hover:text-[var(--color-semantic-error)]"
                   aria-label={$t('common.action.delete') as string}
                   onClick={() => removeAt(idx)}
                 >
@@ -396,6 +409,8 @@ export default defineComponent({
             ))}
             <input
               type={currentField.type === FieldType.NUMBER ? 'number' : 'text'}
+              size={resolveInputSize(tagDraft.value, 8)}
+              style={resolveInputSizingStyle(tagDraft.value, 8)}
               value={tagDraft.value}
               onInput={(e) => {
                 tagDraft.value = (e.target as HTMLInputElement).value
@@ -411,7 +426,7 @@ export default defineComponent({
                   removeAt(values.length - 1)
                 }
               }}
-              class="min-w-20 flex-1 px-2 py-1 text-xs bg-[var(--color-bg-body)] border border-[var(--color-border)] rounded focus:outline-none focus:border-[var(--color-accent)]"
+              class="min-w-0 flex-1 px-2 py-1 text-xs bg-[var(--color-bg-body)] border border-[var(--color-border)] rounded focus:outline-none focus:border-[var(--color-primary)]"
               placeholder={$t('common.advancedQuery.placeholder.tagInput') as string}
               autofocus
             />
@@ -436,9 +451,18 @@ export default defineComponent({
             ? formatDateTimeInputValue(props.condition.value)
             : ((props.condition.value as string | number | undefined) ?? '')
 
+      const baseInputSize =
+        currentField.type === FieldType.DATETIME
+          ? 16
+          : currentField.type === FieldType.DATE
+            ? 10
+            : 8
+
       return (
         <input
           type={inputType}
+          size={resolveInputSize(inputValue, baseInputSize)}
+          style={resolveInputSizingStyle(inputValue, baseInputSize)}
           value={inputValue}
           onInput={(e) => {
             const raw = (e.target as HTMLInputElement).value
@@ -457,7 +481,7 @@ export default defineComponent({
           onKeydown={(e) => {
             if ((e as KeyboardEvent).key === 'Enter') close()
           }}
-          class="w-32 px-2 py-1 text-xs bg-[var(--color-bg-body)] border border-[var(--color-border)] rounded focus:outline-none focus:border-[var(--color-accent)]"
+          class="min-w-0 px-2 py-1 text-xs bg-[var(--color-bg-body)] border border-[var(--color-border)] rounded focus:outline-none focus:border-[var(--color-primary)]"
           placeholder={$t('common.advancedQuery.placeholder.input') as string}
           autofocus
         />
@@ -470,15 +494,15 @@ export default defineComponent({
 
       return (
         <div ref={pillRef} class="relative inline-flex">
-          <div class="group inline-flex items-center h-6 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-full text-xs overflow-hidden hover:border-[var(--color-accent)] transition-colors cursor-pointer">
+          <div class="group inline-flex items-center h-6 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-full text-xs overflow-hidden hover:border-[var(--color-primary)] transition-colors cursor-pointer">
             <button
               type="button"
               onClick={() => openEditor('field')}
               class={[
                 'px-2 h-full font-medium transition-colors',
                 editingPart.value === 'field'
-                  ? 'bg-[var(--color-accent)]/10 text-[var(--color-accent)]'
-                  : 'hover:bg-[var(--color-border)]/50',
+                  ? 'bg-[var(--color-border)] text-[var(--color-primary)]'
+                  : 'hover:bg-[var(--color-border)]',
               ]}
             >
               {currentField ? translateLabelKey(currentField.labelKey) : props.condition.field}
@@ -492,8 +516,8 @@ export default defineComponent({
               class={[
                 'px-2 h-full text-[var(--color-text-light)] transition-colors',
                 editingPart.value === 'op'
-                  ? 'bg-[var(--color-accent)]/10 text-[var(--color-accent)]'
-                  : 'hover:bg-[var(--color-border)]/50',
+                  ? 'bg-[var(--color-border)] text-[var(--color-primary)]'
+                  : 'hover:bg-[var(--color-border)]',
               ]}
             >
               {translateLabelKey(opConfig.value.labelKey)}
@@ -505,14 +529,15 @@ export default defineComponent({
                 <button
                   type="button"
                   onClick={() => openEditor('value')}
+                  data-test="filter-pill-value-button"
                   class={[
-                    'px-2 h-full max-w-24 truncate transition-colors',
+                    'px-2 h-full max-w-[min(28ch,40vw)] truncate transition-colors',
                     editingPart.value === 'value'
-                      ? 'bg-[var(--color-accent)]/10 text-[var(--color-accent)]'
-                      : 'hover:bg-[var(--color-border)]/50',
+                      ? 'bg-[var(--color-border)] text-[var(--color-primary)]'
+                      : 'hover:bg-[var(--color-border)]',
                     valueText === '...'
                       ? 'text-[var(--color-text-disabled)] italic'
-                      : 'text-[var(--color-accent)]',
+                      : 'text-[var(--color-primary)]',
                   ]}
                 >
                   {valueText}
@@ -526,7 +551,7 @@ export default defineComponent({
                 e.stopPropagation()
                 props.onRemove()
               }}
-              class="w-0 group-hover:w-5 h-full flex items-center justify-center text-[var(--color-text-light)] hover:text-red-500 hover:bg-red-50 transition-all overflow-hidden"
+              class="w-0 group-hover:w-5 h-full flex items-center justify-center text-[var(--color-text-light)] hover:text-[var(--color-semantic-error)] hover:bg-[var(--color-border)] transition-all overflow-hidden"
               aria-label={$t('common.action.delete') as string}
             >
               <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -556,7 +581,7 @@ export default defineComponent({
                         class={[
                           'w-full text-left px-2 py-1 text-xs rounded transition-colors',
                           props.condition.field === f.key
-                            ? 'bg-[var(--color-accent)] text-white'
+                            ? 'bg-[var(--color-primary)] text-[var(--color-bg-card)]'
                             : 'hover:bg-[var(--color-border)]',
                         ]}
                       >
@@ -580,7 +605,7 @@ export default defineComponent({
                           class={[
                             'w-full text-left px-2 py-1 text-xs rounded transition-colors',
                             props.condition.op === op
-                              ? 'bg-[var(--color-accent)] text-white'
+                              ? 'bg-[var(--color-primary)] text-[var(--color-bg-card)]'
                               : 'hover:bg-[var(--color-border)]',
                           ]}
                         >

@@ -312,14 +312,14 @@ export default defineComponent({
             {translateLabel(f.labelKey)}
           </button>
         ))}
-        <div class="border-t border-[var(--color-border)] mt-1 pt-1">
+        <div class="border-t border-[var(--color-border)] mt-1 pt-1 px-1">
           <button
             type="button"
             onClick={() => {
               addGroup()
               showFieldMenu.value = false
             }}
-            class="w-full text-left px-2 py-2 text-xs text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 transition-colors"
+            class="w-full text-left px-2 py-2 text-xs rounded-md border border-[var(--color-border)] bg-[var(--color-bg-card)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-[var(--color-bg-card)] hover:border-[var(--color-primary)] transition-colors"
           >
             + {$t('common.advancedQuery.action.addGroup')}
           </button>
@@ -331,7 +331,7 @@ export default defineComponent({
       <button
         type="button"
         onClick={toggleRootLogic}
-        class="px-1 py-1 text-xs font-medium text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 rounded transition-colors"
+        class="px-1 py-1 text-xs font-medium text-[var(--color-primary)] hover:bg-[var(--color-border)] rounded transition-colors"
         title={$t('common.advancedQuery.tooltip.toggleLogic') as string}
       >
         {rootLogic.value === QueryLogic.AND
@@ -355,7 +355,7 @@ export default defineComponent({
                     group.logic === QueryLogic.AND ? QueryLogic.OR : QueryLogic.AND,
                   )
                 }
-                class="px-1 py-1 text-xs font-medium text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 rounded transition-colors"
+                class="px-1 py-1 text-xs font-medium text-[var(--color-primary)] hover:bg-[var(--color-border)] rounded transition-colors"
                 title={$t('common.advancedQuery.tooltip.toggleLogic') as string}
               >
                 {group.logic === QueryLogic.AND
@@ -382,7 +382,7 @@ export default defineComponent({
               showGroupFieldMenu.value = showGroupFieldMenu.value === group.id ? null : group.id
               showFieldMenu.value = false
             }}
-            class="w-[var(--spacing-16)] h-[var(--spacing-16)] flex items-center justify-center text-[var(--color-text-light)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 rounded transition-colors"
+            class="w-[var(--spacing-16)] h-[var(--spacing-16)] flex items-center justify-center text-[var(--color-text-light)] hover:text-[var(--color-primary)] hover:bg-[var(--color-border)] rounded transition-colors"
             aria-label={$t('common.advancedQuery.action.filter') as string}
           >
             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -415,7 +415,7 @@ export default defineComponent({
         <button
           type="button"
           onClick={() => removeGroup(group.id)}
-          class="w-0 group-hover:w-[var(--spacing-16)] h-[var(--spacing-16)] flex items-center justify-center text-[var(--color-text-light)] hover:text-red-500 transition-all overflow-hidden"
+          class="w-0 group-hover:w-[var(--spacing-16)] h-[var(--spacing-16)] flex items-center justify-center text-[var(--color-text-light)] hover:text-[var(--color-semantic-error)] transition-all overflow-hidden"
           aria-label={$t('common.advancedQuery.action.removeGroup') as string}
         >
           <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -432,7 +432,7 @@ export default defineComponent({
 
     return () => (
       <div
-        class="text-xs"
+        class="text-xs pl-[var(--spacing-sm)]"
         onKeydown={(e) => {
           if (e.key !== 'Enter') return
           const target = e.target as HTMLElement | null
@@ -469,7 +469,7 @@ export default defineComponent({
                 showFieldMenu.value = !showFieldMenu.value
                 showGroupFieldMenu.value = null
               }}
-              class="inline-flex items-center gap-1 h-6 px-2 text-[var(--color-text-light)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 border border-dashed border-[var(--color-border)] hover:border-[var(--color-accent)] rounded-full transition-colors"
+              class="inline-flex items-center gap-1 h-6 px-2 bg-[var(--color-bg-card)] text-[var(--color-text-body)] hover:text-[var(--color-primary)] hover:bg-[var(--color-border)] border border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-full transition-colors"
             >
               <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -491,7 +491,7 @@ export default defineComponent({
                 clearAll()
                 emit('reset', buildQuery())
               }}
-              class="h-6 px-2 text-[var(--color-text-light)] hover:text-red-500 transition-colors"
+              class="h-6 px-2 text-[var(--color-text-light)] hover:text-[var(--color-semantic-error)] transition-colors"
             >
               {$t('common.advancedQuery.action.clear')}
             </button>

@@ -13,6 +13,15 @@ const baseFields = [
   { key: 'name', labelKey: 'field.name', type: FieldType.STRING },
   { key: 'age', labelKey: 'field.age', type: FieldType.NUMBER },
   { key: 'enabled', labelKey: 'field.enabled', type: FieldType.BOOLEAN },
+  {
+    key: 'status',
+    labelKey: 'field.status',
+    type: FieldType.ENUM,
+    options: [
+      { label: 'option.active', value: 'active' },
+      { label: 'option.inactive', value: 'inactive' },
+    ],
+  },
 ]
 
 const restrictedFields = [
@@ -64,7 +73,7 @@ describe('FilterPill', () => {
       },
     })
 
-    expect(wrapper.find('button.max-w-24').exists()).toBe(false)
+    expect(wrapper.find('[data-test="filter-pill-value-button"]').exists()).toBe(false)
   })
 
   it('calls onUpdate with undefined value when field changes', async () => {
@@ -83,7 +92,10 @@ describe('FilterPill', () => {
     })
 
     await wrapper.findAll('button')[0]?.trigger('click')
-    await wrapper.findAll('button').find((button) => button.text() === 't:field.age')?.trigger('click')
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 't:field.age')
+      ?.trigger('click')
 
     expect(onUpdate).toHaveBeenCalledWith({
       field: 'age',
@@ -157,12 +169,12 @@ describe('FilterPill', () => {
     await wrapper.findAll('button')[1]?.trigger('click')
 
     const buttons = wrapper.findAll('button')
-    expect(
-      buttons.some((button) => button.text() === 't:common.advancedQuery.operator.eq'),
-    ).toBe(true)
-    expect(
-      buttons.some((button) => button.text() === 't:common.advancedQuery.operator.like'),
-    ).toBe(true)
+    expect(buttons.some((button) => button.text() === 't:common.advancedQuery.operator.eq')).toBe(
+      true,
+    )
+    expect(buttons.some((button) => button.text() === 't:common.advancedQuery.operator.like')).toBe(
+      true,
+    )
     expect(
       buttons.some((button) => button.text() === 't:common.advancedQuery.operator.notLike'),
     ).toBe(false)
@@ -194,5 +206,45 @@ describe('FilterPill', () => {
       op: FilterOp.GE,
       value: undefined,
     })
+  })
+
+  it('renders NSelect for ENUM single-value operator', async () => {
+    const wrapper = mount(FilterPill, {
+      props: {
+        condition: {
+          field: 'status',
+          op: FilterOp.EQ,
+          value: 'active',
+        },
+        fields: baseFields,
+        onUpdate: vi.fn(),
+        onRemove: vi.fn(),
+      },
+    })
+
+    await wrapper.get('[data-test="filter-pill-value-button"]').trigger('click')
+
+    expect(wrapper.find('.n-base-selection').exists()).toBe(true)
+    expect(wrapper.find('.max-h-32.overflow-y-auto').exists()).toBe(false)
+  })
+
+  it('renders NSelect in multiple mode for ENUM IN operator', async () => {
+    const wrapper = mount(FilterPill, {
+      props: {
+        condition: {
+          field: 'status',
+          op: FilterOp.IN,
+          value: ['active'],
+        },
+        fields: baseFields,
+        onUpdate: vi.fn(),
+        onRemove: vi.fn(),
+      },
+    })
+
+    await wrapper.get('[data-test="filter-pill-value-button"]').trigger('click')
+
+    expect(wrapper.find('.n-base-selection').exists()).toBe(true)
+    expect(wrapper.find('.max-h-40.overflow-y-auto').exists()).toBe(false)
   })
 })
