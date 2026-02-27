@@ -43,6 +43,9 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Guard deprecated unWrap usage
+        run: pnpm check:unwrap
+
       - name: Ensure lint does not modify files
         run: git diff --exit-code
 

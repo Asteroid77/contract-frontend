@@ -16,6 +16,7 @@
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix && pnpm check:px",
     "check:px": "node ./scripts/check-px-whitelist.mjs",
+    "check:unwrap": "node ./scripts/check-unwrap-allowlist.mjs",
     "format": "prettier --write src/",
     "release": "standard-version",
     "backup": "git add . && git commit -m \"wip: temp backup $(date +%Y-%m-%d_%H:%M:%S)\" && git push nutstore HEAD:backup-branch --force && git reset HEAD~1",
