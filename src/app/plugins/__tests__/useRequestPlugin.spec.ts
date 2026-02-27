@@ -88,14 +88,14 @@ const getQueryRetryOption = (queryClient: QueryClient) =>
     | ((failureCount: number, error: unknown) => boolean)
     | undefined
 
-const createQueryStub = (meta?: Record<string, unknown>): QueryStub => ({
+const createQueryStub = (meta?: Record<string, unknown>, data: unknown = undefined): QueryStub => ({
   meta,
   queryKey: ['approval', 'instance', 1],
   state: {
     status: 'error',
     fetchStatus: 'idle',
     fetchFailureCount: 1,
-    data: undefined,
+    data,
     dataUpdatedAt: 0,
   },
   options: {},
@@ -147,11 +147,11 @@ describe('useRequestPlugin', () => {
     const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
     const error = new BusinessError('biz-fail', 40001, 'trace-1', 'request-1')
-    queryCacheConfig.onError(error, createQueryStub())
+    queryCacheConfig.onError(error, createQueryStub(undefined, { stale: true }))
 
     expect(showUniqueErrorNotification).toHaveBeenCalledTimes(1)
     expect(showUniqueErrorNotification).toHaveBeenCalledWith(
-      'biz-fail',
+      'query:["approval","instance",1]:40001:request-1:biz-fail',
       expect.objectContaining({
         title: 't:common.error.businessFail',
       }),
@@ -182,10 +182,10 @@ describe('useRequestPlugin', () => {
       },
     })
 
-    queryCacheConfig.onError(axiosError, createQueryStub())
+    queryCacheConfig.onError(axiosError, createQueryStub(undefined, { stale: true }))
 
     expect(showUniqueErrorNotification).toHaveBeenCalledWith(
-      'axios-error',
+      'query:["approval","instance",1]:na:na:axios-error',
       expect.objectContaining({
         title: 't:common.error.timeout',
       }),
@@ -211,6 +211,40 @@ describe('useRequestPlugin', () => {
 
     consoleErrorSpy.mockRestore()
     consoleLogSpy.mockRestore()
+  })
+
+  it('queryCache onError skips default toast when query has no cached data', () => {
+    const queryClient = useRequestPlugin()[0].option?.queryClient as QueryClient
+    const queryCacheConfig = getQueryCacheConfig(queryClient)
+
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    const error = new BusinessError('initial-load-failed', 50000, 'trace-2', 'request-2')
+    queryCacheConfig.onError(error, createQueryStub())
+
+    expect(showUniqueErrorNotification).not.toHaveBeenCalled()
+
+    consoleErrorSpy.mockRestore()
+    consoleLogSpy.mockRestore()
+  })
+
+  it('queryCache onError can be bypassed with skipGlobalErrorHandler meta', () => {
+    const queryClient = useRequestPlugin()[0].option?.queryClient as QueryClient
+    const queryCacheConfig = getQueryCacheConfig(queryClient)
+
+    const error = new BusinessError('skip-global', 50001, 'trace-3', 'request-3')
+    queryCacheConfig.onError(
+      error,
+      createQueryStub(
+        {
+          skipGlobalErrorHandler: true,
+        },
+        { stale: true },
+      ),
+    )
+
+    expect(showUniqueErrorNotification).not.toHaveBeenCalled()
   })
 
   it('mutationCache onSuccess shows default success notification', () => {

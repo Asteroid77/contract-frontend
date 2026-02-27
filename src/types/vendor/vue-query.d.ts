@@ -22,6 +22,7 @@ declare module '@tanstack/vue-query' {
     TData = TQueryFnData,
     TQueryKey extends QueryKey = QueryKey,
   > {
+    skipGlobalErrorHandler?: boolean
     toastOnError?:
       | boolean
       | string
@@ -51,6 +52,7 @@ declare module '@tanstack/vue-query' {
     TVariables = void,
     TContext = unknown,
   > {
+    skipGlobalErrorHandler?: boolean
     toastOnError?:
       | boolean
       | string

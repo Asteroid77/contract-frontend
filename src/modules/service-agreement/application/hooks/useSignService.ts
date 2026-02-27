@@ -128,6 +128,7 @@ export const useUploadFileMutation = (onSuccessCallback?: (data: OssCallbackView
       console.error('文件上传 mutation 失败:', error)
     },
     meta: {
+      toastOnError: false,
       toastOnSuccess: false,
     },
   })
