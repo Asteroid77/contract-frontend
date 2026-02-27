@@ -7,6 +7,7 @@ import clsx from 'clsx'
 import { useRoute } from 'vue-router'
 import { useCssVar } from '@/app/presentation/theme/hooks/useCssVar'
 import { useI18n } from 'vue-i18n'
+import { parseCssLengthToPx } from '@/app/presentation/layout/utils/cssLength'
 const route = useRoute()
 const { t: $t } = useI18n()
 
@@ -16,7 +17,11 @@ const drawerShow = ref<boolean>(false)
 const drawerShowToggle = () => {
   drawerShow.value = !drawerShow.value
 }
-const sideBarCollapsedWidth = parseInt(useCssVar('--sidebar-collapsed-width').value!)
+
+const sideBarCollapsedWidth = parseCssLengthToPx(
+  useCssVar('--sider-collapsed-width').value || '4rem',
+)
+const sideBarExpandedWidth = parseCssLengthToPx(useCssVar('--sider-width').value || '15rem')
 const selectedKey = ref<string>()
 const menuInstRef = useTemplateRef('menuInstRef')
 const selectAndExpand = (key: string) => {
@@ -39,7 +44,7 @@ watch(
       @click="drawerShowToggle"
       :class="clsx('sm:hidden', 'w-sidebar-collapsed')"
     />
-    <n-drawer v-model:show="drawerShow" :width="300" placement="left">
+    <n-drawer v-model:show="drawerShow" :width="sideBarExpandedWidth" placement="left">
       <n-drawer-content>
         <n-card :title="$t('layout.menu.title')" :bordered="false">
           <n-menu

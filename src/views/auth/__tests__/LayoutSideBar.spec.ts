@@ -2,21 +2,17 @@ import { defineComponent, h, nextTick, reactive } from 'vue'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const {
-  convertRoutesSpy,
-  menuShowOptionSpy,
-  cssVarSpy,
-  mockAuthRoutes,
-  routeState,
-} = vi.hoisted(() => ({
-  convertRoutesSpy: vi.fn(),
-  menuShowOptionSpy: vi.fn(),
-  cssVarSpy: vi.fn(),
-  mockAuthRoutes: [{ name: 'dashboard', path: '/dashboard' }],
-  routeState: {
-    name: 'dashboard',
-  } as Record<string, unknown>,
-}))
+const { convertRoutesSpy, menuShowOptionSpy, cssVarSpy, mockAuthRoutes, routeState } = vi.hoisted(
+  () => ({
+    convertRoutesSpy: vi.fn(),
+    menuShowOptionSpy: vi.fn(),
+    cssVarSpy: vi.fn(),
+    mockAuthRoutes: [{ name: 'dashboard', path: '/dashboard' }],
+    routeState: {
+      name: 'dashboard',
+    } as Record<string, unknown>,
+  }),
+)
 
 const reactiveRoute = reactive(routeState)
 
@@ -142,11 +138,11 @@ describe('LayoutSideBar', () => {
     reactiveRoute.name = 'dashboard'
 
     cssVarSpy.mockImplementation((varName: string) => {
-      if (varName === '--sidebar-collapsed-width') {
-        return { value: '64' }
+      if (varName === '--sider-collapsed-width') {
+        return { value: '4rem' }
       }
-      if (varName === '--sidebar-expanded-width') {
-        return { value: '220' }
+      if (varName === '--sider-width') {
+        return { value: '15rem' }
       }
       return { value: '0' }
     })
@@ -168,7 +164,7 @@ describe('LayoutSideBar', () => {
     expect(wrapper.get('[data-test="n-menu"]').attributes('data-collapsed')).toBe('false')
     expect(wrapper.get('[data-test="n-menu"]').attributes('data-collapsed-width')).toBe('64')
     expect(wrapper.get('[data-test="n-menu"]').attributes('data-collapsed-icon-size')).toBe('22')
-    expect(wrapper.get('button[data-test="n-button"]').attributes('style')).toContain('left: 220px')
+    expect(wrapper.get('button[data-test="n-button"]').attributes('style')).toContain('left: 240px')
     expect(wrapper.get('[data-test="zw-icon"]').attributes('data-name')).toBe('icon-expanded')
   })
 

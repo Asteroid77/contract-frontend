@@ -9,10 +9,14 @@ import { useTemplateRef } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCssVar } from '@/app/presentation/theme/hooks/useCssVar'
 import LogoImage from '@/assets/logo.png'
+import { parseCssLengthToPx } from '@/app/presentation/layout/utils/cssLength'
 const route = useRoute()
 const menuOptions = convertRoutesToMenuItems(authRoutes)
-const sidebarCollapsedWidth = parseInt(useCssVar('--sidebar-collapsed-width').value!)
-const sidebarExpandedWidth = parseInt(useCssVar('--sidebar-expanded-width').value!)
+
+const sidebarCollapsedWidth = parseCssLengthToPx(
+  useCssVar('--sider-collapsed-width').value || '4rem',
+)
+const sidebarExpandedWidth = parseCssLengthToPx(useCssVar('--sider-width').value || '15rem')
 
 const isExpanded = ref<boolean>(true)
 const sidebarWidth = computed(() => {
