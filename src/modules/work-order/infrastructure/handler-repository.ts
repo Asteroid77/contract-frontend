@@ -14,74 +14,36 @@ import type {
 
 export const handlerRepository = {
   getCategories: () =>
-    useRequest<WorkOrderCategoryVO[]>({
-      url: HANDLER_ENDPOINTS.CATEGORIES,
-      method: 'get',
-      responseShape: 'data',
-    }),
+    useRequest<WorkOrderCategoryVO[]>({ url: HANDLER_ENDPOINTS.CATEGORIES, method: 'get' }),
 
   getList: (params: WorkOrderListParams) =>
-    useRequest<IPage<WorkOrderSummaryVO>>({
-      url: HANDLER_ENDPOINTS.LIST,
-      method: 'get',
-      params,
-      responseShape: 'data',
-    }),
+    useRequest<IPage<WorkOrderSummaryVO>>({ url: HANDLER_ENDPOINTS.LIST, method: 'get', params }),
 
   getPendingCount: () =>
-    useRequest<PendingCountVO>({
-      url: HANDLER_ENDPOINTS.PENDING_COUNT,
-      method: 'get',
-      responseShape: 'data',
-    }),
+    useRequest<PendingCountVO>({ url: HANDLER_ENDPOINTS.PENDING_COUNT, method: 'get' }),
 
   getDetail: (id: number) =>
-    useRequest<WorkOrderDetailVO>({
-      url: HANDLER_ENDPOINTS.DETAIL(id),
-      method: 'get',
-      responseShape: 'data',
-    }),
+    useRequest<WorkOrderDetailVO>({ url: HANDLER_ENDPOINTS.DETAIL(id), method: 'get' }),
 
   claim: (id: number) =>
-    useRequest<WorkOrderDetailVO>({
-      url: HANDLER_ENDPOINTS.CLAIM(id),
-      method: 'post',
-      responseShape: 'data',
-    }),
+    useRequest<WorkOrderDetailVO>({ url: HANDLER_ENDPOINTS.CLAIM(id), method: 'post' }),
 
   release: (id: number) =>
-    useRequest<WorkOrderDetailVO>({
-      url: HANDLER_ENDPOINTS.RELEASE(id),
-      method: 'post',
-      responseShape: 'data',
-    }),
+    useRequest<WorkOrderDetailVO>({ url: HANDLER_ENDPOINTS.RELEASE(id), method: 'post' }),
 
   getReplies: (id: number) =>
-    useRequest<WorkOrderReplyVO[]>({
-      url: HANDLER_ENDPOINTS.REPLIES(id),
-      method: 'get',
-      responseShape: 'data',
-    }),
+    useRequest<WorkOrderReplyVO[]>({ url: HANDLER_ENDPOINTS.REPLIES(id), method: 'get' }),
 
   addReply: (id: number, dto: WorkOrderReplyDTO) =>
     useRequest<WorkOrderReplyVO, WorkOrderReplyDTO>({
       url: HANDLER_ENDPOINTS.ADD_REPLY(id),
       method: 'post',
       data: dto,
-      responseShape: 'data',
     }),
 
   complete: (id: number) =>
-    useRequest<WorkOrderDetailVO>({
-      url: HANDLER_ENDPOINTS.COMPLETE(id),
-      method: 'post',
-      responseShape: 'data',
-    }),
+    useRequest<WorkOrderDetailVO>({ url: HANDLER_ENDPOINTS.COMPLETE(id), method: 'post' }),
 
   getPerformance: () =>
-    useRequest<WorkOrderPerformanceVO>({
-      url: HANDLER_ENDPOINTS.PERFORMANCE,
-      method: 'get',
-      responseShape: 'data',
-    }),
+    useRequest<WorkOrderPerformanceVO>({ url: HANDLER_ENDPOINTS.PERFORMANCE, method: 'get' }),
 }

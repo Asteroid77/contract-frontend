@@ -14,7 +14,6 @@ export const fileRepository: FileRepository = {
     const response = await useRequest<FileResponse>({
       method: 'GET',
       url: FILE_ENDPOINTS.GET_BY_ID(id),
-      responseShape: 'data',
     })
     return response
   },
@@ -25,7 +24,6 @@ export const fileRepository: FileRepository = {
       params: {
         ids,
       },
-      responseShape: 'data',
     })
     return response
   },
@@ -36,7 +34,6 @@ export const fileRepository: FileRepository = {
       params: {
         ids,
       },
-      responseShape: 'data',
     })
     return response
   },

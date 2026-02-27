@@ -66,8 +66,6 @@ describe('serviceAgreementRepository contract', () => {
       method: 'POST',
       url: '/service_agreement/sign',
       data: dto,
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -84,8 +82,6 @@ describe('serviceAgreementRepository contract', () => {
       method: 'POST',
       url: '/service_agreement/record',
       data: dto,
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -102,8 +98,6 @@ describe('serviceAgreementRepository contract', () => {
         companyName: '测试公司',
         pca: '浙江/杭州',
       },
-      responseShape: 'data',
-
     })
     expect(result).toBe(true)
   })
@@ -121,8 +115,6 @@ describe('serviceAgreementRepository contract', () => {
       params: {
         id: 9,
       },
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -148,8 +140,6 @@ describe('serviceAgreementRepository contract', () => {
       method: 'POST',
       url: '/service_agreement/page',
       data: request,
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -173,8 +163,6 @@ describe('serviceAgreementRepository contract', () => {
       method: 'POST',
       url: '/service_agreement/preview/attachments',
       data: request,
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })

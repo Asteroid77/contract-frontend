@@ -32,8 +32,6 @@ describe('captchaRepository contract', () => {
       notify: {
         success: false,
       },
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -64,8 +62,6 @@ describe('captchaRepository contract', () => {
           type: 'notification',
         },
       },
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })

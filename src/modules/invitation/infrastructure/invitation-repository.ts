@@ -18,24 +18,18 @@ const INVITATION_RECORD_ENDPOINTS = createPrefixedEndpoints('/invitation_record'
 
 export const invitationRepository = {
   createInvitationCode: () =>
-    useRequest<InvitationCode, undefined>({
-      url: INVITATION_ENDPOINTS.CREATE,
-      method: 'POST',
-      responseShape: 'data',
-    }),
+    useRequest<InvitationCode, undefined>({ url: INVITATION_ENDPOINTS.CREATE, method: 'POST' }),
   updateInvitationCode: (data: EditRemarkDTO[]) =>
     useRequest<InvitationCode[], EditRemarkDTO[]>({
       url: INVITATION_ENDPOINTS.UPDATE,
       method: 'POST',
       data,
-      responseShape: 'data',
     }),
   deleteInvitationCode: (ids: number[]) =>
     useRequest<boolean, number[]>({
       url: INVITATION_ENDPOINTS.DELETE,
       method: 'DELETE',
       data: ids,
-      responseShape: 'data',
     }),
   getInvitationCodeList: () =>
     useRequest<InvitationCode[], undefined>({
@@ -44,7 +38,6 @@ export const invitationRepository = {
       notify: {
         success: false,
       },
-      responseShape: 'data',
     }),
   getInvitedCount: () =>
     useRequest<number, undefined>({
@@ -53,7 +46,6 @@ export const invitationRepository = {
       notify: {
         success: false,
       },
-      responseShape: 'data',
     }),
   getInvitationRecordPage: (data: BasePageRequest<unknown>) =>
     useRequest<IPage<InvitationRecord>, BasePageRequest<unknown>>({
@@ -63,6 +55,5 @@ export const invitationRepository = {
       notify: {
         success: false,
       },
-      responseShape: 'data',
     }),
 }

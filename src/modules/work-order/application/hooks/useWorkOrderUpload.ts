@@ -28,7 +28,6 @@ async function getOssPolicy(fileName: string): Promise<OssPolicyResponse> {
     url: FILE_UPLOAD_ENDPOINTS.POLICY,
     method: 'post',
     data: { fileName },
-    responseShape: 'data',
   })
   return resp
 }

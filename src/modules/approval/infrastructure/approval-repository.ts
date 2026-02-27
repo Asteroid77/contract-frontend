@@ -27,31 +27,20 @@ const APPROVAL_HISTORY_ENDPOINTS = createPrefixedEndpoints('/approval/history', 
 
 export const approvalRepository = {
   claimTask: (taskId: number) =>
-    useRequest<boolean, number>({
-      url: APPROVAL_ENDPOINTS.CLAIM,
-      method: 'post',
-      data: taskId,
-      responseShape: 'data',
-    }),
+    useRequest<boolean, number>({ url: APPROVAL_ENDPOINTS.CLAIM, method: 'post', data: taskId }),
   handleTask: (approvalCommentRequest: ApprovalCommentRequestDTO) =>
     useRequest<ApprovalInstance<Record<string, unknown>>, ApprovalCommentRequestDTO>({
       url: APPROVAL_ENDPOINTS.HANDLE,
       method: 'post',
       data: approvalCommentRequest,
-      responseShape: 'data',
     }),
   cancelInstance: (instanceId: number) =>
-    useRequest<boolean, number>({
-      url: APPROVAL_ENDPOINTS.CANCEL(instanceId),
-      method: 'post',
-      responseShape: 'data',
-    }),
+    useRequest<boolean, number>({ url: APPROVAL_ENDPOINTS.CANCEL(instanceId), method: 'post' }),
   getInstancePage: (pageRequest: BasePageRequest<ApprovalInstancesPageDTO>) =>
     useRequest<IPage<ApprovalInstancePage>>({
       url: APPROVAL_INSTANCE_ENDPOINTS.PAGE,
       method: 'post',
       data: pageRequest,
-      responseShape: 'data',
     }),
   getInstanceDetail: (instanceId: number) =>
     useRequest<ApprovalInstance<Record<string, unknown>>>({
@@ -60,7 +49,6 @@ export const approvalRepository = {
       params: {
         instanceId,
       },
-      responseShape: 'data',
     }),
   getHistoryList: (instanceId: number) =>
     useRequest<ApprovalHistory[], { instanceId: number }>({
@@ -69,12 +57,10 @@ export const approvalRepository = {
       params: {
         instanceId,
       },
-      responseShape: 'data',
     }),
   getLatestAdditionalInfoInstanceStatus: () =>
     useRequest<LatestAdditionalInfoInstance>({
       url: APPROVAL_INSTANCE_ENDPOINTS.LATEST_ADDITIONAL_INFO,
       method: 'get',
-      responseShape: 'data',
     }),
 }

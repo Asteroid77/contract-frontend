@@ -48,7 +48,6 @@ export const serviceAgreementRepository = {
           onProgress({ percent })
         }
       },
-      responseShape: 'data',
     })
   },
   sign: (data: ServiceAgreementRequestDTO) => {
@@ -56,7 +55,6 @@ export const serviceAgreementRepository = {
       method: 'POST',
       url: SERVICE_AGREEMENT_ENDPOINTS.SIGN,
       data,
-      responseShape: 'data',
     })
   },
   record: (data: ServiceAgreementRequestDTO) => {
@@ -64,7 +62,6 @@ export const serviceAgreementRepository = {
       method: 'POST',
       url: SERVICE_AGREEMENT_ENDPOINTS.RECORD,
       data,
-      responseShape: 'data',
     })
   },
   duplicateCheck: (companyName: string, pca: string) => {
@@ -75,7 +72,6 @@ export const serviceAgreementRepository = {
         companyName,
         pca,
       },
-      responseShape: 'data',
     })
   },
   get: (id: number) => {
@@ -83,7 +79,6 @@ export const serviceAgreementRepository = {
       method: 'GET',
       url: SERVICE_AGREEMENT_ENDPOINTS.GET,
       params: { id },
-      responseShape: 'data',
     })
   },
   page: (pageRequest: BasePageRequest<ServiceAgreementPageDTO>) => {
@@ -91,7 +86,6 @@ export const serviceAgreementRepository = {
       method: 'POST',
       url: SERVICE_AGREEMENT_ENDPOINTS.PAGE,
       data: pageRequest,
-      responseShape: 'data',
     })
   },
   getPreviewAttachments: (data: ServiceAgreementPreviewAttachmentsDTO) => {
@@ -99,7 +93,6 @@ export const serviceAgreementRepository = {
       method: 'POST',
       url: SERVICE_AGREEMENT_ENDPOINTS.PREVIEW_ATTACHMENTS,
       data,
-      responseShape: 'data',
     })
   },
 }

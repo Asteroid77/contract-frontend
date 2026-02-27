@@ -35,8 +35,6 @@ describe('accessRepository contract', () => {
       notify: {
         success: false,
       },
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -54,13 +52,7 @@ describe('accessRepository contract', () => {
 
     const result = await accessRepository.editRole(dto as never)
 
-    expect(useRequest).toHaveBeenCalledWith({
-      method: 'POST',
-      url: '/role/edit',
-      data: dto,
-      responseShape: 'data',
-
-    })
+    expect(useRequest).toHaveBeenCalledWith({ method: 'POST', url: '/role/edit', data: dto })
     expect(result).toBe(payload)
   })
 
@@ -85,8 +77,6 @@ describe('accessRepository contract', () => {
       notify: {
         success: false,
       },
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -115,8 +105,6 @@ describe('accessRepository contract', () => {
       notify: {
         success: false,
       },
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -143,8 +131,6 @@ describe('accessRepository contract', () => {
       notify: {
         success: false,
       },
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -170,8 +156,6 @@ describe('accessRepository contract', () => {
       notify: {
         success: false,
       },
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -187,13 +171,7 @@ describe('accessRepository contract', () => {
 
     const result = await accessRepository.assignRoleToUsers(dto as never)
 
-    expect(useRequest).toHaveBeenCalledWith({
-      method: 'POST',
-      url: '/user-role/assign',
-      data: dto,
-      responseShape: 'data',
-
-    })
+    expect(useRequest).toHaveBeenCalledWith({ method: 'POST', url: '/user-role/assign', data: dto })
     expect(result).toBeNull()
   })
 })

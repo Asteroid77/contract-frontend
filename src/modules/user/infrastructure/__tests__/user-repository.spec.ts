@@ -32,8 +32,6 @@ describe('userRepository contract', () => {
       url: USER_ENDPOINTS.LOGIN,
       data: dto,
       withCredentials: true,
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -55,8 +53,6 @@ describe('userRepository contract', () => {
       method: 'POST',
       url: USER_ENDPOINTS.REGISTER,
       data: dto,
-      responseShape: 'data',
-
     })
     expect(result).toBe(payload)
   })
@@ -84,8 +80,6 @@ describe('userRepository contract', () => {
       skipAuthToken: true,
       skipAuthRefresh: true,
       withCredentials: true,
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -97,12 +91,7 @@ describe('userRepository contract', () => {
 
     const result = await userRepository.getCurrentUserInfo()
 
-    expect(useRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: USER_ENDPOINTS.ME,
-      responseShape: 'data',
-
-    })
+    expect(useRequest).toHaveBeenCalledWith({ method: 'GET', url: USER_ENDPOINTS.ME })
     expect(result).toEqual(payload)
   })
 
@@ -122,8 +111,6 @@ describe('userRepository contract', () => {
       },
       skipAuthRefresh: true,
       skipAuthToken: true,
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -146,8 +133,6 @@ describe('userRepository contract', () => {
       notify: {
         success: false,
       },
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -167,8 +152,6 @@ describe('userRepository contract', () => {
       method: 'POST',
       url: USER_ENDPOINTS.PASSWORD_CHANGE,
       data: dto,
-      responseShape: 'data',
-
     })
     expect(result).toBe(true)
   })
@@ -192,8 +175,6 @@ describe('userRepository contract', () => {
       notify: {
         success: false,
       },
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -216,8 +197,6 @@ describe('userRepository contract', () => {
       method: 'POST',
       url: USER_ENDPOINTS.DEVICES_REVOKE,
       data: dto,
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -246,8 +225,6 @@ describe('userRepository contract', () => {
       method: 'POST',
       url: USER_ENDPOINTS.ADDITIONAL_INFO_PUT,
       data: dto,
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -276,8 +253,6 @@ describe('userRepository contract', () => {
       notify: {
         success: false,
       },
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -299,8 +274,6 @@ describe('userRepository contract', () => {
       method: 'POST',
       url: USER_ENDPOINTS.PASSWORD_RECOVERY,
       data: dto,
-      responseShape: 'data',
-
     })
     expect(result).toBe(true)
   })
@@ -310,12 +283,7 @@ describe('userRepository contract', () => {
 
     const result = await userRepository.deleteUser(2)
 
-    expect(useRequest).toHaveBeenCalledWith({
-      method: 'DELETE',
-      url: USER_ENDPOINTS.DETAIL(2),
-      responseShape: 'data',
-
-    })
+    expect(useRequest).toHaveBeenCalledWith({ method: 'DELETE', url: USER_ENDPOINTS.DETAIL(2) })
     expect(result).toBe(true)
   })
 
@@ -330,8 +298,6 @@ describe('userRepository contract', () => {
       skipAuthRefresh: true,
       withCredentials: true,
       notify: { success: false },
-      responseShape: 'data',
-
     })
     expect(result).toBe(true)
   })

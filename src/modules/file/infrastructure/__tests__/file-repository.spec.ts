@@ -21,12 +21,7 @@ describe('fileRepository contract', () => {
 
     const result = await fileRepository.getById(9)
 
-    expect(useRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: '/file/9/get',
-      responseShape: 'data',
-
-    })
+    expect(useRequest).toHaveBeenCalledWith({ method: 'GET', url: '/file/9/get' })
     expect(result).toEqual(payload)
   })
 
@@ -48,8 +43,6 @@ describe('fileRepository contract', () => {
       params: {
         ids: [1, 2],
       },
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -72,8 +65,6 @@ describe('fileRepository contract', () => {
       params: {
         ids: [1, 2],
       },
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })

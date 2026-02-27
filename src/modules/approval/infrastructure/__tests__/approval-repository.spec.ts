@@ -20,8 +20,6 @@ describe('approvalRepository contract', () => {
       url: '/approval/task/claim',
       method: 'post',
       data: 888,
-      responseShape: 'data',
-
     })
     expect(result).toBe(true)
   })
@@ -45,8 +43,6 @@ describe('approvalRepository contract', () => {
       url: '/approval/task/handle',
       method: 'post',
       data: dto,
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -59,8 +55,6 @@ describe('approvalRepository contract', () => {
     expect(useRequest).toHaveBeenCalledWith({
       url: '/approval/instance/101/cancel',
       method: 'post',
-      responseShape: 'data',
-
     })
     expect(result).toBe(true)
   })
@@ -86,8 +80,6 @@ describe('approvalRepository contract', () => {
       url: '/approval/instance/page',
       method: 'post',
       data: pageRequest,
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -108,8 +100,6 @@ describe('approvalRepository contract', () => {
       params: {
         instanceId: 101,
       },
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -132,8 +122,6 @@ describe('approvalRepository contract', () => {
       params: {
         instanceId: 101,
       },
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -151,8 +139,6 @@ describe('approvalRepository contract', () => {
     expect(useRequest).toHaveBeenCalledWith({
       url: '/approval/instance/additional-info/latest/status',
       method: 'get',
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })

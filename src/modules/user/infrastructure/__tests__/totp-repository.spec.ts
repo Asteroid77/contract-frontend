@@ -32,7 +32,6 @@ describe('totpRepository contract', () => {
       skipAuthToken: true,
       skipAuthRefresh: true,
       withCredentials: true,
-      responseShape: 'data',
     })
     expect(result).toEqual(payload)
   })

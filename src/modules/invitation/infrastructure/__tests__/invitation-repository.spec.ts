@@ -17,12 +17,7 @@ describe('invitationRepository contract', () => {
 
     const result = await invitationRepository.createInvitationCode()
 
-    expect(useRequest).toHaveBeenCalledWith({
-      url: '/invitation/create',
-      method: 'POST',
-      responseShape: 'data',
-
-    })
+    expect(useRequest).toHaveBeenCalledWith({ url: '/invitation/create', method: 'POST' })
     expect(result).toEqual(payload)
   })
 
@@ -38,8 +33,6 @@ describe('invitationRepository contract', () => {
       url: '/invitation/update',
       method: 'POST',
       data: dto,
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -53,8 +46,6 @@ describe('invitationRepository contract', () => {
       url: '/invitation/delete',
       method: 'DELETE',
       data: [1, 2],
-      responseShape: 'data',
-
     })
     expect(result).toBe(true)
   })
@@ -71,8 +62,6 @@ describe('invitationRepository contract', () => {
       notify: {
         success: false,
       },
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })
@@ -88,8 +77,6 @@ describe('invitationRepository contract', () => {
       notify: {
         success: false,
       },
-      responseShape: 'data',
-
     })
     expect(result).toBe(3)
   })
@@ -118,8 +105,6 @@ describe('invitationRepository contract', () => {
       notify: {
         success: false,
       },
-      responseShape: 'data',
-
     })
     expect(result).toEqual(payload)
   })

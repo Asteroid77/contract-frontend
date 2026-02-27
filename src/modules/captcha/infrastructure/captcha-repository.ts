@@ -16,7 +16,6 @@ export const captchaRepository = {
       notify: {
         success: false,
       },
-      responseShape: 'data',
     }),
   sendSmsCode: (phone: string): Promise<SmsCaptchaResponse> =>
     useRequest<SmsCaptchaResponse, string>({
@@ -26,6 +25,5 @@ export const captchaRepository = {
       notify: {
         success: { title: $t('auth.sms.sentSuccess'), type: 'notification' },
       },
-      responseShape: 'data',
     }),
 }
