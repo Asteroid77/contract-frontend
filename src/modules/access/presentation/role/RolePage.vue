@@ -16,6 +16,7 @@ import { useRouter } from 'vue-router'
 import RoleAssign from './RoleAssign.vue'
 import { useI18n } from 'vue-i18n'
 import { useIsMobile } from '@/app/presentation/hooks/useIsMobile'
+import MobilePrimarySecondaryText from '@/modules/shared/presentation/widget/MobilePrimarySecondaryText'
 const $router = useRouter()
 const { t: $t } = useI18n()
 const isMobile = useIsMobile(768)
@@ -29,48 +30,43 @@ function createColumns({
   assign: (rowData: RoleItem) => void
   mobile: boolean
 }): DataTableColumns<RoleItem> {
+  const renderOperate = (row: RoleItem) =>
+    h(
+      NSpace,
+      {},
+      {
+        default: () => [
+          h(
+            NButton,
+            { size: 'tiny', onClick: () => edit(row) },
+            { default: () => $t('common.action.edit') },
+          ),
+          h(
+            NButton,
+            { size: 'tiny', onClick: () => assign(row) },
+            { default: () => $t('common.action.assign') },
+          ),
+        ],
+      },
+    )
+
   if (mobile) {
     return [
       {
         title: $t('system.role.field.code'),
         key: 'name',
         render(row) {
-          return h('div', { class: 'min-w-0' }, [
-            h(
-              'div',
-              { class: 'text-sm font-medium text-[var(--color-text-main)] truncate' },
-              row.name,
-            ),
-            h(
-              'div',
-              { class: 'text-xs text-[var(--color-text-light)] truncate mt-1' },
-              row.description || '-',
-            ),
-          ])
+          return h(MobilePrimarySecondaryText, {
+            primary: row.name,
+            secondary: [row.description || '-'],
+          })
         },
       },
       {
         title: $t('common.action.operate'),
         key: 'operate',
         render(row) {
-          return h(
-            NSpace,
-            {},
-            {
-              default: () => [
-                h(
-                  NButton,
-                  { size: 'small', onClick: () => edit(row) },
-                  { default: () => $t('common.action.edit') },
-                ),
-                h(
-                  NButton,
-                  { size: 'small', onClick: () => assign(row) },
-                  { default: () => $t('common.action.assign') },
-                ),
-              ],
-            },
-          )
+          return renderOperate(row)
         },
       },
     ]
@@ -89,24 +85,7 @@ function createColumns({
       title: $t('common.action.operate'),
       key: 'operate',
       render(row) {
-        return h(
-          NSpace,
-          {},
-          {
-            default: () => [
-              h(
-                NButton,
-                { size: 'small', onClick: () => edit(row) },
-                { default: () => $t('common.action.edit') },
-              ),
-              h(
-                NButton,
-                { size: 'small', onClick: () => assign(row) },
-                { default: () => $t('common.action.assign') },
-              ),
-            ],
-          },
-        )
+        return renderOperate(row)
       },
     },
   ]
@@ -151,6 +130,7 @@ const { data, isLoading } = useRolePage(queryConditionMap)
 const tableData = computed(() => {
   return data.value?.records
 })
+const roleAssignDrawerWidth = 'min(calc(var(--sider-width) + var(--spacing-80)), 90vw)'
 </script>
 <template>
   <n-data-table
@@ -161,7 +141,7 @@ const tableData = computed(() => {
     :pagination="pagination"
     :loading="isLoading"
   />
-  <n-drawer v-model:show="showOuter" width="350">
+  <n-drawer v-model:show="showOuter" :width="roleAssignDrawerWidth">
     <role-assign :role-id="currentDrawerWithRoleId"></role-assign>
   </n-drawer>
 </template>

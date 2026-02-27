@@ -1,29 +1,20 @@
-import { defineComponent, computed, reactive, ref, h } from 'vue'
+import { defineComponent, computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import {
-  NButton,
-  NDataTable,
-  NPopconfirm,
-  NSpace,
-  type DataTableColumns,
-  type PaginationProps,
-} from 'naive-ui'
-import type { QueryFilters } from '@/modules/shared/domain/query'
+import { NButton, NDataTable, NPopconfirm, NSpace, type DataTableColumns } from 'naive-ui'
 import type { UserPageItem, UserPageRequest } from '@/modules/user/application/models'
 import { useDeleteUser, useUserPage } from '@/modules/user/application/hooks/useUserPage'
 import {
   ModernQueryBuilder,
   QueryActionButtons,
 } from '@/modules/shared/presentation/advanced-query'
+import { useListQueryState } from '@/modules/shared/presentation/advanced-query/useListQueryState'
+import MobilePrimarySecondaryText from '@/modules/shared/presentation/widget/MobilePrimarySecondaryText'
 import { userListAdvancedQueryFields } from './userListAdvancedQueryFields'
 import { RegisterTypeOption } from '@/modules/user/application/constants'
 import { resolvePlatformLabelKey } from '@/modules/user/application/utils/platform'
 import { usePermission } from '@/modules/access/application/hooks/useCan'
 import { useIsMobile } from '@/app/presentation/hooks/useIsMobile'
-
-const normalizeAppliedQuery = (query: QueryFilters): QueryFilters | null =>
-  query.filters?.length || query.group ? query : null
 
 export default defineComponent({
   name: 'ManageUserListPage',
@@ -36,22 +27,8 @@ export default defineComponent({
     const canDisable = usePermission('delete', 'User')
     const isMobile = useIsMobile(768)
 
-    const draftQueryFilters = ref<QueryFilters>({})
-    const appliedQueryFilters = ref<QueryFilters | null>(null)
-
-    const pagination: PaginationProps = reactive({
-      page: 1,
-      pageSize: 10,
-      showSizePicker: true,
-      pageSizes: [10, 50, 100],
-      onChange: (page: number) => {
-        pagination.page = page
-      },
-      onUpdatePageSize: (pageSize: number) => {
-        pagination.pageSize = pageSize
-        pagination.page = 1
-      },
-    })
+    const { draftQueryFilters, appliedQueryFilters, pagination, bindRefetchHandlers } =
+      useListQueryState()
 
     const pageRequest = computed<UserPageRequest>(() => {
       const request: UserPageRequest = {
@@ -66,26 +43,8 @@ export default defineComponent({
 
     const userPageQuery = useUserPage(pageRequest)
     const deleteMutation = useDeleteUser()
-
-    const handleSearch = (query?: QueryFilters) => {
-      const nextApplied = normalizeAppliedQuery(query ?? draftQueryFilters.value)
-      const shouldForceRefetch =
-        pagination.page === 1 &&
-        JSON.stringify(appliedQueryFilters.value ?? {}) === JSON.stringify(nextApplied ?? {})
-
-      appliedQueryFilters.value = nextApplied
-      pagination.page = 1
-      if (shouldForceRefetch) userPageQuery.refetch()
-    }
-
-    const handleReset = () => {
-      const shouldForceRefetch = pagination.page === 1 && appliedQueryFilters.value == null
-
-      draftQueryFilters.value = {}
-      appliedQueryFilters.value = null
-      pagination.page = 1
-      if (shouldForceRefetch) userPageQuery.refetch()
-    }
+    const { onSearch: handleSearchWithRefetch, onReset: handleResetWithRefetch } =
+      bindRefetchHandlers(() => userPageQuery.refetch())
 
     const handleDelete = (userId: number) => {
       if (deleteMutation.isPending.value) return
@@ -103,6 +62,13 @@ export default defineComponent({
 
     const userActiveLabel = (deleted: boolean) => activationLabel(!deleted)
 
+    const renderUserStatusText = (deleted: boolean) =>
+      h(
+        'span',
+        { class: 'text-xs text-[var(--color-text-main)] leading-5' },
+        userActiveLabel(deleted),
+      )
+
     const renderOperate = (row: UserPageItem) => {
       const actionButtons: ReturnType<typeof h>[] = []
 
@@ -111,7 +77,7 @@ export default defineComponent({
           h(
             NButton,
             {
-              size: 'small',
+              size: 'tiny',
               onClick: () => {
                 router.push({ name: 'manage-user-edit', params: { userId: row.id } })
               },
@@ -126,7 +92,7 @@ export default defineComponent({
           h(
             NButton,
             {
-              size: 'small',
+              size: 'tiny',
               onClick: () => {
                 router.push({ name: 'manage-user-detail', params: { userId: row.id } })
               },
@@ -148,7 +114,7 @@ export default defineComponent({
                 h(
                   NButton,
                   {
-                    size: 'small',
+                    size: 'tiny',
                     type: 'error',
                     loading: deleteMutation.isPending.value,
                   },
@@ -171,28 +137,18 @@ export default defineComponent({
               title: $t('domain.user.field.name'),
               key: 'name',
               render: (row: UserPageItem) =>
-                h('div', { class: 'min-w-0' }, [
-                  h(
-                    'div',
-                    { class: 'text-sm font-medium text-[var(--color-text-main)] truncate' },
-                    displayName(row),
-                  ),
-                  h(
-                    'div',
-                    { class: 'text-xs text-[var(--color-text-light)] truncate mt-1' },
+                h(MobilePrimarySecondaryText, {
+                  primary: displayName(row),
+                  secondary: [
                     `${row.phone || '-'} · ${registerTypeLabel(row.registerType)}`,
-                  ),
-                  h(
-                    'div',
-                    { class: 'text-xs text-[var(--color-text-light)] truncate mt-1' },
                     $t(resolvePlatformLabelKey(row.platform)),
-                  ),
-                ]),
+                  ],
+                }),
             },
             {
               title: $t('common.label.status'),
               key: 'deleted',
-              render: (row: UserPageItem) => userActiveLabel(row.deleted),
+              render: (row: UserPageItem) => renderUserStatusText(row.deleted),
             },
             {
               title: $t('common.action.operate'),
@@ -228,7 +184,7 @@ export default defineComponent({
             {
               title: $t('common.label.status'),
               key: 'deleted',
-              render: (row: UserPageItem) => userActiveLabel(row.deleted),
+              render: (row: UserPageItem) => renderUserStatusText(row.deleted),
             },
             {
               title: $t('common.action.operate'),
@@ -244,12 +200,12 @@ export default defineComponent({
           <ModernQueryBuilder
             fields={userListAdvancedQueryFields}
             v-model:query={draftQueryFilters.value}
-            onSearch={handleSearch}
-            onReset={handleReset}
+            onSearch={handleSearchWithRefetch}
+            onReset={handleResetWithRefetch}
           />
           <QueryActionButtons
-            onSearch={() => handleSearch(draftQueryFilters.value)}
-            onReset={handleReset}
+            onSearch={() => handleSearchWithRefetch(draftQueryFilters.value)}
+            onReset={handleResetWithRefetch}
           />
         </NSpace>
 

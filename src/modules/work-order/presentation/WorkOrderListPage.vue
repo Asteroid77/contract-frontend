@@ -23,6 +23,7 @@ import WorkOrderCreateModal from './WorkOrderCreateModal.vue'
 import { formatted } from '@/modules/shared/presentation/time'
 import WorkOrderCategorySelect from './WorkOrderCategorySelect'
 import { useIsMobile } from '@/app/presentation/hooks/useIsMobile'
+import MobilePrimarySecondaryText from '@/modules/shared/presentation/widget/MobilePrimarySecondaryText'
 
 const router = useRouter()
 const { t: $t } = useI18n()
@@ -42,6 +43,7 @@ const statusOptions = computed(() => [
   { label: $t('domain.workOrder.status.completed'), value: WorkOrderStatus.COMPLETED },
   { label: $t('domain.workOrder.status.cancelled'), value: WorkOrderStatus.CANCELLED },
 ])
+const statusSelectWidth = 'calc(var(--spacing-80) * 2)'
 
 const categoriesQuery = useHandlerCategories({ enabled: isHandler })
 
@@ -89,18 +91,10 @@ const columns = computed<DataTableColumns<Row>>(() => [
     ellipsis: { tooltip: true },
     render: (row) =>
       isMobile.value
-        ? h('div', { class: 'min-w-0' }, [
-            h(
-              'div',
-              { class: 'text-sm font-medium text-[var(--color-text-main)] truncate' },
-              row.title,
-            ),
-            h(
-              'div',
-              { class: 'text-xs text-[var(--color-text-light)] truncate mt-1' },
-              `${row.categoryName || '-'} · ${formatted(row.createdTime).standard}`,
-            ),
-          ])
+        ? h(MobilePrimarySecondaryText, {
+            primary: row.title,
+            secondary: [`${row.categoryName || '-'} · ${formatted(row.createdTime).standard}`],
+          })
         : row.title,
   },
   ...(isMobile.value
@@ -163,14 +157,14 @@ const handleCreateSuccess = () => {
           :options="statusOptions"
           :placeholder="$t('domain.workOrder.label.allStatus')"
           clearable
-          style="width: 160px"
+          :style="{ width: statusSelectWidth }"
         />
-        <n-button type="primary" size="small" @click="handleSearch">
+        <n-button type="primary" size="tiny" @click="handleSearch">
           {{ $t('common.action.search') }}
         </n-button>
       </n-space>
 
-      <n-button type="primary" @click="showCreateModal = true">
+      <n-button type="primary" size="tiny" @click="showCreateModal = true">
         {{ $t('domain.workOrder.action.create') }}
       </n-button>
     </n-space>

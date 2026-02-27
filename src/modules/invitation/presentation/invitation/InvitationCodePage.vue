@@ -20,6 +20,7 @@ import {
 import { invitationCodeStatus } from '@/modules/invitation/application/constants'
 import { useI18n } from 'vue-i18n'
 import { useIsMobile } from '@/app/presentation/hooks/useIsMobile'
+import MobilePrimarySecondaryText from '@/modules/shared/presentation/widget/MobilePrimarySecondaryText'
 const { t: $t } = useI18n()
 const invitationListQuery = useInvitationCodeListQuery()
 const isMobile = useIsMobile(768)
@@ -31,6 +32,15 @@ const renderStatusLabel = (row: InvitationCode) => {
 }
 
 function createColumns(mobile: boolean): DataTableColumns<InvitationCode> {
+  const renderRemarkInput = (row: InvitationCode) =>
+    h(NInput, {
+      value: row.remark || updateDataMap.value[row.id],
+      placeholder: '',
+      onUpdateValue(v: string) {
+        updateDataMap.value = { ...updateDataMap.value, [row.id]: v }
+      },
+    })
+
   if (mobile) {
     return [
       {
@@ -40,31 +50,17 @@ function createColumns(mobile: boolean): DataTableColumns<InvitationCode> {
         title: $t('domain.invitation.field.code'),
         key: 'code',
         render(row) {
-          return h('div', { class: 'min-w-0' }, [
-            h(
-              'div',
-              { class: 'text-sm font-medium text-[var(--color-text-main)] truncate' },
-              row.code,
-            ),
-            h(
-              'div',
-              { class: 'text-xs text-[var(--color-text-light)] truncate mt-1' },
-              renderStatusLabel(row),
-            ),
-          ])
+          return h(MobilePrimarySecondaryText, {
+            primary: row.code,
+            secondary: [renderStatusLabel(row)],
+          })
         },
       },
       {
         title: $t('common.field.remark'),
         key: 'remark',
         render(row) {
-          return h(NInput, {
-            value: row.remark || updateDataMap.value[row.id],
-            placeholder: '',
-            onUpdateValue(v: string) {
-              updateDataMap.value = { ...updateDataMap.value, [row.id]: v }
-            },
-          })
+          return renderRemarkInput(row)
         },
       },
     ]
@@ -89,13 +85,7 @@ function createColumns(mobile: boolean): DataTableColumns<InvitationCode> {
       title: $t('common.field.remark'),
       key: 'remark',
       render(row) {
-        return h(NInput, {
-          value: row.remark || updateDataMap.value[row.id],
-          placeholder: '',
-          onUpdateValue(v: string) {
-            updateDataMap.value = { ...updateDataMap.value, [row.id]: v }
-          },
-        })
+        return renderRemarkInput(row)
       },
     },
     {
@@ -142,12 +132,16 @@ const columns = computed(() => createColumns(isMobile.value))
 <template>
   <div class="my-content">
     <n-space>
-      <n-button @click="() => createMutation.mutate()" :loading="createMutation.isPending.value">{{
-        $t('common.action.add')
-      }}</n-button>
+      <n-button
+        size="tiny"
+        @click="() => createMutation.mutate()"
+        :loading="createMutation.isPending.value"
+        >{{ $t('common.action.add') }}</n-button
+      >
       <n-popconfirm @positive-click="update">
         <template #trigger>
           <n-button
+            size="tiny"
             :disabled="isDelOrSaveBtnDisabled"
             type="primary"
             :loading="updateMutation.isPending.value"
@@ -159,6 +153,7 @@ const columns = computed(() => createColumns(isMobile.value))
       <n-popconfirm @positive-click="deleteFn">
         <template #trigger>
           <n-button
+            size="tiny"
             :disabled="isDelOrSaveBtnDisabled"
             type="error"
             :loading="deleteMutation.isPending.value"
