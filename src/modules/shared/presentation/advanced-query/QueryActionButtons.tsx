@@ -1,8 +1,8 @@
 import { $t } from '@/_utils/i18n'
-import { NButton, NSpace, type ButtonProps } from 'naive-ui'
 import { defineComponent, type PropType } from 'vue'
+import ButtonLike from './modern/ButtonLike'
 
-type ActionButtonSize = NonNullable<ButtonProps['size']>
+type ActionButtonSize = 'tiny' | 'small' | 'medium' | 'large'
 
 export default defineComponent({
   name: 'AdvancedQueryActionButtons',
@@ -22,19 +22,19 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     return () => (
-      <NSpace>
-        <NButton
+      <div class="inline-flex items-center gap-2 pl-[var(--spacing-sm)]">
+        <ButtonLike
           size={props.size}
           type="primary"
           loading={props.searchLoading}
           onClick={() => emit('search')}
         >
           {$t('common.action.search')}
-        </NButton>
-        <NButton size={props.size} onClick={() => emit('reset')}>
+        </ButtonLike>
+        <ButtonLike size={props.size} secondary onClick={() => emit('reset')}>
           {$t('common.action.reset')}
-        </NButton>
-      </NSpace>
+        </ButtonLike>
+      </div>
     )
   },
 })

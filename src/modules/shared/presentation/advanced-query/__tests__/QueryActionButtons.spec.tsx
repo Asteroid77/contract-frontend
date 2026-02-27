@@ -6,15 +6,9 @@ vi.mock('@/_utils/i18n', () => ({
   $t: (key: string) => key,
 }))
 
-vi.mock('naive-ui', () => ({
-  NSpace: defineComponent({
-    name: 'NSpace',
-    setup(_, { slots }) {
-      return () => h('div', { 'data-test': 'n-space' }, slots.default?.())
-    },
-  }),
-  NButton: defineComponent({
-    name: 'NButton',
+vi.mock('@/modules/shared/presentation/advanced-query/modern/ButtonLike', () => ({
+  default: defineComponent({
+    name: 'ButtonLike',
     props: {
       size: {
         type: String,
@@ -25,6 +19,10 @@ vi.mock('naive-ui', () => ({
         required: false,
       },
       loading: {
+        type: Boolean,
+        required: false,
+      },
+      secondary: {
         type: Boolean,
         required: false,
       },
@@ -42,6 +40,7 @@ vi.mock('naive-ui', () => ({
             'data-size': props.size ?? '',
             'data-type': props.type ?? '',
             'data-loading': String(Boolean(props.loading)),
+            'data-secondary': String(Boolean(props.secondary)),
           },
           slots.default?.(),
         )
@@ -75,6 +74,7 @@ describe('QueryActionButtons', () => {
     await buttons[1].trigger('click')
 
     expect(buttons[0].attributes('data-loading')).toBe('true')
+    expect(buttons[1].attributes('data-secondary')).toBe('true')
     expect(wrapper.emitted('search')).toHaveLength(1)
     expect(wrapper.emitted('reset')).toHaveLength(1)
   })
