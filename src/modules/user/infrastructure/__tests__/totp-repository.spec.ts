@@ -21,7 +21,7 @@ describe('totpRepository contract', () => {
       rememberDevice: false,
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await totpRepository.verify(dto)
 
@@ -32,6 +32,7 @@ describe('totpRepository contract', () => {
       skipAuthToken: true,
       skipAuthRefresh: true,
       withCredentials: true,
+      responseShape: 'data',
     })
     expect(result).toEqual(payload)
   })

@@ -45,7 +45,7 @@ shared/
 `useRequest<T>(config)` 封装了项目的 HTTP 请求流程：
 
 - 自动注入 `requestId` 和认证令牌
-- RFC 7807 响应体解包（`unWrap` 参数控制）
+- `responseShape` 控制返回结构（`data` / `envelope` / `raw`）
 - 401 状态码自动刷新 token 并重试
 - 异常统一转换为 `BusinessError`
 

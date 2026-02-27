@@ -31,24 +31,28 @@ export const approvalRepository = {
       url: APPROVAL_ENDPOINTS.CLAIM,
       method: 'post',
       data: taskId,
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
   handleTask: (approvalCommentRequest: ApprovalCommentRequestDTO) =>
     useRequest<ApprovalInstance<Record<string, unknown>>, ApprovalCommentRequestDTO>({
       url: APPROVAL_ENDPOINTS.HANDLE,
       method: 'post',
       data: approvalCommentRequest,
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
   cancelInstance: (instanceId: number) =>
     useRequest<boolean, number>({
       url: APPROVAL_ENDPOINTS.CANCEL(instanceId),
       method: 'post',
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
   getInstancePage: (pageRequest: BasePageRequest<ApprovalInstancesPageDTO>) =>
     useRequest<IPage<ApprovalInstancePage>>({
       url: APPROVAL_INSTANCE_ENDPOINTS.PAGE,
       method: 'post',
       data: pageRequest,
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
   getInstanceDetail: (instanceId: number) =>
     useRequest<ApprovalInstance<Record<string, unknown>>>({
       url: APPROVAL_INSTANCE_ENDPOINTS.DETAIL,
@@ -56,7 +60,8 @@ export const approvalRepository = {
       params: {
         instanceId,
       },
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
   getHistoryList: (instanceId: number) =>
     useRequest<ApprovalHistory[], { instanceId: number }>({
       url: APPROVAL_HISTORY_ENDPOINTS.LIST,
@@ -64,10 +69,12 @@ export const approvalRepository = {
       params: {
         instanceId,
       },
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
   getLatestAdditionalInfoInstanceStatus: () =>
     useRequest<LatestAdditionalInfoInstance>({
       url: APPROVAL_INSTANCE_ENDPOINTS.LATEST_ADDITIONAL_INFO,
       method: 'get',
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
 }

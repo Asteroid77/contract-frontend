@@ -17,13 +17,15 @@ describe('fileRepository contract', () => {
       fileName: 'a.pdf',
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await fileRepository.getById(9)
 
     expect(useRequest).toHaveBeenCalledWith({
       method: 'GET',
       url: '/file/9/get',
+      responseShape: 'data',
+
     })
     expect(result).toEqual(payload)
   })
@@ -36,7 +38,7 @@ describe('fileRepository contract', () => {
       },
     ]
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await fileRepository.getByIds([1, 2])
 
@@ -46,6 +48,8 @@ describe('fileRepository contract', () => {
       params: {
         ids: [1, 2],
       },
+      responseShape: 'data',
+
     })
     expect(result).toEqual(payload)
   })
@@ -58,7 +62,7 @@ describe('fileRepository contract', () => {
       },
     ]
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await fileRepository.getMetaByIds([1, 2])
 
@@ -68,6 +72,8 @@ describe('fileRepository contract', () => {
       params: {
         ids: [1, 2],
       },
+      responseShape: 'data',
+
     })
     expect(result).toEqual(payload)
   })

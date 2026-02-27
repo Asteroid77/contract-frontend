@@ -12,7 +12,7 @@ describe('approvalRepository contract', () => {
   })
 
   it('claimTask forwards taskId and returns response data', async () => {
-    vi.mocked(useRequest).mockResolvedValue({ data: true } as never)
+    vi.mocked(useRequest).mockResolvedValue(true as never)
 
     const result = await approvalRepository.claimTask(888)
 
@@ -20,6 +20,8 @@ describe('approvalRepository contract', () => {
       url: '/approval/task/claim',
       method: 'post',
       data: 888,
+      responseShape: 'data',
+
     })
     expect(result).toBe(true)
   })
@@ -35,7 +37,7 @@ describe('approvalRepository contract', () => {
       approved: true,
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await approvalRepository.handleTask(dto)
 
@@ -43,18 +45,22 @@ describe('approvalRepository contract', () => {
       url: '/approval/task/handle',
       method: 'post',
       data: dto,
+      responseShape: 'data',
+
     })
     expect(result).toEqual(payload)
   })
 
   it('cancelInstance posts to cancel endpoint and returns response data', async () => {
-    vi.mocked(useRequest).mockResolvedValue({ data: true } as never)
+    vi.mocked(useRequest).mockResolvedValue(true as never)
 
     const result = await approvalRepository.cancelInstance(101)
 
     expect(useRequest).toHaveBeenCalledWith({
       url: '/approval/instance/101/cancel',
       method: 'post',
+      responseShape: 'data',
+
     })
     expect(result).toBe(true)
   })
@@ -72,7 +78,7 @@ describe('approvalRepository contract', () => {
       },
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await approvalRepository.getInstancePage(pageRequest as never)
 
@@ -80,6 +86,8 @@ describe('approvalRepository contract', () => {
       url: '/approval/instance/page',
       method: 'post',
       data: pageRequest,
+      responseShape: 'data',
+
     })
     expect(result).toEqual(payload)
   })
@@ -90,7 +98,7 @@ describe('approvalRepository contract', () => {
       taskId: 888,
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await approvalRepository.getInstanceDetail(101)
 
@@ -100,6 +108,8 @@ describe('approvalRepository contract', () => {
       params: {
         instanceId: 101,
       },
+      responseShape: 'data',
+
     })
     expect(result).toEqual(payload)
   })
@@ -112,7 +122,7 @@ describe('approvalRepository contract', () => {
       },
     ]
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await approvalRepository.getHistoryList(101)
 
@@ -122,6 +132,8 @@ describe('approvalRepository contract', () => {
       params: {
         instanceId: 101,
       },
+      responseShape: 'data',
+
     })
     expect(result).toEqual(payload)
   })
@@ -132,13 +144,15 @@ describe('approvalRepository contract', () => {
       status: 'pending',
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await approvalRepository.getLatestAdditionalInfoInstanceStatus()
 
     expect(useRequest).toHaveBeenCalledWith({
       url: '/approval/instance/additional-info/latest/status',
       method: 'get',
+      responseShape: 'data',
+
     })
     expect(result).toEqual(payload)
   })

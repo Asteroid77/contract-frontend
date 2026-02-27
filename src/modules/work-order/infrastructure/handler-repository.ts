@@ -17,61 +17,71 @@ export const handlerRepository = {
     useRequest<WorkOrderCategoryVO[]>({
       url: HANDLER_ENDPOINTS.CATEGORIES,
       method: 'get',
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
 
   getList: (params: WorkOrderListParams) =>
     useRequest<IPage<WorkOrderSummaryVO>>({
       url: HANDLER_ENDPOINTS.LIST,
       method: 'get',
       params,
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
 
   getPendingCount: () =>
     useRequest<PendingCountVO>({
       url: HANDLER_ENDPOINTS.PENDING_COUNT,
       method: 'get',
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
 
   getDetail: (id: number) =>
     useRequest<WorkOrderDetailVO>({
       url: HANDLER_ENDPOINTS.DETAIL(id),
       method: 'get',
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
 
   claim: (id: number) =>
     useRequest<WorkOrderDetailVO>({
       url: HANDLER_ENDPOINTS.CLAIM(id),
       method: 'post',
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
 
   release: (id: number) =>
     useRequest<WorkOrderDetailVO>({
       url: HANDLER_ENDPOINTS.RELEASE(id),
       method: 'post',
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
 
   getReplies: (id: number) =>
     useRequest<WorkOrderReplyVO[]>({
       url: HANDLER_ENDPOINTS.REPLIES(id),
       method: 'get',
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
 
   addReply: (id: number, dto: WorkOrderReplyDTO) =>
     useRequest<WorkOrderReplyVO, WorkOrderReplyDTO>({
       url: HANDLER_ENDPOINTS.ADD_REPLY(id),
       method: 'post',
       data: dto,
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
 
   complete: (id: number) =>
     useRequest<WorkOrderDetailVO>({
       url: HANDLER_ENDPOINTS.COMPLETE(id),
       method: 'post',
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
 
   getPerformance: () =>
     useRequest<WorkOrderPerformanceVO>({
       url: HANDLER_ENDPOINTS.PERFORMANCE,
       method: 'get',
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
 }

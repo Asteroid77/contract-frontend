@@ -104,6 +104,7 @@ describe('useRequest requestId behavior', () => {
     const result = await useRequest<{ value: number }>({
       method: 'GET',
       url: '/mock',
+      responseShape: 'envelope',
     })
 
     expect(result.requestId).toBe('request-id-from-body')
@@ -129,6 +130,7 @@ describe('useRequest requestId behavior', () => {
     const result = await useRequest<{ value: number }>({
       method: 'GET',
       url: '/mock',
+      responseShape: 'envelope',
     })
 
     expect(result.requestId).toBe('request-id-from-header')
@@ -172,8 +174,12 @@ describe('useRequest requestId behavior', () => {
 
     mock.onGet('/protected').reply((config: AxiosRequestConfig) => {
       protectedAttempt += 1
-      protectedRequestIds.push(readHeader(config.headers as RawAxiosRequestHeaders, REQUEST_ID_HEADER) ?? '')
-      protectedAuthHeaders.push(readHeader(config.headers as RawAxiosRequestHeaders, 'Authorization') ?? '')
+      protectedRequestIds.push(
+        readHeader(config.headers as RawAxiosRequestHeaders, REQUEST_ID_HEADER) ?? '',
+      )
+      protectedAuthHeaders.push(
+        readHeader(config.headers as RawAxiosRequestHeaders, 'Authorization') ?? '',
+      )
 
       if (protectedAttempt === 1) {
         return [
@@ -233,6 +239,7 @@ describe('useRequest requestId behavior', () => {
       requestContext: {
         requestId: 'request-id-stable',
       },
+      responseShape: 'envelope',
     })
 
     expect(response.data.ok).toBe(true)
@@ -254,7 +261,9 @@ describe('useRequest requestId behavior', () => {
 
     mock.onGet('/protected-stale').reply((config: AxiosRequestConfig) => {
       protectedAttempt += 1
-      protectedAuthHeaders.push(readHeader(config.headers as RawAxiosRequestHeaders, 'Authorization') ?? '')
+      protectedAuthHeaders.push(
+        readHeader(config.headers as RawAxiosRequestHeaders, 'Authorization') ?? '',
+      )
 
       if (protectedAttempt === 1) {
         localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, 'access-new')
@@ -306,6 +315,7 @@ describe('useRequest requestId behavior', () => {
       requestContext: {
         requestId: 'request-id-stale',
       },
+      responseShape: 'envelope',
     })
 
     expect(response.data.ok).toBe(true)

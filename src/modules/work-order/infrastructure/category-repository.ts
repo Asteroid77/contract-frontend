@@ -7,25 +7,29 @@ export const categoryRepository = {
     useRequest<WorkOrderCategoryVO[]>({
       url: CATEGORY_ENDPOINTS.LIST,
       method: 'get',
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
 
   create: (dto: WorkOrderCategoryForm) =>
     useRequest<WorkOrderCategoryVO, WorkOrderCategoryForm>({
       url: CATEGORY_ENDPOINTS.CREATE,
       method: 'post',
       data: dto,
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
 
   update: (id: number, dto: WorkOrderCategoryForm) =>
     useRequest<WorkOrderCategoryVO, WorkOrderCategoryForm>({
       url: CATEGORY_ENDPOINTS.UPDATE(id),
       method: 'put',
       data: dto,
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
 
   remove: (id: number) =>
     useRequest<boolean>({
       url: CATEGORY_ENDPOINTS.DELETE(id),
       method: 'delete',
-    }).then((resp) => resp.data),
+      responseShape: 'data',
+    }),
 }

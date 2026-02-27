@@ -35,6 +35,8 @@ export interface Notify {
   error: MessageStructure
 }
 
+export type RequestResponseShape = 'data' | 'envelope' | 'raw'
+
 /**
  * 拓展AxiosRequestConfig中的自定义配置
  */
@@ -44,9 +46,12 @@ export interface CustomAxiosRequestConfig<D = unknown> extends AxiosRequestConfi
    */
   notify?: CustomNotify | boolean
   /**
-   * 是否解构数据(默认解构链路AxiosResponse<ServerResponse<T> -> ServerResponse<T> -> T)
+   * 指定返回结构：
+   * - `data`: 仅返回业务数据
+   * - `envelope`: 返回 RFC7807 成功响应体
+   * - `raw`: 返回 AxiosResponse 包裹的 RFC7807 成功响应体
    */
-  unWrap?: boolean
+  responseShape?: RequestResponseShape
   /**
    * 请求上下文
    */
