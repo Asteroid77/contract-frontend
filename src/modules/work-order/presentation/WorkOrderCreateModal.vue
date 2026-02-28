@@ -9,8 +9,8 @@ import { useRouter } from 'vue-router'
 import WorkOrderCategorySelect from './WorkOrderCategorySelect'
 
 const AsyncMdEditor = defineAsyncComponent(async () => {
-  const [{ MdEditor }] = await Promise.all([
-    import('md-editor-v3'),
+  const [{ default: MdEditor }] = await Promise.all([
+    import('md-editor-v3/lib/es/MdEditor.mjs'),
     import('md-editor-v3/lib/style.css'),
   ])
 
