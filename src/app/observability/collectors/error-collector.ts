@@ -170,7 +170,7 @@ export function captureError(
 
   // 去重检查
   const fingerprint = getErrorFingerprint(partialError)
-  const { isDuplicate, count } = checkDuplicate(fingerprint)
+  const { isDuplicate } = checkDuplicate(fingerprint)
 
   if (isDuplicate) {
     if (config?.debug) {
@@ -196,7 +196,7 @@ export function captureError(
     'error.source': enrichedError.source,
     'error.code': String(enrichedError.code || ''),
     'error.trace_id': enrichedError.traceId || '',
-    'session.id': enrichedError.context?.sessionId as string || '',
+    'session.id': (enrichedError.context?.sessionId as string) || '',
   })
 
   // 2. 发送到 SigNoz (通过 OTEL Logs)

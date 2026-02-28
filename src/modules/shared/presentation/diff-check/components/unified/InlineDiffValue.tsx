@@ -31,13 +31,13 @@ export default defineComponent({
   setup(props) {
     const formatValue = (val: FieldValue): string => {
       if (DiffService.isEmpty(val)) return ''
-      if (typeof val === 'boolean') return val ? ($t('common.label.yes') as string) : ($t('common.label.no') as string)
+      if (typeof val === 'boolean')
+        return val ? ($t('common.label.yes') as string) : ($t('common.label.no') as string)
       if (Array.isArray(val)) return $t('common.label.totalItems', { count: val.length }) as string
       return String(val)
     }
 
     return () => {
-      const oldEmpty = DiffService.isEmpty(props.oldValue)
       const newEmpty = DiffService.isEmpty(props.newValue)
 
       // 未变化：直接显示值

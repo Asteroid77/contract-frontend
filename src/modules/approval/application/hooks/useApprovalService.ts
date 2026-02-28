@@ -1,7 +1,6 @@
 import { approvalService } from '@/modules/approval/application/service'
 import type {
   ApprovalOpinionForm,
-  ApprovalInstancesPageQuery,
   ApprovalInstancesPageRequest,
   ApprovalInstance,
   ApprovalInstancePage,
@@ -132,7 +131,9 @@ export const useApprovalInstancePage = (
   return useQuery<IPage<ApprovalInstancePage>, AxiosError<unknown>, IPage<ApprovalInstancePage>>({
     queryKey: computed(() => approvalInstanceKeys.INSTANCE_PAGE(unref(params))),
     queryFn: (ctx) =>
-      withQueryRequestContext(ctx.queryKey, ctx, () => approvalService.getInstancePage(unref(params))),
+      withQueryRequestContext(ctx.queryKey, ctx, () =>
+        approvalService.getInstancePage(unref(params)),
+      ),
     enabled: computed(() => unref(options?.enabled ?? true)),
     refetchInterval: options?.refetchInterval,
     staleTime: 30 * 1000, // 30秒
@@ -151,7 +152,9 @@ export const useApprovalInstanceDetail = (params: Ref<number>) => {
   >({
     queryKey: approvalInstanceKeys.INSTANCE_DETAIL(params.value),
     queryFn: (ctx) =>
-      withQueryRequestContext(ctx.queryKey, ctx, () => approvalService.getInstanceDetail(params.value)),
+      withQueryRequestContext(ctx.queryKey, ctx, () =>
+        approvalService.getInstanceDetail(params.value),
+      ),
     enabled: !!params.value && params.value > 0,
     placeholderData: (previousData) => previousData, // 保持之前的数据
   })
@@ -166,7 +169,9 @@ export const useApprovalHistoryQuery = (instanceId: Ref<number>) => {
   return useQuery<ApprovalHistory[], AxiosError<unknown>, ApprovalHistory[]>({
     queryKey: approvalKeys.HISTORY(instanceId.value),
     queryFn: (ctx) =>
-      withQueryRequestContext(ctx.queryKey, ctx, () => approvalService.getHistoryList(instanceId.value)),
+      withQueryRequestContext(ctx.queryKey, ctx, () =>
+        approvalService.getHistoryList(instanceId.value),
+      ),
     enabled: computed(() => !!instanceId.value && instanceId.value > 0),
     placeholderData: (previousData) => previousData, // 保持之前的数据
   })
