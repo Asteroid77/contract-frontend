@@ -22,5 +22,5 @@
 - R3（theme）: 颜色与主要样式值 MUST 优先使用 theme token 或 CSS 变量；MUST NOT 在业务代码硬编码主样式值。
 - R4（advanced_query）: 搜索筛选 MUST 使用 `ModernQueryBuilder + QueryFilters`（参考 `advanced_query`）；MUST NOT 新增绕过该模式的筛选实现。
 - R5 (time): 时间格式的处理参考`src/modules/shared/presentation/time/index.ts`；MUST NOT 自行实现重复功能。
-- R6（casl）：权限相关的处理参考`src/modules/access/presentation/directives/can.ts`；MUST NOT自行实现。
-- R7（tanstack query）：请求相关需要根据业务评估是否实现缓存以及缓存的时间，请求后会返回服务器的应答toast（参考`/src/app/plugins/useRequestPlugins.ts#globalSuccessHandler以及globalBaseErrorHandler`），所以对于请求后需要提示成功/失败的内容，MUST NOT额外做toast/message。
+- R6（casl）：权限相关的处理参考`docs/CASL_INTEGRATION.md`；MUST NOT自行实现。
+- R7（tanstack query）：请求相关需要根据业务评估是否实现缓存以及缓存的时间，请求后会返回服务器的应答toast（参考`src/app/plugins/useRequestPlugin.ts#globalSuccessHandler以及globalBaseErrorHandler`），所以对于请求后需要提示成功/失败的内容，MUST NOT额外做toast/message。
