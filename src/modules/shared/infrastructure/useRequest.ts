@@ -47,24 +47,20 @@ export async function useRequest<T, D = unknown>(
     queryKey = [config.url]
   }
 
-  const fetchStartTimestamp = new Date()
-  console.log(`Request starting at ${fetchStartTimestamp},key:${queryKey}`)
-  console.log(`params`, config.params, 'data', config.data)
-
   setRequestId(config)
 
   try {
-    return await executeRequest<T, D>(config, queryKey)
+    return await executeRequest<T, D>(config)
   } catch (error) {
     if (shouldRetryWithTokenRefresh(error, config)) {
       try {
         config._authRetried = true
         if (!shouldRefreshBeforeRetry(config)) {
-          return await executeRequest<T, D>(config, queryKey, true)
+          return await executeRequest<T, D>(config, true)
         }
 
         await forceRefreshAccessToken()
-        return await executeRequest<T, D>(config, queryKey, true)
+        return await executeRequest<T, D>(config, true)
       } catch (retryError) {
         throwMappedRequestError(retryError, config)
       }
@@ -76,7 +72,6 @@ export async function useRequest<T, D = unknown>(
 
 async function executeRequest<T, D>(
   config: CustomAxiosRequestConfig<D>,
-  queryKey: unknown[],
   forceReloadToken: boolean = false,
 ): Promise<T | RFC7807SuccessResponse<T> | AxiosResponse<RFC7807SuccessResponse<T>, D>> {
   config._authTokenUsed = setToken(config, 'Authorization', forceReloadToken)
@@ -86,9 +81,6 @@ async function executeRequest<T, D>(
     AxiosResponse<RFC7807Response<T>>,
     D
   >(config)
-
-  const fetchEndTimestamp = new Date()
-  console.log(`Request ending at ${fetchEndTimestamp}, key: ${queryKey}`)
 
   return resolveResponsePayload<T, D>(config, response)
 }

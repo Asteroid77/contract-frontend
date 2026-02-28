@@ -186,8 +186,6 @@ function processApiError(error: Error | undefined): ProcessedError | undefined {
 const globalBaseErrorHandler = (
   error: unknown,
   query?: Query<unknown, unknown, unknown>,
-  variables?: unknown,
-  context?: unknown,
   mutation?: Mutation<unknown, unknown, unknown, unknown>,
 ) => {
   const gatherStruction = query ? query : (mutation as Mutation<unknown, unknown, unknown, unknown>)
@@ -242,59 +240,19 @@ const globalBaseErrorHandler = (
       }
     }
   }
-
-  let logContext: Record<string, unknown> = {
-    variables,
-    context,
-  }
-  if (query) {
-    const ctx = gatherStruction as Query
-    logContext = {
-      ...logContext,
-      queryKey: ctx.queryKey,
-      // 状态快照
-      state: {
-        status: ctx.state.status,
-        queryFetchStatus: ctx.state.fetchStatus,
-        queryFetchFailureCount: ctx.state.fetchFailureCount,
-        // 服务端返回的数据
-        data: gatherStruction.state.data,
-        // 数据有多旧？
-        queryDataUpdatedAt:
-          ctx.state.dataUpdatedAt > 0 ? new Date(ctx.state.dataUpdatedAt).toISOString() : null,
-        // 緩存中是否有旧数据？
-        queryHasStaleData: ctx.state.data !== undefined,
-      },
-      // query配置信息
-      queryOptions: {
-        retry: ctx.options?.retry,
-        gcTime: ctx.options?.gcTime,
-      },
-      // 影响范围
-      queryActiveObservers: ctx.getObserversCount(),
-    }
-  } else {
-    const ctx = gatherStruction as Mutation
-    logContext = {
-      ...logContext,
-      // 请求key
-      mutationKey: ctx.mutationId,
-    }
-  }
-  console.log('logContext', logContext)
 }
 const globalMutationErrorHandler = (
   error: unknown,
-  context: unknown,
-  variables: unknown,
+  _context: unknown,
+  _variables: unknown,
   mutation: Mutation<unknown, unknown, unknown, unknown>,
 ) => {
-  globalBaseErrorHandler(error, undefined, variables, context, mutation)
+  globalBaseErrorHandler(error, undefined, mutation)
 }
 const globalSuccessHandler = (
   data: RFC7807Response<unknown> | AxiosResponse<RFC7807Response<unknown>>,
-  variabbles: unknown,
-  context: unknown,
+  _variabbles: unknown,
+  _context: unknown,
   query?: Query<unknown, unknown, unknown>,
   mutation?: Mutation<unknown, unknown, unknown, unknown>,
 ) => {
@@ -351,7 +309,7 @@ const queryClient = new QueryClient({
   }),
   mutationCache: new MutationCache({
     onError: globalMutationErrorHandler,
-    onSuccess(data, variables, context, mutation) {
+    onSuccess(data, _variables, _context, mutation) {
       const result = data as RFC7807Response<unknown> | AxiosResponse<RFC7807Response<unknown>>
       globalSuccessHandler(result, null, null, undefined, mutation)
     },

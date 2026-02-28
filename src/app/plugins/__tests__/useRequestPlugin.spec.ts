@@ -144,7 +144,6 @@ describe('useRequestPlugin', () => {
     const queryCacheConfig = getQueryCacheConfig(queryClient)
 
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
     const error = new BusinessError('biz-fail', 40001, 'trace-1', 'request-1')
     queryCacheConfig.onError(error, createQueryStub(undefined, { stale: true }))
@@ -158,7 +157,6 @@ describe('useRequestPlugin', () => {
     )
 
     consoleErrorSpy.mockRestore()
-    consoleLogSpy.mockRestore()
   })
 
   it('queryCache onError handles axios-like response error and includes request id', () => {
@@ -166,7 +164,6 @@ describe('useRequestPlugin', () => {
     const queryCacheConfig = getQueryCacheConfig(queryClient)
 
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
     axiosIsAxiosErrorSpy.mockReturnValue(true)
 
@@ -192,7 +189,6 @@ describe('useRequestPlugin', () => {
     )
 
     consoleErrorSpy.mockRestore()
-    consoleLogSpy.mockRestore()
   })
 
   it('queryCache onError ignores canceled error notifications', () => {
@@ -200,7 +196,6 @@ describe('useRequestPlugin', () => {
     const queryCacheConfig = getQueryCacheConfig(queryClient)
 
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
     const canceled = new Error('canceled')
     canceled.name = 'CanceledError'
@@ -210,7 +205,6 @@ describe('useRequestPlugin', () => {
     expect(showUniqueErrorNotification).not.toHaveBeenCalled()
 
     consoleErrorSpy.mockRestore()
-    consoleLogSpy.mockRestore()
   })
 
   it('queryCache onError skips default toast when query has no cached data', () => {
@@ -218,7 +212,6 @@ describe('useRequestPlugin', () => {
     const queryCacheConfig = getQueryCacheConfig(queryClient)
 
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
     const error = new BusinessError('initial-load-failed', 50000, 'trace-2', 'request-2')
     queryCacheConfig.onError(error, createQueryStub())
@@ -226,7 +219,6 @@ describe('useRequestPlugin', () => {
     expect(showUniqueErrorNotification).not.toHaveBeenCalled()
 
     consoleErrorSpy.mockRestore()
-    consoleLogSpy.mockRestore()
   })
 
   it('queryCache onError can be bypassed with skipGlobalErrorHandler meta', () => {
