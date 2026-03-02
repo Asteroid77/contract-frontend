@@ -30,7 +30,7 @@
 
 import type { Router } from 'vue-router'
 import { ability, type Action, type Subject } from '@/modules/access/application/ability'
-import { capturePermissionError } from '@/app/observability'
+import { capturePermissionError } from '@/app/observability/lazy'
 
 export interface AbilityRule {
   action: Action

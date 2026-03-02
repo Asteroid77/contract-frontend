@@ -2,14 +2,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 import ErrorBoundary from '@/app/observability/components/ErrorBoundary'
-import { captureVueError } from '@/app/observability/collectors/error-collector'
+import { captureVueError } from '@/app/observability/lazy'
 import type { FallbackSlotScope } from '@/app/observability/components/types'
 
 vi.mock('@/_utils/i18n', () => ({
   $t: (key: string) => `t:${key}`,
 }))
 
-vi.mock('@/app/observability/collectors/error-collector', () => ({
+vi.mock('@/app/observability/lazy', () => ({
   captureVueError: vi.fn(),
 }))
 
@@ -90,7 +90,11 @@ describe('ErrorBoundary', () => {
       slots: {
         default: () => h(ThrowOnce),
         fallback: ({ error, reset }: FallbackSlotScope) =>
-          h('button', { 'data-test': 'fallback-reset', onClick: reset }, `fallback-${error.message}`),
+          h(
+            'button',
+            { 'data-test': 'fallback-reset', onClick: reset },
+            `fallback-${error.message}`,
+          ),
       },
     })
 

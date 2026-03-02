@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import { BusinessError } from '@/modules/shared/domain/errors'
-import { useRequestPlugin } from '@/app/plugins/useRequestPlugin'
+import { enableQueryPersistence, useRequestPlugin } from '@/app/plugins/useRequestPlugin'
 import { notification, showUniqueErrorNotification } from '@/_utils/discrete_naive_api'
 import { clearQueryRequestId } from '@/app/infrastructure/query/query-request-id'
-import { queryPersister } from '@/app/infrastructure/query/tanstack_query_persist_with_dexie'
 
-const { axiosIsAxiosErrorSpy } = vi.hoisted(() => ({
+const { axiosIsAxiosErrorSpy, persistQueryClientMock } = vi.hoisted(() => ({
   axiosIsAxiosErrorSpy: vi.fn(),
+  persistQueryClientMock: vi.fn(() => [vi.fn(), Promise.resolve()]),
 }))
 
 vi.mock('axios', () => ({
@@ -32,6 +32,15 @@ vi.mock('@/app/infrastructure/query/tanstack_query_persist_with_dexie', () => ({
   queryPersister: {
     persisterFn: vi.fn(),
   },
+  queryClientPersister: {
+    persistClient: vi.fn(),
+    restoreClient: vi.fn(),
+    removeClient: vi.fn(),
+  },
+}))
+
+vi.mock('@tanstack/query-persist-client-core', () => ({
+  persistQueryClient: persistQueryClientMock,
 }))
 
 vi.mock('@/app/infrastructure/query/query-request-id', () => ({
@@ -113,7 +122,7 @@ describe('useRequestPlugin', () => {
     axiosIsAxiosErrorSpy.mockReturnValue(false)
   })
 
-  it('returns VueQueryPlugin with QueryClient and persister option', () => {
+  it('returns VueQueryPlugin with QueryClient option', () => {
     const plugins = useRequestPlugin()
 
     expect(plugins).toHaveLength(1)
@@ -121,9 +130,18 @@ describe('useRequestPlugin', () => {
     expect(plugins[0].option).toEqual(
       expect.objectContaining({
         queryClient: expect.any(QueryClient),
-        persistOptions: {
-          persister: queryPersister.persisterFn,
-        },
+      }),
+    )
+  })
+
+  it('enables persistence lazily and only once', async () => {
+    await enableQueryPersistence()
+    await enableQueryPersistence()
+
+    expect(persistQueryClientMock).toHaveBeenCalledTimes(1)
+    expect(persistQueryClientMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryClient: expect.any(QueryClient),
       }),
     )
   })

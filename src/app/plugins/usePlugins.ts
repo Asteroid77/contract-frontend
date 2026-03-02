@@ -4,7 +4,7 @@ import { usePiniaPlugin } from './usePiniaPlugin'
 import { useRouterPlugin } from './useRouterPlugin'
 import { useRequestPlugin } from './useRequestPlugin'
 import { useI18nPlugin } from './useI18nPlugin'
-import { setupCasl } from './casl'
+import { registerPostLoginEnhancementApp } from './post-login-enhancements'
 const _installedPlugins = ref(new Set<Plugin>())
 /**
  * 注册单个Vue插件
@@ -25,6 +25,7 @@ function _usePlugin(app: App<Element>, plugin: Plugin, option?: Record<string, u
  * @param {ToBeInstalledPlugin | ToBeInstalledPlugin[] | ToBeInstalledPluginList} data 插件或插件列表
  */
 export function usePlugins(app: App<Element>): void {
+  registerPostLoginEnhancementApp(app)
   _initiation(app)
 }
 
@@ -59,7 +60,4 @@ function _initiation(app: App<Element>) {
     }
   }
   _processPlugin(data)
-
-  // 初始化 CASL 权限系统
-  setupCasl(app)
 }

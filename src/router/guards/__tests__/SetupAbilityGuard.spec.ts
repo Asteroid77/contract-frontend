@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { setupAbilityGuard } from '@/router/guards/SetupAbilityGuard'
 import { ability } from '@/modules/access/application/ability'
-import { capturePermissionError } from '@/app/observability'
+import { capturePermissionError } from '@/app/observability/lazy'
 
 vi.mock('@/modules/access/application/ability', () => ({
   ability: {
@@ -9,7 +9,7 @@ vi.mock('@/modules/access/application/ability', () => ({
   },
 }))
 
-vi.mock('@/app/observability', () => ({
+vi.mock('@/app/observability/lazy', () => ({
   capturePermissionError: vi.fn(),
 }))
 

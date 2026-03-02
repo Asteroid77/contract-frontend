@@ -2,7 +2,7 @@ import '@tanstack/vue-query'
 // 从库中导入基础类型，以便在声明中使用
 import type { Query, Mutation, QueryKey } from '@tanstack/vue-query'
 import type { AxiosError } from 'axios'
-import type { NotificationOptions } from 'naive-ui'
+import type { NotificationOptions as NaiveNotificationOptions } from 'naive-ui'
 import type { ServerResponse } from '../request'
 
 // 为 TanStack Query 的泛型定义一些别名，使其更清晰
@@ -29,16 +29,16 @@ declare module '@tanstack/vue-query' {
       | ((
           error: TError,
           query: Query<TQueryFnData, TError, TData, TQueryKey>,
-        ) => NotificationOptions | string)
-      | NotificationOptions
+        ) => NaiveNotificationOptions | string)
+      | NaiveNotificationOptions
     toastOnSuccess?:
       | boolean
       | string
       | ((
           data: TData,
           query: Query<TQueryFnData, TError, TData, TQueryKey>,
-        ) => NotificationOptions | string)
-      | NotificationOptions
+        ) => NaiveNotificationOptions | string)
+      | NaiveNotificationOptions
   }
 
   // 扩展 MutationMeta 接口
@@ -61,8 +61,8 @@ declare module '@tanstack/vue-query' {
           variables: TVariables,
           context: TContext | undefined,
           mutation: Mutation<TData, TError, TVariables, TContext>,
-        ) => NotificationOptions | string)
-      | NotificationOptions
+        ) => NaiveNotificationOptions | string)
+      | NaiveNotificationOptions
     toastOnSuccess?:
       | boolean
       | string
@@ -71,7 +71,7 @@ declare module '@tanstack/vue-query' {
           variables: TVariables,
           context: TContext | undefined,
           mutation: Mutation<TData, TError, TVariables, TContext>,
-        ) => NotificationOptions | string)
-      | NotificationOptions
+        ) => NaiveNotificationOptions | string)
+      | NaiveNotificationOptions
   }
 }

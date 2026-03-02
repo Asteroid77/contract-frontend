@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, defineAsyncComponent } from 'vue'
 import { useRoute } from 'vue-router'
-import AuthLayoutView from './auth/AuthLayoutView.tsx'
 import UnauthLayoutView from './unauth/UnauthLayoutView'
-import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
 import { NSpin } from 'naive-ui'
 
+const AuthLayoutView = defineAsyncComponent(() =>
+  import('./auth/AuthLayoutView.tsx').then((module) => module.default),
+)
+
 const route = useRoute()
-const accountStore = useAccountStore()
 
 /**
  * 根据路由 meta.layout 动态选择布局
@@ -31,24 +32,18 @@ const currentLayout = computed(() => {
   const requiresAuth = route.meta.requiresAuth !== false
   return requiresAuth ? AuthLayoutView : UnauthLayoutView
 })
-
-/**
- * 是否显示加载状态
- * 当用户已登录但数据未加载完成时显示
- */
-const isLoading = computed(() => {
-  return accountStore.isAuth && !accountStore.isLoadedData
-})
 </script>
 
 <template>
-  <!-- 全局加载状态 -->
-  <div v-if="isLoading" class="flex items-center justify-center h-screen">
-    <n-spin size="large" />
-  </div>
-
   <!-- 动态布局 -->
-  <component v-else :is="currentLayout">
-    <router-view />
-  </component>
+  <Suspense>
+    <component :is="currentLayout">
+      <router-view />
+    </component>
+    <template #fallback>
+      <div class="flex items-center justify-center h-screen">
+        <n-spin size="large" />
+      </div>
+    </template>
+  </Suspense>
 </template>
