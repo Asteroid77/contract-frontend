@@ -1,4 +1,5 @@
 import type { AppRouteRecord } from '../types'
+import DashboardView from '@/views/auth/DashboardView.vue'
 
 /**
  * 审批中心相关路由
@@ -7,7 +8,7 @@ export const approvalRoutes: AppRouteRecord[] = [
   {
     path: '/approval',
     name: 'approval',
-    component: () => import('@/views/auth/DashboardView.vue'),
+    component: DashboardView,
     meta: {
       name: 'layout.menu.approval',
       icon: 'ApprovalsApp16Regular',
@@ -38,7 +39,7 @@ export const approvalRoutes: AppRouteRecord[] = [
   {
     path: '/approval/my-task/list',
     name: 'approval-my-task-list',
-    component: () => import('@/views/auth/DashboardView.vue'),
+    component: DashboardView,
     meta: {
       name: 'layout.menu.reviewing',
       icon: 'TaskComplete',
@@ -48,7 +49,7 @@ export const approvalRoutes: AppRouteRecord[] = [
   {
     path: '/approval/process/list',
     name: 'approval-process-list',
-    component: () => import('@/views/auth/DashboardView.vue'),
+    component: DashboardView,
     meta: {
       name: 'layout.menu.process',
       icon: 'Fluid20Regular',
@@ -58,7 +59,7 @@ export const approvalRoutes: AppRouteRecord[] = [
   {
     path: '/approval/node/list',
     name: 'approval-node-list',
-    component: () => import('@/views/auth/DashboardView.vue'),
+    component: DashboardView,
     meta: {
       name: 'layout.menu.nodes',
       icon: 'NodeIndexOutlined',
@@ -69,7 +70,7 @@ export const approvalRoutes: AppRouteRecord[] = [
   {
     path: '/approval/task/list',
     name: 'approval-task-list',
-    component: () => import('@/views/auth/DashboardView.vue'),
+    component: DashboardView,
     meta: {
       name: 'layout.menu.tasks',
       icon: 'FeaturedPlayListOutlined',

@@ -1,4 +1,5 @@
 import type { AppRouteRecord } from '../types'
+import DashboardView from '@/views/auth/DashboardView.vue'
 
 /**
  * 用户中心相关路由
@@ -7,7 +8,7 @@ export const userRoutes: AppRouteRecord[] = [
   {
     path: '/user',
     name: 'user',
-    component: () => import('@/views/auth/DashboardView.vue'),
+    component: DashboardView,
     meta: {
       name: 'layout.menu.profile',
       icon: 'UserSwitchOutlined',
@@ -61,7 +62,7 @@ export const userRoutes: AppRouteRecord[] = [
   {
     path: '/user/agent/list',
     name: 'user-agent-list',
-    component: () => import('@/views/auth/DashboardView.vue'),
+    component: DashboardView,
     meta: {
       name: 'layout.menu.agents',
       icon: 'RealEstateAgentOutlined',
@@ -71,7 +72,7 @@ export const userRoutes: AppRouteRecord[] = [
   {
     path: '/sign/self/list',
     name: 'my-sign',
-    component: () => import('@/views/auth/DashboardView.vue'),
+    component: DashboardView,
     meta: {
       name: 'layout.menu.mySign',
       icon: 'AssignmentIndOutlined',

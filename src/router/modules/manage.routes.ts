@@ -1,5 +1,6 @@
 import type { AppRouteRecord } from '../types'
 import type { RouteLocation } from 'vue-router'
+import DashboardView from '@/views/auth/DashboardView.vue'
 
 const toNumberOrNull = (val: unknown): number | null => {
   if (val === null || val === undefined || val === '') return null
@@ -14,7 +15,7 @@ export const manageRoutes: AppRouteRecord[] = [
   {
     path: '/manage',
     name: 'manage',
-    component: () => import('@/views/auth/DashboardView.vue'),
+    component: DashboardView,
     meta: {
       name: 'layout.menu.manage',
       icon: 'ManageAccountsOutlined',
