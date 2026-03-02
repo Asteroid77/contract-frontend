@@ -29,6 +29,7 @@ import { language, setLanguage, type AppLocale } from '@/_utils/i18n'
 import type { AppRouteRecord } from '@/router/types'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
 import { resolvePlatformLabelKey } from '@/modules/user/application/utils/platform'
+import { resolveUserDisplayName } from '@/modules/user/application/utils/displayName'
 import ErrorBoundary from '@/app/observability/components/ErrorBoundary'
 import logoSvgUrl from '@/assets/logo.svg?url'
 
@@ -147,6 +148,10 @@ export default defineComponent({
       t(resolvePlatformLabelKey(accountStore.user.platform)),
     )
 
+    const sidebarUserDisplayName = computed(() =>
+      resolveUserDisplayName({ name: accountStore.user.name }),
+    )
+    const sidebarUserInitial = computed(() => sidebarUserDisplayName.value.slice(0, 1) || 'U')
     const shouldShowSidebarPlatform = computed(() => accountStore.user.platform !== 'NATIVE')
     const mobileTabsDrawerWidth = 'min(calc(var(--sider-width) + var(--spacing-80)), 88vw)'
     const activeTabTitle = computed(() => {
@@ -350,7 +355,7 @@ export default defineComponent({
                       height: sidebarAvatarSize,
                     }}
                   >
-                    {(accountStore.user.name || 'U').slice(0, 1)}
+                    {sidebarUserInitial.value}
                   </div>
                 </div>
               </>
@@ -368,11 +373,11 @@ export default defineComponent({
                       height: sidebarAvatarSize,
                     }}
                   >
-                    {(accountStore.user.name || 'U').slice(0, 1)}
+                    {sidebarUserInitial.value}
                   </div>
                   <div class="flex-1 min-w-0">
                     <div class="text-sm font-medium text-[var(--color-text-main)] truncate">
-                      {accountStore.user.name || t('layout.menu.profile')}
+                      {sidebarUserDisplayName.value || t('layout.menu.profile')}
                     </div>
                     <div class="text-xs text-[var(--color-text-light)] truncate">
                       {`${t('layout.profile.field.phone')}: ${accountStore.user.phone || '-'}`}

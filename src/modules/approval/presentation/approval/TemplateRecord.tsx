@@ -3,7 +3,7 @@ import { $t } from '@/_utils/i18n'
 import type { ApprovalInstance } from '@/modules/approval/application/models'
 import { useApprovalHistoryQuery } from '@/modules/approval/application/hooks/useApprovalService'
 import { formatted } from '@/modules/shared/presentation/time'
-import { showIncompletedUserName } from '@/modules/approval/application/utils'
+import { resolveUserDisplayText } from '@/modules/user/application/utils/displayName'
 import { match } from 'ts-pattern'
 
 type I18nKey = Parameters<typeof $t>[0]
@@ -28,6 +28,12 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const formatApprovalUserName = (name: string | null | undefined) =>
+      resolveUserDisplayText(name, {
+        emptyFallback: $t('common.label.none'),
+        numericNamePrefix: $t('domain.approval.label.incompleteUser'),
+      })
+
     const { data: historyData } = useApprovalHistoryQuery(computed(() => props.data.id))
 
     const list = computed(() => {
@@ -60,7 +66,7 @@ export default defineComponent({
               list.value.map((row) => (
                 <tr key={row.id}>
                   <td>{row.nodeName}</td>
-                  <td>{showIncompletedUserName(row.operator)}</td>
+                  <td>{formatApprovalUserName(row.operator)}</td>
                   <td>
                     {
                       // Map actions to new common or domain keys

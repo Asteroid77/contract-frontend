@@ -1,6 +1,6 @@
 import { $t } from '@/_utils/i18n'
 import type { ApprovalHistory } from '@/modules/approval/application/models'
-import { showIncompletedUserName } from '@/modules/approval/application/utils'
+import { resolveUserDisplayText } from '@/modules/user/application/utils/displayName'
 import { formatted } from '@/modules/shared/presentation/time'
 import { match } from 'ts-pattern'
 import { defineComponent, type PropType } from 'vue'
@@ -27,6 +27,12 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const formatApprovalUserName = (name: string | null | undefined) =>
+      resolveUserDisplayText(name, {
+        emptyFallback: $t('common.label.none'),
+        numericNamePrefix: $t('domain.approval.label.incompleteUser'),
+      })
+
     return () => (
       <table class="form-table">
         <thead>
@@ -43,7 +49,7 @@ export default defineComponent({
             props.list.map((row) => (
               <tr key={row.id}>
                 <td>{row.nodeName}</td>
-                <td>{showIncompletedUserName(row.operator)}</td>
+                <td>{formatApprovalUserName(row.operator)}</td>
                 <td>{$t(getActionLabelKey(row.action))}</td>
                 <td>{formatted(row.createdTime).standard}</td>
                 <td>{row.comment || '-'}</td>

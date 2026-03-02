@@ -13,6 +13,7 @@ import MobilePrimarySecondaryText from '@/modules/shared/presentation/widget/Mob
 import { userListAdvancedQueryFields } from './userListAdvancedQueryFields'
 import { RegisterTypeOption } from '@/modules/user/application/constants'
 import { resolvePlatformLabelKey } from '@/modules/user/application/utils/platform'
+import { resolveUserDisplayName } from '@/modules/user/application/utils/displayName'
 import { usePermission } from '@/modules/access/application/hooks/useCan'
 import { useIsMobile } from '@/app/presentation/hooks/useIsMobile'
 
@@ -54,8 +55,7 @@ export default defineComponent({
     const registerTypeLabel = (type: number) =>
       RegisterTypeOption.find((option) => option.value === type)?.label ?? '-'
 
-    const displayName = (row: UserPageItem) =>
-      row.discriminator > 0 ? `${row.name}#${row.discriminator}` : row.name
+    const displayName = (row: UserPageItem) => resolveUserDisplayName(row)
 
     const activationLabel = (enabled: boolean) =>
       enabled ? $t('domain.user.status.active') : $t('domain.user.status.inactive')
