@@ -5,6 +5,7 @@ import { NTransfer, NCard, NSpace, NButton, NPopconfirm } from 'naive-ui'
 import { computed, watch } from 'vue'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { resolveUserDisplayName } from '@/modules/user/application/utils/displayName'
 const { t: $t } = useI18n()
 const props = defineProps<{
   roleId: number
@@ -24,12 +25,14 @@ const assignedUsersHook = useAssignedUsersByRole(props.roleId)
 
 // options
 const options = computed(() => {
-  return userPageQuery.data.value?.records.map((item) => {
-    return {
-      label: `${item.name}#${item.discriminator}`,
-      value: item.id,
-    }
-  })
+  return (
+    userPageQuery.data.value?.records.map((item) => {
+      return {
+        label: resolveUserDisplayName(item),
+        value: item.id,
+      }
+    }) ?? []
+  )
 })
 // Build a transfer showing the users, with the ability to assign a role by checking a selection.
 const selectedUserIds = ref<number[]>([])

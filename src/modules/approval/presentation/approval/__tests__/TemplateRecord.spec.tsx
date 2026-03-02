@@ -9,8 +9,8 @@ vi.mock('@/_utils/i18n', () => ({
   $t: vi.fn((key: string) => key),
 }))
 
-vi.mock('@/modules/approval/application/utils', () => ({
-  showIncompletedUserName: vi.fn((name: string) => `masked:${name}`),
+vi.mock('@/modules/user/application/utils/displayName', () => ({
+  resolveUserDisplayText: vi.fn((name: string) => `masked:${name}`),
 }))
 
 vi.mock('@/modules/shared/presentation/time', () => ({

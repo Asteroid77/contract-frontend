@@ -22,8 +22,8 @@ vi.mock('@/modules/user/application/hooks/useUserPage', () => ({
     data: {
       value: {
         records: [
-          { id: 1, name: 'Alice', discriminator: 'A' },
-          { id: 2, name: 'Bob', discriminator: 'B' },
+          { id: 1, name: 'Alice', discriminator: 1 },
+          { id: 2, name: 'Bob', discriminator: 2 },
         ],
       },
     },
@@ -99,13 +99,16 @@ vi.mock('naive-ui', () => ({
     },
     emits: ['update:value'],
     setup(props, { emit }) {
-      return () =>
-        h('button', {
+      return () => {
+        const labels = (props.options || []).map((item) => (item as { label: string }).label)
+        return h('button', {
           'data-test': 'n-transfer',
           'data-value': JSON.stringify(props.value ?? []),
           'data-options-len': String((props.options || []).length),
+          'data-options-labels': JSON.stringify(labels),
           onClick: () => emit('update:value', [1]),
         })
+      }
     },
   }),
 }))
@@ -127,6 +130,7 @@ describe('RoleAssign', () => {
 
     const transfer = wrapper.get('[data-test="n-transfer"]')
     expect(transfer.attributes('data-options-len')).toBe('2')
+    expect(transfer.attributes('data-options-labels')).toBe('["Alice#1","Bob#2"]')
     expect(transfer.attributes('data-value')).toBe('[]')
 
     if (!assignedUsersRefHolder.value) {

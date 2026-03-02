@@ -21,6 +21,7 @@ import { useAccountStore } from '@/modules/user/application/stores/useAccountSto
 import { useLoadUserInfo } from '@/modules/user/application/hooks/useLoadUserInfo'
 import { message } from '@/_utils/discrete_naive_api'
 import { resolvePlatformLabelKey } from '@/modules/user/application/utils/platform'
+import { resolveUserDisplayName } from '@/modules/user/application/utils/displayName'
 import { useServiceAgreementPage } from '@/modules/service-agreement/application/hooks/useSignService'
 import { ServiceAgreementStatusEnum } from '@/modules/service-agreement/application/constants'
 import type { ServiceAgreementPageQuery } from '@/modules/service-agreement/application/models'
@@ -63,14 +64,14 @@ const signPage = useServiceAgreementPage(signPageRequest)
 const currentUser = computed(() => loadUserInfo.data.value?.user ?? account.user)
 const currentProfile = computed(() => loadUserInfo.data.value?.profile ?? account.profile)
 
-const profileName = computed(() => currentUser.value.name || '-')
+const resolvedProfileName = computed(() => resolveUserDisplayName({ name: currentUser.value.name }))
+const profileName = computed(() => resolvedProfileName.value || '-')
 const phoneNumber = computed(() => currentUser.value.phone || '-')
 const platformLabel = computed(() => $t(resolvePlatformLabelKey(currentUser.value.platform)))
 const shouldShowPlatform = computed(() => currentUser.value.platform !== 'NATIVE')
 const avatarText = computed(() => {
-  const displayName = profileName.value
-  if (!displayName || displayName === '-') return 'U'
-  return displayName.slice(0, 1)
+  if (!resolvedProfileName.value) return 'U'
+  return resolvedProfileName.value.slice(0, 1)
 })
 const actionIconSize = 'var(--spacing-16)'
 const avatarUploadActionSize = 'var(--spacing-32)'

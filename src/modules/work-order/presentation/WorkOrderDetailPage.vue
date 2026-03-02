@@ -37,6 +37,7 @@ import type { WorkOrderReplyVO } from '../domain/types'
 import WorkOrderStatusBadge from './WorkOrderStatusBadge'
 import WorkOrderScoreSection from './WorkOrderScoreSection.vue'
 import { formatted } from '@/modules/shared/presentation/time'
+import { resolveUserDisplayName } from '@/modules/user/application/utils/displayName'
 
 const AsyncMdPreview = defineAsyncComponent(async () => {
   const [{ default: MdPreview }] = await Promise.all([
@@ -72,6 +73,9 @@ const workOrderId = computed(() => {
 
 const isHandler = computed(() => accountStore.hasRole('work_order_handler'))
 const currentUserId = computed(() => accountStore.account?.user?.id ?? accountStore.user.id)
+const currentUserDisplayName = computed(() =>
+  resolveUserDisplayName({ name: accountStore.user.name }),
+)
 
 // Queries - use handler or user endpoints based on role
 const userDetailQuery = useWorkOrderDetail(workOrderId, {
@@ -178,26 +182,29 @@ const canScore = computed(() => isOwner.value && detail.value?.status === WorkOr
 
 const initiatorName = computed(() => {
   if (!detail.value) return '-'
-  if (detail.value.userName) return detail.value.userName
-  if (accountStore.isOwner(detail.value.userId) && accountStore.user.name) {
-    return accountStore.user.name
+  const detailUserDisplayName = resolveUserDisplayName({ name: detail.value.userName })
+  if (detailUserDisplayName) return detailUserDisplayName
+  if (accountStore.isOwner(detail.value.userId) && currentUserDisplayName.value) {
+    return currentUserDisplayName.value
   }
   return `#${detail.value.userId}`
 })
 
 const claimerName = computed(() => {
   if (!detail.value || detail.value.currentHandlerId == null) return null
-  if (detail.value.currentHandlerName) return detail.value.currentHandlerName
-  if (detail.value.currentHandlerId === currentUserId.value && accountStore.user.name) {
-    return accountStore.user.name
+  const handlerDisplayName = resolveUserDisplayName({ name: detail.value.currentHandlerName })
+  if (handlerDisplayName) return handlerDisplayName
+  if (detail.value.currentHandlerId === currentUserId.value && currentUserDisplayName.value) {
+    return currentUserDisplayName.value
   }
   return `#${detail.value.currentHandlerId}`
 })
 
 const replyAuthorName = (reply: WorkOrderReplyVO) => {
-  if (reply.userName) return reply.userName
-  if (reply.userId === currentUserId.value && accountStore.user.name) {
-    return accountStore.user.name
+  const replyUserDisplayName = resolveUserDisplayName({ name: reply.userName })
+  if (replyUserDisplayName) return replyUserDisplayName
+  if (reply.userId === currentUserId.value && currentUserDisplayName.value) {
+    return currentUserDisplayName.value
   }
   return `#${reply.userId}`
 }
