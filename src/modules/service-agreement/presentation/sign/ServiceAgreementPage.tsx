@@ -64,7 +64,7 @@ export default defineComponent({
           mobileColumns.push({
             title: $t('common.action.operate'),
             key: 'operate',
-            render: (row) => slots.actions!(row),
+            render: (row: ServiceAgreementPageItem) => slots.actions!(row),
           })
         }
 
@@ -104,7 +104,7 @@ export default defineComponent({
           title: $t('common.action.operate'),
           key: 'operate',
           fixed: 'right',
-          render: (row) => slots.actions!(row),
+          render: (row: ServiceAgreementPageItem) => slots.actions!(row),
         })
       }
       return baseColumn
