@@ -107,3 +107,59 @@ NODE
 - 保持路由级懒加载边界清晰。
 - 启动路径中延迟加载非关键的可观测性和诊断模块。
 - 不要仅为消除 chunk-size 警告而优化，要以目标指标为导向。
+
+## 9) 本轮 `/login` 首屏排查结论（2026-03-02）
+
+### 已完成工作
+
+- 已完成依赖漏洞修复、lint 错误修复、入口路径修复。
+- 已完成 Markdown 编辑器相关的按需加载与 loading 策略调整。
+- 已完成“登录前轻量、登录后增强”方向改造（请求持久化延后、守卫轻路径、未登录路径与重依赖解耦）。
+- 已完成针对 `/login` 的 Lighthouse 3 次中位数验证（移动端 + 桌面端）。
+
+### 首屏文件体积（本地资源）
+
+- `index.html`: `748 B`
+- `assets/index-BnxQb5j1.js`: `773,273 B`
+- `assets/index-Dhfxj0jW.css`: `38,593 B`
+- `assets/global-loading-B4XsCd70.gif`: `56,389 B`
+- 本地首屏资源合计：`869,003 B`（约 `848.6 KiB`）
+
+占比结论（按 `848.6 KiB`）：
+
+- 主入口 JS：约 `89.0%`
+- loading gif：约 `6.5%`
+- 入口 CSS：约 `4.4%`
+
+### 主入口 JS（`index-*.js`）构成结论
+
+基于 sourcemap treemap 分析，主入口 JS 主要由基础框架与通用库构成：
+
+- `Naive UI`: 约 `34.4%`
+- 其他依赖聚合（如 `object-inspect` / `get-intrinsic` / `ts-pattern` / `dayjs` / `qs` / `pinia` 等）：约 `17.7%`
+- `i18n`（`vue-i18n` + `@intlify/*` + `zh/en` 词条）：约 `12.9%`
+- `Vue core/runtime`: 约 `10.4%`
+- `Axios`: 约 `5.0%`
+- `TanStack Query`: 约 `4.9%`
+- `Vue Router`: 约 `3.1%`
+
+结论：当前体积大头不是单一异常模块，而是框架与基础能力的正常成本。
+
+### 指标结果（Lighthouse，3 次中位数）
+
+- 移动端：`FCP 2102ms` / `LCP 3789ms` / `TTI 4184ms` / `TBT 140ms` / `Score 85`
+- 桌面端：`FCP 603ms` / `LCP 831ms` / `TTI 831ms` / `TBT 0ms` / `Score 99`
+
+### 排查方向与后续策略
+
+- 当前阶段结论：可暂停进一步拆分优化，优先稳定现状并持续监控指标。
+- `global-loading.gif`（约 `56KB`）作为应用挂载前加载反馈，保留是合理选择。
+- 后续仅保留两个高性价比可选项（按需再做）：
+  - 优化外链 iconfont 脚本加载策略（降低潜在阻塞）。
+  - i18n 词条按需加载（仅在切换语言时加载非默认语言词条）。
+
+### 常用体积火焰图命令
+
+```bash
+pnpm dlx vite-bundle-visualizer --template treemap --output /tmp/vite-bundle-treemap.html --open false --mode production --sourcemap
+```
