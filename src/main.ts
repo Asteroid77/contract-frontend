@@ -1,14 +1,18 @@
 import { createApp } from 'vue'
 import '@/app/presentation/theme/styles/token.css'
 import { usePlugins } from '@/app/plugins/usePlugins.ts'
-import { initObservability } from '@/app/observability'
-import { initAuthTokenLifecycle } from '@/modules/access/application/token-manager'
+import { enablePostLoginEnhancements } from '@/app/plugins/post-login-enhancements'
+import { initObservabilityDeferred } from '@/app/observability/lazy'
+import {
+  getStoredAccessToken,
+  initAuthTokenLifecycle,
+} from '@/modules/access/application/token-manager'
 import App from './App.vue'
 
 const app = createApp(App)
 
 // 初始化可观测性体系（需在 plugins 之前，尽早捕获错误）
-initObservability(app, {
+initObservabilityDeferred(app, {
   observability: {
     // 可选：覆盖默认配置
     // otelEndpoint: import.meta.env.VITE_OTEL_ENDPOINT,
@@ -24,5 +28,9 @@ initObservability(app, {
 
 usePlugins(app)
 initAuthTokenLifecycle()
+
+if (getStoredAccessToken()) {
+  void enablePostLoginEnhancements().catch(() => undefined)
+}
 
 app.mount('#app')

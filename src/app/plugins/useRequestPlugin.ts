@@ -10,12 +10,11 @@ import type { ToBeInstalledPlugin } from '.'
 import { notification, showUniqueErrorNotification } from '@/_utils/discrete_naive_api'
 import { $t } from '@/_utils/i18n'
 import { match } from 'ts-pattern'
-import type { NotificationOptions } from 'naive-ui'
 import type { RFC7807Response } from '@/modules/shared/domain/response'
 import { BusinessError } from '@/modules/shared/domain/errors'
 import type { AxiosError, AxiosResponse } from 'axios'
 import axios from 'axios'
-import { queryPersister } from '@/app/infrastructure/query/tanstack_query_persist_with_dexie'
+import type { NotificationOptions as NaiveNotificationOptions } from 'naive-ui'
 import { clearQueryRequestId } from '@/app/infrastructure/query/query-request-id'
 import {
   readRequestIdFromBody,
@@ -209,11 +208,11 @@ const globalBaseErrorHandler = (
           const throwOnError = gatherStruction.meta?.toastOnError as (
             error: Error,
             query: Query<unknown, unknown, unknown> | Mutation<unknown, unknown, unknown, unknown>,
-          ) => NotificationOptions
+          ) => NaiveNotificationOptions
           showUniqueErrorNotification(errorKey, throwOnError(error, gatherStruction))
         })
         .with('object', () => {
-          const throwOnError = gatherStruction.meta?.toastOnError as NotificationOptions
+          const throwOnError = gatherStruction.meta?.toastOnError as NaiveNotificationOptions
           showUniqueErrorNotification(errorKey, throwOnError)
         })
         .otherwise(() => {
@@ -266,11 +265,11 @@ const globalSuccessHandler = (
         const toastOnSuccess = gatherStruction.meta?.toastOnSuccess as (
           data: RFC7807Response<unknown> | AxiosResponse<RFC7807Response<unknown>>,
           query: Query<unknown, unknown, unknown> | Mutation<unknown, unknown, unknown, unknown>,
-        ) => NotificationOptions
+        ) => NaiveNotificationOptions
         notification.success(toastOnSuccess(data, gatherStruction))
       })
       .with('object', () => {
-        const toastOnSuccess = gatherStruction.meta?.toastOnSuccess as NotificationOptions
+        const toastOnSuccess = gatherStruction.meta?.toastOnSuccess as NaiveNotificationOptions
         notification.success(toastOnSuccess)
       })
       .otherwise(() => {
@@ -316,6 +315,37 @@ const queryClient = new QueryClient({
   }),
 })
 
+let queryPersistenceEnabled = false
+let queryPersistencePromise: Promise<void> | null = null
+
+export function enableQueryPersistence(): Promise<void> {
+  if (queryPersistenceEnabled) {
+    return Promise.resolve()
+  }
+
+  if (!queryPersistencePromise) {
+    queryPersistencePromise = Promise.all([
+      import('@tanstack/query-persist-client-core'),
+      import('@/app/infrastructure/query/tanstack_query_persist_with_dexie'),
+    ])
+      .then(async ([persistModule, persisterModule]) => {
+        const [, restorePromise] = persistModule.persistQueryClient({
+          queryClient,
+          persister: persisterModule.queryClientPersister,
+        })
+
+        await restorePromise
+        queryPersistenceEnabled = true
+      })
+      .catch((error) => {
+        queryPersistencePromise = null
+        throw error
+      })
+  }
+
+  return queryPersistencePromise
+}
+
 /**
  * 初始化TanStack Query
  */
@@ -325,9 +355,6 @@ export function useRequestPlugin(): ToBeInstalledPlugin[] {
       plugin: VueQueryPlugin,
       option: {
         queryClient,
-        persistOptions: {
-          persister: queryPersister.persisterFn,
-        },
       },
     },
   ]

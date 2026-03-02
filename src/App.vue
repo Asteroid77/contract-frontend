@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { zhCN, dateZhCN, enUS, dateEnUS, NConfigProvider, darkTheme } from 'naive-ui'
-import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
+import { defineAsyncComponent } from 'vue'
 import { useTheme } from '@/app/presentation/theme/hooks/useTheme'
 import { computed } from 'vue'
 import ErrorBoundary from '@/app/observability/components/ErrorBoundary'
@@ -10,6 +10,12 @@ const { isDark, activeThemeOverrides } = useTheme()
 const naiveTheme = computed(() => (isDark.value ? darkTheme : null))
 const naiveLocale = computed(() => (language.value === 'en' ? enUS : zhCN))
 const naiveDateLocale = computed(() => (language.value === 'en' ? dateEnUS : dateZhCN))
+const queryDevtoolsComponent = import.meta.env.DEV
+  ? defineAsyncComponent(async () => {
+      const module = await import('@tanstack/vue-query-devtools')
+      return module.VueQueryDevtools
+    })
+  : null
 </script>
 <template>
   <!-- 设置移动端字体以及默认bg样式 text-sm md:text-base text-text-main bg-bg-body -->
@@ -25,6 +31,6 @@ const naiveDateLocale = computed(() => (language.value === 'en' ? dateEnUS : dat
       <RouterView></RouterView>
     </ErrorBoundary>
   </n-config-provider>
-  <VueQueryDevtools />
+  <component :is="queryDevtoolsComponent" v-if="queryDevtoolsComponent" />
 </template>
 <style></style>

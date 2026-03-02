@@ -1,10 +1,14 @@
-import type { SignInForm, SignInResponse, SignInResponseComplete } from '@/modules/user/application/models'
+import type {
+  SignInForm,
+  SignInResponse,
+  SignInResponseComplete,
+} from '@/modules/user/application/models'
 import { useMutation } from '@tanstack/vue-query'
 import type { AxiosError } from 'axios'
 import { userService } from '@/modules/user/application/service'
-import { useAccountStore } from '@/modules/user/application/stores/useAccountStore.ts'
 import router from '@/router'
 import type { RouteLocationRaw } from 'vue-router'
+import { enablePostLoginEnhancements } from '@/app/plugins/post-login-enhancements'
 
 export type SignInMutate = { redirect?: RouteLocationRaw } & (
   | {
@@ -60,16 +64,18 @@ export function useLogin() {
           query: {
             token: data.twoFactorToken,
             rememberMe,
-            redirect: typeof variable.redirect === 'string'
-              ? variable.redirect
-              : undefined,
+            redirect: typeof variable.redirect === 'string' ? variable.redirect : undefined,
           },
         })
         return
       }
 
       const complete = data as SignInResponseComplete
+      const { useAccountStore } = await import(
+        '@/modules/user/application/stores/useAccountStore.ts'
+      )
       useAccountStore().login(complete)
+      void enablePostLoginEnhancements().catch(() => undefined)
       router.push(variable.redirect || { name: 'dashboard' })
     },
   })

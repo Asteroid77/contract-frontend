@@ -10,7 +10,7 @@
 
 import type { Directive, DirectiveBinding } from 'vue'
 import { ability, type Action, type Subject } from '../../application/ability'
-import { capturePermissionError } from '@/app/observability'
+import { capturePermissionError } from '@/app/observability/lazy'
 
 interface PermissionValue {
   action: Action
