@@ -17,7 +17,7 @@ describe('useRequest behavior branches', () => {
     localStorage.clear()
   })
 
-  it('returns axios response when unWrap is false and injects response requestId', async () => {
+  it('returns axios response when responseShape is raw and injects response requestId', async () => {
     mock.onGet('/nowrap').reply(
       200,
       {
@@ -37,11 +37,104 @@ describe('useRequest behavior branches', () => {
     const result = await useRequest<{ ok: boolean }>({
       method: 'GET',
       url: '/nowrap',
-      unWrap: false,
+      responseShape: 'raw',
     })
 
     expect(result.data.data.ok).toBe(true)
     expect(result.data.requestId).toBe('request-id-from-header')
+  })
+
+  it('returns axios response when responseShape is raw', async () => {
+    mock.onGet('/shape-raw-priority').reply(
+      200,
+      {
+        type: 'about:blank',
+        title: 'ok',
+        status: 200,
+        detail: 'ok',
+        code: 0,
+        traceId: 'trace-id-raw-priority',
+        data: { ok: true },
+      },
+      {
+        'x-request-id': 'request-id-raw-priority',
+      },
+    )
+
+    const result = await useRequest<{ ok: boolean }>({
+      method: 'GET',
+      url: '/shape-raw-priority',
+      responseShape: 'raw',
+    })
+
+    expect(result.data.data.ok).toBe(true)
+    expect(result.data.requestId).toBe('request-id-raw-priority')
+  })
+
+  it('returns envelope when responseShape is envelope', async () => {
+    mock.onGet('/shape-envelope-priority').reply(
+      200,
+      {
+        type: 'about:blank',
+        title: 'ok',
+        status: 200,
+        detail: 'ok',
+        code: 0,
+        traceId: 'trace-id-envelope-priority',
+        data: { ok: true },
+      },
+      {
+        'x-request-id': 'request-id-envelope-priority',
+      },
+    )
+
+    const result = await useRequest<{ ok: boolean }>({
+      method: 'GET',
+      url: '/shape-envelope-priority',
+      responseShape: 'envelope',
+    })
+
+    expect(result.data.ok).toBe(true)
+    expect(result.requestId).toBe('request-id-envelope-priority')
+  })
+
+  it('returns plain data when responseShape is data', async () => {
+    mock.onGet('/shape-data').reply(200, {
+      type: 'about:blank',
+      title: 'ok',
+      status: 200,
+      detail: 'ok',
+      code: 0,
+      traceId: 'trace-id-data-shape',
+      data: { ok: true },
+    })
+
+    const result = await useRequest<{ ok: boolean }>({
+      method: 'GET',
+      url: '/shape-data',
+      responseShape: 'data',
+    })
+
+    expect(result.ok).toBe(true)
+  })
+
+  it('returns plain data by default when responseShape is omitted', async () => {
+    mock.onGet('/shape-data-default').reply(200, {
+      type: 'about:blank',
+      title: 'ok',
+      status: 200,
+      detail: 'ok',
+      code: 0,
+      traceId: 'trace-id-data-default',
+      data: { ok: true },
+    })
+
+    const result = await useRequest<{ ok: boolean }>({
+      method: 'GET',
+      url: '/shape-data-default',
+    })
+
+    expect(result.ok).toBe(true)
   })
 
   it('throws BusinessError when response body data is missing', async () => {
@@ -87,6 +180,7 @@ describe('useRequest behavior branches', () => {
       headers: {
         'x-request-id': 'request-id-lowercase',
       },
+      responseShape: 'envelope',
     })
 
     expect(result.requestId).toBe('request-id-lowercase')

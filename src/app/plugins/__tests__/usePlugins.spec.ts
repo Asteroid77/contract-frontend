@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getInstalledPlugins, usePlugins } from '@/app/plugins/usePlugins'
-import { setupCasl } from '@/app/plugins/casl'
+import { registerPostLoginEnhancementApp } from '@/app/plugins/post-login-enhancements'
 import { useI18nPlugin } from '@/app/plugins/useI18nPlugin'
 import { usePiniaPlugin } from '@/app/plugins/usePiniaPlugin'
 import { useRequestPlugin } from '@/app/plugins/useRequestPlugin'
@@ -18,8 +18,8 @@ const { plugins, requestCallback } = vi.hoisted(() => {
   }
 })
 
-vi.mock('@/app/plugins/casl', () => ({
-  setupCasl: vi.fn(),
+vi.mock('@/app/plugins/post-login-enhancements', () => ({
+  registerPostLoginEnhancementApp: vi.fn(),
 }))
 
 vi.mock('@/app/plugins/useI18nPlugin', () => ({
@@ -52,7 +52,7 @@ describe('usePlugins', () => {
     } as never)
   })
 
-  it('installs all configured plugins and calls setupCasl', () => {
+  it('installs all configured plugins and registers app for post-login enhancements', () => {
     const app = {
       use: vi.fn(),
     }
@@ -71,7 +71,7 @@ describe('usePlugins', () => {
     expect(app.use).toHaveBeenCalledWith(plugins.request)
 
     expect(requestCallback).toHaveBeenCalledTimes(1)
-    expect(setupCasl).toHaveBeenCalledWith(app)
+    expect(registerPostLoginEnhancementApp).toHaveBeenCalledWith(app)
     expect(getInstalledPlugins().value.size).toBe(4)
   })
 
@@ -86,7 +86,7 @@ describe('usePlugins', () => {
     // 第二次调用会再次执行工厂函数，但 _usePlugin 会去重
     expect(app.use).toHaveBeenCalledTimes(4)
     expect(requestCallback).toHaveBeenCalledTimes(2)
-    expect(setupCasl).toHaveBeenCalledTimes(2)
+    expect(registerPostLoginEnhancementApp).toHaveBeenCalledTimes(2)
     expect(getInstalledPlugins().value.size).toBe(4)
   })
 })

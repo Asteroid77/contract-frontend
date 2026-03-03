@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, defineAsyncComponent, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import {
   NSpace,
@@ -14,8 +14,6 @@ import {
   NSpin,
 } from 'naive-ui'
 import { message } from '@/_utils/discrete_naive_api'
-import { MdEditor, MdPreview } from 'md-editor-v3'
-import 'md-editor-v3/lib/style.css'
 import { useI18n } from 'vue-i18n'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
 import {
@@ -39,6 +37,25 @@ import type { WorkOrderReplyVO } from '../domain/types'
 import WorkOrderStatusBadge from './WorkOrderStatusBadge'
 import WorkOrderScoreSection from './WorkOrderScoreSection.vue'
 import { formatted } from '@/modules/shared/presentation/time'
+import { resolveUserDisplayName } from '@/modules/user/application/utils/displayName'
+
+const AsyncMdPreview = defineAsyncComponent(async () => {
+  const [{ default: MdPreview }] = await Promise.all([
+    import('md-editor-v3/lib/es/MdPreview.mjs'),
+    import('md-editor-v3/lib/preview.css'),
+  ])
+
+  return MdPreview
+})
+
+const AsyncMdEditor = defineAsyncComponent(async () => {
+  const [{ default: MdEditor }] = await Promise.all([
+    import('md-editor-v3/lib/es/MdEditor.mjs'),
+    import('md-editor-v3/lib/style.css'),
+  ])
+
+  return MdEditor
+})
 
 const route = useRoute()
 const { t: $t } = useI18n()
@@ -56,6 +73,9 @@ const workOrderId = computed(() => {
 
 const isHandler = computed(() => accountStore.hasRole('work_order_handler'))
 const currentUserId = computed(() => accountStore.account?.user?.id ?? accountStore.user.id)
+const currentUserDisplayName = computed(() =>
+  resolveUserDisplayName({ name: accountStore.user.name }),
+)
 
 // Queries - use handler or user endpoints based on role
 const userDetailQuery = useWorkOrderDetail(workOrderId, {
@@ -162,26 +182,29 @@ const canScore = computed(() => isOwner.value && detail.value?.status === WorkOr
 
 const initiatorName = computed(() => {
   if (!detail.value) return '-'
-  if (detail.value.userName) return detail.value.userName
-  if (accountStore.isOwner(detail.value.userId) && accountStore.user.name) {
-    return accountStore.user.name
+  const detailUserDisplayName = resolveUserDisplayName({ name: detail.value.userName })
+  if (detailUserDisplayName) return detailUserDisplayName
+  if (accountStore.isOwner(detail.value.userId) && currentUserDisplayName.value) {
+    return currentUserDisplayName.value
   }
   return `#${detail.value.userId}`
 })
 
 const claimerName = computed(() => {
   if (!detail.value || detail.value.currentHandlerId == null) return null
-  if (detail.value.currentHandlerName) return detail.value.currentHandlerName
-  if (detail.value.currentHandlerId === currentUserId.value && accountStore.user.name) {
-    return accountStore.user.name
+  const handlerDisplayName = resolveUserDisplayName({ name: detail.value.currentHandlerName })
+  if (handlerDisplayName) return handlerDisplayName
+  if (detail.value.currentHandlerId === currentUserId.value && currentUserDisplayName.value) {
+    return currentUserDisplayName.value
   }
   return `#${detail.value.currentHandlerId}`
 })
 
 const replyAuthorName = (reply: WorkOrderReplyVO) => {
-  if (reply.userName) return reply.userName
-  if (reply.userId === currentUserId.value && accountStore.user.name) {
-    return accountStore.user.name
+  const replyUserDisplayName = resolveUserDisplayName({ name: reply.userName })
+  if (replyUserDisplayName) return replyUserDisplayName
+  if (reply.userId === currentUserId.value && currentUserDisplayName.value) {
+    return currentUserDisplayName.value
   }
   return `#${reply.userId}`
 }
@@ -348,7 +371,14 @@ const handleRelease = () => {
 
       <!-- Content -->
       <n-card :bordered="false">
-        <MdPreview :model-value="detail.content" />
+        <Suspense>
+          <component :is="AsyncMdPreview" :model-value="detail.content" />
+          <template #fallback>
+            <n-spin :show="true" class="markdown-loading-shell">
+              <div class="markdown-preview-loading-placeholder" />
+            </n-spin>
+          </template>
+        </Suspense>
       </n-card>
 
       <n-divider />
@@ -397,20 +427,35 @@ const handleRelease = () => {
               </n-text>
             </n-space>
           </template>
-          <MdPreview :model-value="reply.content" />
+          <Suspense>
+            <component :is="AsyncMdPreview" :model-value="reply.content" />
+            <template #fallback>
+              <n-spin :show="true" class="markdown-loading-shell">
+                <div class="markdown-preview-loading-placeholder" />
+              </n-spin>
+            </template>
+          </Suspense>
         </n-card>
       </n-space>
 
       <!-- Reply editor -->
       <n-card v-if="canReply" :bordered="false">
         <n-space vertical :size="12">
-          <MdEditor
-            v-model="replyContent"
-            :language="'zh-CN'"
-            class="w-full"
-            :preview="false"
-            @on-upload-img="onUploadImg"
-          />
+          <Suspense>
+            <component
+              :is="AsyncMdEditor"
+              v-model="replyContent"
+              :language="'zh-CN'"
+              class="w-full"
+              :preview="false"
+              @on-upload-img="onUploadImg"
+            />
+            <template #fallback>
+              <n-spin :show="true" class="markdown-loading-shell">
+                <div class="markdown-editor-loading-placeholder" />
+              </n-spin>
+            </template>
+          </Suspense>
         </n-space>
       </n-card>
 
@@ -438,6 +483,24 @@ const handleRelease = () => {
   max-width: var(--layout-content-max-width);
   margin: 0 auto;
   padding-inline: var(--spacing-md);
+}
+
+.markdown-loading-shell {
+  inline-size: 100%;
+}
+
+.markdown-preview-loading-placeholder {
+  inline-size: 100%;
+  block-size: 7rem;
+  border-radius: var(--borderRadius-8);
+  background: var(--colorFillQuaternary);
+}
+
+.markdown-editor-loading-placeholder {
+  inline-size: 100%;
+  block-size: 18rem;
+  border-radius: var(--borderRadius-8);
+  background: var(--colorFillQuaternary);
 }
 
 @media (min-width: 768px) {

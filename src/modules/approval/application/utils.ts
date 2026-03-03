@@ -5,6 +5,7 @@ import type {
   ApprovalTaskStatus,
 } from '@/modules/approval/application/models'
 import type { SignInResponseComplete } from '@/modules/user/application/models'
+import { resolveUserDisplayText } from '@/modules/user/application/utils/displayName'
 
 export type ClaimTaskError = {
   canClaim: boolean
@@ -156,11 +157,10 @@ export function checkTasksClaimable(
  * @returns string 完整用户名
  */
 export function showIncompletedUserName(name: string | null | undefined): string {
-  if (typeof name !== 'string') return $t('common.label.none')
-  if (/^-?\d+(\.\d+)?$/.test(name.trim())) {
-    return `${$t('domain.approval.label.incompleteUser')}#${name}`
-  }
-  return name
+  return resolveUserDisplayText(name, {
+    emptyFallback: $t('common.label.none'),
+    numericNamePrefix: $t('domain.approval.label.incompleteUser'),
+  })
 }
 
 export function isShowApprovalBtn(status: ApprovalTaskStatus | undefined) {

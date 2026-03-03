@@ -16,7 +16,7 @@ import {
   type VNodeChild,
 } from 'vue'
 import { $t } from '@/_utils/i18n'
-import { captureVueError } from '@/app/observability/collectors/error-collector'
+import { captureVueError } from '@/app/observability/lazy'
 import type { CapturedError, ComponentTraceItem } from './types'
 import './ErrorBoundary.css'
 

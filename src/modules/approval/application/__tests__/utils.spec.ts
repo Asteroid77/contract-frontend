@@ -192,8 +192,10 @@ describe('approval utils', () => {
 
   it('showIncompletedUserName handles missing/numeric/normal names', () => {
     expect(showIncompletedUserName(undefined)).toBe('common.label.none')
-    expect(showIncompletedUserName(' 123 ')).toBe('domain.approval.label.incompleteUser# 123 ')
+    expect(showIncompletedUserName(' 123 ')).toBe('domain.approval.label.incompleteUser#123')
+    expect(showIncompletedUserName('   ')).toBe('common.label.none')
     expect(showIncompletedUserName('王五')).toBe('王五')
+    expect(showIncompletedUserName('王五#0')).toBe('王五')
   })
 
   it('status helper functions return expected visibility and accessibility', () => {

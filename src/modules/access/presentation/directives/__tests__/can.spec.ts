@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DirectiveBinding } from 'vue'
 import canDirective from '@/modules/access/presentation/directives/can'
 import { ability } from '@/modules/access/application/ability'
-import { capturePermissionError } from '@/app/observability'
+import { capturePermissionError } from '@/app/observability/lazy'
 
 vi.mock('@/modules/access/application/ability', () => ({
   ability: {
@@ -10,22 +10,20 @@ vi.mock('@/modules/access/application/ability', () => ({
   },
 }))
 
-vi.mock('@/app/observability', () => ({
+vi.mock('@/app/observability/lazy', () => ({
   capturePermissionError: vi.fn(),
 }))
 
-const makeBinding = (
-  value: string | string[],
-  arg?: string,
-): DirectiveBinding<string | string[]> =>
+const makeBinding = (value: string | string[], arg?: string): DirectiveBinding<string | string[]> =>
   ({
     value,
     arg,
   }) as DirectiveBinding<string | string[]>
 
-const createMockEl = () => ({
-  remove: vi.fn(),
-}) as unknown as HTMLElement
+const createMockEl = () =>
+  ({
+    remove: vi.fn(),
+  }) as unknown as HTMLElement
 
 type CanDirectiveHooks = {
   mounted?: (el: HTMLElement, binding: DirectiveBinding<string | string[]>) => void
@@ -64,7 +62,9 @@ describe('v-can directive', () => {
   })
 
   it('uses AND logic for permission arrays by default', () => {
-    vi.mocked(ability.can).mockImplementation((action, subject) => action === 'read' && subject === 'User')
+    vi.mocked(ability.can).mockImplementation(
+      (action, subject) => action === 'read' && subject === 'User',
+    )
 
     const el = createMockEl()
 
@@ -79,7 +79,9 @@ describe('v-can directive', () => {
   })
 
   it('uses OR logic when arg is any', () => {
-    vi.mocked(ability.can).mockImplementation((action, subject) => action === 'read' && subject === 'User')
+    vi.mocked(ability.can).mockImplementation(
+      (action, subject) => action === 'read' && subject === 'User',
+    )
 
     const el = createMockEl()
 

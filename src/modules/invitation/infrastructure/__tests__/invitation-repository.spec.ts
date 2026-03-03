@@ -13,14 +13,11 @@ describe('invitationRepository contract', () => {
 
   it('createInvitationCode posts to create endpoint and returns data', async () => {
     const payload = { id: 1, code: 'INVITE-1' }
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await invitationRepository.createInvitationCode()
 
-    expect(useRequest).toHaveBeenCalledWith({
-      url: '/invitation/create',
-      method: 'POST',
-    })
+    expect(useRequest).toHaveBeenCalledWith({ url: '/invitation/create', method: 'POST' })
     expect(result).toEqual(payload)
   })
 
@@ -28,7 +25,7 @@ describe('invitationRepository contract', () => {
     const payload = [{ id: 1, code: 'INVITE-1', remark: 'r1' }]
     const dto = [{ id: 1, remark: 'r1' }]
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await invitationRepository.updateInvitationCode(dto)
 
@@ -41,7 +38,7 @@ describe('invitationRepository contract', () => {
   })
 
   it('deleteInvitationCode sends ids and returns data', async () => {
-    vi.mocked(useRequest).mockResolvedValue({ data: true } as never)
+    vi.mocked(useRequest).mockResolvedValue(true as never)
 
     const result = await invitationRepository.deleteInvitationCode([1, 2])
 
@@ -55,7 +52,7 @@ describe('invitationRepository contract', () => {
 
   it('getInvitationCodeList disables success notify and returns data', async () => {
     const payload = [{ id: 1, code: 'INVITE-1' }]
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await invitationRepository.getInvitationCodeList()
 
@@ -70,7 +67,7 @@ describe('invitationRepository contract', () => {
   })
 
   it('getInvitedCount disables success notify and returns data', async () => {
-    vi.mocked(useRequest).mockResolvedValue({ data: 3 } as never)
+    vi.mocked(useRequest).mockResolvedValue(3 as never)
 
     const result = await invitationRepository.getInvitedCount()
 
@@ -97,7 +94,7 @@ describe('invitationRepository contract', () => {
       total: 0,
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await invitationRepository.getInvitationRecordPage(dto)
 

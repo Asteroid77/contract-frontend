@@ -9,11 +9,11 @@ on:
       upload_sourcemaps:
         description: 是否上传 sourcemap（需配置仓库 Secret）
         required: true
-        default: "false"
+        default: 'false'
         type: choice
         options:
-          - "false"
-          - "true"
+          - 'false'
+          - 'true'
 
 permissions:
   contents: read
@@ -39,7 +39,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies

@@ -1,4 +1,7 @@
-import type { CustomAxiosRequestConfig } from '@/modules/shared/application/request/types'
+import type {
+  CustomAxiosRequestConfig,
+  RequestResponseShape,
+} from '@/modules/shared/application/request/types'
 import type { RFC7807Response, RFC7807SuccessResponse } from '@/modules/shared/domain/response'
 import { type AxiosResponse } from 'axios'
 import axios from 'axios'
@@ -18,64 +21,46 @@ import {
   isLogoutInProgress,
 } from '@/modules/access/application/token-manager'
 
-/**
- * 用于项目的请求封装(unWrapper为true时)
- * @param {CustomAxiosRequestConfig<D>} config 自定义axios请求配置
- * @param {unknown[]} queryKey 请求key
- * @template T 返回值类型
- * @template D 发起请求时服务端所需参数类型
- * @return {Promise<T>}
- */
 export function useRequest<T, D = unknown>(
-  config: CustomAxiosRequestConfig<D> & { unWrap?: true },
+  config: CustomAxiosRequestConfig<D> & { responseShape: 'data' },
+  queryKey?: unknown[],
+): Promise<T>
+export function useRequest<T, D = unknown>(
+  config: CustomAxiosRequestConfig<D> & { responseShape: 'envelope' },
   queryKey?: unknown[],
 ): Promise<RFC7807SuccessResponse<T>>
-/**
- * 用于项目的请求封装(unWrapper为false时)
- * @param {CustomAxiosRequestConfig<D>} config 自定义axios请求配置
- * @param {unknown[]} queryKey 请求key
- * @template T 返回值
- * @template D 发起请求时服务端所需参数类型
- * @return {Promise<AxiosResponse<RFC7807Response<T>>>}
- */
 export function useRequest<T, D = unknown>(
-  config: CustomAxiosRequestConfig<D> & { unWrap?: false },
+  config: CustomAxiosRequestConfig<D> & { responseShape: 'raw' },
   queryKey?: unknown[],
 ): Promise<AxiosResponse<RFC7807SuccessResponse<T>>>
-/**
- * 用于项目的请求封装
- * @param {CustomAxiosRequestConfig<D>} config 自定义axios请求配置
- * @param {unknown[]} queryKey 请求key
- * @template T 返回值
- * @template D 发起请求时服务端所需参数类型
- * @return {Promise<T | AxiosResponse<RFC7807Response<T>, D>>}
- */
+export function useRequest<T, D = unknown>(
+  config: CustomAxiosRequestConfig<D> & {
+    responseShape?: undefined
+  },
+  queryKey?: unknown[],
+): Promise<T>
 export async function useRequest<T, D = unknown>(
   config: CustomAxiosRequestConfig<D>,
   queryKey?: unknown[],
-): Promise<RFC7807SuccessResponse<T> | AxiosResponse<RFC7807SuccessResponse<T>, D>> {
+): Promise<T | RFC7807SuccessResponse<T> | AxiosResponse<RFC7807SuccessResponse<T>, D>> {
   if (!queryKey) {
     queryKey = [config.url]
   }
 
-  const fetchStartTimestamp = new Date()
-  console.log(`Request starting at ${fetchStartTimestamp},key:${queryKey}`)
-  console.log(`params`, config.params, 'data', config.data)
-
   setRequestId(config)
 
   try {
-    return await executeRequest<T, D>(config, queryKey)
+    return await executeRequest<T, D>(config)
   } catch (error) {
     if (shouldRetryWithTokenRefresh(error, config)) {
       try {
         config._authRetried = true
         if (!shouldRefreshBeforeRetry(config)) {
-          return await executeRequest<T, D>(config, queryKey, true)
+          return await executeRequest<T, D>(config, true)
         }
 
         await forceRefreshAccessToken()
-        return await executeRequest<T, D>(config, queryKey, true)
+        return await executeRequest<T, D>(config, true)
       } catch (retryError) {
         throwMappedRequestError(retryError, config)
       }
@@ -87,9 +72,8 @@ export async function useRequest<T, D = unknown>(
 
 async function executeRequest<T, D>(
   config: CustomAxiosRequestConfig<D>,
-  queryKey: unknown[],
   forceReloadToken: boolean = false,
-): Promise<RFC7807SuccessResponse<T> | AxiosResponse<RFC7807SuccessResponse<T>, D>> {
+): Promise<T | RFC7807SuccessResponse<T> | AxiosResponse<RFC7807SuccessResponse<T>, D>> {
   config._authTokenUsed = setToken(config, 'Authorization', forceReloadToken)
 
   const response: AxiosResponse<RFC7807Response<T>> = await apiClient<
@@ -98,14 +82,16 @@ async function executeRequest<T, D>(
     D
   >(config)
 
-  const fetchEndTimestamp = new Date()
-  console.log(`Request ending at ${fetchEndTimestamp}, key: ${queryKey}`)
-
-  return _unWrapperResponseData<T>(config, response)
+  return resolveResponsePayload<T, D>(config, response)
 }
 
 function shouldRetryWithTokenRefresh(error: unknown, config: CustomAxiosRequestConfig): boolean {
-  if (config.skipAuthRefresh || config._authRetried || !hasStoredRefreshToken() || isLogoutInProgress()) {
+  if (
+    config.skipAuthRefresh ||
+    config._authRetried ||
+    !hasStoredRefreshToken() ||
+    isLogoutInProgress()
+  ) {
     return false
   }
 
@@ -138,7 +124,9 @@ function throwMappedRequestError(error: unknown, config: CustomAxiosRequestConfi
 
   if (axios.isAxiosError(error) && error.response) {
     const problemDetails = error.response.data as RFC7807Response
-    const responseRequestId = resolveResponseRequestId(error.response as AxiosResponse<RFC7807Response>)
+    const responseRequestId = resolveResponseRequestId(
+      error.response as AxiosResponse<RFC7807Response>,
+    )
 
     throw new BusinessError(
       problemDetails.detail || problemDetails.title || 'Error',
@@ -153,10 +141,10 @@ function throwMappedRequestError(error: unknown, config: CustomAxiosRequestConfi
   throw error
 }
 
-function _unWrapperResponseData<T>(
+function resolveResponsePayload<T, D>(
   config: CustomAxiosRequestConfig,
-  data: AxiosResponse<RFC7807Response<T>>,
-): RFC7807SuccessResponse<T> | AxiosResponse<RFC7807SuccessResponse<T>> {
+  data: AxiosResponse<RFC7807Response<T>, D>,
+): T | RFC7807SuccessResponse<T> | AxiosResponse<RFC7807SuccessResponse<T>, D> {
   const body = data.data
   const responseRequestId =
     resolveResponseRequestId(data as AxiosResponse<RFC7807Response<unknown>>) ||
@@ -175,10 +163,21 @@ function _unWrapperResponseData<T>(
     )
   }
 
-  if (config.unWrap !== false) {
+  const responseShape = resolveResponseShape(config)
+
+  if (responseShape === 'data') {
+    return body.data as T
+  }
+
+  if (responseShape === 'envelope') {
     return body as RFC7807SuccessResponse<T>
   }
-  return data as AxiosResponse<RFC7807SuccessResponse<T>>
+
+  return data as AxiosResponse<RFC7807SuccessResponse<T>, D>
+}
+
+function resolveResponseShape(config: CustomAxiosRequestConfig): RequestResponseShape {
+  return config.responseShape ?? 'data'
 }
 
 function setRequestId(config: CustomAxiosRequestConfig) {

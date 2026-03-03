@@ -25,6 +25,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -34,7 +36,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
@@ -42,6 +44,9 @@ jobs:
 
       - name: Lint
         run: pnpm lint
+
+      - name: Guard deprecated unWrap usage
+        run: pnpm check:unwrap
 
       - name: Ensure lint does not modify files
         run: git diff --exit-code

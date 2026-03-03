@@ -15,7 +15,7 @@ export const fileRepository: FileRepository = {
       method: 'GET',
       url: FILE_ENDPOINTS.GET_BY_ID(id),
     })
-    return response.data
+    return response
   },
   async getByIds(ids: number[]) {
     const response = await useRequest<FileResponse[]>({
@@ -25,7 +25,7 @@ export const fileRepository: FileRepository = {
         ids,
       },
     })
-    return response.data
+    return response
   },
   async getMetaByIds(ids: number[]) {
     const response = await useRequest<FileStorage[]>({
@@ -35,6 +35,6 @@ export const fileRepository: FileRepository = {
         ids,
       },
     })
-    return response.data
+    return response
   },
 }

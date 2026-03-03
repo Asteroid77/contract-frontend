@@ -31,7 +31,7 @@ describe('serviceAgreementRepository contract', () => {
     vi.mocked(useRequest).mockImplementation((config) => {
       const uploadConfig = config as UploadRequestConfig
       uploadConfig.onUploadProgress?.({ loaded: 1, total: 2 })
-      return Promise.resolve({ data: payload } as never)
+      return Promise.resolve(payload as never)
     })
 
     const result = await serviceAgreementRepository.uploadFile(file, 'BILL', progressSpy)
@@ -58,7 +58,7 @@ describe('serviceAgreementRepository contract', () => {
     const payload = { id: 1, approvalData: {} }
     const dto = { id: 1, companyName: '测试公司' }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await serviceAgreementRepository.sign(dto as never)
 
@@ -74,7 +74,7 @@ describe('serviceAgreementRepository contract', () => {
     const payload = { id: 1, companyName: '测试公司' }
     const dto = { id: 1, companyName: '测试公司' }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await serviceAgreementRepository.record(dto as never)
 
@@ -87,7 +87,7 @@ describe('serviceAgreementRepository contract', () => {
   })
 
   it('duplicateCheck sends params by post and returns boolean', async () => {
-    vi.mocked(useRequest).mockResolvedValue({ data: true } as never)
+    vi.mocked(useRequest).mockResolvedValue(true as never)
 
     const result = await serviceAgreementRepository.duplicateCheck('测试公司', '浙江/杭州')
 
@@ -105,7 +105,7 @@ describe('serviceAgreementRepository contract', () => {
   it('get sends id in query params and returns data', async () => {
     const payload = { id: 9 }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await serviceAgreementRepository.get(9)
 
@@ -132,7 +132,7 @@ describe('serviceAgreementRepository contract', () => {
       total: 0,
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await serviceAgreementRepository.page(request as never)
 
@@ -155,7 +155,7 @@ describe('serviceAgreementRepository contract', () => {
       oldFiles: {},
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await serviceAgreementRepository.getPreviewAttachments(request as never)
 

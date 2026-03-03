@@ -12,7 +12,7 @@ describe('approvalRepository contract', () => {
   })
 
   it('claimTask forwards taskId and returns response data', async () => {
-    vi.mocked(useRequest).mockResolvedValue({ data: true } as never)
+    vi.mocked(useRequest).mockResolvedValue(true as never)
 
     const result = await approvalRepository.claimTask(888)
 
@@ -35,7 +35,7 @@ describe('approvalRepository contract', () => {
       approved: true,
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await approvalRepository.handleTask(dto)
 
@@ -48,7 +48,7 @@ describe('approvalRepository contract', () => {
   })
 
   it('cancelInstance posts to cancel endpoint and returns response data', async () => {
-    vi.mocked(useRequest).mockResolvedValue({ data: true } as never)
+    vi.mocked(useRequest).mockResolvedValue(true as never)
 
     const result = await approvalRepository.cancelInstance(101)
 
@@ -72,7 +72,7 @@ describe('approvalRepository contract', () => {
       },
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await approvalRepository.getInstancePage(pageRequest as never)
 
@@ -90,7 +90,7 @@ describe('approvalRepository contract', () => {
       taskId: 888,
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await approvalRepository.getInstanceDetail(101)
 
@@ -112,7 +112,7 @@ describe('approvalRepository contract', () => {
       },
     ]
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await approvalRepository.getHistoryList(101)
 
@@ -132,7 +132,7 @@ describe('approvalRepository contract', () => {
       status: 'pending',
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await approvalRepository.getLatestAdditionalInfoInstanceStatus()
 

@@ -1,6 +1,6 @@
 import { $t } from '@/_utils/i18n'
 import type { ApprovalInstance } from '@/modules/approval/application/models'
-import { showIncompletedUserName } from '@/modules/approval/application/utils'
+import { resolveUserDisplayText } from '@/modules/user/application/utils/displayName'
 import { defineComponent, type PropType, computed } from 'vue'
 
 type I18nKey = Parameters<typeof $t>[0]
@@ -28,6 +28,12 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const formatApprovalUserName = (name: string | null | undefined) =>
+      resolveUserDisplayText(name, {
+        emptyFallback: $t('common.label.none'),
+        numericNamePrefix: $t('domain.approval.label.incompleteUser'),
+      })
+
     const statusText = computed(() => {
       const finished = ['rejected', 'canceled', 'approved'].includes(props.data.status)
       return finished ? toStatusText(props.data.status) : toStatusText(props.data.taskStatus)
@@ -44,9 +50,9 @@ export default defineComponent({
           </tr>
           <tr>
             <td class="field-label">{$t('domain.approval.field.applicant')}</td>
-            <td>{showIncompletedUserName(props.data.applicantName)}</td>
+            <td>{formatApprovalUserName(props.data.applicantName)}</td>
             <td class="field-label">{$t('domain.approval.field.approver')}</td>
-            <td>{showIncompletedUserName(props.data.assigneeName)}</td>
+            <td>{formatApprovalUserName(props.data.assigneeName)}</td>
           </tr>
           <tr>
             <td class="field-label">{$t('common.label.status')}</td>

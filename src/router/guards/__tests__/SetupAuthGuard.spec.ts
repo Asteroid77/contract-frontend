@@ -8,7 +8,8 @@ import {
   isLogoutInProgress,
 } from '@/modules/access/application/token-manager'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
-import { captureError } from '@/app/observability'
+import { captureError } from '@/app/observability/lazy'
+import { enablePostLoginEnhancements } from '@/app/plugins/post-login-enhancements'
 
 vi.mock('@/modules/access/application/token-manager', () => ({
   forceRefreshAccessToken: vi.fn(),
@@ -22,8 +23,12 @@ vi.mock('@/modules/user/application/stores/useAccountStore', () => ({
   useAccountStore: vi.fn(),
 }))
 
-vi.mock('@/app/observability', () => ({
+vi.mock('@/app/observability/lazy', () => ({
   captureError: vi.fn(),
+}))
+
+vi.mock('@/app/plugins/post-login-enhancements', () => ({
+  enablePostLoginEnhancements: vi.fn(() => Promise.resolve()),
 }))
 
 type GuardTo = {
@@ -78,6 +83,7 @@ describe('setupAuthGuards', () => {
       accessToken: 'access-refreshed',
       refreshToken: 'refresh-refreshed',
     })
+    vi.mocked(enablePostLoginEnhancements).mockResolvedValue()
   })
 
   it('redirects to login when auth is required and token missing', async () => {

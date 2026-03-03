@@ -23,7 +23,7 @@ export const dashboardRoutes: AppRouteRecord[] = [
   {
     path: '/document',
     name: 'document',
-    component: () => import('@/views/auth/DashboardView.vue'),
+    component: DashboardView,
     meta: {
       name: 'layout.menu.docs',
       icon: 'MenuBookTwotone',

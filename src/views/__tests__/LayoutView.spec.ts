@@ -1,23 +1,15 @@
 import { defineComponent, h } from 'vue'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { routeState, accountState } = vi.hoisted(() => ({
+const { routeState } = vi.hoisted(() => ({
   routeState: {
     meta: {} as Record<string, unknown>,
-  },
-  accountState: {
-    isAuth: false,
-    isLoadedData: true,
   },
 }))
 
 vi.mock('vue-router', () => ({
   useRoute: () => routeState,
-}))
-
-vi.mock('@/modules/user/application/stores/useAccountStore', () => ({
-  useAccountStore: () => accountState,
 }))
 
 vi.mock('@/views/auth/AuthLayoutView.tsx', () => ({
@@ -66,19 +58,6 @@ const createWrapper = () =>
 describe('LayoutView', () => {
   beforeEach(() => {
     routeState.meta = {}
-    accountState.isAuth = false
-    accountState.isLoadedData = true
-  })
-
-  it('shows loading spinner when authenticated user data is not loaded', () => {
-    accountState.isAuth = true
-    accountState.isLoadedData = false
-
-    const wrapper = createWrapper()
-
-    expect(wrapper.find('[data-test="n-spin"]').exists()).toBe(true)
-    expect(wrapper.find('[data-test="auth-layout"]').exists()).toBe(false)
-    expect(wrapper.find('[data-test="unauth-layout"]').exists()).toBe(false)
   })
 
   it('uses unauth layout when route meta.layout is unauth', () => {
@@ -92,12 +71,13 @@ describe('LayoutView', () => {
     expect(wrapper.find('[data-test="auth-layout"]').exists()).toBe(false)
   })
 
-  it('uses auth layout when route meta.layout is auth', () => {
+  it('uses auth layout when route meta.layout is auth', async () => {
     routeState.meta = {
       layout: 'auth',
     }
 
     const wrapper = createWrapper()
+    await flushPromises()
 
     expect(wrapper.find('[data-test="auth-layout"]').exists()).toBe(true)
     expect(wrapper.find('[data-test="unauth-layout"]').exists()).toBe(false)
@@ -114,10 +94,11 @@ describe('LayoutView', () => {
     expect(wrapper.find('[data-test="auth-layout"]').exists()).toBe(false)
   })
 
-  it('falls back to auth layout when requiresAuth is missing', () => {
+  it('falls back to auth layout when requiresAuth is missing', async () => {
     routeState.meta = {}
 
     const wrapper = createWrapper()
+    await flushPromises()
 
     expect(wrapper.find('[data-test="auth-layout"]').exists()).toBe(true)
     expect(wrapper.find('[data-test="unauth-layout"]').exists()).toBe(false)

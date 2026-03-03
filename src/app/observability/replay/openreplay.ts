@@ -32,7 +32,7 @@ export interface OpenReplayConfig {
  */
 export function initOpenReplay(
   config: OpenReplayConfig,
-  observabilityConfig?: ObservabilityConfig,
+  _observabilityConfig?: ObservabilityConfig,
 ): Tracker | null {
   if (isInitialized && tracker) {
     console.warn('[OpenReplay] Already initialized')
@@ -138,7 +138,7 @@ export function trackError(error: Error, metadata?: Record<string, unknown>): vo
  */
 export function trackIssue(
   message: string,
-  payload?: Record<string, unknown> & { traceId?: string }
+  payload?: Record<string, unknown> & { traceId?: string },
 ): void {
   if (!tracker) return
   tracker.issue(message, payload)

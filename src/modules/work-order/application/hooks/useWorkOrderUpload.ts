@@ -29,13 +29,10 @@ async function getOssPolicy(fileName: string): Promise<OssPolicyResponse> {
     method: 'post',
     data: { fileName },
   })
-  return resp.data
+  return resp
 }
 
-async function uploadToOss(
-  policy: OssPolicyResponse,
-  file: File,
-): Promise<OssCallbackResult> {
+async function uploadToOss(policy: OssPolicyResponse, file: File): Promise<OssCallbackResult> {
   const formData = new FormData()
   const key = `${policy.dir}${file.name}`
   formData.append('key', key)

@@ -13,10 +13,10 @@ import {
   canClaimTask,
   isApprovalFinish,
   isApproveBtnVisible,
-  showIncompletedUserName,
 } from '@/modules/approval/application/utils'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
 import type { SignInResponseComplete } from '@/modules/user/application/models'
+import { resolveUserDisplayText } from '@/modules/user/application/utils/displayName'
 import { formatted } from '@/modules/shared/presentation/time'
 import { useRouter } from 'vue-router'
 import StatusTag from './StatusTag'
@@ -52,6 +52,11 @@ const claimMutation = useClaimTask()
 const { onSearch: handleSearchWithRefetch, onReset: handleResetWithRefetch } = bindRefetchHandlers(
   () => instanceQuery.refetch(),
 )
+const formatApprovalUserName = (name: string | null | undefined) =>
+  resolveUserDisplayText(name, {
+    emptyFallback: $t('common.label.none'),
+    numericNamePrefix: $t('domain.approval.label.incompleteUser'),
+  })
 
 const handleApprove = (row: Row) => {
   router.push({
@@ -106,7 +111,7 @@ const columns = computed<DataTableColumns<Row>>(() => [
             h(MobilePrimarySecondaryText, {
               primary: row.processName,
               secondary: [
-                `${row.nodeName} · ${showIncompletedUserName(row.applicantName)}`,
+                `${row.nodeName} · ${formatApprovalUserName(row.applicantName)}`,
                 formatted(row.createdTime).standard,
               ],
             }),
@@ -147,12 +152,12 @@ const columns = computed<DataTableColumns<Row>>(() => [
         {
           title: $t('domain.approval.field.approver'),
           key: 'assigneeName',
-          render: (row: Row) => showIncompletedUserName(row.assigneeName),
+          render: (row: Row) => formatApprovalUserName(row.assigneeName),
         },
         {
           title: $t('domain.approval.field.applicant'),
           key: 'applicantName',
-          render: (row: Row) => showIncompletedUserName(row.applicantName),
+          render: (row: Row) => formatApprovalUserName(row.applicantName),
         },
         {
           title: $t('common.time.created'),

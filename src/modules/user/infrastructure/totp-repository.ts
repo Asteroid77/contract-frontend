@@ -17,27 +17,19 @@ export const totpRepository: ITotpRepository = {
       skipAuthToken: true,
       skipAuthRefresh: true,
       withCredentials: true,
-    }).then((resp) => resp.data),
+    }),
 
   getStatus: () =>
     useRequest<TotpStatusVo, never>({
       method: 'GET',
       url: TOTP_ENDPOINTS.STATUS,
       notify: { success: false },
-    }).then((resp) => resp.data),
+    }),
 
-  setup: () =>
-    useRequest<TotpSetupVo, never>({
-      method: 'POST',
-      url: TOTP_ENDPOINTS.SETUP,
-    }).then((resp) => resp.data),
+  setup: () => useRequest<TotpSetupVo, never>({ method: 'POST', url: TOTP_ENDPOINTS.SETUP }),
 
   enable: (data: TotpEnableRequestDTO) =>
-    useRequest<boolean, TotpEnableRequestDTO>({
-      method: 'POST',
-      url: TOTP_ENDPOINTS.ENABLE,
-      data,
-    }).then((resp) => resp.data),
+    useRequest<boolean, TotpEnableRequestDTO>({ method: 'POST', url: TOTP_ENDPOINTS.ENABLE, data }),
 
   disable: (data: TotpDisableRequestDTO) =>
     useRequest<void, TotpDisableRequestDTO>({
@@ -47,8 +39,5 @@ export const totpRepository: ITotpRepository = {
     }).then(() => undefined),
 
   regenerateBackupCodes: () =>
-    useRequest<string[], never>({
-      method: 'POST',
-      url: TOTP_ENDPOINTS.BACKUP_CODES,
-    }).then((resp) => resp.data),
+    useRequest<string[], never>({ method: 'POST', url: TOTP_ENDPOINTS.BACKUP_CODES }),
 }

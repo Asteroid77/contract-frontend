@@ -22,7 +22,7 @@ describe('captchaRepository contract', () => {
       image: 'base64-image',
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await captchaRepository.getCaptcha()
 
@@ -48,7 +48,7 @@ describe('captchaRepository contract', () => {
       }
       return key
     })
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await captchaRepository.sendSmsCode('13800000000')
 

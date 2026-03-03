@@ -1,14 +1,21 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { NModal, NCard, NForm, NFormItem, NInput, NButton, NSpace } from 'naive-ui'
+import { ref, computed, defineAsyncComponent } from 'vue'
+import { NModal, NCard, NForm, NFormItem, NInput, NButton, NSpace, NSpin } from 'naive-ui'
 import { message } from '@/_utils/discrete_naive_api'
-import { MdEditor } from 'md-editor-v3'
-import 'md-editor-v3/lib/style.css'
 import { useI18n } from 'vue-i18n'
 import { useCreateWorkOrder } from '../application/hooks/useWorkOrderService'
 import { useWorkOrderUpload } from '../application/hooks/useWorkOrderUpload'
 import { useRouter } from 'vue-router'
 import WorkOrderCategorySelect from './WorkOrderCategorySelect'
+
+const AsyncMdEditor = defineAsyncComponent(async () => {
+  const [{ default: MdEditor }] = await Promise.all([
+    import('md-editor-v3/lib/es/MdEditor.mjs'),
+    import('md-editor-v3/lib/style.css'),
+  ])
+
+  return MdEditor
+})
 
 defineProps<{
   show: boolean
@@ -88,13 +95,21 @@ const handleSubmit = () => {
           />
         </n-form-item>
         <n-form-item :label="$t('domain.workOrder.field.content')">
-          <MdEditor
-            v-model="content"
-            :language="'zh-CN'"
-            style="width: 100%"
-            :preview="false"
-            @on-upload-img="onUploadImg"
-          />
+          <Suspense>
+            <component
+              :is="AsyncMdEditor"
+              v-model="content"
+              :language="'zh-CN'"
+              style="width: 100%"
+              :preview="false"
+              @on-upload-img="onUploadImg"
+            />
+            <template #fallback>
+              <n-spin :show="true" class="editor-loading-shell">
+                <div class="editor-loading-placeholder" />
+              </n-spin>
+            </template>
+          </Suspense>
         </n-form-item>
       </n-form>
       <template #footer>
@@ -145,6 +160,17 @@ const handleSubmit = () => {
 .work-order-create-form-grid :deep(.n-form-item .n-form-item-blank) {
   grid-column: span 8;
   min-width: 0;
+}
+
+.editor-loading-shell {
+  inline-size: 100%;
+}
+
+.editor-loading-placeholder {
+  inline-size: 100%;
+  block-size: 18rem;
+  border-radius: var(--borderRadius-8);
+  background: var(--colorFillQuaternary);
 }
 
 @container work-order-create-form-grid (max-width: 48rem) {

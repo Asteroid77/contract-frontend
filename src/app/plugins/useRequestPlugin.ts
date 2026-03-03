@@ -10,14 +10,16 @@ import type { ToBeInstalledPlugin } from '.'
 import { notification, showUniqueErrorNotification } from '@/_utils/discrete_naive_api'
 import { $t } from '@/_utils/i18n'
 import { match } from 'ts-pattern'
-import type { NotificationOptions } from 'naive-ui'
 import type { RFC7807Response } from '@/modules/shared/domain/response'
 import { BusinessError } from '@/modules/shared/domain/errors'
 import type { AxiosError, AxiosResponse } from 'axios'
 import axios from 'axios'
-import { queryPersister } from '@/app/infrastructure/query/tanstack_query_persist_with_dexie'
+import type { NotificationOptions as NaiveNotificationOptions } from 'naive-ui'
 import { clearQueryRequestId } from '@/app/infrastructure/query/query-request-id'
-import { readRequestIdFromBody, readRequestIdFromHeaders } from '@/app/infrastructure/request/request-id'
+import {
+  readRequestIdFromBody,
+  readRequestIdFromHeaders,
+} from '@/app/infrastructure/request/request-id'
 /**
  * 错误信息接口
  */
@@ -26,6 +28,10 @@ interface ProcessedError {
   content: string
   originalError: unknown
 }
+
+type QueryOrMutation =
+  | Query<unknown, unknown, unknown>
+  | Mutation<unknown, unknown, unknown, unknown>
 
 const MAX_QUERY_RETRY_COUNT = 2
 const RETRYABLE_CLIENT_STATUS_CODES = new Set([408, 429])
@@ -66,9 +72,39 @@ function shouldRetryQueryError(failureCount: number, error: unknown): boolean {
   }
 
   const status = resolveErrorStatus(error)
-  const retryableError = typeof status === 'number' ? isRetryableHttpStatus(status) : isRetryableNetworkError(error)
+  const retryableError =
+    typeof status === 'number' ? isRetryableHttpStatus(status) : isRetryableNetworkError(error)
 
   return retryableError && failureCount < MAX_QUERY_RETRY_COUNT
+}
+
+function shouldSkipGlobalErrorHandler(target: QueryOrMutation): boolean {
+  return target.meta?.skipGlobalErrorHandler === true
+}
+
+function shouldShowDefaultQueryErrorToast(query: Query<unknown, unknown, unknown>): boolean {
+  return query.state.data !== undefined
+}
+
+function buildGlobalErrorKey(
+  error: Error,
+  query?: Query<unknown, unknown, unknown>,
+  mutation?: Mutation<unknown, unknown, unknown, unknown>,
+): string {
+  const codePart =
+    error instanceof BusinessError && error.code !== undefined ? String(error.code) : 'na'
+  const requestIdPart =
+    error instanceof BusinessError && error.requestId ? String(error.requestId) : 'na'
+
+  if (query) {
+    return `query:${JSON.stringify(query.queryKey)}:${codePart}:${requestIdPart}:${error.message}`
+  }
+
+  if (mutation) {
+    return `mutation:${mutation.mutationId}:${codePart}:${requestIdPart}:${error.message}`
+  }
+
+  return error.message || 'unknown-error'
 }
 /**
  * 解析 API 错误，提取出提示信息
@@ -104,11 +140,13 @@ function processApiError(error: Error | undefined): ProcessedError | undefined {
       const serverMessage = problemDetails?.detail || problemDetails?.title
       const traceIdSuffix = problemDetails?.traceId ? `\n\nTraceId: ${problemDetails.traceId}` : ''
       const requestId =
-        readRequestIdFromBody(problemDetails) ?? readRequestIdFromHeaders(axiosError.response.headers)
+        readRequestIdFromBody(problemDetails) ??
+        readRequestIdFromHeaders(axiosError.response.headers)
       const requestIdSuffix = requestId ? `\nRequestId: ${requestId}` : ''
       return {
         title: $t('common.error.timeout'), // "请求失败"
-        content: (serverMessage || $t('common.error.timeoutMeta')) + traceIdSuffix + requestIdSuffix,
+        content:
+          (serverMessage || $t('common.error.timeoutMeta')) + traceIdSuffix + requestIdSuffix,
         originalError,
       }
     }
@@ -147,12 +185,15 @@ function processApiError(error: Error | undefined): ProcessedError | undefined {
 const globalBaseErrorHandler = (
   error: unknown,
   query?: Query<unknown, unknown, unknown>,
-  variables?: unknown,
-  context?: unknown,
   mutation?: Mutation<unknown, unknown, unknown, unknown>,
 ) => {
   const gatherStruction = query ? query : (mutation as Mutation<unknown, unknown, unknown, unknown>)
-  const isDefaultToastOnError = true
+
+  if (shouldSkipGlobalErrorHandler(gatherStruction)) {
+    return
+  }
+
+  const isDefaultToastOnError = query ? shouldShowDefaultQueryErrorToast(query) : true
   const isExecute =
     gatherStruction.meta?.toastOnError === undefined
       ? isDefaultToastOnError
@@ -160,18 +201,18 @@ const globalBaseErrorHandler = (
   if (isExecute) {
     if (error instanceof Error) {
       console.error('A global request error was caught:', error)
-      const errorKey = error.message || 'unknown-error'
+      const errorKey = buildGlobalErrorKey(error, query, mutation)
       const toastOnErrorConfig = gatherStruction.meta?.toastOnError ?? true
       match(typeof toastOnErrorConfig)
         .with('function', () => {
           const throwOnError = gatherStruction.meta?.toastOnError as (
             error: Error,
             query: Query<unknown, unknown, unknown> | Mutation<unknown, unknown, unknown, unknown>,
-          ) => NotificationOptions
+          ) => NaiveNotificationOptions
           showUniqueErrorNotification(errorKey, throwOnError(error, gatherStruction))
         })
         .with('object', () => {
-          const throwOnError = gatherStruction.meta?.toastOnError as NotificationOptions
+          const throwOnError = gatherStruction.meta?.toastOnError as NaiveNotificationOptions
           showUniqueErrorNotification(errorKey, throwOnError)
         })
         .otherwise(() => {
@@ -198,59 +239,19 @@ const globalBaseErrorHandler = (
       }
     }
   }
-
-  let logContext: Record<string, unknown> = {
-    variables,
-    context,
-  }
-  if (query) {
-    const ctx = gatherStruction as Query
-    logContext = {
-      ...logContext,
-      queryKey: ctx.queryKey,
-      // 状态快照
-      state: {
-        status: ctx.state.status,
-        queryFetchStatus: ctx.state.fetchStatus,
-        queryFetchFailureCount: ctx.state.fetchFailureCount,
-        // 服务端返回的数据
-        data: gatherStruction.state.data,
-        // 数据有多旧？
-        queryDataUpdatedAt:
-          ctx.state.dataUpdatedAt > 0 ? new Date(ctx.state.dataUpdatedAt).toISOString() : null,
-        // 緩存中是否有旧数据？
-        queryHasStaleData: ctx.state.data !== undefined,
-      },
-      // query配置信息
-      queryOptions: {
-        retry: ctx.options?.retry,
-        gcTime: ctx.options?.gcTime,
-      },
-      // 影响范围
-      queryActiveObservers: ctx.getObserversCount(),
-    }
-  } else {
-    const ctx = gatherStruction as Mutation
-    logContext = {
-      ...logContext,
-      // 请求key
-      mutationKey: ctx.mutationId,
-    }
-  }
-  console.log('logContext', logContext)
 }
 const globalMutationErrorHandler = (
   error: unknown,
-  context: unknown,
-  variables: unknown,
+  _context: unknown,
+  _variables: unknown,
   mutation: Mutation<unknown, unknown, unknown, unknown>,
 ) => {
-  globalBaseErrorHandler(error, undefined, variables, context, mutation)
+  globalBaseErrorHandler(error, undefined, mutation)
 }
 const globalSuccessHandler = (
   data: RFC7807Response<unknown> | AxiosResponse<RFC7807Response<unknown>>,
-  variabbles: unknown,
-  context: unknown,
+  _variabbles: unknown,
+  _context: unknown,
   query?: Query<unknown, unknown, unknown>,
   mutation?: Mutation<unknown, unknown, unknown, unknown>,
 ) => {
@@ -264,11 +265,11 @@ const globalSuccessHandler = (
         const toastOnSuccess = gatherStruction.meta?.toastOnSuccess as (
           data: RFC7807Response<unknown> | AxiosResponse<RFC7807Response<unknown>>,
           query: Query<unknown, unknown, unknown> | Mutation<unknown, unknown, unknown, unknown>,
-        ) => NotificationOptions
+        ) => NaiveNotificationOptions
         notification.success(toastOnSuccess(data, gatherStruction))
       })
       .with('object', () => {
-        const toastOnSuccess = gatherStruction.meta?.toastOnSuccess as NotificationOptions
+        const toastOnSuccess = gatherStruction.meta?.toastOnSuccess as NaiveNotificationOptions
         notification.success(toastOnSuccess)
       })
       .otherwise(() => {
@@ -289,14 +290,6 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: shouldRetryQueryError,
-      select: (response: unknown) => {
-        // return unwrapped data
-        if (response && typeof response === 'object' && 'data' in response) {
-          return (response as RFC7807Response<unknown>).data
-        }
-        // return original data.
-        return response
-      },
     },
   },
   // --- Query 的全局错误处理 (通过订阅缓存事件) ---
@@ -315,12 +308,43 @@ const queryClient = new QueryClient({
   }),
   mutationCache: new MutationCache({
     onError: globalMutationErrorHandler,
-    onSuccess(data, variables, context, mutation) {
+    onSuccess(data, _variables, _context, mutation) {
       const result = data as RFC7807Response<unknown> | AxiosResponse<RFC7807Response<unknown>>
       globalSuccessHandler(result, null, null, undefined, mutation)
     },
   }),
 })
+
+let queryPersistenceEnabled = false
+let queryPersistencePromise: Promise<void> | null = null
+
+export function enableQueryPersistence(): Promise<void> {
+  if (queryPersistenceEnabled) {
+    return Promise.resolve()
+  }
+
+  if (!queryPersistencePromise) {
+    queryPersistencePromise = Promise.all([
+      import('@tanstack/query-persist-client-core'),
+      import('@/app/infrastructure/query/tanstack_query_persist_with_dexie'),
+    ])
+      .then(async ([persistModule, persisterModule]) => {
+        const [, restorePromise] = persistModule.persistQueryClient({
+          queryClient,
+          persister: persisterModule.queryClientPersister,
+        })
+
+        await restorePromise
+        queryPersistenceEnabled = true
+      })
+      .catch((error) => {
+        queryPersistencePromise = null
+        throw error
+      })
+  }
+
+  return queryPersistencePromise
+}
 
 /**
  * 初始化TanStack Query
@@ -331,9 +355,6 @@ export function useRequestPlugin(): ToBeInstalledPlugin[] {
       plugin: VueQueryPlugin,
       option: {
         queryClient,
-        persistOptions: {
-          persister: queryPersister.persisterFn,
-        },
       },
     },
   ]

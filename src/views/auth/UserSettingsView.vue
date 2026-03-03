@@ -140,8 +140,10 @@ const deviceColumns = computed<DataTableColumns<UserDeviceSession>>(() => {
       {
         title: $t('layout.profile.security.devices.field.deviceId'),
         key: 'deviceId',
-        render: (row) =>
-          h('div', { class: 'min-w-0' }, [
+        render: (row) => {
+          const lastActiveAt = formatted(row.lastActiveAt).standard || unknown
+
+          return h('div', { class: 'settings-device-session-cell min-w-0' }, [
             h(
               'div',
               { class: 'text-sm font-medium text-[var(--color-text-main)] truncate' },
@@ -157,12 +159,13 @@ const deviceColumns = computed<DataTableColumns<UserDeviceSession>>(() => {
               { class: 'text-xs text-[var(--color-text-light)] truncate mt-1' },
               row.userAgent || unknown,
             ),
-          ]),
-      },
-      {
-        title: $t('layout.profile.security.devices.field.lastActiveAt'),
-        key: 'lastActiveAt',
-        render: (row) => formatted(row.lastActiveAt).standard,
+            h(
+              'div',
+              { class: 'text-xs text-[var(--color-text-light)] truncate mt-1' },
+              `${$t('layout.profile.security.devices.field.lastActiveAt')}: ${lastActiveAt}`,
+            ),
+          ])
+        },
       },
       {
         title: $t('layout.profile.security.devices.field.currentDevice'),
@@ -532,6 +535,10 @@ const handleRevokeSelectedDevices = async () => {
 </template>
 
 <style scoped>
+.settings-device-session-cell {
+  min-width: 16rem;
+}
+
 .settings-password-form-shell {
   width: 100%;
   max-inline-size: 35rem;

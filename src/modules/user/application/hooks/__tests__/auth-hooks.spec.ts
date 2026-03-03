@@ -55,6 +55,10 @@ vi.mock('@/modules/user/infrastructure/oauth-endpoints', () => ({
   buildOauth2AuthorizationUrl: vi.fn((platform: string) => `https://oauth.example/${platform}`),
 }))
 
+vi.mock('@/app/plugins/post-login-enhancements', () => ({
+  enablePostLoginEnhancements: vi.fn(() => Promise.resolve()),
+}))
+
 vi.mock('@/_utils/discrete_naive_api', () => ({
   message: {
     success: discreteMessageSuccessSpy,

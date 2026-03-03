@@ -216,7 +216,10 @@ describe('useSignService hooks', () => {
       updatedAt: expect.any(Number),
     })
     expect(callback).toHaveBeenCalledWith(uploaded)
-    expect(options.meta).toEqual({ toastOnSuccess: false })
+    expect(options.meta).toEqual({
+      toastOnError: false,
+      toastOnSuccess: false,
+    })
   })
 
   it('useSubmitSignMutation invalidates list and runs callback', async () => {

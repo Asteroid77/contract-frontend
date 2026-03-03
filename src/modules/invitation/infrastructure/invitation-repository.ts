@@ -18,22 +18,19 @@ const INVITATION_RECORD_ENDPOINTS = createPrefixedEndpoints('/invitation_record'
 
 export const invitationRepository = {
   createInvitationCode: () =>
-    useRequest<InvitationCode, undefined>({
-      url: INVITATION_ENDPOINTS.CREATE,
-      method: 'POST',
-    }).then((resp) => resp.data),
+    useRequest<InvitationCode, undefined>({ url: INVITATION_ENDPOINTS.CREATE, method: 'POST' }),
   updateInvitationCode: (data: EditRemarkDTO[]) =>
     useRequest<InvitationCode[], EditRemarkDTO[]>({
       url: INVITATION_ENDPOINTS.UPDATE,
       method: 'POST',
       data,
-    }).then((resp) => resp.data),
+    }),
   deleteInvitationCode: (ids: number[]) =>
     useRequest<boolean, number[]>({
       url: INVITATION_ENDPOINTS.DELETE,
       method: 'DELETE',
       data: ids,
-    }).then((resp) => resp.data),
+    }),
   getInvitationCodeList: () =>
     useRequest<InvitationCode[], undefined>({
       url: INVITATION_ENDPOINTS.LIST,
@@ -41,7 +38,7 @@ export const invitationRepository = {
       notify: {
         success: false,
       },
-    }).then((resp) => resp.data),
+    }),
   getInvitedCount: () =>
     useRequest<number, undefined>({
       url: INVITATION_ENDPOINTS.COUNT,
@@ -49,7 +46,7 @@ export const invitationRepository = {
       notify: {
         success: false,
       },
-    }).then((resp) => resp.data),
+    }),
   getInvitationRecordPage: (data: BasePageRequest<unknown>) =>
     useRequest<IPage<InvitationRecord>, BasePageRequest<unknown>>({
       url: INVITATION_RECORD_ENDPOINTS.LIST,
@@ -58,5 +55,5 @@ export const invitationRepository = {
       notify: {
         success: false,
       },
-    }).then((resp) => resp.data),
+    }),
 }

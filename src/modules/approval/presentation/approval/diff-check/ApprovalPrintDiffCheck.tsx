@@ -1,6 +1,6 @@
 import { $t } from '@/_utils/i18n'
 import type { ApprovalHistory, ApprovalInstance } from '@/modules/approval/application/models'
-import { showIncompletedUserName } from '@/modules/approval/application/utils'
+import { resolveUserDisplayText } from '@/modules/user/application/utils/displayName'
 import { formatted } from '@/modules/shared/presentation/time'
 import { NQrCode } from 'naive-ui'
 import { match } from 'ts-pattern'
@@ -47,6 +47,12 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const formatApprovalUserName = (name: string | null | undefined) =>
+      resolveUserDisplayText(name, {
+        emptyFallback: $t('common.label.none'),
+        numericNamePrefix: $t('domain.approval.label.incompleteUser'),
+      })
+
     const now = new Date().toLocaleString('zh-CN')
 
     const statusText = computed(() => {
@@ -109,9 +115,9 @@ export default defineComponent({
             </tr>
             <tr>
               <td style={{ fontWeight: 'bold' }}>{$t('domain.approval.field.applicant')}</td>
-              <td>{showIncompletedUserName(props.data.applicantName)}</td>
+              <td>{formatApprovalUserName(props.data.applicantName)}</td>
               <td style={{ fontWeight: 'bold' }}>{$t('domain.approval.field.approver')}</td>
-              <td>{showIncompletedUserName(props.data.assigneeName)}</td>
+              <td>{formatApprovalUserName(props.data.assigneeName)}</td>
             </tr>
             <tr>
               <td style={{ fontWeight: 'bold' }}>{$t('common.label.status')}</td>
@@ -143,7 +149,7 @@ export default defineComponent({
               props.historyList.map((row) => (
                 <tr key={row.id}>
                   <td>{row.nodeName}</td>
-                  <td>{showIncompletedUserName(row.operator)}</td>
+                  <td>{formatApprovalUserName(row.operator)}</td>
                   <td>{$t(toActionLabelKey(row.action))}</td>
                   <td>{formatted(row.createdTime).standard}</td>
                   <td>{row.comment || '-'}</td>

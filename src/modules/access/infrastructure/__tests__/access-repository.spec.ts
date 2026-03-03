@@ -24,7 +24,7 @@ describe('accessRepository contract', () => {
       },
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await accessRepository.getRolePage(dto as never)
 
@@ -48,15 +48,11 @@ describe('accessRepository contract', () => {
       permissionIds: [1, 2],
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await accessRepository.editRole(dto as never)
 
-    expect(useRequest).toHaveBeenCalledWith({
-      method: 'POST',
-      url: '/role/edit',
-      data: dto,
-    })
+    expect(useRequest).toHaveBeenCalledWith({ method: 'POST', url: '/role/edit', data: dto })
     expect(result).toBe(payload)
   })
 
@@ -68,7 +64,7 @@ describe('accessRepository contract', () => {
       },
     ]
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await accessRepository.getRolesByUserId(66)
 
@@ -98,7 +94,7 @@ describe('accessRepository contract', () => {
       },
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await accessRepository.getPermissionPage(dto as never)
 
@@ -124,7 +120,7 @@ describe('accessRepository contract', () => {
       size: 20,
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await accessRepository.getPermissionsByRoleId(dto as never)
 
@@ -147,7 +143,7 @@ describe('accessRepository contract', () => {
       },
     ]
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await accessRepository.getAssignedUsersByRoleId(9)
 
@@ -171,15 +167,11 @@ describe('accessRepository contract', () => {
       userIds: [1, 2],
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await accessRepository.assignRoleToUsers(dto as never)
 
-    expect(useRequest).toHaveBeenCalledWith({
-      method: 'POST',
-      url: '/user-role/assign',
-      data: dto,
-    })
+    expect(useRequest).toHaveBeenCalledWith({ method: 'POST', url: '/user-role/assign', data: dto })
     expect(result).toBeNull()
   })
 })

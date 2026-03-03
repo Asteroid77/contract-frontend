@@ -35,13 +35,9 @@ export const accessRepository = {
       notify: {
         success: false,
       },
-    }).then((resp) => resp.data),
+    }),
   editRole: (data: RoleRequestDTO) =>
-    useRequest<number, RoleRequestDTO>({
-      method: 'POST',
-      url: ROLE_ENDPOINTS.EDIT,
-      data,
-    }).then((resp) => resp.data),
+    useRequest<number, RoleRequestDTO>({ method: 'POST', url: ROLE_ENDPOINTS.EDIT, data }),
   getRolesByUserId: (userId: number) =>
     useRequest<RoleVo[], never>({
       method: 'GET',
@@ -52,7 +48,7 @@ export const accessRepository = {
       notify: {
         success: false,
       },
-    }).then((resp) => resp.data),
+    }),
   getPermissionPage: (data: BasePageRequest<PermissionPageDTO>) =>
     useRequest<IPage<Permission>, BasePageRequest<PermissionPageDTO>>({
       method: 'POST',
@@ -61,7 +57,7 @@ export const accessRepository = {
       notify: {
         success: false,
       },
-    }).then((resp) => resp.data),
+    }),
   getPermissionsByRoleId: (data: RolePermissionsPageDTO) =>
     useRequest<IPage<Permission>, RolePermissionsPageDTO>({
       method: 'POST',
@@ -70,7 +66,7 @@ export const accessRepository = {
       notify: {
         success: false,
       },
-    }).then((resp) => resp.data),
+    }),
   getAssignedUsersByRoleId: (roleId: number) =>
     useRequest<AssignedUserOptions[], never>({
       method: 'GET',
@@ -81,11 +77,7 @@ export const accessRepository = {
       notify: {
         success: false,
       },
-    }).then((resp) => resp.data),
+    }),
   assignRoleToUsers: (data: RoleAssignDTO) =>
-    useRequest<null, RoleAssignDTO>({
-      method: 'POST',
-      url: USER_ROLE_ENDPOINTS.ASSIGN,
-      data,
-    }).then((resp) => resp.data),
+    useRequest<null, RoleAssignDTO>({ method: 'POST', url: USER_ROLE_ENDPOINTS.ASSIGN, data }),
 }

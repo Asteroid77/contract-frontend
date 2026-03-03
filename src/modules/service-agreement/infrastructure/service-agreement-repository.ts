@@ -48,21 +48,21 @@ export const serviceAgreementRepository = {
           onProgress({ percent })
         }
       },
-    }).then((resp) => resp.data)
+    })
   },
   sign: (data: ServiceAgreementRequestDTO) => {
     return useRequest<ApprovalInstance<ServiceAgreementRequestDTO>>({
       method: 'POST',
       url: SERVICE_AGREEMENT_ENDPOINTS.SIGN,
       data,
-    }).then((resp) => resp.data)
+    })
   },
   record: (data: ServiceAgreementRequestDTO) => {
     return useRequest<ServiceAgreementVo>({
       method: 'POST',
       url: SERVICE_AGREEMENT_ENDPOINTS.RECORD,
       data,
-    }).then((resp) => resp.data)
+    })
   },
   duplicateCheck: (companyName: string, pca: string) => {
     return useRequest<boolean>({
@@ -72,27 +72,27 @@ export const serviceAgreementRepository = {
         companyName,
         pca,
       },
-    }).then((resp) => resp.data)
+    })
   },
   get: (id: number) => {
     return useRequest<ServiceAgreementVo>({
       method: 'GET',
       url: SERVICE_AGREEMENT_ENDPOINTS.GET,
       params: { id },
-    }).then((resp) => resp.data)
+    })
   },
   page: (pageRequest: BasePageRequest<ServiceAgreementPageDTO>) => {
     return useRequest<IPage<ServiceAgreementPageVo>>({
       method: 'POST',
       url: SERVICE_AGREEMENT_ENDPOINTS.PAGE,
       data: pageRequest,
-    }).then((resp) => resp.data)
+    })
   },
   getPreviewAttachments: (data: ServiceAgreementPreviewAttachmentsDTO) => {
     return useRequest<PreviewAttachmentsVO>({
       method: 'POST',
       url: SERVICE_AGREEMENT_ENDPOINTS.PREVIEW_ATTACHMENTS,
       data,
-    }).then((resp) => resp.data)
+    })
   },
 }

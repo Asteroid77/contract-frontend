@@ -23,7 +23,7 @@ describe('userRepository contract', () => {
       rememberMe: true,
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await userRepository.login(dto)
 
@@ -45,7 +45,7 @@ describe('userRepository contract', () => {
       bizId: 'biz-1',
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await userRepository.register(dto)
 
@@ -69,7 +69,7 @@ describe('userRepository contract', () => {
       authCode: 'oauth-auth-code',
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await userRepository.exchangeOAuth2Code(dto)
 
@@ -87,14 +87,11 @@ describe('userRepository contract', () => {
   it('getCurrentUserInfo requests /user/me and returns response data', async () => {
     const payload = { token: 'new-token' }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await userRepository.getCurrentUserInfo()
 
-    expect(useRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: USER_ENDPOINTS.ME,
-    })
+    expect(useRequest).toHaveBeenCalledWith({ method: 'GET', url: USER_ENDPOINTS.ME })
     expect(result).toEqual(payload)
   })
 
@@ -102,7 +99,7 @@ describe('userRepository contract', () => {
     const payload = { token: 'new-token' }
     const token = 'oauth-access-token'
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await userRepository.getCurrentUserInfo(token)
 
@@ -126,7 +123,7 @@ describe('userRepository contract', () => {
       profile: null,
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await userRepository.getUserInfoById(2)
 
@@ -147,7 +144,7 @@ describe('userRepository contract', () => {
       newPassword: 'new',
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await userRepository.changePassword(dto)
 
@@ -168,7 +165,7 @@ describe('userRepository contract', () => {
       },
     ]
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await userRepository.listCurrentUserDevices()
 
@@ -192,7 +189,7 @@ describe('userRepository contract', () => {
       allowCurrentDevice: false,
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await userRepository.revokeCurrentUserDevices(dto)
 
@@ -220,7 +217,7 @@ describe('userRepository contract', () => {
       identity: '91110108MA01XXXXXX',
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await userRepository.additionalInfoRequest(dto)
 
@@ -245,7 +242,7 @@ describe('userRepository contract', () => {
       },
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await userRepository.getUserPage(pageRequest as never)
 
@@ -269,7 +266,7 @@ describe('userRepository contract', () => {
       bizId: 'biz-2',
     }
 
-    vi.mocked(useRequest).mockResolvedValue({ data: payload } as never)
+    vi.mocked(useRequest).mockResolvedValue(payload as never)
 
     const result = await userRepository.passwordRecovery(dto)
 
@@ -282,19 +279,16 @@ describe('userRepository contract', () => {
   })
 
   it('deleteUser sends DELETE /user/{id} and returns response data', async () => {
-    vi.mocked(useRequest).mockResolvedValue({ data: true } as never)
+    vi.mocked(useRequest).mockResolvedValue(true as never)
 
     const result = await userRepository.deleteUser(2)
 
-    expect(useRequest).toHaveBeenCalledWith({
-      method: 'DELETE',
-      url: USER_ENDPOINTS.DETAIL(2),
-    })
+    expect(useRequest).toHaveBeenCalledWith({ method: 'DELETE', url: USER_ENDPOINTS.DETAIL(2) })
     expect(result).toBe(true)
   })
 
   it('logout disables auth refresh and returns response data', async () => {
-    vi.mocked(useRequest).mockResolvedValue({ data: true } as never)
+    vi.mocked(useRequest).mockResolvedValue(true as never)
 
     const result = await userRepository.logout()
 

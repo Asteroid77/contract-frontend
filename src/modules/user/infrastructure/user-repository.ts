@@ -30,13 +30,9 @@ export const userRepository: IUserRepository = {
       url: USER_ENDPOINTS.LOGIN,
       data,
       withCredentials: true,
-    }).then((resp) => resp.data),
+    }),
   register: (data: RegisterRequestDTO) =>
-    useRequest<number, RegisterRequestDTO>({
-      method: 'POST',
-      url: USER_ENDPOINTS.REGISTER,
-      data,
-    }).then((resp) => resp.data),
+    useRequest<number, RegisterRequestDTO>({ method: 'POST', url: USER_ENDPOINTS.REGISTER, data }),
   exchangeOAuth2Code: (data: OAuth2ExchangeRequestDTO) =>
     useRequest<OAuth2ExchangeVo, OAuth2ExchangeRequestDTO>({
       method: 'POST',
@@ -45,7 +41,7 @@ export const userRepository: IUserRepository = {
       skipAuthToken: true,
       skipAuthRefresh: true,
       withCredentials: true,
-    }).then((resp) => resp.data),
+    }),
   getCurrentUserInfo: (accessToken?: string) =>
     useRequest<UserInfoVo, never>({
       method: 'GET',
@@ -60,12 +56,12 @@ export const userRepository: IUserRepository = {
             skipAuthRefresh: true,
           }
         : {}),
-    }).then((resp) => {
-      if (!accessToken || resp.data.token) {
-        return resp.data
+    }).then((userInfo) => {
+      if (!accessToken || userInfo.token) {
+        return userInfo
       }
       return {
-        ...resp.data,
+        ...userInfo,
         token: accessToken,
       }
     }),
@@ -76,18 +72,15 @@ export const userRepository: IUserRepository = {
       notify: {
         success: false,
       },
-    }).then((resp) => resp.data),
+    }),
   changePassword: (data: ChangePasswordRequestDTO) =>
     useRequest<boolean, ChangePasswordRequestDTO>({
       method: 'POST',
       url: USER_ENDPOINTS.PASSWORD_CHANGE,
       data,
-    }).then((resp) => resp.data),
+    }),
   deleteUser: (userId: number) =>
-    useRequest<boolean, never>({
-      method: 'DELETE',
-      url: USER_ENDPOINTS.DETAIL(userId),
-    }).then((resp) => resp.data),
+    useRequest<boolean, never>({ method: 'DELETE', url: USER_ENDPOINTS.DETAIL(userId) }),
   listCurrentUserDevices: () =>
     useRequest<UserDeviceSessionVo[], never>({
       method: 'GET',
@@ -95,19 +88,19 @@ export const userRepository: IUserRepository = {
       notify: {
         success: false,
       },
-    }).then((resp) => resp.data),
+    }),
   revokeCurrentUserDevices: (data: RevokeDeviceSessionsRequestDTO) =>
     useRequest<RevokeDeviceSessionsResponseDto, RevokeDeviceSessionsRequestDTO>({
       method: 'POST',
       url: USER_ENDPOINTS.DEVICES_REVOKE,
       data,
-    }).then((resp) => resp.data),
+    }),
   additionalInfoRequest: (data: UserAdditionalInfoRequestDTO) =>
     useRequest<ApprovalInstance<Record<string, unknown>>, UserAdditionalInfoRequestDTO>({
       method: 'POST',
       url: USER_ENDPOINTS.ADDITIONAL_INFO_PUT,
       data,
-    }).then((resp) => resp.data),
+    }),
   getUserPage: (pageRequest: BasePageRequest<UserPageDTO>) =>
     useRequest<IPage<UserPageVo>, BasePageRequest<UserPageDTO>>({
       url: USER_ENDPOINTS.PAGE,
@@ -116,13 +109,13 @@ export const userRepository: IUserRepository = {
       notify: {
         success: false,
       },
-    }).then((resp) => resp.data),
+    }),
   passwordRecovery: (data: ForgetPasswordRequestDTO) =>
     useRequest<boolean, ForgetPasswordRequestDTO>({
       method: 'POST',
       url: USER_ENDPOINTS.PASSWORD_RECOVERY,
       data,
-    }).then((resp) => resp.data),
+    }),
   logout: () =>
     useRequest<boolean, never>({
       method: 'POST',
@@ -130,5 +123,5 @@ export const userRepository: IUserRepository = {
       skipAuthRefresh: true,
       withCredentials: true,
       notify: { success: false },
-    }).then((resp) => resp.data),
+    }),
 }

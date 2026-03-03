@@ -1,5 +1,6 @@
 import type { AppRouteRecord } from '../types'
 import type { RouteLocation } from 'vue-router'
+import DashboardView from '@/views/auth/DashboardView.vue'
 
 // 工具函数
 const toNumberOrNull = (val: unknown): number | null => {
@@ -16,7 +17,7 @@ export const businessRoutes: AppRouteRecord[] = [
   {
     path: '/business',
     name: 'business',
-    component: () => import('@/views/auth/DashboardView.vue'),
+    component: DashboardView,
     meta: {
       name: 'layout.menu.business',
       icon: 'BusinessCenterOutlined',
