@@ -38,6 +38,23 @@ const runGit = (args, { allowFail = false } = {}) => {
   return (result.stdout || '').trimEnd()
 }
 
+const refExists = (ref) =>
+  spawnSync('git', ['rev-parse', '--verify', ref], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+  }).status === 0
+
+const pickExistingRef = (...refs) => {
+  for (const ref of refs) {
+    if (!ref) continue
+    if (refExists(ref)) {
+      return ref
+    }
+  }
+
+  return undefined
+}
+
 const hasWorkingTreeChanges = () => {
   const staged = runGit(['diff', '--cached', '--name-only'], { allowFail: true })
   const unstaged = runGit(['diff', '--name-only'], { allowFail: true })
@@ -52,34 +69,63 @@ const getTrackingRef = () => {
 }
 
 const resolveBaseRef = (baseRefArg) => {
-  if (baseRefArg) return baseRefArg
-  if (process.env.PX_BASE_REF) return process.env.PX_BASE_REF
+  const githubBaseRef = process.env.GITHUB_BASE_REF?.trim()
+  const envBaseRef = process.env.PX_BASE_REF?.trim()
+
+  const explicitCandidates = [baseRefArg]
+  if (envBaseRef) {
+    explicitCandidates.push(envBaseRef, `origin/${envBaseRef}`)
+  }
+
+  const explicitRef = pickExistingRef(...explicitCandidates)
+  if (explicitRef) return explicitRef
+
+  const githubCandidates = []
+  if (githubBaseRef) {
+    githubCandidates.push(githubBaseRef, `origin/${githubBaseRef}`)
+  }
+
+  const githubRef = pickExistingRef(...githubCandidates)
+  if (githubRef) return githubRef
 
   const trackingRef = getTrackingRef()
-  if (trackingRef) return trackingRef
+  const trackedRef = pickExistingRef(trackingRef)
+  if (trackedRef) return trackedRef
 
   const originHead = runGit(['symbolic-ref', '--short', 'refs/remotes/origin/HEAD'], {
     allowFail: true,
   })
-  if (originHead.trim()) return originHead.trim()
+  const originHeadRef = pickExistingRef(originHead.trim())
+  if (originHeadRef) return originHeadRef
 
-  const fallbackRefs = ['origin/master', 'origin/main', 'master', 'main']
-  for (const ref of fallbackRefs) {
-    const exists =
-      spawnSync('git', ['rev-parse', '--verify', ref], {
-        cwd: process.cwd(),
-        encoding: 'utf8',
-      }).status === 0
-    if (exists) return ref
-  }
+  const fallbackRefs = ['origin/dev', 'dev', 'origin/master', 'origin/main', 'master', 'main']
+  const fallbackRef = pickExistingRef(...fallbackRefs)
+  if (fallbackRef) return fallbackRef
 
-  throw new Error('Unable to resolve a base reference for branch diff mode')
+  const attemptedRefs = [
+    baseRefArg,
+    envBaseRef,
+    envBaseRef ? `origin/${envBaseRef}` : undefined,
+    githubBaseRef,
+    githubBaseRef ? `origin/${githubBaseRef}` : undefined,
+    trackingRef,
+    originHead.trim(),
+    ...fallbackRefs,
+  ]
+    .filter(Boolean)
+    .join(', ')
+
+  throw new Error(
+    `Unable to resolve a base reference for branch diff mode. Tried: ${attemptedRefs || 'none'}`,
+  )
 }
 
 const getMergeBase = (baseRef) => {
   const mergeBase = runGit(['merge-base', 'HEAD', baseRef], { allowFail: true }).trim()
   if (!mergeBase) {
-    throw new Error(`Unable to compute merge-base for HEAD and ${baseRef}`)
+    throw new Error(
+      `Unable to compute merge-base for HEAD and ${baseRef}. Ensure CI checkout fetches base branch history (e.g. fetch-depth: 0).`,
+    )
   }
   return mergeBase
 }
