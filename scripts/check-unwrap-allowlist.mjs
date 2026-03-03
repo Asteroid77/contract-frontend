@@ -3,6 +3,8 @@
 import { spawnSync } from 'node:child_process'
 
 const ALLOWED_FILES = new Set(['scripts/check-unwrap-allowlist.mjs'])
+const SEARCH_GLOBS = ['**/*.ts', '**/*.tsx', '**/*.vue', '**/*.js', '**/*.mjs', '**/*.cjs']
+const GIT_GREP_PATHS = SEARCH_GLOBS.map((glob) => `:(glob)${glob}`)
 
 const parseRipgrepLine = (line) => {
   const firstColon = line.indexOf(':')
@@ -24,14 +26,21 @@ const parseRipgrepLine = (line) => {
 }
 
 const searchUnWrapUsage = () => {
-  const ripgrepResult = spawnSync(
-    'rg',
-    ['--line-number', '--no-heading', '--color', 'never', '--fixed-strings', 'unWrap', '.'],
-    {
-      cwd: process.cwd(),
-      encoding: 'utf8',
-    },
-  )
+  const ripgrepArgs = [
+    '--line-number',
+    '--no-heading',
+    '--color',
+    'never',
+    '--fixed-strings',
+    'unWrap',
+    ...SEARCH_GLOBS.flatMap((glob) => ['--glob', glob]),
+    '.',
+  ]
+
+  const ripgrepResult = spawnSync('rg', ripgrepArgs, {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+  })
 
   if (!ripgrepResult.error) {
     return ripgrepResult
@@ -41,10 +50,14 @@ const searchUnWrapUsage = () => {
     throw ripgrepResult.error
   }
 
-  return spawnSync('git', ['grep', '-n', '--', 'unWrap'], {
-    cwd: process.cwd(),
-    encoding: 'utf8',
-  })
+  return spawnSync(
+    'git',
+    ['grep', '-n', '--fixed-strings', '-e', 'unWrap', '--', ...GIT_GREP_PATHS],
+    {
+      cwd: process.cwd(),
+      encoding: 'utf8',
+    },
+  )
 }
 
 const run = () => {
