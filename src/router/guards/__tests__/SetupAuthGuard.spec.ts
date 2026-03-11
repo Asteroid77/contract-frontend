@@ -8,6 +8,8 @@ import {
   isLogoutInProgress,
 } from '@/modules/access/application/token-manager'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
+import { userService } from '@/modules/user/application/service'
+import type { SignInResponseComplete } from '@/modules/user/application/models'
 import { captureError } from '@/app/observability/lazy'
 import { enablePostLoginEnhancements } from '@/app/plugins/post-login-enhancements'
 
@@ -21,6 +23,12 @@ vi.mock('@/modules/access/application/token-manager', () => ({
 
 vi.mock('@/modules/user/application/stores/useAccountStore', () => ({
   useAccountStore: vi.fn(),
+}))
+
+vi.mock('@/modules/user/application/service', () => ({
+  userService: {
+    getCurrentUserInfo: vi.fn(),
+  },
 }))
 
 vi.mock('@/app/observability/lazy', () => ({
@@ -38,7 +46,6 @@ type GuardTo = {
     requiresAuth?: boolean
     ability?: unknown
     permissions?: string[]
-    roles?: string[]
   }
 }
 
@@ -54,6 +61,23 @@ const createAccountStore = () => ({
   hasRole: vi.fn((role: string) => role === 'role.admin'),
   permissionList: [{ name: 'perm.read' }],
   roleList: [{ name: 'role.admin' }],
+})
+
+const createSignInResponse = (): SignInResponseComplete => ({
+  requireTwoFactor: false,
+  user: {
+    id: 1,
+    name: 'Tester',
+    phone: '13800000000',
+    active: '1',
+    isDeleted: 0,
+    platform: 'NATIVE',
+  },
+  profile: null,
+  token: 'access-token',
+  refreshToken: 'refresh-token',
+  permissionList: [],
+  roleList: [],
 })
 
 const setupGuard = () => {
@@ -83,6 +107,7 @@ describe('setupAuthGuards', () => {
       accessToken: 'access-refreshed',
       refreshToken: 'refresh-refreshed',
     })
+    vi.mocked(userService.getCurrentUserInfo).mockResolvedValue(createSignInResponse())
     vi.mocked(enablePostLoginEnhancements).mockResolvedValue()
   })
 
@@ -150,6 +175,26 @@ describe('setupAuthGuards', () => {
     expect(result).toBe(true)
   })
 
+  it('loads current user info without passing explicit access token during bootstrap', async () => {
+    vi.mocked(getStoredAccessToken).mockReturnValue('access-token')
+
+    const accountStore = createAccountStore()
+    accountStore.isLoadedData = false
+    vi.mocked(useAccountStore).mockReturnValue(accountStore as never)
+
+    const { guard } = setupGuard()
+    const result = await guard({
+      name: 'dashboard',
+      fullPath: '/dashboard',
+      meta: {},
+    })
+
+    expect(userService.getCurrentUserInfo).toHaveBeenCalledTimes(1)
+    expect(userService.getCurrentUserInfo).toHaveBeenCalledWith()
+    expect(accountStore.login).toHaveBeenCalledTimes(1)
+    expect(result).toBe(true)
+  })
+
   it('skips refresh workflow when logout is in progress', async () => {
     vi.mocked(isLogoutInProgress).mockReturnValue(true)
     vi.mocked(getStoredAccessToken).mockReturnValue('access-token')
@@ -181,7 +226,6 @@ describe('setupAuthGuards', () => {
           subject: 'Approval',
         },
         permissions: ['perm.denied'],
-        roles: ['role.denied'],
       },
     })
 
@@ -210,23 +254,21 @@ describe('setupAuthGuards', () => {
     expect(captureError).toHaveBeenCalled()
   })
 
-  it('returns 403 when legacy roles check fails', async () => {
+  it('allows route when no permissions are configured', async () => {
     vi.mocked(getStoredAccessToken).mockReturnValue('access-token')
 
     const accountStore = createAccountStore()
-    accountStore.hasRole.mockReturnValue(false)
     vi.mocked(useAccountStore).mockReturnValue(accountStore as never)
 
     const { guard } = setupGuard()
     const result = await guard({
       name: 'approval-process-list',
       fullPath: '/approval/process/list',
-      meta: {
-        roles: ['role.reviewer'],
-      },
+      meta: {},
     })
 
-    expect(result).toEqual({ name: '403' })
-    expect(captureError).toHaveBeenCalled()
+    expect(result).toBe(true)
+    expect(accountStore.hasRole).not.toHaveBeenCalled()
+    expect(captureError).not.toHaveBeenCalled()
   })
 })
