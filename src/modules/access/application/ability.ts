@@ -95,14 +95,7 @@ export function defineAbilityFor(
 ): AppAbility {
   const { can, build } = new AbilityBuilder<AppAbility>(Ability as AbilityClass<AppAbility>)
 
-  // 1. 处理角色权限
-  // 如果用户是管理员，拥有所有权限
-  if (roles.some((role) => role.name === 'admin' || role.name === 'super_admin')) {
-    can('manage', 'all')
-    return build()
-  }
-
-  // 2. 处理细粒度权限
+  // 1. 处理细粒度权限
   permissions.forEach((permission) => {
     const rule = parsePermission(permission.name)
     if (rule) {
@@ -110,7 +103,7 @@ export function defineAbilityFor(
     }
   })
 
-  // 3. 处理角色中的权限
+  // 2. 处理角色中的权限
   roles.forEach((role) => {
     role.permissions?.forEach((permission) => {
       const rule = parsePermission(permission.name)
