@@ -3,6 +3,9 @@ import AxiosMockAdapter from 'axios-mock-adapter'
 import { useRequest } from '@/modules/shared/infrastructure/useRequest'
 import { apiClient } from '@/app/infrastructure/request/http-client'
 import { BusinessError } from '@/modules/shared/domain/errors'
+import { ResponseCode } from '@/modules/shared/application/constants/response-code'
+import { AUTH_ENDPOINTS } from '@/modules/access/infrastructure/auth-endpoints'
+import { STORAGE_KEYS } from '@/constants/storage'
 
 let mock: AxiosMockAdapter
 
@@ -185,5 +188,69 @@ describe('useRequest behavior branches', () => {
 
     expect(result.requestId).toBe('request-id-lowercase')
     expect(result.data.value).toBe(1)
+  })
+
+  it('retries with refresh token on token-expired business code and replays request', async () => {
+    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, 'access-old')
+    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'refresh-valid')
+
+    let secureRequestCount = 0
+    mock.onGet('/secure-retry').reply((config) => {
+      secureRequestCount += 1
+
+      if (secureRequestCount === 1) {
+        expect(config.headers?.Authorization).toBe('access-old')
+        return [
+          401,
+          {
+            type: 'about:blank',
+            title: 'token expired',
+            status: 401,
+            detail: 'access token expired',
+            code: ResponseCode.OAUTH2_TOKEN_EXPIRED,
+            traceId: 'trace-expired',
+          },
+        ]
+      }
+
+      expect(config.headers?.Authorization).toBe('access-new')
+      return [
+        200,
+        {
+          type: 'about:blank',
+          title: 'ok',
+          status: 200,
+          detail: 'ok',
+          code: 0,
+          traceId: 'trace-replayed',
+          data: { ok: true },
+        },
+      ]
+    })
+
+    mock.onPost(AUTH_ENDPOINTS.TOKEN_REFRESH).reply(200, {
+      type: 'about:blank',
+      title: 'ok',
+      status: 200,
+      detail: 'ok',
+      code: 0,
+      traceId: 'trace-refresh',
+      data: {
+        accessToken: 'access-new',
+        refreshToken: 'refresh-new',
+        expiresIn: 3600,
+      },
+    })
+
+    const result = await useRequest<{ ok: boolean }>({
+      method: 'GET',
+      url: '/secure-retry',
+    })
+
+    expect(result.ok).toBe(true)
+    expect(secureRequestCount).toBe(2)
+    expect(localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)).toBe('access-new')
+    expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBe('refresh-new')
+    expect(mock.history.post).toHaveLength(1)
   })
 })
