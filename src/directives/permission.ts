@@ -21,26 +21,18 @@ const permissionDirective: Directive = {
 }
 
 function checkPermission(el: HTMLElement, binding: DirectiveBinding<string | string[]>) {
-  const { value, arg } = binding
+  const { value } = binding
 
   // 如果没有传递任何值，则不进行任何操作
   if (!value) {
     return
   }
 
-  let hasAuth = false
-
-  // 判断是检查角色还是权限
-  // 用法: v-permission:role="'admin'"
-  if (arg === 'role') {
-    hasAuth = accountStore.hasRole(value as string)
-  } else {
-    // 默认检查权限
-    // 用法: v-permission="'article:create'"
-    // 或者 v-permission="['article:create', 'article:publish']" (需要同时拥有)
-    const requiredPermissions = Array.isArray(value) ? value : [value]
-    hasAuth = requiredPermissions.every((perm) => accountStore.hasPermission(perm))
-  }
+  // 统一仅按 permission 校验
+  // 用法: v-permission="'article:create'"
+  // 或者 v-permission="['article:create', 'article:publish']" (需要同时拥有)
+  const requiredPermissions = Array.isArray(value) ? value : [value]
+  const hasAuth = requiredPermissions.every((perm) => accountStore.hasPermission(perm))
 
   // 如果没有权限，则从DOM中移除该元素
   if (!hasAuth) {

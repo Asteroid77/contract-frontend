@@ -23,8 +23,6 @@ export interface AppRouteMeta {
   requiresAuth?: boolean
   /** 需要的权限列表（旧方式，兼容保留） */
   permissions?: string[]
-  /** 需要的角色列表（旧方式，兼容保留） */
-  roles?: string[]
   /** CASL 权限规则（推荐使用） */
   ability?: AbilityRule | AbilityRule[]
 }

@@ -16,19 +16,19 @@ describe('access ability', () => {
     expect(a.can('manage', 'all')).toBe(false)
   })
 
-  it('defineAbilityFor grants full access for admin role', () => {
+  it('defineAbilityFor does not grant full access by role name and still reads role permissions', () => {
     const ability = defineAbilityFor([], [
       {
         id: 1,
         name: 'admin',
         description: 'admin role',
-        permissions: [],
+        permissions: [{ id: 2, name: 'user:read', description: 'read user' }],
       },
     ])
 
-    expect(ability.can('manage', 'all')).toBe(true)
-    expect(ability.can('delete', 'User')).toBe(true)
-    expect(ability.can('approve', 'Approval')).toBe(true)
+    expect(ability.can('manage', 'all')).toBe(false)
+    expect(ability.can('read', 'User')).toBe(true)
+    expect(ability.can('delete', 'User')).toBe(false)
   })
 
   it('defineAbilityFor parses direct and role permissions including wildcard', () => {
