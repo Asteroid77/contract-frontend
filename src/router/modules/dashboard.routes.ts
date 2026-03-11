@@ -1,5 +1,4 @@
 import type { AppRouteRecord } from '../types'
-import DashboardView from '@/views/auth/DashboardView.vue'
 
 /**
  * Dashboard 和文档相关路由
@@ -13,7 +12,7 @@ export const dashboardRoutes: AppRouteRecord[] = [
   {
     path: '/dashboard',
     name: 'dashboard',
-    component: DashboardView,
+    component: () => import('@/views/auth/AgentAggregateDashboardView.vue'),
     meta: {
       name: 'layout.menu.home',
       icon: 'MapsHomeWorkOutlined',
