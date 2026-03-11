@@ -20,8 +20,14 @@ export type ClaimTaskError = {
  */
 export function canClaimTask(
   instance: ApprovalInstance<Record<string, unknown>>,
-  currentUser: SignInResponseComplete,
+  currentUser?: SignInResponseComplete | null,
 ): ClaimTaskError {
+  if (!currentUser?.user) {
+    return {
+      canClaim: false,
+    }
+  }
+
   // 1. 检查任务是否存在
   if (!instance.taskId) {
     return {
@@ -139,7 +145,7 @@ export function canApproveTask(
  */
 export function checkTasksClaimable(
   instances: ApprovalInstance<Record<string, unknown>>[],
-  currentUser: SignInResponseComplete,
+  currentUser?: SignInResponseComplete | null,
 ) {
   const result = new Map()
 
