@@ -275,11 +275,25 @@ const globalSuccessHandler = (
       })
       .otherwise(() => {
         if (toastOnErrorConfig) {
+          const successDetail = (() => {
+            if (!data || typeof data !== 'object') {
+              return undefined
+            }
+
+            if ('config' in data && 'data' in data) {
+              return (data as AxiosResponse<RFC7807Response<unknown>>).data?.detail
+            }
+
+            if ('detail' in data) {
+              return (data as RFC7807Response<unknown>).detail
+            }
+
+            return undefined
+          })()
+
           notification.success({
             title: $t('common.status.success'),
-            content: data.hasOwnProperty('config')
-              ? (data as AxiosResponse<RFC7807Response<unknown>>).data.detail
-              : (data as RFC7807Response<unknown>).detail,
+            content: successDetail ?? $t('common.status.success'),
             duration: 5000,
             keepAliveOnHover: true,
           })
