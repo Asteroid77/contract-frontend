@@ -628,6 +628,91 @@ const i18NInfo = {
         btn: 'Check Progress',
       },
     },
+    agentAggregate: {
+      dashboard: {
+        title: 'Agent Aggregate Dashboard',
+        subtitle:
+          'Multi-dimensional overview for acquisition, conversion, performance, and renewal.',
+        action: {
+          refresh: 'Refresh',
+          retry: 'Retry',
+        },
+        option: {
+          lastDays: '{days} days',
+          topN: 'Top {count}',
+        },
+        metric: {
+          signing: 'Signing',
+          filing: 'Filing',
+          charge: 'Charge',
+        },
+        panel: {
+          overview: 'Overview',
+          funnel: 'Funnel',
+          trend: 'Trend',
+          performance: 'Performance',
+          structure: 'Structure',
+          renewal: 'Renewal',
+        },
+        panelMeta: {
+          overview: 'Regional distribution by agent count',
+          funnel: 'agentCount → filingCount → signingCount',
+          trend: 'Line + bar dual-axis trend',
+          performance: 'Multi-metric comparison for signing Top N agents',
+          renewal: 'Expiring vs renewed + renewal rate',
+        },
+        state: {
+          requestFailed: 'Request failed',
+          overviewFailed: 'Overview failed',
+          funnelFailed: 'Funnel failed',
+          trendFailed: 'Trend failed',
+          performanceFailed: 'Performance failed',
+          structureFailed: 'Structure failed',
+          renewalFailed: 'Renewal failed',
+          empty: {
+            overview: 'No overview data',
+            funnel: 'No funnel data',
+            trend: 'No trend points',
+            performance: 'No performance ranking',
+            structure: 'No structure levels',
+            renewal: 'No renewal windows',
+          },
+        },
+        field: {
+          traceId: 'TraceId',
+          requestId: 'RequestId',
+        },
+        kpi: {
+          agents: 'Agents',
+          filing: 'Filing',
+          signing: 'Signing',
+          yearCharge: 'Year Charge',
+        },
+        chart: {
+          count: 'Count',
+          charge: 'Charge',
+          newAgents: 'New Agents',
+          ratePercent: 'Rate %',
+          expiring: 'Expiring',
+          renewed: 'Renewed',
+          renewalRate: 'Renewal Rate',
+        },
+        label: {
+          windowDays: '{days}d',
+        },
+        structure: {
+          topHeavyRiskDetected: 'Top-heavy risk detected',
+          balanced: 'Structure balanced',
+          headLevelRatio: 'Head level ratio',
+          total: 'Total',
+          maxLevel: 'Max Level',
+          avgLevel: 'Avg Level',
+        },
+        performance: {
+          summary: 'Active {active}/{total} ({ratio})',
+        },
+      },
+    },
     approval: {
       status: {
         pending: 'Pending',

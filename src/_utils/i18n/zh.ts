@@ -623,6 +623,90 @@ export default {
         btn: '查看审批进度',
       },
     },
+    agentAggregate: {
+      dashboard: {
+        title: '代理人聚合看板',
+        subtitle: '获客、转化、业绩与续约的多维概览。',
+        action: {
+          refresh: '刷新',
+          retry: '重试',
+        },
+        option: {
+          lastDays: '近 {days} 天',
+          topN: 'Top {count}',
+        },
+        metric: {
+          signing: '签约',
+          filing: '备案',
+          charge: '费用',
+        },
+        panel: {
+          overview: '概览',
+          funnel: '漏斗',
+          trend: '趋势',
+          performance: '业绩',
+          structure: '结构',
+          renewal: '续约',
+        },
+        panelMeta: {
+          overview: '按代理人数的区域分布',
+          funnel: '代理总数 → 备案数 → 签约数',
+          trend: '折线 + 柱状双轴趋势',
+          performance: '签约 Top N 代理多指标对比',
+          renewal: '到期与续约对比 + 续约率',
+        },
+        state: {
+          requestFailed: '请求失败',
+          overviewFailed: '概览加载失败',
+          funnelFailed: '漏斗加载失败',
+          trendFailed: '趋势加载失败',
+          performanceFailed: '业绩加载失败',
+          structureFailed: '结构加载失败',
+          renewalFailed: '续约加载失败',
+          empty: {
+            overview: '暂无概览数据',
+            funnel: '暂无漏斗数据',
+            trend: '暂无趋势数据',
+            performance: '暂无业绩排行数据',
+            structure: '暂无结构层级数据',
+            renewal: '暂无续约窗口数据',
+          },
+        },
+        field: {
+          traceId: 'TraceId',
+          requestId: 'RequestId',
+        },
+        kpi: {
+          agents: '代理人数',
+          filing: '备案数',
+          signing: '签约数',
+          yearCharge: '年度费用',
+        },
+        chart: {
+          count: '数量',
+          charge: '费用',
+          newAgents: '新增代理',
+          ratePercent: '比率 %',
+          expiring: '即将到期',
+          renewed: '已续约',
+          renewalRate: '续约率',
+        },
+        label: {
+          windowDays: '{days}天',
+        },
+        structure: {
+          topHeavyRiskDetected: '检测到头部集中风险',
+          balanced: '结构均衡',
+          headLevelRatio: '头部层级占比',
+          total: '总计',
+          maxLevel: '最大层级',
+          avgLevel: '平均层级',
+        },
+        performance: {
+          summary: '活跃 {active}/{total}（{ratio}）',
+        },
+      },
+    },
     approval: {
       status: {
         pending: '待办',
