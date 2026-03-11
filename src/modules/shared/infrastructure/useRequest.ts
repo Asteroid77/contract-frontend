@@ -20,6 +20,7 @@ import {
   hasStoredRefreshToken,
   isLogoutInProgress,
 } from '@/modules/access/application/token-manager'
+import { ResponseCode } from '@/modules/shared/application/constants/response-code'
 
 export function useRequest<T, D = unknown>(
   config: CustomAxiosRequestConfig<D> & { responseShape: 'data' },
@@ -103,7 +104,12 @@ function shouldRetryWithTokenRefresh(error: unknown, config: CustomAxiosRequestC
   const status = error.response.status ?? problemDetails?.status
   const code = problemDetails?.code
 
-  return status === 401 || code === 401
+  return (
+    status === 401 ||
+    code === 401 ||
+    code === ResponseCode.OAUTH2_TOKEN_VERIFY_ERROR ||
+    code === ResponseCode.OAUTH2_TOKEN_EXPIRED
+  )
 }
 
 function shouldRefreshBeforeRetry(config: CustomAxiosRequestConfig): boolean {
