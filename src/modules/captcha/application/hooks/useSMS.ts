@@ -2,7 +2,6 @@ import dexie from '@/app/infrastructure/storage/dexie'
 import type { RestSmsCd } from '@/app/infrastructure/storage/dexie/defineRestSMSCd'
 import { $t } from '@/_utils/i18n'
 import { captchaService } from '@/modules/captcha/application/service'
-import type { SMSSendResponse } from '@/modules/captcha/application/models'
 import { useMutation } from '@tanstack/vue-query'
 import { match } from 'ts-pattern'
 import { computed, ref, type ComputedRef, type Ref } from 'vue'
@@ -15,7 +14,7 @@ const timerStore: Record<string, ReturnType<typeof setInterval>> = {}
  * @returns {Object} 验证码功能相关函数对象
  * @property {function(phoneNumber: string): ComputedRef<string>} getSendBtnLabelText 获取当前手机号对应的发送按钮文案
  * @property {function(phoneNumber: string): Ref<number>} getSMSCoolDownSecond 获取当前手机号对应的发送冷却时间
- * @property {function():UseMutationReturnType<SMSSendResponse,unknown,string,string>} sendSMSCode 发送手机验证码
+ * @property {function()} sendSMSCode 发送手机验证码
  */
 export function useSMS() {
   return { getSendBtnLabelText, getSMSCoolDownSecond, sendSMSCode }
@@ -23,13 +22,13 @@ export function useSMS() {
 
 /**
  * 发送手机验证码
- * @return {UseMutationReturnType<SMSSendResponse,unknown,string,string>} mutation执行对象
+ * @return mutation执行对象
  */
 function sendSMSCode() {
-  return useMutation<SMSSendResponse, unknown, string>({
+  return useMutation({
     mutationKey: ['sms'],
     mutationFn: (phone: string) => captchaService.sendSmsCode(phone),
-    onSuccess: async (_data: SMSSendResponse, phone: string) => {
+    onSuccess: async (_data, phone: string) => {
       const result = await _querySMSInfoByPhoneNumber(phone)
       const restSeconds = COOL_DOWN_TIME
       const time = new Date(Date.now() - (COOL_DOWN_TIME - restSeconds) * 1000)
@@ -49,6 +48,14 @@ function sendSMSCode() {
         })
       smsInfoStore[phone].value = restSeconds
       coolDown(phone)
+    },
+    meta: {
+      toastOnSuccess: {
+        title: $t('common.status.success'),
+        content: $t('auth.sms.sentSuccess'),
+        duration: 5000,
+        keepAliveOnHover: true,
+      },
     },
   })
 }

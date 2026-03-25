@@ -1,22 +1,52 @@
 import { userService } from '@/modules/user/application/service'
-import type { SignInResponseComplete } from '@/modules/user/application/models'
 import { useQuery } from '@tanstack/vue-query'
-import type { AxiosError } from 'axios'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
+import { toValue, watch, type MaybeRefOrGetter } from 'vue'
+import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
 
 export const userKeys = {
-  ALL: ['user'],
-  INFO: (token: string) => ['user', 'info', token],
+  ALL: ['user'] as const,
+  INFO: ['user', 'info', 'current'] as const,
 }
 /**
  * 加载用户数据hook
  * @param accessToken token
- * @returns UseQueryReturnType<SignInResponse, AxiosError<unknown>>
+ * @returns 当前用户信息查询结果
  */
-export function useLoadUserInfo(accessToken: string) {
-  return useQuery<SignInResponseComplete, AxiosError<unknown>, SignInResponseComplete>({
-    queryKey: userKeys.INFO(accessToken),
+export function useLoadUserInfo(accessToken: MaybeRefOrGetter<string | null | undefined>) {
+  const accountStore = useAccountStore()
+
+  const query = useQuery({
+    queryKey: userKeys.INFO,
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () => userService.getCurrentUserInfo()),
   })
+
+  watch(
+    () => query.data?.value,
+    (profile) => {
+      if (!profile) {
+        return
+      }
+
+      const nextAccessToken = profile.token || toValue(accessToken) || accountStore.token
+      if (!nextAccessToken) {
+        return
+      }
+
+      const nextRefreshToken = profile.refreshToken ?? accountStore.refreshToken ?? undefined
+      const accessTokenChanged = accountStore.token !== nextAccessToken
+      const refreshTokenChanged = accountStore.refreshToken !== (nextRefreshToken ?? null)
+      const hasExpiresIn = typeof profile.expiresIn === 'number'
+
+      if (!accessTokenChanged && !refreshTokenChanged && !hasExpiresIn) {
+        return
+      }
+
+      accountStore.updateTokens(nextAccessToken, nextRefreshToken, profile.expiresIn)
+    },
+    { immediate: true },
+  )
+
+  return query
 }

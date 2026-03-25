@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/vue-query'
 import { userService } from '@/modules/user/application/service'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore.ts'
 import router from '@/router'
+import { $t } from '@/_utils/i18n'
 
 /**
  * 注册
@@ -29,6 +30,14 @@ export function useRegister() {
         roleList: [],
       })
       router.push({ name: 'login' })
+    },
+    meta: {
+      toastOnSuccess: {
+        title: $t('common.status.success'),
+        content: $t('auth.register.success'),
+        duration: 5000,
+        keepAliveOnHover: true,
+      },
     },
   })
 }

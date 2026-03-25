@@ -1,9 +1,12 @@
-import type { FileStorage, FileResponse } from '@/modules/file/domain/types'
+import type { FileResponse } from '@/modules/file/domain/types'
 import { fileService } from '@/modules/file/application/file-service'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import type { AxiosError } from 'axios'
 import type { Ref } from 'vue'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
+
+function normalizeFileIds(ids: number[]) {
+  return [...ids].sort((a, b) => a - b)
+}
 
 // =================================================================
 // QUERY KEYS (用于唯一标识缓存中的数据)
@@ -13,10 +16,11 @@ export const fileKeys = {
   all: ['files'] as const,
   details: () => [...fileKeys.all, 'detail'] as const,
   detail: (id: number | undefined) => [...fileKeys.details(), id] as const,
-  metaDetails: () => [...fileKeys.all, 'meta'],
-  metaDetail: (id: number | undefined) => [...fileKeys.metaDetails(), id],
-  batchDetail: (ids: number[]) => [...fileKeys.details(), 'batch', ...ids] as const,
-  batchMetaDetail: (ids: number[]) => [...fileKeys.all, 'meta', ...ids],
+  metaDetails: () => [...fileKeys.all, 'meta'] as const,
+  metaDetail: (id: number | undefined) => [...fileKeys.metaDetails(), id] as const,
+  batchDetail: (ids: number[]) => [...fileKeys.details(), 'batch', { ids: normalizeFileIds(ids) }] as const,
+  batchMetaDetail: (ids: number[]) =>
+    [...fileKeys.metaDetails(), 'batch', { ids: normalizeFileIds(ids) }] as const,
 }
 
 // =================================================================
@@ -30,7 +34,7 @@ export const fileKeys = {
  * @param fileId 文件 ID
  */
 export const useFileDetailQuery = (fileId: number | undefined) => {
-  return useQuery<FileResponse, AxiosError<unknown>, FileResponse>({
+  return useQuery({
     queryKey: fileKeys.detail(fileId),
     queryFn: (ctx) => {
       if (!fileId) return Promise.reject(new Error('File ID is required for fileDetailQuery'))
@@ -50,7 +54,7 @@ export const useFileDetailQuery = (fileId: number | undefined) => {
  */
 export const useFilesDetailQuery = (fileIds: Ref<number[]>) => {
   const queryClient = useQueryClient()
-  return useQuery<FileResponse[], AxiosError<unknown>, FileResponse[]>({
+  return useQuery({
     queryKey: fileKeys.batchDetail(fileIds.value),
     queryFn: async (ctx) => {
       if (!fileIds.value || !fileIds.value.length)
@@ -89,7 +93,7 @@ export const useFilesDetailQuery = (fileIds: Ref<number[]>) => {
  */
 export const useFilesMetaDetailQuery = (fileIds: Ref<number[]>) => {
   const queryClient = useQueryClient()
-  return useQuery<FileStorage[], AxiosError<unknown>, FileStorage[]>({
+  return useQuery({
     queryKey: fileKeys.batchMetaDetail(fileIds.value),
     queryFn: async (ctx) => {
       if (!fileIds.value || !fileIds.value.length)
