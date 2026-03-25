@@ -604,6 +604,7 @@ export default {
       message: {
         submitSuccess: '用户详细信息填写成功,等待工作人员审核',
         auditWait: '等待工作人员审核',
+        disableSuccess: '用户已禁用',
       },
       action: {
         viewAudit: '前往"我的审核"',
@@ -728,6 +729,7 @@ export default {
         claimConfirm: '是否领取当前任务#{id}',
         handleSuccess: '当前审批任务已完成',
         cancelConfirm: '是否取消当前送审内容？',
+        cancelSuccess: '审批撤销成功',
         approveSuccess: '审批通过',
         rejectSuccess: '审批拒绝',
         claimFailed: '任务领取失败: {reason}',
@@ -788,6 +790,11 @@ export default {
       field: {
         code: '邀请码',
         count: '使用次数',
+      },
+      message: {
+        createSuccess: '邀请码创建成功',
+        updateSuccess: '邀请码已保存',
+        deleteSuccess: '邀请码删除成功',
       },
       status: {
         active: '激活',
@@ -1010,6 +1017,7 @@ export default {
       },
       message: {
         assignConfirm: '是否确定将角色分配予这些用户？',
+        assignSuccess: '角色分配成功',
       },
     },
     dict: {

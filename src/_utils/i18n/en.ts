@@ -609,6 +609,7 @@ const i18NInfo = {
       message: {
         submitSuccess: 'Submitted Successfully',
         auditWait: 'Pending review.',
+        disableSuccess: 'User disabled',
       },
       action: {
         viewAudit: 'My Reviews',
@@ -734,6 +735,7 @@ const i18NInfo = {
         claimConfirm: 'Claim task #{id}?',
         handleSuccess: 'Processed successfully.',
         cancelConfirm: 'Cancel submission?',
+        cancelSuccess: 'Canceled successfully',
         approveSuccess: 'Approved',
         rejectSuccess: 'Rejected',
         claimFailed: 'Claim failed: {reason}',
@@ -794,6 +796,11 @@ const i18NInfo = {
       field: {
         code: 'Code',
         count: 'Usage Count',
+      },
+      message: {
+        createSuccess: 'Invitation code created',
+        updateSuccess: 'Invitation code saved',
+        deleteSuccess: 'Invitation code deleted',
       },
       status: {
         active: 'Active',
@@ -1016,6 +1023,7 @@ const i18NInfo = {
       },
       message: {
         assignConfirm: 'Assign role to selected users?',
+        assignSuccess: 'Role assigned',
       },
     },
     dict: {

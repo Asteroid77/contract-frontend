@@ -1,14 +1,9 @@
 import { userService } from '@/modules/user/application/service'
-import type {
-  UserAdditionalInfo,
-  UserPageItem,
-  UserPageRequest,
-} from '@/modules/user/application/models'
-import type { IPage } from '@/modules/shared/application/request/types'
+import type { UserPageRequest } from '@/modules/user/application/models'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import type { AxiosError } from 'axios'
 import { computed, unref, type Ref } from 'vue'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
+import { $t } from '@/_utils/i18n'
 
 export const userQueryKeys = {
   all: ['users'] as const,
@@ -29,7 +24,7 @@ export const useUserPage = (
     refetchOnWindowFocus?: boolean
   },
 ) => {
-  return useQuery<IPage<UserPageItem>, AxiosError<unknown>, IPage<UserPageItem>>({
+  return useQuery({
     queryKey: computed(() => userQueryKeys.list(unref(pageRequest))),
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () => userService.getUserPage(unref(pageRequest))),
@@ -53,10 +48,12 @@ export const useUserInfoById = (
     refetchOnWindowFocus?: boolean
   },
 ) => {
-  return useQuery<UserAdditionalInfo | null, AxiosError<unknown>, UserAdditionalInfo | null>({
+  return useQuery({
     queryKey: computed(() => {
       const id = unref(userId)
-      return id && id > 0 ? userQueryKeys.detail(id) : [...userQueryKeys.all, 'detail', 'empty']
+      return id && id > 0
+        ? userQueryKeys.detail(id)
+        : ([...userQueryKeys.all, 'detail', 'empty'] as const)
     }),
     queryFn: (ctx) => {
       const id = unref(userId)
@@ -86,6 +83,14 @@ export const useDeleteUser = () => {
       queryClient.invalidateQueries({
         queryKey: userQueryKeys.lists(),
       })
+    },
+    meta: {
+      toastOnSuccess: {
+        title: $t('common.status.success'),
+        content: $t('domain.user.message.disableSuccess'),
+        duration: 5000,
+        keepAliveOnHover: true,
+      },
     },
   })
 }
