@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import AxiosMockAdapter from 'axios-mock-adapter'
 import { useRequest } from '@/modules/shared/infrastructure/useRequest'
 import { apiClient } from '@/app/infrastructure/request/http-client'
@@ -7,12 +7,33 @@ import { ResponseCode } from '@/modules/shared/application/constants/response-co
 import { AUTH_ENDPOINTS } from '@/modules/access/infrastructure/auth-endpoints'
 import { STORAGE_KEYS } from '@/constants/storage'
 
+const { reportAuthErrorFeedbackSpy } = vi.hoisted(() => ({
+  reportAuthErrorFeedbackSpy: vi.fn(),
+}))
+
+const { isRecoverableAuthSessionErrorSpy, recoverAuthSessionSpy } = vi.hoisted(() => ({
+  isRecoverableAuthSessionErrorSpy: vi.fn(
+    (error: unknown) => error instanceof BusinessError && error.status === 401,
+  ),
+  recoverAuthSessionSpy: vi.fn(),
+}))
+
+vi.mock('@/modules/shared/infrastructure/request-auth-feedback', () => ({
+  reportAuthErrorFeedback: reportAuthErrorFeedbackSpy,
+}))
+
+vi.mock('@/modules/access/application/auth-session-recovery', () => ({
+  isRecoverableAuthSessionError: isRecoverableAuthSessionErrorSpy,
+  recoverAuthSession: recoverAuthSessionSpy,
+}))
+
 let mock: AxiosMockAdapter
 
 describe('useRequest behavior branches', () => {
   beforeEach(() => {
     mock = new AxiosMockAdapter(apiClient)
     localStorage.clear()
+    vi.clearAllMocks()
   })
 
   afterEach(() => {
@@ -252,5 +273,88 @@ describe('useRequest behavior branches', () => {
     expect(localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)).toBe('access-new')
     expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBe('refresh-new')
     expect(mock.history.post).toHaveLength(1)
+    expect(reportAuthErrorFeedbackSpy).not.toHaveBeenCalled()
+  })
+
+  it('reports auth feedback when refresh ultimately fails with 401', async () => {
+    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, 'access-old')
+    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'refresh-old')
+
+    mock.onGet('/secure-refresh-fail').reply(401, {
+      type: 'about:blank',
+      title: 'expired',
+      status: 401,
+      detail: 'access token expired',
+      code: 401,
+      traceId: 'trace-access-expired',
+    })
+
+    mock.onPost(AUTH_ENDPOINTS.TOKEN_REFRESH).reply(401, {
+      type: 'about:blank',
+      title: 'unauthorized',
+      status: 401,
+      detail: 'refresh token invalid',
+      code: 401,
+      traceId: 'trace-refresh-invalid',
+    })
+
+    await expect(
+      useRequest<{ ok: boolean }>({
+        method: 'GET',
+        url: '/secure-refresh-fail',
+      }),
+    ).rejects.toEqual(
+      expect.objectContaining<Partial<BusinessError>>({
+        status: 401,
+        message: 'refresh token invalid',
+      }),
+    )
+
+    expect(reportAuthErrorFeedbackSpy).toHaveBeenCalledTimes(1)
+    expect(reportAuthErrorFeedbackSpy).toHaveBeenCalledWith(
+      expect.objectContaining<Partial<BusinessError>>({
+        status: 401,
+        message: 'refresh token invalid',
+      }),
+    )
+    expect(recoverAuthSessionSpy).toHaveBeenCalledTimes(1)
+    expect(recoverAuthSessionSpy).toHaveBeenCalledWith(
+      expect.objectContaining<Partial<BusinessError>>({
+        status: 401,
+        message: 'refresh token invalid',
+      }),
+    )
+  })
+
+  it('reports auth feedback for direct 403 response', async () => {
+    mock.onGet('/forbidden').reply(403, {
+      type: 'about:blank',
+      title: 'forbidden',
+      status: 403,
+      detail: 'no permission',
+      code: 40300,
+      traceId: 'trace-forbidden',
+    })
+
+    await expect(
+      useRequest<{ ok: boolean }>({
+        method: 'GET',
+        url: '/forbidden',
+      }),
+    ).rejects.toEqual(
+      expect.objectContaining<Partial<BusinessError>>({
+        status: 403,
+        message: 'no permission',
+      }),
+    )
+
+    expect(reportAuthErrorFeedbackSpy).toHaveBeenCalledTimes(1)
+    expect(reportAuthErrorFeedbackSpy).toHaveBeenCalledWith(
+      expect.objectContaining<Partial<BusinessError>>({
+        status: 403,
+        message: 'no permission',
+      }),
+    )
+    expect(recoverAuthSessionSpy).not.toHaveBeenCalled()
   })
 })
