@@ -1,17 +1,10 @@
 import { useQuery } from '@tanstack/vue-query'
-import type { AxiosError } from 'axios'
 import { computed, unref, type Ref } from 'vue'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 import { agentAggregateService } from '../agent-aggregate-service'
 import type {
-  AgentAggregateFunnelVO,
-  AgentAggregateOverviewVO,
   AgentAggregatePerformanceParams,
-  AgentAggregatePerformanceVO,
-  AgentAggregateRenewalVO,
-  AgentAggregateStructureVO,
   AgentAggregateTrendParams,
-  AgentAggregateTrendVO,
 } from '../../domain/types'
 
 type QueryEnabledOption = { enabled?: Ref<boolean> | boolean }
@@ -39,7 +32,7 @@ export const agentAggregateKeys = {
 }
 
 export const useAgentAggregateOverview = (options?: { enabled?: Ref<boolean> | boolean }) => {
-  return useQuery<AgentAggregateOverviewVO, AxiosError<unknown>, AgentAggregateOverviewVO>({
+  return useQuery({
     queryKey: agentAggregateKeys.OVERVIEW,
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () => agentAggregateService.getOverview()),
@@ -49,7 +42,7 @@ export const useAgentAggregateOverview = (options?: { enabled?: Ref<boolean> | b
 }
 
 export const useAgentAggregateFunnel = (options?: { enabled?: Ref<boolean> | boolean }) => {
-  return useQuery<AgentAggregateFunnelVO, AxiosError<unknown>, AgentAggregateFunnelVO>({
+  return useQuery({
     queryKey: agentAggregateKeys.FUNNEL,
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () => agentAggregateService.getFunnel()),
@@ -62,7 +55,7 @@ export const useAgentAggregateTrend = (
   params: Ref<AgentAggregateTrendParams> | AgentAggregateTrendParams,
   options?: { enabled?: Ref<boolean> | boolean },
 ) => {
-  return useQuery<AgentAggregateTrendVO, AxiosError<unknown>, AgentAggregateTrendVO>({
+  return useQuery({
     queryKey: computed(() => agentAggregateKeys.TREND(unref(params))),
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () =>
@@ -78,7 +71,7 @@ export const useAgentAggregatePerformance = (
   params: Ref<AgentAggregatePerformanceParams> | AgentAggregatePerformanceParams,
   options?: { enabled?: Ref<boolean> | boolean },
 ) => {
-  return useQuery<AgentAggregatePerformanceVO, AxiosError<unknown>, AgentAggregatePerformanceVO>({
+  return useQuery({
     queryKey: computed(() => agentAggregateKeys.PERFORMANCE(unref(params))),
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () =>
@@ -91,7 +84,7 @@ export const useAgentAggregatePerformance = (
 }
 
 export const useAgentAggregateStructure = (options?: { enabled?: Ref<boolean> | boolean }) => {
-  return useQuery<AgentAggregateStructureVO, AxiosError<unknown>, AgentAggregateStructureVO>({
+  return useQuery({
     queryKey: agentAggregateKeys.STRUCTURE,
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () => agentAggregateService.getStructure()),
@@ -101,7 +94,7 @@ export const useAgentAggregateStructure = (options?: { enabled?: Ref<boolean> | 
 }
 
 export const useAgentAggregateRenewal = (options?: { enabled?: Ref<boolean> | boolean }) => {
-  return useQuery<AgentAggregateRenewalVO, AxiosError<unknown>, AgentAggregateRenewalVO>({
+  return useQuery({
     queryKey: agentAggregateKeys.RENEWAL,
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () => agentAggregateService.getRenewal()),

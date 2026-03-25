@@ -72,7 +72,7 @@ describe('useUserDevices hooks', () => {
 
   it('useCurrentUserDevicesQuery configures query and delegates queryFn correctly', async () => {
     useCurrentUserDevicesQuery()
-    const options = vi.mocked(useQuery).mock.calls[0][0] as MockDevicesQueryOptions
+    const options = vi.mocked(useQuery).mock.calls[0][0] as unknown as MockDevicesQueryOptions
 
     expect(options.queryKey).toEqual(userDeviceKeys.list())
     expect(options.staleTime).toBe(30 * 1000)
