@@ -14,7 +14,10 @@ import {
 import { serviceAgreementService } from '@/modules/service-agreement/application/service'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 import { fileKeys } from '@/modules/file/application/hooks/useFileService'
-import type { ServiceAgreementPageQuery } from '@/modules/service-agreement/application/models'
+import type {
+  PreviewAttachmentsQuery,
+  ServiceAgreementPageQuery,
+} from '@/modules/service-agreement/application/models'
 import type { BasePageRequest } from '@/modules/shared/application/request/types'
 
 vi.mock('@tanstack/vue-query', () => ({
@@ -151,8 +154,25 @@ describe('useSignService hooks', () => {
     expect(result).toEqual(payload)
   })
 
+  it('useServiceAgreementPage respects optional enabled ref', () => {
+    const pageRequest = ref<BasePageRequest<ServiceAgreementPageQuery>>({
+      page: 1,
+      size: 20,
+      query: {},
+    })
+    const enabled = ref(false)
+
+    useServiceAgreementPage(pageRequest, enabled)
+    const options = getLatestQueryOptions()
+
+    expect((options.enabled as { value: boolean }).value).toBe(false)
+
+    enabled.value = true
+    expect((options.enabled as { value: boolean }).value).toBe(true)
+  })
+
   it('usePreviewAttachments respects enabled ref and delegates queryFn', async () => {
-    const paramsRef = ref({
+    const paramsRef = ref<PreviewAttachmentsQuery>({
       id: 1,
       type: 1 as const,
       code: '1234',
@@ -167,7 +187,7 @@ describe('useSignService hooks', () => {
     usePreviewAttachments(paramsRef, enabled)
     const options = getLatestQueryOptions()
 
-    expect(options.queryKey).toEqual(signKeys.preview(paramsRef.value))
+    expect((options.queryKey as { value: unknown }).value).toEqual(signKeys.preview(paramsRef.value))
     expect((options.enabled as { value: boolean }).value).toBe(true)
     expect(options.retry).toBe(false)
 
@@ -179,6 +199,13 @@ describe('useSignService hooks', () => {
 
     expect(withQueryRequestContext).toHaveBeenCalledWith(ctx.queryKey, ctx, expect.any(Function))
     expect(serviceAgreementService.getPreviewAttachments).toHaveBeenCalledWith(paramsRef.value)
+
+    paramsRef.value = {
+      id: 2,
+      type: 2,
+      code: '5678',
+    }
+    expect((options.queryKey as { value: unknown }).value).toEqual(signKeys.preview(paramsRef.value))
 
     enabled.value = false
     expect((options.enabled as { value: boolean }).value).toBe(false)

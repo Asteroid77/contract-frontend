@@ -1,11 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { useMutation } from '@tanstack/vue-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useChangePassword } from '@/modules/user/application/hooks/useChangePassword'
 import { useLogin } from '@/modules/user/application/hooks/useLogin'
 import { useRegister } from '@/modules/user/application/hooks/useRegister'
 import { usePasswordRecovery } from '@/modules/user/application/hooks/usePassword'
 import { useOauth2AuthorizationUrl } from '@/modules/user/application/hooks/useOauth2AuthorizationUrl'
+import {
+  useTotpBackupCodesMutation,
+  useTotpDisableMutation,
+  useTotpEnableMutation,
+  useTotpSetupMutation,
+  useTotpStatusQuery,
+} from '@/modules/user/application/hooks/useTotpManagement'
+import { useTotpVerify } from '@/modules/user/application/hooks/useTotpVerify'
 import { userService } from '@/modules/user/application/service'
+import { totpService } from '@/modules/user/application/totp-service'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore.ts'
 import router from '@/router'
 import { buildOauth2AuthorizationUrl } from '@/modules/user/infrastructure/oauth-endpoints'
@@ -15,8 +24,13 @@ import type {
   RegisterForm,
   SignInResponse,
   SignInResponseComplete,
+  TotpDisableForm,
+  TotpEnableForm,
+  TotpStatus,
+  TotpSetupResult,
 } from '@/modules/user/application/models'
 import type { SignInMutate } from '@/modules/user/application/hooks/useLogin'
+import type { TotpVerifyMutate } from '@/modules/user/application/hooks/useTotpVerify'
 
 const { loginSpy, pushSpy, discreteMessageSuccessSpy } = vi.hoisted(() => ({
   loginSpy: vi.fn(),
@@ -25,7 +39,9 @@ const { loginSpy, pushSpy, discreteMessageSuccessSpy } = vi.hoisted(() => ({
 }))
 
 vi.mock('@tanstack/vue-query', () => ({
+  useQuery: vi.fn((options) => options),
   useMutation: vi.fn((options) => options),
+  useQueryClient: vi.fn(),
 }))
 
 vi.mock('@/modules/user/application/service', () => ({
@@ -36,6 +52,17 @@ vi.mock('@/modules/user/application/service', () => ({
     getCurrentUserInfo: vi.fn(),
     register: vi.fn(),
     passwordRecovery: vi.fn(),
+  },
+}))
+
+vi.mock('@/modules/user/application/totp-service', () => ({
+  totpService: {
+    getStatus: vi.fn(),
+    setup: vi.fn(),
+    enable: vi.fn(),
+    disable: vi.fn(),
+    regenerateBackupCodes: vi.fn(),
+    verify: vi.fn(),
   },
 }))
 
@@ -74,6 +101,11 @@ type MutationOptionsLike<TData, TVariables> = {
   onSuccess?: (data: TData, variables: TVariables) => Promise<unknown> | unknown
 }
 
+type QueryOptionsLike<TData> = {
+  queryKey: unknown
+  queryFn: () => Promise<TData> | TData
+}
+
 const getLatestMutationOptions = <TData, TVariables>(): MutationOptionsLike<TData, TVariables> => {
   const latestCall = vi.mocked(useMutation).mock.calls.at(-1)
   if (!latestCall) {
@@ -82,21 +114,59 @@ const getLatestMutationOptions = <TData, TVariables>(): MutationOptionsLike<TDat
   return latestCall[0] as MutationOptionsLike<TData, TVariables>
 }
 
+const getLatestQueryOptions = <TData>(): QueryOptionsLike<TData> => {
+  const latestCall = vi.mocked(useQuery).mock.calls.at(-1)
+  if (!latestCall) {
+    throw new Error('useQuery should be called before reading options')
+  }
+  return latestCall[0] as QueryOptionsLike<TData>
+}
+
 type WindowOpenMock = ReturnType<
   typeof vi.fn<(url?: string | URL, target?: string, features?: string) => WindowProxy | null>
 >
 
 describe('user auth-related hooks', () => {
   let openMock: WindowOpenMock
+  const queryClient = {
+    invalidateQueries: vi.fn(),
+  }
 
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(useQueryClient).mockReturnValue(queryClient as never)
 
     openMock = vi.fn<
       (url?: string | URL, target?: string, features?: string) => WindowProxy | null
     >(() => null)
 
     window.open = openMock
+
+    vi.mocked(totpService.getStatus).mockResolvedValue({ enabled: false } as never)
+    vi.mocked(totpService.setup).mockResolvedValue({
+      secret: 'SECRET',
+      qrCodeUri: 'otpauth://totp',
+      backupCodes: ['code-1', 'code-2'],
+    } as never)
+    vi.mocked(totpService.enable).mockResolvedValue(true as never)
+    vi.mocked(totpService.disable).mockResolvedValue(undefined as never)
+    vi.mocked(totpService.regenerateBackupCodes).mockResolvedValue(['backup-1'] as never)
+    vi.mocked(totpService.verify).mockResolvedValue({
+      requireTwoFactor: false,
+      token: 'verified-token',
+      expiresIn: 1800,
+      user: {
+        id: 1,
+        name: 'Tester',
+        phone: '13800138000',
+        active: '1',
+        isDeleted: 0,
+        platform: 'NATIVE',
+      },
+      profile: null,
+      permissionList: [],
+      roleList: [],
+    } as never)
   })
 
   it('useChangePassword delegates mutationFn to userService.changePassword', async () => {
@@ -114,6 +184,64 @@ describe('user auth-related hooks', () => {
 
     expect(userService.changePassword).toHaveBeenCalledWith(payload)
     expect(result).toBe(true)
+  })
+
+  it('useTotpStatusQuery uses stable key and delegates queryFn', async () => {
+    useTotpStatusQuery()
+    const options = getLatestQueryOptions<TotpStatus>()
+
+    expect(options.queryKey).toEqual(['totp', 'status'])
+
+    const result = await options.queryFn()
+
+    expect(totpService.getStatus).toHaveBeenCalledTimes(1)
+    expect(result).toEqual({ enabled: false })
+  })
+
+  it('useTotpSetupMutation and useTotpBackupCodesMutation delegate to service', async () => {
+    useTotpSetupMutation()
+    const setupOptions = getLatestMutationOptions<TotpSetupResult, void>()
+
+    expect(await setupOptions.mutationFn(undefined)).toEqual({
+      secret: 'SECRET',
+      qrCodeUri: 'otpauth://totp',
+      backupCodes: ['code-1', 'code-2'],
+    })
+    expect(totpService.setup).toHaveBeenCalledTimes(1)
+
+    useTotpBackupCodesMutation()
+    const backupCodeOptions = getLatestMutationOptions<string[], void>()
+
+    expect(await backupCodeOptions.mutationFn(undefined)).toEqual(['backup-1'])
+    expect(totpService.regenerateBackupCodes).toHaveBeenCalledTimes(1)
+  })
+
+  it('useTotpEnableMutation and useTotpDisableMutation invalidate totp status on success', async () => {
+    useTotpEnableMutation()
+    let options = getLatestMutationOptions<boolean, TotpEnableForm>()
+
+    const enablePayload = { code: '123456' }
+    await options.mutationFn(enablePayload)
+    expect(totpService.enable).toHaveBeenCalledWith(enablePayload)
+
+    if (!options.onSuccess) throw new Error('onSuccess should be defined')
+    options.onSuccess(true, enablePayload)
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['totp', 'status'],
+    })
+
+    useTotpDisableMutation()
+    const disableOptions = getLatestMutationOptions<void, TotpDisableForm>()
+
+    const disablePayload = { password: 'password-1' }
+    await disableOptions.mutationFn(disablePayload)
+    expect(totpService.disable).toHaveBeenCalledWith(disablePayload)
+
+    if (!disableOptions.onSuccess) throw new Error('onSuccess should be defined')
+    disableOptions.onSuccess(undefined, disablePayload)
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['totp', 'status'],
+    })
   })
 
   it('useLogin mutationFn uses local login when mode is local', async () => {
@@ -136,6 +264,52 @@ describe('user auth-related hooks', () => {
 
     expect(userService.login).toHaveBeenCalledWith(payload.data)
     expect(userService.getCurrentUserInfo).not.toHaveBeenCalled()
+  })
+
+  it('useTotpVerify maps payload to service.verify and logs in when verification completes', async () => {
+    useTotpVerify()
+    const options = getLatestMutationOptions<SignInResponse, TotpVerifyMutate>()
+
+    const payload: TotpVerifyMutate = {
+      twoFactorToken: '2fa-token',
+      code: '654321',
+      rememberMe: true,
+      rememberDevice: false,
+      redirect: '/target',
+    }
+
+    await options.mutationFn(payload)
+
+    expect(totpService.verify).toHaveBeenCalledWith({
+      twoFactorToken: '2fa-token',
+      code: '654321',
+      rememberMe: true,
+      rememberDevice: false,
+    })
+
+    if (!options.onSuccess) throw new Error('onSuccess should be defined')
+    options.onSuccess(
+      {
+        requireTwoFactor: false,
+        token: 'verified-token',
+        expiresIn: 1800,
+        user: {
+          id: 1,
+          name: 'Tester',
+          phone: '13800138000',
+          active: '1',
+          isDeleted: 0,
+          platform: 'NATIVE',
+        },
+        profile: null,
+        permissionList: [],
+        roleList: [],
+      },
+      payload,
+    )
+
+    expect(loginSpy).toHaveBeenCalled()
+    expect(router.push).toHaveBeenCalledWith('/target')
   })
 
   it('useLogin mutationFn exchanges authCode and loads current user info when mode is oauth2', async () => {

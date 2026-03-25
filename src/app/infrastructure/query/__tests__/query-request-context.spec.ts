@@ -13,7 +13,7 @@ vi.mock('@/app/infrastructure/query/query-request-id', () => ({
 
 describe('withQueryRequestContext', () => {
   it('creates requestId and delegates to withRequestContext with signal', async () => {
-    const queryKey = ['approval', 'instance', 1]
+    const queryKey = ['approval', 'instance', 1] as const
     const signal = new AbortController().signal
 
     const result = await withQueryRequestContext(queryKey, { signal }, () => 'ok')
@@ -30,7 +30,7 @@ describe('withQueryRequestContext', () => {
   })
 
   it('supports async executor result', async () => {
-    const queryKey = ['user', 'page']
+    const queryKey = ['user', 'page'] as const
     const signal = new AbortController().signal
 
     const result = await withQueryRequestContext(queryKey, { signal }, async () => {

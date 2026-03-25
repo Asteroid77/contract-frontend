@@ -1,10 +1,8 @@
 import type {
   SignInForm,
-  SignInResponse,
   SignInResponseComplete,
 } from '@/modules/user/application/models'
 import { useMutation } from '@tanstack/vue-query'
-import type { AxiosError } from 'axios'
 import { userService } from '@/modules/user/application/service'
 import router from '@/router'
 import type { RouteLocationRaw } from 'vue-router'
@@ -19,7 +17,7 @@ export type SignInMutate = { redirect?: RouteLocationRaw } & (
 )
 
 export function useLogin() {
-  return useMutation<SignInResponse, AxiosError<unknown>, SignInMutate, undefined>({
+  return useMutation({
     mutationFn: async (signInMutate: SignInMutate) => {
       if (signInMutate.mode === 'local') {
         return userService.login(signInMutate.data)
@@ -52,7 +50,7 @@ export function useLogin() {
       }
       return profile
     },
-    onSuccess: async (data: SignInResponse, variable: SignInMutate) => {
+    onSuccess: async (data, variable) => {
       if (data.requireTwoFactor) {
         const rememberMe =
           variable.mode === 'local'

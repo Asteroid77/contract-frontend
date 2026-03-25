@@ -1,6 +1,5 @@
 import { useMutation } from '@tanstack/vue-query'
-import type { AxiosError } from 'axios'
-import type { SignInResponse, SignInResponseComplete, TotpVerifyForm } from '../models'
+import type { SignInResponseComplete, TotpVerifyForm } from '../models'
 import { totpService } from '../totp-service'
 import { useAccountStore } from '../stores/useAccountStore'
 import router from '@/router'
@@ -14,8 +13,8 @@ export interface TotpVerifyMutate {
 }
 
 export function useTotpVerify() {
-  return useMutation<SignInResponse, AxiosError<unknown>, TotpVerifyMutate>({
-    mutationFn: (variables) =>
+  return useMutation({
+    mutationFn: (variables: TotpVerifyMutate) =>
       totpService.verify({
         twoFactorToken: variables.twoFactorToken,
         code: variables.code,

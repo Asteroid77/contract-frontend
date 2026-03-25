@@ -1,11 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import type { AxiosError } from 'axios'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
-import type {
-  RevokeDeviceSessionsForm,
-  RevokeDeviceSessionsResult,
-  UserDeviceSession,
-} from '@/modules/user/application/models'
+import type { RevokeDeviceSessionsForm } from '@/modules/user/application/models'
 import { userService } from '@/modules/user/application/service'
 
 export const userDeviceKeys = {
@@ -14,7 +9,7 @@ export const userDeviceKeys = {
 }
 
 export function useCurrentUserDevicesQuery() {
-  return useQuery<UserDeviceSession[], AxiosError<unknown>, UserDeviceSession[]>({
+  return useQuery({
     queryKey: userDeviceKeys.list(),
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () => userService.listCurrentUserDevices()),
@@ -26,8 +21,8 @@ export function useCurrentUserDevicesQuery() {
 export function useRevokeCurrentUserDevicesMutation() {
   const queryClient = useQueryClient()
 
-  return useMutation<RevokeDeviceSessionsResult, AxiosError<unknown>, RevokeDeviceSessionsForm>({
-    mutationFn: (data) => userService.revokeCurrentUserDevices(data),
+  return useMutation({
+    mutationFn: (data: RevokeDeviceSessionsForm) => userService.revokeCurrentUserDevices(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: userDeviceKeys.list() })
     },
