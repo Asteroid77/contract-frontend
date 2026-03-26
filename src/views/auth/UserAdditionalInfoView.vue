@@ -19,7 +19,7 @@ const { t: $t } = useI18n()
 const router = useRouter()
 const account = useAccountStore()
 const status = useLatestAdditionalInfoInstanceStatus()
-const loadUserInfo = useLoadUserInfo(account.token as string)
+const loadUserInfo = useLoadUserInfo(() => account.token)
 const formRenderKey = ref(0)
 
 const req = useUserAdditionalInfoRequest((data) => {
