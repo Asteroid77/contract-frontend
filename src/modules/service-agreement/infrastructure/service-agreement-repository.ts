@@ -2,6 +2,7 @@ import { useRequest } from '@/modules/shared/infrastructure/useRequest'
 import { createPrefixedEndpoints } from '@/modules/shared/infrastructure/api/api-prefix-generator'
 import type { IPage, BasePageRequest } from '@/modules/shared/domain/page'
 import type { ApprovalInstance } from '@/modules/approval/domain/types'
+import axios from 'axios'
 import type {
   ServiceAgreementPageDTO,
   ServiceAgreementPreviewAttachmentsDTO,
@@ -15,8 +16,17 @@ import type {
 import type { FileCategory } from '../domain/enums'
 import type { OssCallbackDTO } from '@/modules/file/domain/types'
 
+interface OssPolicyResponse {
+  accessId: string
+  policy: string
+  signature: string
+  dir: string
+  host: string
+  expire: string
+  callback: string
+}
+
 const SERVICE_AGREEMENT_ENDPOINTS = createPrefixedEndpoints('/service_agreement', {
-  UPLOAD: '/upload',
   SIGN: '/sign',
   RECORD: '/record',
   DUPLICATE_CHECK: '/duplicate_check',
@@ -25,31 +35,55 @@ const SERVICE_AGREEMENT_ENDPOINTS = createPrefixedEndpoints('/service_agreement'
   PREVIEW_ATTACHMENTS: '/preview/attachments',
 })
 
+const FILE_UPLOAD_ENDPOINTS = createPrefixedEndpoints('/file', {
+  POLICY: '/policy',
+})
+
+const getOssPolicy = (fileName: string) =>
+  useRequest<OssPolicyResponse>({
+    method: 'POST',
+    url: FILE_UPLOAD_ENDPOINTS.POLICY,
+    data: { fileName },
+  })
+
+const uploadToOss = async (
+  policy: OssPolicyResponse,
+  file: File,
+  onProgress: (e: { percent: number }) => void,
+) => {
+  const formData = new FormData()
+  const key = `${policy.dir}${file.name}`
+
+  formData.append('key', key)
+  formData.append('policy', policy.policy)
+  formData.append('OSSAccessKeyId', policy.accessId)
+  formData.append('signature', policy.signature)
+  formData.append('callback', policy.callback)
+  formData.append('success_action_status', '200')
+  formData.append('file', file)
+
+  const response = await axios.post<OssCallbackDTO>(policy.host, formData, {
+    onUploadProgress: (progressEvent) => {
+      if (progressEvent.total) {
+        const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+        onProgress({ percent })
+      }
+    },
+  })
+
+  return response.data
+}
+
 export const serviceAgreementRepository = {
   uploadFile: (
     file: File,
-    fileCategory: FileCategory,
+    _fileCategory: FileCategory,
     onProgress: (e: { percent: number }) => void,
-  ) => {
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('fileCategory', fileCategory)
-
-    return useRequest<OssCallbackDTO, FormData>({
-      method: 'POST',
-      url: SERVICE_AGREEMENT_ENDPOINTS.UPLOAD,
-      data: formData,
-      headers: {
-        'Content-Type': undefined,
-      },
-      onUploadProgress: (progressEvent) => {
-        if (progressEvent.total) {
-          const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-          onProgress({ percent })
-        }
-      },
-    })
-  },
+  ) =>
+    getOssPolicy(file.name).then((policy) => {
+      // TODO: callback 偶发失败时，可考虑基于 ossObjectKey/fileHash 增加补偿查询以回填业务 fileId。
+      return uploadToOss(policy, file, onProgress)
+    }),
   sign: (data: ServiceAgreementRequestDTO) => {
     return useRequest<ApprovalInstance<ServiceAgreementRequestDTO>>({
       method: 'POST',
