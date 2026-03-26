@@ -41,6 +41,13 @@ describe('advanced-query/constants', () => {
 
     expect(FIELD_TYPE_OPERATORS[FieldType.ENUM]).toContain(FilterOp.IN)
     expect(FIELD_TYPE_OPERATORS[FieldType.ENUM]).not.toContain(FilterOp.LIKE_LEFT)
+
+    expect(FIELD_TYPE_OPERATORS[FieldType.PCA]).toEqual([
+      FilterOp.EQ,
+      FilterOp.NE,
+      FilterOp.IS_NULL,
+      FilterOp.IS_NOT_NULL,
+    ])
   })
 
   it('exposes stable logic options for AND/OR', () => {

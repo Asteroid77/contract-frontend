@@ -19,7 +19,7 @@ import './styles/SignFormGrid.css'
 export default defineComponent({
   props: {
     initialValue: {
-      type: Object as PropType<ServiceAgreementDetail>,
+      type: Object as PropType<Partial<ServiceAgreementDetail>>,
       default: null,
     },
     loading: {
@@ -155,10 +155,10 @@ export default defineComponent({
                     modelValue={formValue.value.attachmentInfo}
                     onUpdate:modelValue={(val) => updateModel({ attachmentInfo: val })}
                     initialValue={{
-                      contractScanFiles: props.initialValue?.contractScanFiles,
-                      billFiles: props.initialValue?.billFiles,
+                      contractScanFiles: props.initialValue?.contractScanFiles ?? [],
+                      billFiles: props.initialValue?.billFiles ?? [],
                       supplementaryAttachmentFiles:
-                        props.initialValue?.supplementaryAttachmentFiles,
+                        props.initialValue?.supplementaryAttachmentFiles ?? [],
                     }}
                   ></AttachmentSection>
                 )}

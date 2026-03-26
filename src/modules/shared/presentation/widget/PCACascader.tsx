@@ -13,6 +13,7 @@ export default defineComponent({
         value-field={'key'}
         show-path
         checkStrategy={'child'}
+        to={false}
         v-slots={slots}
         value={props.value || undefined}
       ></NCascader>
