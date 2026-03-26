@@ -34,7 +34,7 @@ const router = useRouter()
 const account = useAccountStore()
 const tabsStore = useTabsStore()
 const status = useLatestAdditionalInfoInstanceStatus()
-const loadUserInfo = useLoadUserInfo(account.token as string)
+const loadUserInfo = useLoadUserInfo(() => account.token)
 
 const filingPageRequest = computed<BasePageRequest<ServiceAgreementPageQuery>>(() => ({
   page: 1,
