@@ -5,6 +5,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 type ServiceAgreementDetailLike = {
   id: number
   status: number
+  companyName?: string
+  companyArea?: string
 }
 
 type ServiceAgreementFormValueLike = {
@@ -33,6 +35,7 @@ const {
   validateResultRef,
   recordCallbackRef,
   signCallbackRef,
+  routeQueryRef,
 } = vi.hoisted(() => ({
   routerPushSpy: vi.fn(),
   printSpy: vi.fn(),
@@ -55,6 +58,7 @@ const {
   validateResultRef: { value: true },
   recordCallbackRef: { value: undefined as ((resp: MutationCallbackPayload) => void) | undefined },
   signCallbackRef: { value: undefined as ((resp: MutationCallbackPayload) => void) | undefined },
+  routeQueryRef: { value: {} as Record<string, unknown> },
 }))
 
 vi.mock('@/_utils/i18n', () => ({
@@ -64,6 +68,16 @@ vi.mock('@/_utils/i18n', () => ({
 vi.mock('vue-router', () => ({
   useRouter: () => ({
     push: routerPushSpy,
+  }),
+}))
+
+vi.mock('@/router/useTypedRouter', () => ({
+  useTypedRouter: () => ({
+    push: routerPushSpy,
+    replace: vi.fn(),
+  }),
+  useTypedRoute: () => ({
+    query: routeQueryRef.value,
   }),
 }))
 
@@ -144,6 +158,12 @@ vi.mock('@/modules/service-agreement/presentation/sign/ServiceAgreementForm', ()
           'data-test': 'service-agreement-form',
           'data-loading': String(Boolean(props.loading)),
           'data-initial-status': String((props.initialValue as { status?: number } | undefined)?.status ?? ''),
+          'data-initial-company-name': String(
+            (props.initialValue as { companyName?: string } | undefined)?.companyName ?? '',
+          ),
+          'data-initial-company-area': String(
+            (props.initialValue as { companyArea?: string } | undefined)?.companyArea ?? '',
+          ),
         }, [
           slots.Button?.({
             formValue: formValueRef.value,
@@ -230,6 +250,48 @@ describe('ServiceAgreementDetailView', () => {
 
     recordCallbackRef.value = undefined
     signCallbackRef.value = undefined
+    routeQueryRef.value = {}
+  })
+
+  it('uses route query prefill as initial value when creating a new record', () => {
+    detailDataRef.value = null
+    routeQueryRef.value = {
+      prefill_companyName: '预填公司',
+      prefill_companyArea: '330100',
+      prefill_status: '2',
+    }
+
+    const wrapper = mount(ServiceAgreementDetailView)
+    const form = wrapper.get('[data-test="service-agreement-form"]')
+
+    expect(form.attributes('data-initial-company-name')).toBe('预填公司')
+    expect(form.attributes('data-initial-company-area')).toBe('330100')
+    expect(form.attributes('data-initial-status')).toBe('2')
+  })
+
+  it('prefers fetched detail over route query prefill', () => {
+    detailDataRef.value = {
+      id: 200,
+      status: ServiceAgreementStatusEnum.Record,
+      companyName: '详情公司',
+      companyArea: '110000',
+    }
+    routeQueryRef.value = {
+      prefill_companyName: '预填公司',
+      prefill_companyArea: '330100',
+      prefill_status: '2',
+    }
+
+    const wrapper = mount(ServiceAgreementDetailView, {
+      props: {
+        id: 66,
+      },
+    })
+    const form = wrapper.get('[data-test="service-agreement-form"]')
+
+    expect(form.attributes('data-initial-company-name')).toBe('详情公司')
+    expect(form.attributes('data-initial-company-area')).toBe('110000')
+    expect(form.attributes('data-initial-status')).toBe(String(ServiceAgreementStatusEnum.Record))
   })
 
   it('submits record mutation when status is Record and validation passes', async () => {
@@ -305,7 +367,7 @@ describe('ServiceAgreementDetailView', () => {
     })
 
     expect(routerPushSpy).toHaveBeenCalledWith({
-      path: '/auth/sign/result',
+      name: 'sign-result',
       query: {
         id: '123',
         status: String(ServiceAgreementStatusEnum.Record),
@@ -325,7 +387,7 @@ describe('ServiceAgreementDetailView', () => {
     })
 
     expect(routerPushSpy).toHaveBeenCalledWith({
-      path: '/auth/sign/result',
+      name: 'sign-result',
       query: {
         id: '456',
         status: String(ServiceAgreementStatusEnum.Sign),

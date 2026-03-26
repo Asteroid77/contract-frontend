@@ -31,7 +31,7 @@ vi.mock('naive-ui', () => ({
         required: false,
       },
     },
-    setup(props) {
+    setup(props, { slots }) {
       return () => {
         const columns = (props.columns || []) as Array<Record<string, unknown>>
         const rows = (props.data || []) as Array<Record<string, unknown>>
@@ -62,6 +62,7 @@ vi.mock('naive-ui', () => ({
             'data-page': String((props.pagination as { page?: number } | undefined)?.page ?? ''),
           },
           [
+            rows.length === 0 ? slots.empty?.() : null,
             operateColumn?.render && firstRow
               ? h('div', { 'data-test': 'operate-cell' }, [operateColumn.render(firstRow) as never])
               : null,
@@ -137,6 +138,20 @@ describe('ServiceAgreementPage', () => {
 
     const action = wrapper.get('[data-test="action-slot"]')
     expect(action.text()).toBe('1')
+  })
+
+
+  it('forwards empty slot into data table when no rows', () => {
+    const wrapper = mount(ServiceAgreementPage, {
+      props: {
+        data: [],
+      },
+      slots: {
+        empty: () => h('div', { 'data-test': 'empty-slot' }, 'empty'),
+      },
+    })
+
+    expect(wrapper.get('[data-test="empty-slot"]').text()).toBe('empty')
   })
 
   it('uses compact columns on mobile viewport', async () => {

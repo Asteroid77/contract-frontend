@@ -9,12 +9,16 @@ import {
 } from '@/modules/shared/domain/advanced-query'
 import { $t } from '@/_utils/i18n'
 import SelectLike, { type SelectLikeOption } from './SelectLike'
+import PCACascader from '@/modules/shared/presentation/widget/PCACascader'
+import areaData from '@/modules/shared/application/constants/PCA.json'
+import { TreeLookup } from '@/modules/shared/presentation/lookup'
 
 type EditingPart = 'field' | 'op' | 'value' | null
 type I18nKey = Parameters<typeof $t>[0]
 
 const pad2 = (n: number) => String(n).padStart(2, '0')
 const translateLabelKey = (key: string): string => $t(key as I18nKey) as string
+const pcaLookup = new TreeLookup(areaData)
 
 const formatDate = (d: Date) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
 const formatTimeHM = (d: Date) => `${pad2(d.getHours())}:${pad2(d.getMinutes())}`
@@ -111,6 +115,8 @@ export default defineComponent({
       )
     }
 
+    const formatPcaValue = (value: string | number) => pcaLookup.getFullPath(String(value))
+
     const formatValue = () => {
       if (!opConfig.value.needValue) return ''
       const value = props.condition.value
@@ -126,6 +132,8 @@ export default defineComponent({
               return formatDateInputValue(v)
             if (field.value?.type === FieldType.DATETIME && typeof v === 'number')
               return formatDateTimeDisplayValue(v)
+            if (field.value?.type === FieldType.PCA && (typeof v === 'string' || typeof v === 'number'))
+              return formatPcaValue(v)
             return String(v)
           }
           return `${formatOne(left)} ~ ${formatOne(right)}`
@@ -137,6 +145,9 @@ export default defineComponent({
               return opt?.label ? maybeT(opt.label) : String(v)
             })
             .join(', ')
+        }
+        if (field.value?.type === FieldType.PCA) {
+          return value.map((v) => formatPcaValue(v)).join(', ')
         }
         return value.map(String).join(', ')
       }
@@ -155,6 +166,10 @@ export default defineComponent({
       if (field.value?.type === FieldType.ENUM && field.value.options) {
         const opt = field.value.options.find((o) => o.value === value)
         return opt?.label ? maybeT(opt.label) : String(value)
+      }
+
+      if (field.value?.type === FieldType.PCA && (typeof value === 'string' || typeof value === 'number')) {
+        return formatPcaValue(value)
       }
 
       return String(value)
@@ -201,7 +216,6 @@ export default defineComponent({
       const currentField = field.value
       if (!currentField) return null
 
-      // BOOLEAN
       if (currentField.type === FieldType.BOOLEAN) {
         const options = [
           { value: true, label: $t('common.label.yes') as string },
@@ -231,7 +245,6 @@ export default defineComponent({
         )
       }
 
-      // ENUM
       if (currentField.type === FieldType.ENUM && currentField.options) {
         const enumOptions: SelectLikeOption[] = currentField.options.map((opt) => ({
           label: maybeT(opt.label),
@@ -272,7 +285,20 @@ export default defineComponent({
         )
       }
 
-      // BETWEEN
+      if (currentField.type === FieldType.PCA) {
+        return (
+          <PCACascader
+            value={props.condition.value as string | undefined}
+            clearable
+            placeholder={$t('common.advancedQuery.placeholder.input') as string}
+            onUpdate:value={(nextValue) => {
+              handleValueChange(nextValue)
+              close()
+            }}
+          />
+        )
+      }
+
       if ([FilterOp.BETWEEN, FilterOp.NOT_BETWEEN].includes(props.condition.op)) {
         const values = Array.isArray(props.condition.value)
           ? props.condition.value
@@ -360,7 +386,6 @@ export default defineComponent({
         )
       }
 
-      // IN / NOT_IN
       if ([FilterOp.IN, FilterOp.NOT_IN].includes(props.condition.op)) {
         const values = normalizeArrayValue(props.condition.value)
 
@@ -434,7 +459,6 @@ export default defineComponent({
         )
       }
 
-      // default single input
       const inputType: 'number' | 'date' | 'datetime-local' | 'text' =
         currentField.type === FieldType.NUMBER
           ? 'number'
@@ -520,7 +544,7 @@ export default defineComponent({
                   : 'hover:bg-[var(--color-border)]',
               ]}
             >
-              {translateLabelKey(opConfig.value.labelKey)}
+              {getOpLabel(props.condition.op)}
             </button>
 
             {opConfig.value.needValue && (
@@ -528,17 +552,15 @@ export default defineComponent({
                 <span class="w-px h-3 bg-[var(--color-border)]" />
                 <button
                   type="button"
-                  onClick={() => openEditor('value')}
                   data-test="filter-pill-value-button"
+                  onClick={() => openEditor('value')}
                   class={[
-                    'px-2 h-full max-w-[min(28ch,40vw)] truncate transition-colors',
+                    'px-2 h-full text-[var(--color-text-body)] max-w-48 truncate transition-colors',
                     editingPart.value === 'value'
                       ? 'bg-[var(--color-border)] text-[var(--color-primary)]'
                       : 'hover:bg-[var(--color-border)]',
-                    valueText === '...'
-                      ? 'text-[var(--color-text-disabled)] italic'
-                      : 'text-[var(--color-primary)]',
                   ]}
+                  title={valueText}
                 >
                   {valueText}
                 </button>
@@ -547,84 +569,47 @@ export default defineComponent({
 
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                props.onRemove()
-              }}
-              class="w-0 group-hover:w-5 h-full flex items-center justify-center text-[var(--color-text-light)] hover:text-[var(--color-semantic-error)] hover:bg-[var(--color-border)] transition-all overflow-hidden"
               aria-label={$t('common.action.delete') as string}
+              onClick={props.onRemove}
+              class="px-2 h-full text-[var(--color-text-light)] hover:bg-[var(--color-semantic-error)]/10 hover:text-[var(--color-semantic-error)] transition-colors"
             >
-              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              ×
             </button>
           </div>
 
-          {isOpen.value && (
-            <div class="absolute top-full left-0 mt-1 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-lg shadow-lg z-50 min-w-40">
-              <div class="p-2">
-                {editingPart.value === 'field' && (
-                  <div class="space-y-1">
-                    <div class="px-2 py-1 text-xs text-[var(--color-text-light)] uppercase tracking-wide">
-                      {$t('common.advancedQuery.dropdown.selectFieldTitle')}
-                    </div>
-                    {props.fields.map((f) => (
-                      <button
-                        key={f.key}
-                        type="button"
-                        onClick={() => handleFieldChange(f.key)}
-                        class={[
-                          'w-full text-left px-2 py-1 text-xs rounded transition-colors',
-                          props.condition.field === f.key
-                            ? 'bg-[var(--color-primary)] text-[var(--color-bg-card)]'
-                            : 'hover:bg-[var(--color-border)]',
-                        ]}
-                      >
-                        {translateLabelKey(f.labelKey)}
-                      </button>
-                    ))}
-                  </div>
-                )}
+          {isOpen.value && editingPart.value && (
+            <div class="absolute z-20 mt-2 min-w-[220px] max-w-[320px] p-2 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-lg shadow-lg top-full left-0 flex flex-col gap-2">
+              {editingPart.value === 'field' && (
+                <div class="flex flex-col gap-1 max-h-56 overflow-auto">
+                  {props.fields.map((f) => (
+                    <button
+                      key={f.key}
+                      type="button"
+                      onClick={() => handleFieldChange(f.key)}
+                      class="px-2 py-1 text-left text-xs rounded hover:bg-[var(--color-border)]"
+                    >
+                      {translateLabelKey(f.labelKey)}
+                    </button>
+                  ))}
+                </div>
+              )}
 
-                {editingPart.value === 'op' && (
-                  <div class="space-y-1">
-                    <div class="px-2 py-1 text-xs text-[var(--color-text-light)] uppercase tracking-wide">
-                      {$t('common.advancedQuery.dropdown.selectOperatorTitle')}
-                    </div>
-                    <div class="max-h-40 overflow-y-auto">
-                      {allowedOps.value.map((op) => (
-                        <button
-                          key={op}
-                          type="button"
-                          onClick={() => handleOpChange(op)}
-                          class={[
-                            'w-full text-left px-2 py-1 text-xs rounded transition-colors',
-                            props.condition.op === op
-                              ? 'bg-[var(--color-primary)] text-[var(--color-bg-card)]'
-                              : 'hover:bg-[var(--color-border)]',
-                          ]}
-                        >
-                          {getOpLabel(op)}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              {editingPart.value === 'op' && (
+                <div class="flex flex-col gap-1 max-h-56 overflow-auto">
+                  {allowedOps.value.map((op) => (
+                    <button
+                      key={op}
+                      type="button"
+                      onClick={() => handleOpChange(op)}
+                      class="px-2 py-1 text-left text-xs rounded hover:bg-[var(--color-border)]"
+                    >
+                      {getOpLabel(op)}
+                    </button>
+                  ))}
+                </div>
+              )}
 
-                {editingPart.value === 'value' && (
-                  <div class="space-y-1">
-                    <div class="px-2 py-1 text-xs text-[var(--color-text-light)] uppercase tracking-wide">
-                      {$t('common.advancedQuery.dropdown.inputValueTitle')}
-                    </div>
-                    {renderValueEditor()}
-                  </div>
-                )}
-              </div>
+              {editingPart.value === 'value' && renderValueEditor()}
             </div>
           )}
         </div>

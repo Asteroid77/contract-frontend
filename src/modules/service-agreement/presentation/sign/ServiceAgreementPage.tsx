@@ -1,12 +1,12 @@
 import { $t } from '@/_utils/i18n'
 import type { ServiceAgreementPageItem } from '@/modules/service-agreement/application/models'
+import { useIsMobile } from '@/app/presentation/hooks/useIsMobile'
+import areaData from '@/modules/shared/application/constants/PCA.json'
+import { SelectLookup, TreeLookup } from '@/modules/shared/presentation/lookup'
+import { ServiceAgreementStatusOption } from '@/modules/service-agreement/application/constants'
 import { type DataTableColumns, NDataTable, type PaginationProps } from 'naive-ui'
 import { computed, defineComponent, h, type PropType } from 'vue'
-import areaData from '@/modules/shared/application/constants/PCA.json'
-import { TreeLookup } from '@/modules/shared/presentation/lookup'
-import { ServiceAgreementStatusOption } from '@/modules/service-agreement/application/constants'
-import { SelectLookup } from '@/modules/shared/presentation/lookup'
-import { useIsMobile } from '@/app/presentation/hooks/useIsMobile'
+
 export default defineComponent({
   name: 'service-agreement-page',
   props: {
@@ -99,6 +99,7 @@ export default defineComponent({
           key: 'expirationTime',
         },
       ] as DataTableColumns<ServiceAgreementPageItem>
+
       if (slots.actions) {
         baseColumn.push({
           title: $t('common.action.operate'),
@@ -107,21 +108,24 @@ export default defineComponent({
           render: (row: ServiceAgreementPageItem) => slots.actions!(row),
         })
       }
+
       return baseColumn
     }
+
     const columns = computed(() => createColumns(isMobile.value))
 
     return () => (
-      <>
-        <NDataTable
-          columns={columns.value}
-          data={props.data}
-          pagination={props.pagination}
-          bordered={false}
-          singleLine={false}
-          loading={props.loading}
-        />
-      </>
+      <NDataTable
+        columns={columns.value}
+        data={props.data}
+        pagination={props.pagination}
+        bordered={false}
+        singleLine={false}
+        loading={props.loading}
+        v-slots={{
+          empty: () => slots.empty?.(),
+        }}
+      />
     )
   },
 })

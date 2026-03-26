@@ -1,47 +1,53 @@
-import { defineComponent, ref, computed, reactive } from 'vue'
-import { NSpace, NButton, type PaginationProps } from 'naive-ui'
+import { computed, defineComponent } from 'vue'
+import { SearchOutlined } from '@vicons/antd'
+import { NButton, NIcon, NResult, NSpace } from 'naive-ui'
 import ServiceAgreementPage from '@/modules/service-agreement/presentation/sign/ServiceAgreementPage'
 import { useServiceAgreementPage } from '@/modules/service-agreement/application/hooks/useSignService'
 import type { ServiceAgreementPageItem } from '@/modules/service-agreement/application/models'
 import {
+  buildServiceAgreementPageRouteQuery,
+  buildServiceAgreementPrefillQueryFromPageQuery,
+  canCreateServiceAgreementFromQuery,
+  normalizeServiceAgreementPageQuery,
+  parseServiceAgreementPageRouteQuery,
+} from '@/modules/service-agreement/application/entry-search'
+import {
   ModernQueryBuilder,
   QueryActionButtons,
 } from '@/modules/shared/presentation/advanced-query'
+import { useListQueryState } from '@/modules/shared/presentation/advanced-query/useListQueryState'
 import type { QueryFilters } from '@/modules/shared/domain/query'
-import type { BaseQuery } from '@/modules/shared/application/request/types'
 import { serviceAgreementAdvancedQueryFields } from '@/modules/service-agreement/presentation/sign/serviceAgreementAdvancedQueryFields'
 import { $t } from '@/_utils/i18n'
-import { useRouter } from 'vue-router'
-import type { RouteLocationAsRelativeGeneric } from 'vue-router'
+import { useTypedRoute, useTypedRouter } from '@/router/useTypedRouter'
 
-type ServiceAgreementQueryFilters = QueryFilters & BaseQuery
 type ServiceAgreementPageRequest = Parameters<typeof useServiceAgreementPage>[0]['value']
 
-const normalizeAppliedQuery = (
-  query: ServiceAgreementQueryFilters,
-): ServiceAgreementQueryFilters | null => (query.filters?.length || query.group ? query : null)
+const renderPrimarySearchIcon = () => (
+  <NIcon size={40} style={{ color: 'var(--color-primary)' }}>
+    <SearchOutlined />
+  </NIcon>
+)
 
 export default defineComponent({
   name: 'ServiceAgreementView',
   setup() {
-    const draftQueryFilters = ref<ServiceAgreementQueryFilters>({})
-    const appliedQueryFilters = ref<ServiceAgreementQueryFilters | null>(null)
+    const router = useTypedRouter()
+    const route = useTypedRoute()
+    const restoredQuery = parseServiceAgreementPageRouteQuery(route.query as Record<string, unknown>)
 
-    const router = useRouter()
+    const {
+      draftQueryFilters,
+      appliedQueryFilters,
+      pagination,
+      handleSearch: applySearch,
+      handleReset: applyReset,
+    } = useListQueryState()
 
-    const pagination: PaginationProps = reactive({
-      page: 1,
-      pageSize: 10,
-      showSizePicker: true,
-      pageSizes: [10, 50, 100],
-      onChange: (page: number) => {
-        pagination.page = page
-      },
-      onUpdatePageSize: (pageSize: number) => {
-        pagination.pageSize = pageSize
-        pagination.page = 1
-      },
-    })
+    draftQueryFilters.value = restoredQuery ?? {}
+    appliedQueryFilters.value = restoredQuery
+
+    const hasSearched = computed(() => appliedQueryFilters.value != null)
 
     const pageRequest = computed<ServiceAgreementPageRequest>(() => {
       const request: ServiceAgreementPageRequest = {
@@ -49,50 +55,106 @@ export default defineComponent({
         size: pagination.pageSize,
       }
       if (appliedQueryFilters.value) {
-        request.query = appliedQueryFilters.value
+        request.query = appliedQueryFilters.value as ServiceAgreementPageRequest['query']
       }
       return request
     })
 
-    const { data: pageResult, isPending, refetch } = useServiceAgreementPage(pageRequest)
+    const { data: pageResult, isPending, refetch } = useServiceAgreementPage(
+      pageRequest,
+      computed(() => hasSearched.value),
+    )
+
     const tableData = computed(() => pageResult.value?.records || [])
+    const displayedTableData = computed(() => (hasSearched.value ? tableData.value : []))
+    const showPrompt = computed(() => !hasSearched.value)
+    const showNoResult = computed(
+      () => hasSearched.value && !isPending.value && displayedTableData.value.length === 0,
+    )
+    const showCreateButton = computed(
+      () => showNoResult.value && canCreateServiceAgreementFromQuery(appliedQueryFilters.value),
+    )
 
     const handleSearch = (query?: QueryFilters) => {
-      const nextApplied = normalizeAppliedQuery(
-        (query ?? draftQueryFilters.value) as ServiceAgreementQueryFilters,
-      )
-      const shouldForceRefetch =
-        pagination.page === 1 &&
-        JSON.stringify(appliedQueryFilters.value ?? {}) === JSON.stringify(nextApplied ?? {})
+      const nextQuery = normalizeServiceAgreementPageQuery(query ?? draftQueryFilters.value)
 
-      appliedQueryFilters.value = nextApplied
-      pagination.page = 1
+      if (!nextQuery) {
+        applyReset()
+        router.replace({
+          name: 'sign-page',
+          query: {},
+        })
+        return
+      }
+
+      const shouldForceRefetch = applySearch(nextQuery)
+      router.replace({
+        name: 'sign-page',
+        query: buildServiceAgreementPageRouteQuery(nextQuery),
+      })
+
       if (shouldForceRefetch) refetch()
     }
 
     const handleReset = () => {
-      const shouldForceRefetch = pagination.page === 1 && appliedQueryFilters.value == null
+      applyReset()
+      router.replace({
+        name: 'sign-page',
+        query: {},
+      })
+    }
 
-      draftQueryFilters.value = {}
-      appliedQueryFilters.value = null
-      pagination.page = 1
-      if (shouldForceRefetch) refetch()
+    const handleCreate = () => {
+      router.push({
+        name: 'sign',
+        query: buildServiceAgreementPrefillQueryFromPageQuery(appliedQueryFilters.value),
+      })
     }
 
     const handleActions = (row: ServiceAgreementPageItem, mode: 'edit' | 'detail') => {
-      const routeInfo = {
+      router.push({
         name: 'sign',
         query: {
           mode,
+          ...(row.id ? { id: String(row.id) } : {}),
         },
-      } as RouteLocationAsRelativeGeneric
-      if (row.id) {
-        routeInfo.query = {
-          ...routeInfo.query,
-          id: Number(row.id),
-        }
+      })
+    }
+
+    const renderEmptyState = () => {
+      if (showPrompt.value) {
+        return (
+          <NResult
+            status="info"
+            title="请先查询"
+            description="请先查询系统内是否已有该公司的备案/签约项"
+            v-slots={{
+              icon: renderPrimarySearchIcon,
+            }}
+          />
+        )
       }
-      router.push(routeInfo)
+
+      if (showNoResult.value) {
+        return (
+          <NResult
+            status="info"
+            title="未查询到符合条件的数据"
+            description="请先确认系统内是否已有该公司的备案/签约项。"
+            v-slots={{
+              icon: renderPrimarySearchIcon,
+              footer: () =>
+                showCreateButton.value ? (
+                  <NButton size="tiny" onClick={handleCreate}>
+                    {$t('common.action.add')}
+                  </NButton>
+                ) : null,
+            }}
+          />
+        )
+      }
+
+      return null
     }
 
     return () => (
@@ -105,16 +167,16 @@ export default defineComponent({
             onReset={handleReset}
           />
           <QueryActionButtons
-            searchLoading={isPending.value}
+            searchLoading={hasSearched.value && isPending.value}
             onSearch={() => handleSearch(draftQueryFilters.value)}
             onReset={handleReset}
           />
         </NSpace>
 
         <ServiceAgreementPage
-          data={tableData.value}
+          data={displayedTableData.value}
           pagination={pagination}
-          loading={isPending.value}
+          loading={hasSearched.value && isPending.value}
           v-slots={{
             actions: (row: ServiceAgreementPageItem) => (
               <NSpace>
@@ -131,6 +193,7 @@ export default defineComponent({
                 </NButton>
               </NSpace>
             ),
+            empty: renderEmptyState,
           }}
         />
       </NSpace>
