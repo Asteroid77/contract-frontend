@@ -7,17 +7,27 @@ import {
   type ShallowRef,
 } from 'vue'
 import { loginFormValidation } from '@/modules/access/application/validation'
-import { NButton, NDivider, NForm, NFormItem, NImage, NInput, NSpace, NSpin } from 'naive-ui'
+import {
+  NButton,
+  NDivider,
+  NForm,
+  NFormItem,
+  NIcon,
+  NImage,
+  NInput,
+  NSpace,
+  NSpin,
+  NTooltip,
+} from 'naive-ui'
 import { InfoCircleFilled, IdcardOutlined, KeyOutlined, MailOutlined } from '@vicons/antd'
 import { useCaptcha } from '@/modules/captcha/application/hooks/useCaptcha'
-import { NTooltip, NIcon } from 'naive-ui'
 import clsx from 'clsx'
 import type { SignInForm } from '@/modules/user/application/models'
 import { RouterLink } from 'vue-router'
 import type { FormInst } from 'naive-ui/lib'
 import { createSignInModel } from '@/modules/user/application/ui-mappers'
 import { $t } from '@/_utils/i18n'
-import '@/modules/user/presentation/auth-form-grid.css'
+import '@/modules/user/presentation/styles/auth-form-grid.css'
 
 export default defineComponent({
   props: {

@@ -263,7 +263,7 @@ const isAllowedPx = (pxToken, line, whitelist) => {
   }
 
   if (whitelist.breakpoints.has(pxToken)) {
-    if (/\@media|\bmax-width\b|\bmin-width\b|\bbreakpoint\b/.test(text)) return true
+    if (/@media|\bmax-width\b|\bmin-width\b|\bbreakpoint\b/.test(text)) return true
   }
 
   if (whitelist.elevation.has(pxToken)) {
