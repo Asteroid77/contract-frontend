@@ -187,7 +187,9 @@ describe('useSignService hooks', () => {
     usePreviewAttachments(paramsRef, enabled)
     const options = getLatestQueryOptions()
 
-    expect((options.queryKey as { value: unknown }).value).toEqual(signKeys.preview(paramsRef.value))
+    expect((options.queryKey as { value: unknown }).value).toEqual(
+      signKeys.preview(paramsRef.value),
+    )
     expect((options.enabled as { value: boolean }).value).toBe(true)
     expect(options.retry).toBe(false)
 
@@ -205,7 +207,9 @@ describe('useSignService hooks', () => {
       type: 2,
       code: '5678',
     }
-    expect((options.queryKey as { value: unknown }).value).toEqual(signKeys.preview(paramsRef.value))
+    expect((options.queryKey as { value: unknown }).value).toEqual(
+      signKeys.preview(paramsRef.value),
+    )
 
     enabled.value = false
     expect((options.enabled as { value: boolean }).value).toBe(false)

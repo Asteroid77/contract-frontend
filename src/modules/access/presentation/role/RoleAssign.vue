@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { useUserPage } from '@/modules/user/application/hooks/useUserPage'
-import { useAssignedUsersByRole, useAssignRoleToUsers } from '@/modules/access/application/hooks/useUserRoleService'
+import {
+  useAssignedUsersByRole,
+  useAssignRoleToUsers,
+} from '@/modules/access/application/hooks/useUserRoleService'
 import { NTransfer, NCard, NSpace, NButton, NPopconfirm } from 'naive-ui'
-import { computed, watch } from 'vue'
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { resolveUserDisplayName } from '@/modules/user/application/utils/displayName'
 const { t: $t } = useI18n()

@@ -1,3 +1,4 @@
+/* [打印豁免] @media print 块面向 A4 纸输出，硬编码色值符合 Rule.md 打印豁免条款 */
 /* 默认情况下，隐藏打印版本 */
 .print-only {
   display: none;

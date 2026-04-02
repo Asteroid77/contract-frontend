@@ -1,8 +1,19 @@
 import type { App } from 'vue'
-import type { InitOptions } from './index'
+import type {
+  InitOptions,
+  captureError as captureErrorFn,
+  capturePermissionError as capturePermissionErrorFn,
+  captureVueError as captureVueErrorFn,
+  initObservability as initObservabilityFn,
+} from './index'
 import type { ErrorSeverity, ErrorSource } from './types'
 
-type ObservabilityModule = typeof import('./index')
+type ObservabilityModule = {
+  initObservability: typeof initObservabilityFn
+  captureError: typeof captureErrorFn
+  capturePermissionError: typeof capturePermissionErrorFn
+  captureVueError: typeof captureVueErrorFn
+}
 
 let observabilityPromise: Promise<ObservabilityModule> | null = null
 let initPromise: Promise<ObservabilityModule> | null = null

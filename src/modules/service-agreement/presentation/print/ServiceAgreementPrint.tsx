@@ -12,8 +12,7 @@ import type {
 } from '@/modules/service-agreement/application/models'
 
 // --- 工具类 ---
-import { TreeLookup } from '@/modules/shared/presentation/lookup'
-import { SelectLookup } from '@/modules/shared/presentation/lookup'
+import { SelectLookup, TreeLookup } from '@/modules/shared/presentation/lookup'
 import PcaData from '@/modules/shared/application/constants/PCA.json'
 
 // --- 常量/枚举 ---

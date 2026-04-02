@@ -43,7 +43,8 @@ vi.mock('@/modules/approval/presentation/print/ApprovalPrintFileItemCard', () =>
 
 import ApprovalPrintFileDiffSection from '@/modules/approval/presentation/print/ApprovalPrintFileDiffSection'
 
-const f = (id: number) => ({ id, fileName: `${id}.png`, accessUrl: `https://cdn/${id}.png` }) as never
+const f = (id: number) =>
+  ({ id, fileName: `${id}.png`, accessUrl: `https://cdn/${id}.png` }) as never
 
 describe('ApprovalPrintFileDiffSection', () => {
   it('renders normal list when approvalType is false', () => {

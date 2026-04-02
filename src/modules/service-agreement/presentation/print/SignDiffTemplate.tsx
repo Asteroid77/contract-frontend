@@ -7,8 +7,7 @@ import ServiceAgreementPrint from '@/modules/service-agreement/presentation/prin
 import { mapFileIds, useDistributeFiles } from '@/modules/approval/application/print/FileListDiff'
 import { useFilesDetailQuery } from '@/modules/file/application/hooks/useFileService'
 import { uniq } from 'lodash'
-import { computed } from 'vue'
-import { defineComponent, type PropType } from 'vue'
+import { computed, defineComponent, type PropType } from 'vue'
 import { toViewServiceAgreementRequest } from '@/modules/service-agreement/application/mappers'
 
 export default defineComponent({

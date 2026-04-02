@@ -154,22 +154,28 @@ vi.mock('@/modules/service-agreement/presentation/sign/ServiceAgreementForm', ()
     },
     setup(props, { slots }) {
       return () =>
-        h('section', {
-          'data-test': 'service-agreement-form',
-          'data-loading': String(Boolean(props.loading)),
-          'data-initial-status': String((props.initialValue as { status?: number } | undefined)?.status ?? ''),
-          'data-initial-company-name': String(
-            (props.initialValue as { companyName?: string } | undefined)?.companyName ?? '',
-          ),
-          'data-initial-company-area': String(
-            (props.initialValue as { companyArea?: string } | undefined)?.companyArea ?? '',
-          ),
-        }, [
-          slots.Button?.({
-            formValue: formValueRef.value,
-            handleValidate: () => Promise.resolve(validateResultRef.value),
-          }),
-        ])
+        h(
+          'section',
+          {
+            'data-test': 'service-agreement-form',
+            'data-loading': String(Boolean(props.loading)),
+            'data-initial-status': String(
+              (props.initialValue as { status?: number } | undefined)?.status ?? '',
+            ),
+            'data-initial-company-name': String(
+              (props.initialValue as { companyName?: string } | undefined)?.companyName ?? '',
+            ),
+            'data-initial-company-area': String(
+              (props.initialValue as { companyArea?: string } | undefined)?.companyArea ?? '',
+            ),
+          },
+          [
+            slots.Button?.({
+              formValue: formValueRef.value,
+              handleValidate: () => Promise.resolve(validateResultRef.value),
+            }),
+          ],
+        )
     },
   }),
 }))

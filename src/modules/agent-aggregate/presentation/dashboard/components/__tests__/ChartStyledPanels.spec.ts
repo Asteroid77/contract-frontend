@@ -51,20 +51,27 @@ vi.mock('@/modules/agent-aggregate/presentation/dashboard/charts/echarts', () =>
   }),
 }))
 
-vi.mock('@/modules/agent-aggregate/presentation/dashboard/components/DashboardPanelFrame.vue', () => ({
-  default: defineComponent({
-    name: 'DashboardPanelFrame',
-    props: {
-      state: {
-        type: Object,
-        required: true,
+vi.mock(
+  '@/modules/agent-aggregate/presentation/dashboard/components/DashboardPanelFrame.vue',
+  () => ({
+    default: defineComponent({
+      name: 'DashboardPanelFrame',
+      props: {
+        state: {
+          type: Object,
+          required: true,
+        },
       },
-    },
-    setup(_props, { slots }) {
-      return () => h('section', { 'data-test': 'panel-frame' }, [slots['header-center']?.(), slots.default?.()])
-    },
+      setup(_props, { slots }) {
+        return () =>
+          h('section', { 'data-test': 'panel-frame' }, [
+            slots['header-center']?.(),
+            slots.default?.(),
+          ])
+      },
+    }),
   }),
-}))
+)
 
 import PerformancePanel from '@/modules/agent-aggregate/presentation/dashboard/components/PerformancePanel.vue'
 import TrendPanel from '@/modules/agent-aggregate/presentation/dashboard/components/TrendPanel.vue'

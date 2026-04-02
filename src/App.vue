@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { zhCN, dateZhCN, enUS, dateEnUS, NConfigProvider, darkTheme } from 'naive-ui'
-import { defineAsyncComponent } from 'vue'
+import { computed, defineAsyncComponent } from 'vue'
 import { useTheme } from '@/app/presentation/theme/hooks/useTheme'
-import { computed } from 'vue'
 import ErrorBoundary from '@/app/observability/components/ErrorBoundary'
 import { language } from '@/_utils/i18n'
 

@@ -85,7 +85,9 @@ describe('printElement', () => {
     expect(printWindow.document.documentElement.outerHTML).toContain('content-with-link')
     expect(printWindow.document.documentElement.outerHTML).toContain('<title>审批打印</title>')
 
-    const copiedLinks = printWindow.document.querySelectorAll('link[rel="stylesheet"]') as NodeListOf<HTMLLinkElement>
+    const copiedLinks = printWindow.document.querySelectorAll(
+      'link[rel="stylesheet"]',
+    ) as NodeListOf<HTMLLinkElement>
     expect(copiedLinks.length).toBeGreaterThan(0)
     copiedLinks.forEach((node) => {
       expect(node.href.startsWith('http')).toBe(true)

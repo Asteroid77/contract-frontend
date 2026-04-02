@@ -118,12 +118,16 @@ vi.mock('naive-ui', () => ({
     },
     setup(props, { slots }) {
       return () =>
-        h('section', {
-          'data-test': 'n-result',
-          'data-status': props.status,
-          'data-title': props.title,
-          'data-description': props.description,
-        }, [slots.icon?.(), slots.footer?.()])
+        h(
+          'section',
+          {
+            'data-test': 'n-result',
+            'data-status': props.status,
+            'data-title': props.title,
+            'data-description': props.description,
+          },
+          [slots.icon?.(), slots.footer?.()],
+        )
     },
   }),
   NIcon: defineComponent({
@@ -278,7 +282,9 @@ describe('ServiceAgreementPageView', () => {
     expect(result.attributes('data-status')).toBe('info')
     expect(result.attributes('data-title')).toBe('请先查询')
     expect(wrapper.find('[data-test="service-agreement-page"]').exists()).toBe(true)
-    expect(wrapper.get('[data-test="n-icon"]').attributes('style')).toContain('var(--color-primary)')
+    expect(wrapper.get('[data-test="n-icon"]').attributes('style')).toContain(
+      'var(--color-primary)',
+    )
   })
 
   it('searches through advanced query and persists route query', async () => {
@@ -316,9 +322,7 @@ describe('ServiceAgreementPageView', () => {
     }
 
     const wrapper = mount(ServiceAgreementPageView)
-    const addBtn = wrapper
-      .findAll('button')
-      .find((button) => button.text() === 'common.action.add')
+    const addBtn = wrapper.findAll('button').find((button) => button.text() === 'common.action.add')
 
     if (!addBtn) {
       throw new Error('add button missing')

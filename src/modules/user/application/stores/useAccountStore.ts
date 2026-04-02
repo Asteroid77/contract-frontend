@@ -15,7 +15,9 @@ export const useAccountStore = defineStore('account', () => {
   /**
    * 用户登录凭证
    */
-  const token = ref<SignInResponseComplete['token'] | null>(localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN))
+  const token = ref<SignInResponseComplete['token'] | null>(
+    localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN),
+  )
 
   /**
    * 用户刷新凭证（记住我场景）

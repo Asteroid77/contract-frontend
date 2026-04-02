@@ -20,12 +20,14 @@ function setupSessionRedirectGuard(router: Router) {
       return
     }
 
-    router.replace({
-      name: 'login',
-      query: { redirect: currentRoute.fullPath },
-    }).catch(() => {
-      // ignore duplicated navigation errors
-    })
+    router
+      .replace({
+        name: 'login',
+        query: { redirect: currentRoute.fullPath },
+      })
+      .catch(() => {
+        // ignore duplicated navigation errors
+      })
   })
 }
 

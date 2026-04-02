@@ -1,4 +1,7 @@
-import type { AgentAggregateFunnelVO, AgentAggregateOverviewVO } from '@/modules/agent-aggregate/domain/types'
+import type {
+  AgentAggregateFunnelVO,
+  AgentAggregateOverviewVO,
+} from '@/modules/agent-aggregate/domain/types'
 import { safeArray } from './safe-array'
 
 const hasPositiveValue = (...values: Array<number | undefined>) => {

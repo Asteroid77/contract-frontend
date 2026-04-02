@@ -18,7 +18,9 @@ const localScore = ref(props.currentScore ?? 0)
 const isEditing = ref(false)
 
 const hasExistingScore = computed(() => props.currentScore != null && props.currentScore > 0)
-const isPending = computed(() => scoreMutation.isPending.value || updateScoreMutation.isPending.value)
+const isPending = computed(
+  () => scoreMutation.isPending.value || updateScoreMutation.isPending.value,
+)
 
 const handleSubmitScore = () => {
   if (localScore.value <= 0) return
@@ -50,11 +52,7 @@ const handleSubmitScore = () => {
   <n-space vertical :size="8">
     <n-text strong>{{ $t('domain.workOrder.label.scoreHint') }}</n-text>
     <n-space align="center" :size="12">
-      <n-rate
-        v-model:value="localScore"
-        :readonly="hasExistingScore && !isEditing"
-        :count="5"
-      />
+      <n-rate v-model:value="localScore" :readonly="hasExistingScore && !isEditing" :count="5" />
       <template v-if="hasExistingScore && !isEditing">
         <n-button size="small" @click="isEditing = true">
           {{ $t('domain.workOrder.action.updateScore') }}

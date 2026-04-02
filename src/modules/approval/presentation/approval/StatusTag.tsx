@@ -41,17 +41,11 @@ export default <T extends ApprovalType>(status: ApprovalStatus<T>, type: T, fini
         <>
           {props.text && (
             <NTag type={statusMap[finished ? 'finished' : status]}>
-              {finished
-                ? $t('domain.approval.status.finished')
-                : $t(statusKey)}
+              {finished ? $t('domain.approval.status.finished') : $t(statusKey)}
             </NTag>
           )}
           {!props.text && (
-            <span>
-              {finished
-                ? $t('domain.approval.status.finished')
-                : $t(statusKey)}
-            </span>
+            <span>{finished ? $t('domain.approval.status.finished') : $t(statusKey)}</span>
           )}
         </>
       )

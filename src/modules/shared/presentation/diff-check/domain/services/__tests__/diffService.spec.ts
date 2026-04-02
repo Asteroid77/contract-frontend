@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { DiffService } from '@/modules/shared/presentation/diff-check/domain/services/diffService'
-import type { FieldDefinition, FormData, OssCallbackView } from '@/modules/shared/presentation/diff-check/domain/types/field'
+import type {
+  FieldDefinition,
+  FormData,
+  OssCallbackView,
+} from '@/modules/shared/presentation/diff-check/domain/types/field'
 
 const createFile = (overrides: Partial<OssCallbackView> = {}): OssCallbackView => ({
   id: 1,
@@ -139,11 +143,7 @@ describe('DiffService file helpers and file diff', () => {
     expect(DiffService.normalizeFileValue(undefined)).toEqual([])
     expect(DiffService.normalizeFileValue(createFile({ id: 8 }))).toEqual([createFile({ id: 8 })])
 
-    const mixed = [
-      createFile({ id: 1 }),
-      { id: 2, fileName: 'x' },
-      createFile({ id: 3 }),
-    ]
+    const mixed = [createFile({ id: 1 }), { id: 2, fileName: 'x' }, createFile({ id: 3 })]
 
     expect(DiffService.normalizeFileValue(mixed as never).map((file) => file.id)).toEqual([1, 3])
     expect(DiffService.normalizeFiles(mixed as never).map((file) => file.id)).toEqual([1, 3])

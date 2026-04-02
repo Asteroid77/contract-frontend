@@ -34,11 +34,7 @@ async function clearSessionState(): Promise<void> {
 }
 
 export async function recoverAuthSession(error: unknown): Promise<void> {
-  if (
-    !isRecoverableAuthSessionError(error) ||
-    isLogoutInProgress() ||
-    !hasStoredSession()
-  ) {
+  if (!isRecoverableAuthSessionError(error) || isLogoutInProgress() || !hasStoredSession()) {
     return
   }
 

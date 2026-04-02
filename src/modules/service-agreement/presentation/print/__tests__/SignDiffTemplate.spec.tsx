@@ -155,9 +155,7 @@ describe('SignDiffTemplate', () => {
       data: ref([]),
     })
 
-    useDistributeFilesMock.mockReturnValue(
-      computed(() => mockedFilesMap as never),
-    )
+    useDistributeFilesMock.mockReturnValue(computed(() => mockedFilesMap as never))
 
     toViewServiceAgreementRequestMock.mockImplementation((dto: Record<string, unknown>) => ({
       ...dto,
@@ -224,7 +222,9 @@ describe('SignDiffTemplate', () => {
     const attachmentDiff = wrapper.find('[data-test="attachment-approval-diff"]')
     expect(attachmentDiff.exists()).toBe(true)
     expect(attachmentDiff.attributes('data-rules-count')).toBe('3')
-    expect(JSON.parse(attachmentDiff.attributes('data-files-map') ?? 'null')).toEqual(mockedFilesMap)
+    expect(JSON.parse(attachmentDiff.attributes('data-files-map') ?? 'null')).toEqual(
+      mockedFilesMap,
+    )
   })
 
   it('renders with null compareData when sourceData is null', () => {

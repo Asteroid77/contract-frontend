@@ -34,7 +34,9 @@ export default defineComponent({
   setup() {
     const router = useTypedRouter()
     const route = useTypedRoute()
-    const restoredQuery = parseServiceAgreementPageRouteQuery(route.query as Record<string, unknown>)
+    const restoredQuery = parseServiceAgreementPageRouteQuery(
+      route.query as Record<string, unknown>,
+    )
 
     const {
       draftQueryFilters,
@@ -60,7 +62,11 @@ export default defineComponent({
       return request
     })
 
-    const { data: pageResult, isPending, refetch } = useServiceAgreementPage(
+    const {
+      data: pageResult,
+      isPending,
+      refetch,
+    } = useServiceAgreementPage(
       pageRequest,
       computed(() => hasSearched.value),
     )

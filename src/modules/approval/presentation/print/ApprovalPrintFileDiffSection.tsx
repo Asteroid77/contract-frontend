@@ -1,8 +1,6 @@
 import type { OssCallbackView } from '@/modules/file/application/models'
 import { NGi, NGrid } from 'naive-ui'
-import type { PropType } from 'vue'
-import { computed } from 'vue'
-import { defineComponent } from 'vue'
+import { computed, defineComponent, type PropType } from 'vue'
 import FileItemCard from './ApprovalPrintFileItemCard'
 import '@/modules/approval/presentation/approval/styles/FileDiffSection.css'
 export default defineComponent({

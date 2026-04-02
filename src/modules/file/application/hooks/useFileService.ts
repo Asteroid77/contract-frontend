@@ -18,7 +18,8 @@ export const fileKeys = {
   detail: (id: number | undefined) => [...fileKeys.details(), id] as const,
   metaDetails: () => [...fileKeys.all, 'meta'] as const,
   metaDetail: (id: number | undefined) => [...fileKeys.metaDetails(), id] as const,
-  batchDetail: (ids: number[]) => [...fileKeys.details(), 'batch', { ids: normalizeFileIds(ids) }] as const,
+  batchDetail: (ids: number[]) =>
+    [...fileKeys.details(), 'batch', { ids: normalizeFileIds(ids) }] as const,
   batchMetaDetail: (ids: number[]) =>
     [...fileKeys.metaDetails(), 'batch', { ids: normalizeFileIds(ids) }] as const,
 }

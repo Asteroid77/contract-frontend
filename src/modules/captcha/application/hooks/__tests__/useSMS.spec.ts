@@ -147,13 +147,11 @@ describe('useSMS', () => {
       bizId: 'biz-2',
     }
 
-    firstMock
-      .mockResolvedValueOnce(undefined)
-      .mockResolvedValueOnce({
-        id: 7,
-        phone,
-        time: new Date('2026-02-10T11:58:00.000Z'),
-      })
+    firstMock.mockResolvedValueOnce(undefined).mockResolvedValueOnce({
+      id: 7,
+      phone,
+      time: new Date('2026-02-10T11:58:00.000Z'),
+    })
     sendSmsCodeMock.mockResolvedValue(payload)
 
     const { getSMSCoolDownSecond, sendSMSCode } = useSMS()

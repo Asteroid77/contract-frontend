@@ -10,7 +10,8 @@ vi.mock('naive-ui', () => ({
       cols: { type: [Number, String], required: false },
     },
     setup(props, { slots }) {
-      return () => h('div', { 'data-test': 'NGrid', 'data-cols': String(props.cols) }, slots.default?.())
+      return () =>
+        h('div', { 'data-test': 'NGrid', 'data-cols': String(props.cols) }, slots.default?.())
     },
   }),
   NGi: defineComponent({

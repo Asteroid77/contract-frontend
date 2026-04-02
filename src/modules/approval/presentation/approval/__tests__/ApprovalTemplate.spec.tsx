@@ -2,12 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 
-const {
-  detailDataRef,
-  detailLoadingRef,
-  historyDataRef,
-  routerGoSpy,
-} = vi.hoisted(() => ({
+const { detailDataRef, detailLoadingRef, historyDataRef, routerGoSpy } = vi.hoisted(() => ({
   detailDataRef: { value: undefined as unknown },
   detailLoadingRef: { value: false },
   historyDataRef: { value: undefined as unknown },
@@ -70,7 +65,9 @@ vi.mock('naive-ui', () => ({
             'data-test': 'n-checkbox',
             'data-checked': String(props.checked),
             onClick: () => {
-              const updateChecked = props.onUpdateChecked as ((checked: boolean) => void) | undefined
+              const updateChecked = props.onUpdateChecked as
+                | ((checked: boolean) => void)
+                | undefined
               updateChecked?.(!props.checked)
             },
           },
@@ -108,12 +105,16 @@ vi.mock('naive-ui', () => ({
     },
     setup(props, { slots }) {
       return () =>
-        h('div', {
-          'data-test': 'n-result',
-          'data-status': props.status,
-          'data-title': props.title,
-          'data-description': props.description,
-        }, [slots.footer?.()])
+        h(
+          'div',
+          {
+            'data-test': 'n-result',
+            'data-status': props.status,
+            'data-title': props.title,
+            'data-description': props.description,
+          },
+          [slots.footer?.()],
+        )
     },
   }),
 }))
@@ -319,7 +320,9 @@ describe('ApprovalTemplate', () => {
 
     const checkbox = wrapper.find('[data-test="n-checkbox"]')
     expect(checkbox.exists()).toBe(true)
-    expect(wrapper.find('[data-test="approval-content"]').attributes('data-show-only')).toBe('false')
+    expect(wrapper.find('[data-test="approval-content"]').attributes('data-show-only')).toBe(
+      'false',
+    )
 
     await checkbox.trigger('click')
     await nextTick()

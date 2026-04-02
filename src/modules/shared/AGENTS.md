@@ -55,12 +55,12 @@ shared/
 
 各业务模块在 presentation 层实现 UI 时，必须遵循以下决策。违反这些规则会导致主题不一致、国际化遗漏或组件碎片化。
 
-| 场景 | 正确做法 | 错误做法 | 参考文件 |
-| --- | --- | --- | --- |
-| **消息/对话框/通知** | 使用 `@/_utils/discrete_naive_api` 导出的 `message`、`dialog`、`notification` 等 discrete wrapper | 直接调用 `window.$message`、`window.$dialog` 或手动 `createDiscreteApi` | `src/_utils/discrete_naive_api/index.ts` |
-| **用户可见文案** | 使用 `$t('key')` 或 `useI18n()` 获取翻译文本，key 按 `_utils/i18n/NAMING_CONVENTION.md` 规范命名 | 硬编码中文/英文字符串（如 `'提交成功'`、`'Submit'`） | `src/_utils/i18n/index.ts`, `src/_utils/i18n/NAMING_CONVENTION.md` |
-| **颜色与样式** | 使用 `ThemeToken` 导出的语义化 token 或对应 CSS 变量（如 `--primary`、`--bg-card`），间距使用 `commonTokens`（如 `spacingMd`、`paddingCard`） | 硬编码 hex/rgb 色值（如 `#334155`、`rgb(51,65,85)`）或魔法数字间距（如 `padding: 17px`） | `src/app/presentation/theme/ThemeToken.ts`, `src/app/presentation/theme/hooks/useTheme.ts` |
-| **搜索与筛选** | 使用 `ModernQueryBuilder` 组件 + `QueryFilters` 类型构建查询条件 | 手写简单 `<input>` 搜索框或自行拼接查询参数对象 | `src/modules/shared/presentation/advanced-query/modern/ModernQueryBuilder.tsx`, `src/modules/shared/domain/query.ts` |
+| 场景                 | 正确做法                                                                                                                                      | 错误做法                                                                                 | 参考文件                                                                                                             |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **消息/对话框/通知** | 使用 `@/_utils/discrete_naive_api` 导出的 `message`、`dialog`、`notification` 等 discrete wrapper                                             | 直接调用 `window.$message`、`window.$dialog` 或手动 `createDiscreteApi`                  | `src/_utils/discrete_naive_api/index.ts`                                                                             |
+| **用户可见文案**     | 使用 `$t('key')` 或 `useI18n()` 获取翻译文本，key 按 `_utils/i18n/NAMING_CONVENTION.md` 规范命名                                              | 硬编码中文/英文字符串（如 `'提交成功'`、`'Submit'`）                                     | `src/_utils/i18n/index.ts`, `src/_utils/i18n/NAMING_CONVENTION.md`                                                   |
+| **颜色与样式**       | 使用 `ThemeToken` 导出的语义化 token 或对应 CSS 变量（如 `--primary`、`--bg-card`），间距使用 `commonTokens`（如 `spacingMd`、`paddingCard`） | 硬编码 hex/rgb 色值（如 `#334155`、`rgb(51,65,85)`）或魔法数字间距（如 `padding: 17px`） | `src/app/presentation/theme/ThemeToken.ts`, `src/app/presentation/theme/hooks/useTheme.ts`                           |
+| **搜索与筛选**       | 使用 `ModernQueryBuilder` 组件 + `QueryFilters` 类型构建查询条件                                                                              | 手写简单 `<input>` 搜索框或自行拼接查询参数对象                                          | `src/modules/shared/presentation/advanced-query/modern/ModernQueryBuilder.tsx`, `src/modules/shared/domain/query.ts` |
 
 ### 补充说明
 

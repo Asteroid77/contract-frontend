@@ -31,9 +31,9 @@ describe('invitationService', () => {
     vi.mocked(invitationRepository.getInvitedCount).mockResolvedValue(5)
 
     await expect(invitationService.createInvitationCode()).resolves.toEqual({ id: 1 })
-    await expect(invitationService.updateInvitationCode([{ id: 1, remark: 'x' }])).resolves.toEqual([
-      { id: 1 },
-    ])
+    await expect(invitationService.updateInvitationCode([{ id: 1, remark: 'x' }])).resolves.toEqual(
+      [{ id: 1 }],
+    )
     await expect(invitationService.deleteInvitationCode([1])).resolves.toBe(true)
     await expect(invitationService.getInvitationCodeList()).resolves.toEqual([{ id: 1 }])
     await expect(invitationService.getInvitedCount()).resolves.toBe(5)

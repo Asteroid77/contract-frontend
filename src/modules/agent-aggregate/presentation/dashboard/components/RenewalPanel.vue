@@ -2,7 +2,10 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { NSkeleton } from 'naive-ui'
-import type { AgentAggregateRenewalVO, AgentAggregateRenewalWindowVO } from '@/modules/agent-aggregate/domain/types'
+import type {
+  AgentAggregateRenewalVO,
+  AgentAggregateRenewalWindowVO,
+} from '@/modules/agent-aggregate/domain/types'
 import { VChart } from '../charts/echarts'
 import type { ECOption } from '../charts/ec-option'
 import { chartColor } from '../utils/chart-color'
@@ -29,8 +32,10 @@ const { query } = defineProps<{
 const { t: $t, locale } = useI18n()
 const requestFailedText = computed(() => $t('domain.agentAggregate.dashboard.state.requestFailed'))
 
-const panelState = buildPanelState(query, requestFailedText, (data) =>
-  safeArray<AgentAggregateRenewalWindowVO>(data?.windows).length > 0,
+const panelState = buildPanelState(
+  query,
+  requestFailedText,
+  (data) => safeArray<AgentAggregateRenewalWindowVO>(data?.windows).length > 0,
 )
 
 const { formatWindowDays, normalizeRatePercent } = useDashboardFormatters(locale, $t)

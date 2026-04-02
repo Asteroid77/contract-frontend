@@ -3,7 +3,11 @@ import type {
   ServiceAgreementDetail,
   ServiceAgreementUIMap,
 } from '@/modules/service-agreement/application/models'
-import { PreviewTypeEnum, ServiceAgreementStatusEnum, ServiceAgreementStatusOption } from '@/modules/service-agreement/application/constants'
+import {
+  PreviewTypeEnum,
+  ServiceAgreementStatusEnum,
+  ServiceAgreementStatusOption,
+} from '@/modules/service-agreement/application/constants'
 import { parseServiceAgreementPrefillQuery } from '@/modules/service-agreement/application/entry-search'
 import { convertUIToRequestDTO } from '@/modules/service-agreement/application/ui-mappers'
 import ServiceAgreementFormComponent from '@/modules/service-agreement/presentation/sign/ServiceAgreementForm'
@@ -104,7 +108,8 @@ export default defineComponent({
       if (!detail) return '表单'
 
       const statusLabel =
-        ServiceAgreementStatusOption.find((option) => option.value === detail.status)?.label || '表单'
+        ServiceAgreementStatusOption.find((option) => option.value === detail.status)?.label ||
+        '表单'
 
       return `${statusLabel}`
     })
@@ -114,7 +119,10 @@ export default defineComponent({
 
       return (
         <>
-          <ServiceAgreementFormComponent initialValue={initialData.value} loading={initialDataLoading.value}>
+          <ServiceAgreementFormComponent
+            initialValue={initialData.value}
+            loading={initialDataLoading.value}
+          >
             {{
               Button: ({
                 formValue,

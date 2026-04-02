@@ -69,9 +69,17 @@ describe('useUserRoleService hooks', () => {
   it('defines stable user-role keys', () => {
     expect(userRoleKeys.all).toEqual(['userRole'])
     expect(userRoleKeys.assignedUsers()).toEqual(['userRole', 'assignedUsers'])
-    expect(userRoleKeys.assignedUsersByRole(3)).toEqual(['userRole', 'assignedUsers', { roleId: 3 }])
+    expect(userRoleKeys.assignedUsersByRole(3)).toEqual([
+      'userRole',
+      'assignedUsers',
+      { roleId: 3 },
+    ])
     expect(userRoleKeys.assignedRoles()).toEqual(['userRole', 'assignedRoles'])
-    expect(userRoleKeys.assignedRolesToUser(8)).toEqual(['userRole', 'assignedRoles', { userId: 8 }])
+    expect(userRoleKeys.assignedRolesToUser(8)).toEqual([
+      'userRole',
+      'assignedRoles',
+      { userId: 8 },
+    ])
   })
 
   it('useAssignedUsersByRole handles missing roleId safely', async () => {
@@ -115,7 +123,8 @@ describe('useUserRoleService hooks', () => {
 
   it('useAssignRoleToUsers invalidates role and user list caches', async () => {
     useAssignRoleToUsers()
-    const options = vi.mocked(useMutation).mock.calls[0][0] as unknown as MockAssignRoleMutationOptions
+    const options = vi.mocked(useMutation).mock
+      .calls[0][0] as unknown as MockAssignRoleMutationOptions
 
     const payload = {
       roleId: 3,

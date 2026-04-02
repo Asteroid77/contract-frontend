@@ -3,7 +3,9 @@ import { createPinia, setActivePinia } from 'pinia'
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 import { useTabsStore } from '@/app/application/stores/useTabsStore'
 
-const createRoute = (partial: Partial<RouteLocationNormalizedLoaded>): RouteLocationNormalizedLoaded => {
+const createRoute = (
+  partial: Partial<RouteLocationNormalizedLoaded>,
+): RouteLocationNormalizedLoaded => {
   return {
     name: 'dashboard',
     path: '/dashboard',

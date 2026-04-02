@@ -90,7 +90,9 @@ const handleRetry = () => {
           <template #footer>
             <n-flex :size="8" justify="center">
               <n-button secondary @click="handleBack">{{ $t('common.action.back') }}</n-button>
-              <n-button type="primary" @click="handleRetry">{{ $t('observability.errorBoundary.retry') }}</n-button>
+              <n-button type="primary" @click="handleRetry">{{
+                $t('observability.errorBoundary.retry')
+              }}</n-button>
             </n-flex>
           </template>
         </n-result>
@@ -104,11 +106,7 @@ const handleRetry = () => {
           <template #footer>
             <n-flex :size="8" justify="center">
               <n-button secondary @click="handleBack">{{ $t('common.action.back') }}</n-button>
-              <n-button
-                type="primary"
-                :disabled="!approvalInstanceId"
-                @click="handleViewApproval"
-              >
+              <n-button type="primary" :disabled="!approvalInstanceId" @click="handleViewApproval">
                 {{ $t('domain.user.approval.btn') }}
               </n-button>
             </n-flex>

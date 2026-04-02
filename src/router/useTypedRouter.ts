@@ -1,7 +1,11 @@
-import { useRouter as useVueRouter, useRoute as useVueRoute } from 'vue-router'
-import type { Router, RouteLocationNormalizedLoadedGeneric } from 'vue-router'
+import {
+  useRouter as useVueRouter,
+  useRoute as useVueRoute,
+  type Router,
+  type RouteLocationNormalizedLoadedGeneric,
+  type LocationQuery,
+} from 'vue-router'
 import type { RouteName, RouteParams, TypedRouteLocationByName } from './types'
-import type { LocationQuery } from 'vue-router'
 
 // ============================================================
 // 类型安全的路由 Composable

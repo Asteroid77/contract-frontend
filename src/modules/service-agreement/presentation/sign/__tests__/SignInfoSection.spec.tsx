@@ -71,7 +71,9 @@ vi.mock('@/modules/service-agreement/presentation/sign/PriceGroupWidget', () => 
         h('button', {
           'data-test': 'price-group-widget',
           'data-path': props.path ?? '',
-          'data-price-model': String((props.modelValue as Record<string, unknown>).priceModel ?? ''),
+          'data-price-model': String(
+            (props.modelValue as Record<string, unknown>).priceModel ?? '',
+          ),
           onClick: () => emit('update:modelValue', { fixedPrice: '0.9999', comment: 'pg-comment' }),
         })
     },
@@ -137,7 +139,9 @@ describe('SignInfoSection', () => {
       },
     })
 
-    expect(wrapper.find('[data-test="price-group-widget"]').attributes('data-path')).toBe('signInfo')
+    expect(wrapper.find('[data-test="price-group-widget"]').attributes('data-path')).toBe(
+      'signInfo',
+    )
     expect(wrapper.find('[data-path="signInfo.expirationTime"]').exists()).toBe(true)
     expect(wrapper.find('[data-path="signInfo.servicePointSpecifications"]').exists()).toBe(true)
 

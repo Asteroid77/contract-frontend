@@ -7,7 +7,11 @@ import type {
   ListItemValue,
   OssCallbackView,
 } from '@/modules/shared/presentation/diff-check/domain/types/field'
-import type { FieldDiff, ListDiff, ListItemDiff } from '@/modules/shared/presentation/diff-check/domain/types/diff'
+import type {
+  FieldDiff,
+  ListDiff,
+  ListItemDiff,
+} from '@/modules/shared/presentation/diff-check/domain/types/diff'
 import { DiffService } from '@/modules/shared/presentation/diff-check/domain/services/diffService'
 import InlineDiffValue from './InlineDiffValue'
 import { $t } from '@/_utils/i18n'
@@ -69,7 +73,9 @@ export default defineComponent({
     const isPrint = computed(() => props.variant === 'print')
 
     const expandedLists = ref<Set<string>>(
-      new Set(props.expandAllLists ? props.fields.filter((f) => f.type === 'list').map((f) => f.key) : []),
+      new Set(
+        props.expandAllLists ? props.fields.filter((f) => f.type === 'list').map((f) => f.key) : [],
+      ),
     )
 
     const isDiffMode = computed(() => props.oldData !== null)
@@ -225,7 +231,10 @@ export default defineComponent({
     }
 
     // 渲染单个文件项
-    const renderSingleFile = (file: OssCallbackView, status: 'normal' | 'added' | 'removed' = 'normal') => {
+    const renderSingleFile = (
+      file: OssCallbackView,
+      status: 'normal' | 'added' | 'removed' = 'normal',
+    ) => {
       if (isPrint.value) {
         const prefix =
           status === 'added'
@@ -239,13 +248,16 @@ export default defineComponent({
               {prefix}
               {file.fileName}
             </span>
-            {typeof file.fileSize === 'number' ? <span>（{formatFileSize(file.fileSize)}）</span> : null}
+            {typeof file.fileSize === 'number' ? (
+              <span>（{formatFileSize(file.fileSize)}）</span>
+            ) : null}
           </div>
         )
       }
 
       const isImage = isImageFile(file)
-      const statusClass = status === 'added' ? 'file-item--added' : status === 'removed' ? 'file-item--removed' : ''
+      const statusClass =
+        status === 'added' ? 'file-item--added' : status === 'removed' ? 'file-item--removed' : ''
 
       return (
         <div class={`file-item ${statusClass}`}>
@@ -338,7 +350,7 @@ export default defineComponent({
                 return (
                   <div key={`add-${d.newFile.id}`}>
                     <span class="print-diff-new">
-                      [{ $t('common.action.add') }] {d.newFile.fileName}
+                      [{$t('common.action.add')}] {d.newFile.fileName}
                     </span>
                   </div>
                 )
@@ -347,7 +359,7 @@ export default defineComponent({
                 return (
                   <div key={`del-${d.oldFile.id}`}>
                     <span class="print-diff-old">
-                      [{ $t('common.action.delete') }] {d.oldFile.fileName}
+                      [{$t('common.action.delete')}] {d.oldFile.fileName}
                     </span>
                   </div>
                 )
@@ -370,12 +382,21 @@ export default defineComponent({
         )
       }
 
-      const removed = fileDiffs.filter((d) => d.type === 'removed' && d.oldFile).map((d) => d.oldFile!) 
+      const removed = fileDiffs
+        .filter((d) => d.type === 'removed' && d.oldFile)
+        .map((d) => d.oldFile!)
       const added = fileDiffs.filter((d) => d.type === 'added' && d.newFile).map((d) => d.newFile!)
-      const hasImages = fileDiffs.some((d) => (d.newFile && isImageFile(d.newFile)) || (d.oldFile && isImageFile(d.oldFile)))
+      const hasImages = fileDiffs.some(
+        (d) => (d.newFile && isImageFile(d.newFile)) || (d.oldFile && isImageFile(d.oldFile)),
+      )
 
       // 图片字段的“替换”增强：旧图 + 新图（即使 id 不同也用 → 表达替换）
-      if (field.type === 'image' && removed.length === 1 && added.length === 1 && fileDiffs.length === 2) {
+      if (
+        field.type === 'image' &&
+        removed.length === 1 &&
+        added.length === 1 &&
+        fileDiffs.length === 2
+      ) {
         const body = (
           <div class="file-diff-list">
             <div class="file-diff-item file-diff-replace">
@@ -453,12 +474,15 @@ export default defineComponent({
       }
 
       const diff = fieldDiffs.value.get(field.key)!
-      return <InlineDiffValue oldValue={diff.oldValue} newValue={diff.newValue} diffType={diff.type} />
+      return (
+        <InlineDiffValue oldValue={diff.oldValue} newValue={diff.newValue} diffType={diff.type} />
+      )
     }
 
     const formatForLength = (val: unknown): string => {
       if (DiffService.isEmpty(val as FieldValue)) return ''
-      if (typeof val === 'boolean') return val ? ($t('common.label.yes') as string) : ($t('common.label.no') as string)
+      if (typeof val === 'boolean')
+        return val ? ($t('common.label.yes') as string) : ($t('common.label.no') as string)
       if (Array.isArray(val)) return $t('common.label.totalItems', { count: val.length }) as string
       return String(val)
     }
@@ -492,11 +516,20 @@ export default defineComponent({
         const listDiff = listDiffs.value.get(field.key)!
         const { summary } = listDiff
         const parts: string[] = []
-        if (summary.added > 0) parts.push($t('common.diffCheck.label.addedCount', { count: summary.added }) as string)
-        if (summary.removed > 0) parts.push($t('common.diffCheck.label.removedCount', { count: summary.removed }) as string)
-        if (summary.modified > 0) parts.push($t('common.diffCheck.label.modifiedCount', { count: summary.modified }) as string)
+        if (summary.added > 0)
+          parts.push($t('common.diffCheck.label.addedCount', { count: summary.added }) as string)
+        if (summary.removed > 0)
+          parts.push(
+            $t('common.diffCheck.label.removedCount', { count: summary.removed }) as string,
+          )
+        if (summary.modified > 0)
+          parts.push(
+            $t('common.diffCheck.label.modifiedCount', { count: summary.modified }) as string,
+          )
         const details = parts.length > 0 ? `（${parts.join(', ')}）` : ''
-        return <div>{`${$t('common.label.totalItems', { count: listDiff.items.length })}${details}`}</div>
+        return (
+          <div>{`${$t('common.label.totalItems', { count: listDiff.items.length })}${details}`}</div>
+        )
       }
 
       if (!isDiffMode.value) {
@@ -542,7 +575,9 @@ export default defineComponent({
 
       const childFields = field.children || []
       const listContainerColspan = props.columnCount === 2 ? 4 : 2
-      const tableClass = isPrint.value ? 'print-table print-table--nested' : 'form-table form-table--nested'
+      const tableClass = isPrint.value
+        ? 'print-table print-table--nested'
+        : 'form-table form-table--nested'
 
       if (!isDiffMode.value) {
         const items = (props.data[field.key] as ListItemValue[]) || []
@@ -565,7 +600,11 @@ export default defineComponent({
                         <td class="col-index">{idx + 1}</td>
                         {childFields.map((cf) => (
                           <td key={cf.key}>
-                            {DiffService.isEmpty(item[cf.key]) ? <span class="field-empty">{$t('common.label.empty')}</span> : String(item[cf.key])}
+                            {DiffService.isEmpty(item[cf.key]) ? (
+                              <span class="field-empty">{$t('common.label.empty')}</span>
+                            ) : (
+                              String(item[cf.key])
+                            )}
                           </td>
                         ))}
                       </tr>
@@ -580,7 +619,9 @@ export default defineComponent({
 
       // Diff 模式下的列表渲染
       const listDiff = listDiffs.value.get(field.key)!
-      const visibleItems = props.showOnlyChanged ? listDiff.items.filter((i) => i.type !== 'unchanged') : listDiff.items
+      const visibleItems = props.showOnlyChanged
+        ? listDiff.items.filter((i) => i.type !== 'unchanged')
+        : listDiff.items
 
       return (
         <tr class="list-expand-row">
@@ -608,7 +649,12 @@ export default defineComponent({
                         <td class="col-index">{idx + 1}</td>
                         {itemDiff.fieldDiffs.map((fd) => (
                           <td key={fd.key}>
-                            <InlineDiffValue oldValue={fd.oldValue} newValue={fd.newValue} diffType={fd.type} showOldValue={itemDiff.type !== 'added'} />
+                            <InlineDiffValue
+                              oldValue={fd.oldValue}
+                              newValue={fd.newValue}
+                              diffType={fd.type}
+                              showOldValue={itemDiff.type !== 'added'}
+                            />
                           </td>
                         ))}
                       </tr>
@@ -722,7 +768,9 @@ export default defineComponent({
             }}
           >
             <NCard
-              title={previewFile.value?.fileName || ($t('common.diffCheck.title.filePreview') as string)}
+              title={
+                previewFile.value?.fileName || ($t('common.diffCheck.title.filePreview') as string)
+              }
               style="width:min(960px, 92vw);"
               closable
               onClose={closePreview}
@@ -748,9 +796,7 @@ export default defineComponent({
                     {previewError.value}
                   </div>
                 ) : (
-                  <pre
-                    style="max-height:75vh; overflow:auto; background:#0b1220; color:#e2e8f0; padding: 12px; border-radius: 8px; white-space: pre-wrap; word-break: break-word;"
-                  >
+                  <pre style="max-height:75vh; overflow:auto; background:#0b1220; color:#e2e8f0; padding: 12px; border-radius: 8px; white-space: pre-wrap; word-break: break-word;">
                     {previewText.value}
                   </pre>
                 )

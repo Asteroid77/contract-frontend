@@ -35,13 +35,7 @@ describe('isNotEmpty', () => {
     expect(isNotEmpty({}, { treatEmptyObjectAsEmpty: false })).toBe(true)
 
     expect(isNotEmpty(new Map())).toBe(false)
-    expect(
-      isNotEmpty(
-        new Map([
-          ['k', 'v'],
-        ]),
-      ),
-    ).toBe(true)
+    expect(isNotEmpty(new Map([['k', 'v']]))).toBe(true)
 
     expect(isNotEmpty(new Set())).toBe(false)
     expect(isNotEmpty(new Set([1]))).toBe(true)

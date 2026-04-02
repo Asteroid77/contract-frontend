@@ -28,7 +28,8 @@ vi.mock('naive-ui', () => ({
       value: { type: String, required: false },
     },
     setup(props) {
-      return () => h('div', { 'data-test': 'stat', 'data-label': props.label, 'data-value': props.value })
+      return () =>
+        h('div', { 'data-test': 'stat', 'data-label': props.label, 'data-value': props.value })
     },
   }),
   NTag: defineComponent({
@@ -55,20 +56,27 @@ vi.mock('@/modules/agent-aggregate/presentation/dashboard/charts/echarts', () =>
   }),
 }))
 
-vi.mock('@/modules/agent-aggregate/presentation/dashboard/components/DashboardPanelFrame.vue', () => ({
-  default: defineComponent({
-    name: 'DashboardPanelFrame',
-    props: {
-      state: {
-        type: Object,
-        required: true,
+vi.mock(
+  '@/modules/agent-aggregate/presentation/dashboard/components/DashboardPanelFrame.vue',
+  () => ({
+    default: defineComponent({
+      name: 'DashboardPanelFrame',
+      props: {
+        state: {
+          type: Object,
+          required: true,
+        },
       },
-    },
-    setup(_props, { slots }) {
-      return () => h('section', { 'data-test': 'panel-frame' }, [slots['header-right']?.(), slots.default?.()])
-    },
+      setup(_props, { slots }) {
+        return () =>
+          h('section', { 'data-test': 'panel-frame' }, [
+            slots['header-right']?.(),
+            slots.default?.(),
+          ])
+      },
+    }),
   }),
-}))
+)
 
 import FunnelPanel from '@/modules/agent-aggregate/presentation/dashboard/components/FunnelPanel.vue'
 import OverviewPanel from '@/modules/agent-aggregate/presentation/dashboard/components/OverviewPanel.vue'
@@ -89,7 +97,15 @@ describe('styled remaining chart panels', () => {
         yearUsableChargeTotal: 120,
         filingCount: 3,
         signingCount: 2,
-        regions: [{ regionCode: 'HZ', agentCount: 4, filingCount: 3, signingCount: 2, yearUsableChargeTotal: 120 }],
+        regions: [
+          {
+            regionCode: 'HZ',
+            agentCount: 4,
+            filingCount: 3,
+            signingCount: 2,
+            yearUsableChargeTotal: 120,
+          },
+        ],
       }),
       error: ref(null),
       refetch: vi.fn(),
@@ -142,7 +158,13 @@ describe('styled remaining chart panels', () => {
       isError: ref(false),
       data: ref({
         windows: [
-          { windowDays: 30, expiringCount: 4, expiringYearUsableChargeTotal: 100, renewedCount: 2, renewalRate: 0.5 },
+          {
+            windowDays: 30,
+            expiringCount: 4,
+            expiringYearUsableChargeTotal: 100,
+            renewedCount: 2,
+            renewalRate: 0.5,
+          },
         ],
       }),
       error: ref(null),

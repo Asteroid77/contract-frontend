@@ -13,8 +13,7 @@ export const trimToNull = (value: string | null | undefined): string | null => {
   return trimmed === '' ? null : trimmed
 }
 
-export const nullToUndefined = <T>(value: T | null | undefined): T | undefined =>
-  value ?? undefined
+export const nullToUndefined = <T>(value: T | null | undefined): T | undefined => value ?? undefined
 
 export const toTimestampOrNull = (value: string | null | undefined): number | null => {
   if (!value) return null

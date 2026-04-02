@@ -17,14 +17,17 @@ describe('access ability', () => {
   })
 
   it('defineAbilityFor does not grant full access by role name and still reads role permissions', () => {
-    const ability = defineAbilityFor([], [
-      {
-        id: 1,
-        name: 'admin',
-        description: 'admin role',
-        permissions: [{ id: 2, name: 'user:read', description: 'read user' }],
-      },
-    ])
+    const ability = defineAbilityFor(
+      [],
+      [
+        {
+          id: 1,
+          name: 'admin',
+          description: 'admin role',
+          permissions: [{ id: 2, name: 'user:read', description: 'read user' }],
+        },
+      ],
+    )
 
     expect(ability.can('manage', 'all')).toBe(false)
     expect(ability.can('read', 'User')).toBe(true)

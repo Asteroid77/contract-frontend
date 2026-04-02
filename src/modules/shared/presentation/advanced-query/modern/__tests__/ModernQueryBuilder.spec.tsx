@@ -100,7 +100,9 @@ describe('ModernQueryBuilder', () => {
 
     await addFilterButton!.trigger('click')
 
-    const chooseNameFieldBtn = wrapper.findAll('button').find((button) => button.text() === 'field.name')
+    const chooseNameFieldBtn = wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'field.name')
     expect(chooseNameFieldBtn).toBeDefined()
 
     await chooseNameFieldBtn!.trigger('click')

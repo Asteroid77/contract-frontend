@@ -50,7 +50,8 @@ export function resolveUserDisplayName(input: UserDisplayNameInput): string {
   if (!rawName) return ''
 
   const { baseName, trailingDiscriminator } = parseTrailingDiscriminator(rawName)
-  const explicitDiscriminatorProvided = input.discriminator !== undefined && input.discriminator !== null
+  const explicitDiscriminatorProvided =
+    input.discriminator !== undefined && input.discriminator !== null
   const explicitDiscriminator = normalizeDiscriminator(input.discriminator)
   const trailingNormalized = normalizeDiscriminator(trailingDiscriminator)
 
@@ -79,11 +80,7 @@ export function resolveUserDisplayText(
     return options.emptyFallback ?? ''
   }
 
-  if (
-    options.numericNamePrefix &&
-    /^\d+$/.test(normalizedName) &&
-    Number(normalizedName) > 0
-  ) {
+  if (options.numericNamePrefix && /^\d+$/.test(normalizedName) && Number(normalizedName) > 0) {
     return resolveUserDisplayName({
       name: options.numericNamePrefix,
       discriminator: normalizedName,

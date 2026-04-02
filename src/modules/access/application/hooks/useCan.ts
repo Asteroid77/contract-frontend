@@ -65,9 +65,7 @@ export function usePermission(action: Action, subject: Subject): ComputedRef<boo
  *   ['delete', 'User'],
  * ])
  */
-export function useAnyPermission(
-  permissions: Array<[Action, Subject]>,
-): ComputedRef<boolean> {
+export function useAnyPermission(permissions: Array<[Action, Subject]>): ComputedRef<boolean> {
   return computed(() => {
     return permissions.some(([action, subject]) => ability.can(action, subject))
   })
@@ -83,9 +81,7 @@ export function useAnyPermission(
  *   ['delete', 'User'],
  * ])
  */
-export function useAllPermissions(
-  permissions: Array<[Action, Subject]>,
-): ComputedRef<boolean> {
+export function useAllPermissions(permissions: Array<[Action, Subject]>): ComputedRef<boolean> {
   return computed(() => {
     return permissions.every(([action, subject]) => ability.can(action, subject))
   })

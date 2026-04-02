@@ -53,7 +53,10 @@ const getLatestQueryOptions = <TData = unknown>(): QueryOptionsLike<TData> => {
   return latestCall[0] as QueryOptionsLike<TData>
 }
 
-const getLatestMutationOptions = <TData = unknown, TVariables = unknown>(): MutationOptionsLike<TData, TVariables> => {
+const getLatestMutationOptions = <TData = unknown, TVariables = unknown>(): MutationOptionsLike<
+  TData,
+  TVariables
+> => {
   const latestCall = vi.mocked(useMutation).mock.calls.at(-1)
   if (!latestCall) {
     throw new Error('useMutation should be called before reading options')
@@ -89,7 +92,11 @@ describe('useInvitationService hooks', () => {
     }
     const result = await options.queryFn(ctx)
 
-    expect(withQueryRequestContext).toHaveBeenCalledWith(invitationKeys.lists(), ctx, expect.any(Function))
+    expect(withQueryRequestContext).toHaveBeenCalledWith(
+      invitationKeys.lists(),
+      ctx,
+      expect.any(Function),
+    )
     expect(invitationService.getInvitationCodeList).toHaveBeenCalledTimes(1)
     expect(result).toEqual(payload)
   })
@@ -108,7 +115,11 @@ describe('useInvitationService hooks', () => {
     }
     const result = await options.queryFn(ctx)
 
-    expect(withQueryRequestContext).toHaveBeenCalledWith(invitationKeys.count(), ctx, expect.any(Function))
+    expect(withQueryRequestContext).toHaveBeenCalledWith(
+      invitationKeys.count(),
+      ctx,
+      expect.any(Function),
+    )
     expect(invitationService.getInvitedCount).toHaveBeenCalledTimes(1)
     expect(result).toBe(9)
   })

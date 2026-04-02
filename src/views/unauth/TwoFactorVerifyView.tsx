@@ -99,12 +99,7 @@ export default defineComponent({
               {t('auth.twoFactor.submitAction')}
             </NButton>
 
-            <NButton
-              block
-              size="large"
-              quaternary
-              onClick={() => router.push({ name: 'login' })}
-            >
+            <NButton block size="large" quaternary onClick={() => router.push({ name: 'login' })}>
               {t('auth.twoFactor.backToLogin')}
             </NButton>
           </NFlex>

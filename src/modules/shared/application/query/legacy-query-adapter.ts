@@ -1,4 +1,7 @@
-import type { BasePageRequest as LegacyBasePageRequest, ConditionWrapper } from '@/modules/shared/application/request/types'
+import type {
+  BasePageRequest as LegacyBasePageRequest,
+  ConditionWrapper,
+} from '@/modules/shared/application/request/types'
 import type { BasePageRequest as DomainBasePageRequest } from '@/modules/shared/domain/page'
 import { FilterOp, type FilterCondition, type QueryFilters } from '@/modules/shared/domain/query'
 
@@ -19,7 +22,10 @@ const conditionToOp: Record<string, FilterOp> = {
   isNotNull: FilterOp.IS_NOT_NULL,
 }
 
-const toFilterCondition = (field: string, wrapper: ConditionWrapper<unknown>): FilterCondition | null => {
+const toFilterCondition = (
+  field: string,
+  wrapper: ConditionWrapper<unknown>,
+): FilterCondition | null => {
   const op = conditionToOp[wrapper.condition]
   if (!op) return null
   return {

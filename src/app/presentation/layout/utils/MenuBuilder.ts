@@ -24,9 +24,7 @@ export function convertRoutesToMenuItems(routes: RouteRecordRaw[]) {
     // 翻译菜单名称
     const routeMetaName = route.meta.name
     const menuLabel =
-      typeof routeMetaName === 'string'
-        ? ($t(routeMetaName as I18nKey) as string)
-        : ''
+      typeof routeMetaName === 'string' ? ($t(routeMetaName as I18nKey) as string) : ''
 
     // 创建菜单项
     const menuItem: MenuOption = {

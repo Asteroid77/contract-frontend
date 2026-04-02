@@ -3,6 +3,5 @@ import { captchaRepository } from '../infrastructure/captcha-repository'
 
 export const captchaService = {
   getCaptcha: (): Promise<CaptchaResponse> => captchaRepository.getCaptcha(),
-  sendSmsCode: (phone: string): Promise<SMSSendResponse> =>
-    captchaRepository.sendSmsCode(phone),
+  sendSmsCode: (phone: string): Promise<SMSSendResponse> => captchaRepository.sendSmsCode(phone),
 }

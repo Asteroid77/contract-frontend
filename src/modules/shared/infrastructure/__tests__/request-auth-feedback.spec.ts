@@ -29,12 +29,21 @@ describe('request-auth-feedback', () => {
   })
 
   it('recognizes 401 and 403 business errors as auth feedback errors', () => {
-    expect(isAuthFeedbackError(new BusinessError('expired', 40100, 'trace-1', 'req-1', 'about:blank', 401)))
-      .toBe(true)
-    expect(isAuthFeedbackError(new BusinessError('forbidden', 40300, 'trace-2', 'req-2', 'about:blank', 403)))
-      .toBe(true)
-    expect(isAuthFeedbackError(new BusinessError('bad-request', 40000, 'trace-3', 'req-3', 'about:blank', 400)))
-      .toBe(false)
+    expect(
+      isAuthFeedbackError(
+        new BusinessError('expired', 40100, 'trace-1', 'req-1', 'about:blank', 401),
+      ),
+    ).toBe(true)
+    expect(
+      isAuthFeedbackError(
+        new BusinessError('forbidden', 40300, 'trace-2', 'req-2', 'about:blank', 403),
+      ),
+    ).toBe(true)
+    expect(
+      isAuthFeedbackError(
+        new BusinessError('bad-request', 40000, 'trace-3', 'req-3', 'about:blank', 400),
+      ),
+    ).toBe(false)
   })
 
   it('builds a stable 401 auth feedback key from cause instead of request id', () => {
@@ -100,7 +109,14 @@ describe('request-auth-feedback', () => {
 
   it('suppresses repeated 403 feedback inside cooldown window even when request ids differ', () => {
     const first = new BusinessError('forbidden', 40300, 'trace-1', 'req-1', 'about:blank', 403)
-    const second = new BusinessError('forbidden again', 40300, 'trace-2', 'req-2', 'about:blank', 403)
+    const second = new BusinessError(
+      'forbidden again',
+      40300,
+      'trace-2',
+      'req-2',
+      'about:blank',
+      403,
+    )
 
     reportAuthErrorFeedback(first)
     reportAuthErrorFeedback(second)

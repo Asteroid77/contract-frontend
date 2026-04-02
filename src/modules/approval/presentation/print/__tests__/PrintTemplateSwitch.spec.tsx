@@ -2,9 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 
-type MockTemplateData = {
-  id?: number | string
-} | null | undefined
+type MockTemplateData =
+  | {
+      id?: number | string
+    }
+  | null
+  | undefined
 
 vi.mock('@/modules/user/presentation/print/UserAdditionInfoPrintTemplate', () => ({
   default: defineComponent({
@@ -17,8 +20,7 @@ vi.mock('@/modules/user/presentation/print/UserAdditionInfoPrintTemplate', () =>
     },
     setup(props) {
       const data = props.data as MockTemplateData
-      return () =>
-        h('div', { 'data-test': 'user-print-template' }, String(data?.id ?? ''))
+      return () => h('div', { 'data-test': 'user-print-template' }, String(data?.id ?? ''))
     },
   }),
 }))
@@ -34,8 +36,7 @@ vi.mock('@/modules/service-agreement/presentation/print/SignDiffTemplate', () =>
     },
     setup(props) {
       const data = props.data as MockTemplateData
-      return () =>
-        h('div', { 'data-test': 'sign-print-template' }, String(data?.id ?? ''))
+      return () => h('div', { 'data-test': 'sign-print-template' }, String(data?.id ?? ''))
     },
   }),
 }))

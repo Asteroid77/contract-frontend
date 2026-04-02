@@ -1,7 +1,11 @@
 import type { BasePageRequest, IPage } from '@/modules/shared/application/request/types'
 import { toDomainPageRequest } from '@/modules/shared/application/query/legacy-query-adapter'
 import { approvalRepository } from '../infrastructure/approval-repository'
-import type { ApprovalOpinionForm, ApprovalInstancesPageQuery, ApprovalInstancesPageRequest } from './models'
+import type {
+  ApprovalOpinionForm,
+  ApprovalInstancesPageQuery,
+  ApprovalInstancesPageRequest,
+} from './models'
 import type {
   ApprovalHistory,
   ApprovalInstance,

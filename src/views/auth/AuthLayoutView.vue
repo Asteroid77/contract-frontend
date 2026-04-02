@@ -24,11 +24,7 @@ const needsCentering = computed(() => {
 
 // 内容容器的样式类
 const contentClasses = computed(() => {
-  return clsx(
-    'w-full',
-    'h-full',
-    needsCentering.value && 'flex items-center justify-center',
-  )
+  return clsx('w-full', 'h-full', needsCentering.value && 'flex items-center justify-center')
 })
 
 // 翻译页面标题

@@ -101,10 +101,7 @@ describe('ApprovalContentDiffCheck', () => {
         (model.supplementaryAttachmentFiles as unknown[] | undefined)?.length || 0,
     }))
 
-    findPathInTreeSpy.mockReturnValue([
-      { label: '浙江' },
-      { label: '杭州' },
-    ])
+    findPathInTreeSpy.mockReturnValue([{ label: '浙江' }, { label: '杭州' }])
   })
 
   it('uses user-additional-info branch and converts field labels/values', () => {
@@ -129,7 +126,9 @@ describe('ApprovalContentDiffCheck', () => {
       },
     })
 
-    const propsData = JSON.parse(wrapper.get('[data-test="unified-form-table"]').attributes('data-props') || '{}')
+    const propsData = JSON.parse(
+      wrapper.get('[data-test="unified-form-table"]').attributes('data-props') || '{}',
+    )
 
     expect(propsData.variant).toBe('screen')
     expect(propsData.showOnlyChanged).toBe(true)
@@ -210,7 +209,9 @@ describe('ApprovalContentDiffCheck', () => {
       { id: 4, fileName: 'd.pdf' },
     ])
 
-    const propsData = JSON.parse(wrapper.get('[data-test="unified-form-table"]').attributes('data-props') || '{}')
+    const propsData = JSON.parse(
+      wrapper.get('[data-test="unified-form-table"]').attributes('data-props') || '{}',
+    )
     expect(propsData.variant).toBe('print')
     expect(propsData.showOnlyChanged).toBe(false)
     expect(propsData.disableListToggle).toBe(true)

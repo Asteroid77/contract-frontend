@@ -13,7 +13,9 @@ describe('business routes config', () => {
 
   it('sign route props converts query id to number or null', () => {
     const route = getRouteByName('sign')
-    const props = route?.props as ((route: { query: Record<string, unknown> }) => unknown) | undefined
+    const props = route?.props as
+      | ((route: { query: Record<string, unknown> }) => unknown)
+      | undefined
 
     expect(props?.({ query: { id: '12' } })).toEqual({ id: 12 })
     expect(props?.({ query: { id: '' } })).toEqual({ id: null })
@@ -22,7 +24,9 @@ describe('business routes config', () => {
 
   it('sign-result route keeps hidden menu and parses status/id', () => {
     const route = getRouteByName('sign-result')
-    const props = route?.props as ((route: { query: Record<string, unknown> }) => unknown) | undefined
+    const props = route?.props as
+      | ((route: { query: Record<string, unknown> }) => unknown)
+      | undefined
 
     expect(route?.meta?.hideInMenu).toBe(true)
     expect(props?.({ query: { status: '2', id: '33' } })).toEqual({ status: 2, id: 33 })

@@ -25,7 +25,8 @@ vi.mock('naive-ui', () => ({
           'data-test': 'n-select',
           'data-value': props.value == null ? '' : String(props.value),
           onClick: () => {
-            const first = Array.isArray(props.options) && props.options.length > 0 ? props.options[0] : null
+            const first =
+              Array.isArray(props.options) && props.options.length > 0 ? props.options[0] : null
             emit('update:value', (first as { value?: unknown } | null)?.value ?? 1)
           },
         })

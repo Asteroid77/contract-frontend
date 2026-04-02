@@ -7,20 +7,11 @@ type AppQueryKey = readonly [string, ...ReadonlyArray<unknown>]
 type AppQuery = Query<unknown, unknown, unknown, AppQueryKey>
 type AppMutation = Mutation<unknown, unknown, unknown, unknown>
 
-type QueryErrorToastHandler = (
-  error: Error,
-  query: AppQuery,
-) => NaiveNotificationOptions
+type QueryErrorToastHandler = (error: Error, query: AppQuery) => NaiveNotificationOptions
 
-type QuerySuccessToastHandler = (
-  data: unknown,
-  query: AppQuery,
-) => NaiveNotificationOptions
+type QuerySuccessToastHandler = (data: unknown, query: AppQuery) => NaiveNotificationOptions
 
-type MutationErrorToastHandler = (
-  error: Error,
-  mutation: AppMutation,
-) => NaiveNotificationOptions
+type MutationErrorToastHandler = (error: Error, mutation: AppMutation) => NaiveNotificationOptions
 
 type MutationSuccessToastHandler = (
   data: unknown,

@@ -198,24 +198,18 @@ export const toViewAdditionalInfoApproval = (
 
 // --- TOTP Mappers ---
 
-export const toDomainTotpVerifyRequest = (
-  view: TotpVerifyForm,
-): TotpVerifyRequestDTO => ({
+export const toDomainTotpVerifyRequest = (view: TotpVerifyForm): TotpVerifyRequestDTO => ({
   twoFactorToken: view.twoFactorToken,
   code: view.code,
   rememberMe: view.rememberMe,
   rememberDevice: view.rememberDevice,
 })
 
-export const toDomainTotpEnableRequest = (
-  view: TotpEnableForm,
-): TotpEnableRequestDTO => ({
+export const toDomainTotpEnableRequest = (view: TotpEnableForm): TotpEnableRequestDTO => ({
   code: view.code,
 })
 
-export const toDomainTotpDisableRequest = (
-  view: TotpDisableForm,
-): TotpDisableRequestDTO => ({
+export const toDomainTotpDisableRequest = (view: TotpDisableForm): TotpDisableRequestDTO => ({
   password: view.password,
 })
 

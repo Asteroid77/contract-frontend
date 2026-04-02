@@ -132,7 +132,10 @@ export default defineComponent({
               return formatDateInputValue(v)
             if (field.value?.type === FieldType.DATETIME && typeof v === 'number')
               return formatDateTimeDisplayValue(v)
-            if (field.value?.type === FieldType.PCA && (typeof v === 'string' || typeof v === 'number'))
+            if (
+              field.value?.type === FieldType.PCA &&
+              (typeof v === 'string' || typeof v === 'number')
+            )
               return formatPcaValue(v)
             return String(v)
           }
@@ -168,7 +171,10 @@ export default defineComponent({
         return opt?.label ? maybeT(opt.label) : String(value)
       }
 
-      if (field.value?.type === FieldType.PCA && (typeof value === 'string' || typeof value === 'number')) {
+      if (
+        field.value?.type === FieldType.PCA &&
+        (typeof value === 'string' || typeof value === 'number')
+      ) {
         return formatPcaValue(value)
       }
 

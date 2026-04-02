@@ -82,12 +82,12 @@ export const PriceCategoryOption = (priceModel: Ref<PriceModel | null>) => [
   {
     label: $t('domain.agreement.option.fixedPrice'),
     value: PriceCategoryEnum.FixedPrice,
-    disabled: priceModel.value == PriceModelEnum.RevenueShare,
+    disabled: priceModel.value === PriceModelEnum.RevenueShare,
   },
   {
     label: $t('domain.agreement.option.fixedSpread'),
     value: PriceCategoryEnum.FixedSpread,
-    disabled: priceModel.value == PriceModelEnum.RevenueShare,
+    disabled: priceModel.value === PriceModelEnum.RevenueShare,
   },
   {
     label: $t('domain.agreement.option.shareRatio'),

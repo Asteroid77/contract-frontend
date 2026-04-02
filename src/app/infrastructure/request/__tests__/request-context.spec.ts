@@ -47,17 +47,14 @@ describe('request-context stack', () => {
   })
 
   it('supports nested contexts in synchronous branch', async () => {
-    await withRequestContext(
-      { requestId: 'outer' },
-      () => {
-        expect(getCurrentRequestContext()).toEqual({ requestId: 'outer' })
+    await withRequestContext({ requestId: 'outer' }, () => {
+      expect(getCurrentRequestContext()).toEqual({ requestId: 'outer' })
 
-        return withRequestContext({ requestId: 'inner' }, () => {
-          expect(getCurrentRequestContext()).toEqual({ requestId: 'inner' })
-          return 123
-        })
-      },
-    )
+      return withRequestContext({ requestId: 'inner' }, () => {
+        expect(getCurrentRequestContext()).toEqual({ requestId: 'inner' })
+        return 123
+      })
+    })
 
     expect(getCurrentRequestContext()).toBeUndefined()
   })

@@ -1,5 +1,9 @@
 import type { Router } from 'vue-router'
 import type { SignInResponse, SignInResponseComplete } from '@/modules/user/application/models'
+import type { useAccountStore as useAccountStoreFn } from '@/modules/user/application/stores/useAccountStore'
+import type { userService as userServiceInstance } from '@/modules/user/application/service'
+import type axios from 'axios'
+import type { ResponseCode as ResponseCodeMap } from '@/modules/shared/application/constants/response-code'
 import { captureError } from '@/app/observability/lazy'
 import {
   forceRefreshAccessToken,
@@ -11,10 +15,10 @@ import {
 import { enablePostLoginEnhancements } from '@/app/plugins/post-login-enhancements'
 
 type AuthGuardDependencies = {
-  useAccountStore: typeof import('@/modules/user/application/stores/useAccountStore').useAccountStore
-  userService: typeof import('@/modules/user/application/service').userService
-  axios: typeof import('axios').default
-  ResponseCode: typeof import('@/modules/shared/application/constants/response-code').ResponseCode
+  useAccountStore: typeof useAccountStoreFn
+  userService: typeof userServiceInstance
+  axios: typeof axios
+  ResponseCode: typeof ResponseCodeMap
 }
 
 let authGuardDependenciesPromise: Promise<AuthGuardDependencies> | null = null

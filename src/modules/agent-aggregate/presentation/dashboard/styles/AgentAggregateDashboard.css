@@ -86,7 +86,8 @@
 @media (hover: hover) and (pointer: fine) {
   .agent-aggregate-dashboard__panel:hover {
     z-index: 1;
-    transform: translateY(var(--agent-aggregate-panel-hover-offset-y)) scale(var(--agent-aggregate-panel-hover-scale));
+    transform: translateY(var(--agent-aggregate-panel-hover-offset-y))
+      scale(var(--agent-aggregate-panel-hover-scale));
     box-shadow: var(--shadow-md);
   }
 }

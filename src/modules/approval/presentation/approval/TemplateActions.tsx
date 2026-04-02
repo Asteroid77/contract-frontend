@@ -17,11 +17,14 @@ import {
   NSpace,
 } from 'naive-ui'
 import type { FormInst } from 'naive-ui/lib'
-import type { Ref } from 'vue'
-import { computed, defineComponent, ref, type PropType } from 'vue'
+import { computed, defineComponent, ref, type PropType, type Ref } from 'vue'
 import { approvalOpinionRequestRule } from '@/modules/approval/application/validation'
 import { useRouter } from 'vue-router'
-import { isApproveBtnVisible, isCancelAccessible, isClaimBtnVisible } from '@/modules/approval/application/utils'
+import {
+  isApproveBtnVisible,
+  isCancelAccessible,
+  isClaimBtnVisible,
+} from '@/modules/approval/application/utils'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
 import { usePrint } from '@/modules/approval/application/hooks/usePrint'
 export default defineComponent({

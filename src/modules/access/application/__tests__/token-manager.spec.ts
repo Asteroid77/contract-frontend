@@ -177,7 +177,9 @@ describe('token-manager', () => {
         expiresIn: 50,
       })
 
-      mock.onPost(AUTH_ENDPOINTS.TOKEN_REFRESH).reply(200, buildRefreshSuccessResponse('access-new', 'refresh-new'))
+      mock
+        .onPost(AUTH_ENDPOINTS.TOKEN_REFRESH)
+        .reply(200, buildRefreshSuccessResponse('access-new', 'refresh-new'))
 
       await vi.advanceTimersByTimeAsync(39000)
       expect(mock.history.post).toHaveLength(0)
@@ -203,7 +205,9 @@ describe('token-manager', () => {
       })
       setLogoutInProgress(true)
 
-      mock.onPost(AUTH_ENDPOINTS.TOKEN_REFRESH).reply(200, buildRefreshSuccessResponse('access-new', 'refresh-new'))
+      mock
+        .onPost(AUTH_ENDPOINTS.TOKEN_REFRESH)
+        .reply(200, buildRefreshSuccessResponse('access-new', 'refresh-new'))
 
       await vi.advanceTimersByTimeAsync(50000)
       expect(mock.history.post).toHaveLength(0)
@@ -304,7 +308,10 @@ describe('token-manager', () => {
       return [200, buildRefreshSuccessResponse('access-new', 'refresh-new')]
     })
 
-    const [first, second] = await Promise.all([forceRefreshAccessToken(), forceRefreshAccessToken()])
+    const [first, second] = await Promise.all([
+      forceRefreshAccessToken(),
+      forceRefreshAccessToken(),
+    ])
 
     expect(refreshCallCount).toBe(1)
     expect(first).toEqual(second)
@@ -399,7 +406,9 @@ describe('token-manager', () => {
     mock.onPost(AUTH_ENDPOINTS.TOKEN_REFRESH).networkError()
 
     await expect(forceRefreshAccessToken()).rejects.toBeTruthy()
-    await expect(forceRefreshAccessToken()).rejects.toThrow('Refresh temporarily blocked after recent failure')
+    await expect(forceRefreshAccessToken()).rejects.toThrow(
+      'Refresh temporarily blocked after recent failure',
+    )
     expect(mock.history.post).toHaveLength(1)
   })
 
@@ -409,14 +418,19 @@ describe('token-manager', () => {
       refreshToken: 'refresh-old',
     })
 
-    localStorage.setItem('AUTH_REFRESH_FAILURE_STATE', JSON.stringify({
-      refreshToken: 'refresh-old',
-      failureCount: 2,
-      lastFailedAt: Date.now() - 100,
-      blockedUntil: Date.now() + 5000,
-    }))
+    localStorage.setItem(
+      'AUTH_REFRESH_FAILURE_STATE',
+      JSON.stringify({
+        refreshToken: 'refresh-old',
+        failureCount: 2,
+        lastFailedAt: Date.now() - 100,
+        blockedUntil: Date.now() + 5000,
+      }),
+    )
 
-    await expect(forceRefreshAccessToken()).rejects.toThrow('Refresh temporarily blocked after recent failure')
+    await expect(forceRefreshAccessToken()).rejects.toThrow(
+      'Refresh temporarily blocked after recent failure',
+    )
     expect(mock.history.post).toHaveLength(0)
   })
 
@@ -426,14 +440,19 @@ describe('token-manager', () => {
       refreshToken: 'refresh-new',
     })
 
-    localStorage.setItem('AUTH_REFRESH_FAILURE_STATE', JSON.stringify({
-      refreshToken: 'refresh-old',
-      failureCount: 2,
-      lastFailedAt: Date.now() - 100,
-      blockedUntil: Date.now() + 5000,
-    }))
+    localStorage.setItem(
+      'AUTH_REFRESH_FAILURE_STATE',
+      JSON.stringify({
+        refreshToken: 'refresh-old',
+        failureCount: 2,
+        lastFailedAt: Date.now() - 100,
+        blockedUntil: Date.now() + 5000,
+      }),
+    )
 
-    mock.onPost(AUTH_ENDPOINTS.TOKEN_REFRESH).reply(200, buildRefreshSuccessResponse('access-next', 'refresh-next'))
+    mock
+      .onPost(AUTH_ENDPOINTS.TOKEN_REFRESH)
+      .reply(200, buildRefreshSuccessResponse('access-next', 'refresh-next'))
 
     await expect(forceRefreshAccessToken()).resolves.toEqual({
       accessToken: 'access-next',
@@ -453,7 +472,9 @@ describe('token-manager', () => {
       JSON.stringify(toRefreshLockPayload('refresh-other')),
     )
 
-    mock.onPost(AUTH_ENDPOINTS.TOKEN_REFRESH).reply(200, buildRefreshSuccessResponse('access-next', 'refresh-next'))
+    mock
+      .onPost(AUTH_ENDPOINTS.TOKEN_REFRESH)
+      .reply(200, buildRefreshSuccessResponse('access-next', 'refresh-next'))
 
     await expect(forceRefreshAccessToken()).resolves.toEqual({
       accessToken: 'access-next',
@@ -472,14 +493,17 @@ describe('token-manager', () => {
       localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, 'access-from-other-tab')
       localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'refresh-from-other-tab')
 
-      return [401, {
-        type: 'about:blank',
-        title: 'unauthorized',
-        status: 401,
-        detail: 'refresh token invalid',
-        code: 401,
-        traceId: 'trace-refresh-race',
-      }]
+      return [
+        401,
+        {
+          type: 'about:blank',
+          title: 'unauthorized',
+          status: 401,
+          detail: 'refresh token invalid',
+          code: 401,
+          traceId: 'trace-refresh-race',
+        },
+      ]
     })
 
     await expect(forceRefreshAccessToken()).resolves.toEqual({
@@ -531,7 +555,9 @@ describe('token-manager', () => {
       localStorage.removeItem(REFRESH_LOCK_STORAGE_KEY)
     }, 50)
 
-    await expect(forceRefreshAccessToken()).rejects.toThrow('Refresh token changed while waiting for lock')
+    await expect(forceRefreshAccessToken()).rejects.toThrow(
+      'Refresh token changed while waiting for lock',
+    )
     expect(mock.history.post).toHaveLength(0)
   })
 })

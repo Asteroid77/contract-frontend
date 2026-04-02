@@ -1,10 +1,8 @@
 import { $t } from '@/_utils/i18n'
 import { NQrCode } from 'naive-ui'
-import { computed } from 'vue'
-import { defineComponent } from 'vue'
+import { computed, defineComponent, type PropType } from 'vue'
 import { renderAttachmentRows } from '@/modules/approval/application/print/FileListDiff'
 import type { ServiceAgreementDetail } from '@/modules/service-agreement/application/models'
-import type { PropType } from 'vue'
 import clsx from 'clsx'
 import { PreviewTypeEnum } from '@/modules/service-agreement/application/constants'
 

@@ -375,8 +375,8 @@ function markRefreshFailure(refreshToken: string): void {
   const currentState = readRefreshFailureState()
   const inWindow = Boolean(
     currentState &&
-      currentState.refreshToken === refreshToken &&
-      now - currentState.lastFailedAt <= REFRESH_FAILURE_WINDOW_MS,
+    currentState.refreshToken === refreshToken &&
+    now - currentState.lastFailedAt <= REFRESH_FAILURE_WINDOW_MS,
   )
 
   const failureCount = inWindow && currentState ? currentState.failureCount + 1 : 1

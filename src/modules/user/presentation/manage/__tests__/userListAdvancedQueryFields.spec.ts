@@ -5,7 +5,11 @@ import { userListAdvancedQueryFields } from '@/modules/user/presentation/manage/
 
 describe('userListAdvancedQueryFields', () => {
   it('exposes required query fields with expected operators', () => {
-    expect(userListAdvancedQueryFields.map((field) => field.key)).toEqual(['platform', 'phone', 'name'])
+    expect(userListAdvancedQueryFields.map((field) => field.key)).toEqual([
+      'platform',
+      'phone',
+      'name',
+    ])
 
     const platform = userListAdvancedQueryFields.find((field) => field.key === 'platform')
     const phone = userListAdvancedQueryFields.find((field) => field.key === 'phone')

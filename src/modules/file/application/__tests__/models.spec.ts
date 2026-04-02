@@ -34,7 +34,10 @@ describe('file/application/models', () => {
   })
 
   it('toOssCallbackViews maps list items in order', () => {
-    const views = toOssCallbackViews([createDto(1, 'https://cdn/a.png'), createDto(2, 'https://cdn/b.png')])
+    const views = toOssCallbackViews([
+      createDto(1, 'https://cdn/a.png'),
+      createDto(2, 'https://cdn/b.png'),
+    ])
 
     expect(views).toHaveLength(2)
     expect(views[0].id).toBe(1)
