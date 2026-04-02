@@ -40,10 +40,7 @@ export function useLoadUserInfo(accessToken: MaybeRefOrGetter<string | null | un
       }
 
       const nextRefreshToken =
-        profile.refreshToken ??
-        getStoredRefreshToken() ??
-        accountStore.refreshToken ??
-        undefined
+        profile.refreshToken ?? getStoredRefreshToken() ?? accountStore.refreshToken ?? undefined
       const accessTokenChanged = accountStore.token !== nextAccessToken
       const refreshTokenChanged = accountStore.refreshToken !== (nextRefreshToken ?? null)
       const hasExpiresIn = typeof profile.expiresIn === 'number'
