@@ -7,9 +7,8 @@ import { previewAttachmentsRule } from '@/modules/service-agreement/application/
 import AppFormItem from '@/modules/shared/presentation/widget/AppFormItem'
 import clsx from 'clsx'
 import { NButton, NForm, NInput, NResult, type FormInst } from 'naive-ui'
-import { computed, ref, type PropType } from 'vue'
-import { defineComponent } from 'vue'
-import './PreviewAttachments.css'
+import { computed, defineComponent, ref, type PropType } from 'vue'
+import './styles/PreviewAttachments.css'
 
 export default defineComponent({
   props: {

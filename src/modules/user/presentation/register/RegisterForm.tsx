@@ -1,6 +1,6 @@
 import { defineComponent, ref, useTemplateRef, type PropType, type ShallowRef } from 'vue'
 import { registerFormValidation } from '@/modules/access/application/validation'
-import { NButton, NForm, NFormItem, NInput } from 'naive-ui'
+import { NButton, NForm, NFormItem, NIcon, NInput, NTooltip } from 'naive-ui'
 import {
   InfoCircleFilled,
   IdcardOutlined,
@@ -8,14 +8,13 @@ import {
   MailOutlined,
   SendOutlined,
 } from '@vicons/antd'
-import { NTooltip, NIcon } from 'naive-ui'
 import clsx from 'clsx'
 import type { RegisterForm, SignInForm } from '@/modules/user/application/models'
 import { RouterLink } from 'vue-router'
 import { useSMS } from '@/modules/captcha/application/hooks/useSMS'
 import type { FormInst } from 'naive-ui/lib'
 import { $t } from '@/_utils/i18n'
-import '@/modules/user/presentation/auth-form-grid.css'
+import '@/modules/user/presentation/styles/auth-form-grid.css'
 const { getSendBtnLabelText, getSMSCoolDownSecond, sendSMSCode } = useSMS()
 export default defineComponent({
   props: {
