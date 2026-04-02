@@ -96,8 +96,8 @@ const headLevelRatioText = computed(() => {
     </template>
 
     <template #loading>
-      <n-skeleton height="24px" width="70%" />
-      <n-skeleton height="260px" width="100%" />
+      <n-skeleton height="1.5rem" width="70%" />
+      <n-skeleton height="16.25rem" width="100%" />
     </template>
 
     <div class="agent-aggregate-dashboard__structure-meta">

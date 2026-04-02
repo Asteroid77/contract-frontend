@@ -89,8 +89,8 @@ const overviewRegionsOption = computed<ECOption>(() => {
     :on-refresh="query.refetch"
   >
     <template #loading>
-      <n-skeleton :repeat="4" height="24px" width="100%" />
-      <n-skeleton height="260px" width="100%" />
+      <n-skeleton :repeat="4" height="1.5rem" width="100%" />
+      <n-skeleton height="16.25rem" width="100%" />
     </template>
 
     <div class="agent-aggregate-dashboard__kpi-grid">

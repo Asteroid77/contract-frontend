@@ -42,7 +42,7 @@ const props = defineProps<{
     <div class="agent-aggregate-dashboard__panel-body">
       <template v-if="state.status === 'loading'">
         <slot name="loading">
-          <n-skeleton height="300px" width="100%" />
+          <n-skeleton height="18.75rem" width="100%" />
         </slot>
       </template>
 

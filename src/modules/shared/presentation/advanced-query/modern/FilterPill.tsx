@@ -584,7 +584,7 @@ export default defineComponent({
           </div>
 
           {isOpen.value && editingPart.value && (
-            <div class="absolute z-20 mt-2 min-w-[220px] max-w-[320px] p-2 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-lg shadow-lg top-full left-0 flex flex-col gap-2">
+            <div class="absolute z-20 mt-2 min-w-[13.75rem] max-w-[20rem] p-2 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-lg shadow-lg top-full left-0 flex flex-col gap-2">
               {editingPart.value === 'field' && (
                 <div class="flex flex-col gap-1 max-h-56 overflow-auto">
                   {props.fields.map((f) => (

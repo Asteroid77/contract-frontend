@@ -98,7 +98,7 @@ const trendOption = computed<ECOption>(() => {
     :on-refresh="query.refetch"
   >
     <template #loading>
-      <n-skeleton height="300px" width="100%" />
+      <n-skeleton height="18.75rem" width="100%" />
     </template>
 
     <VChart

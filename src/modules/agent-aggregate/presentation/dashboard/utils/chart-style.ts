@@ -116,7 +116,7 @@ export const createDashboardTooltip = ({
       fontSize: 12,
       fontWeight: 500,
     },
-    extraCssText: `box-shadow: 0 10px 24px ${tokens.shadow};`,
+    extraCssText: `box-shadow: 0 0.625rem 1.5rem ${tokens.shadow};`,
     axisPointer:
       axisPointerType === 'shadow'
         ? {

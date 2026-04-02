@@ -65,7 +65,7 @@
 
 .agent-aggregate-dashboard__panel {
   --agent-aggregate-panel-hover-scale: 1.008;
-  --agent-aggregate-panel-hover-offset-y: -2px;
+  --agent-aggregate-panel-hover-offset-y: -0.125rem;
   position: relative;
   grid-column: 1 / -1;
   display: grid;
@@ -175,7 +175,7 @@
 }
 
 .agent-aggregate-dashboard__panel-header--performance .n-radio-button--checked {
-  box-shadow: 0 6px 14px color-mix(in srgb, var(--color-primary) 14%, transparent);
+  box-shadow: 0 0.375rem 0.875rem color-mix(in srgb, var(--color-primary) 14%, transparent);
 }
 
 .agent-aggregate-dashboard__panel-title {
