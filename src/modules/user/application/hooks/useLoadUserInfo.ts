@@ -2,6 +2,10 @@ import { userService } from '@/modules/user/application/service'
 import { useQuery } from '@tanstack/vue-query'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 import { toValue, watch, type MaybeRefOrGetter } from 'vue'
+import {
+  getStoredAccessToken,
+  getStoredRefreshToken,
+} from '@/modules/access/application/token-manager'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
 
 export const userKeys = {
@@ -29,12 +33,17 @@ export function useLoadUserInfo(accessToken: MaybeRefOrGetter<string | null | un
         return
       }
 
-      const nextAccessToken = profile.token || toValue(accessToken) || accountStore.token
+      const nextAccessToken =
+        profile.token || getStoredAccessToken() || toValue(accessToken) || accountStore.token
       if (!nextAccessToken) {
         return
       }
 
-      const nextRefreshToken = profile.refreshToken ?? accountStore.refreshToken ?? undefined
+      const nextRefreshToken =
+        profile.refreshToken ??
+        getStoredRefreshToken() ??
+        accountStore.refreshToken ??
+        undefined
       const accessTokenChanged = accountStore.token !== nextAccessToken
       const refreshTokenChanged = accountStore.refreshToken !== (nextRefreshToken ?? null)
       const hasExpiresIn = typeof profile.expiresIn === 'number'
