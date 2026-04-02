@@ -1,0 +1,70 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "import", "node", "vitest"],
+  "ignorePatterns": [
+    "dist/**",
+    "dist-ssr/**",
+    "coverage/**",
+    "node_modules/**",
+    "public/**",
+    "src/assets/**",
+    "**/*.d.ts",
+    "src/**/__tests__/**",
+    "src/**/__snapshots__/**"
+  ],
+  "rules": {
+    "no-debugger": "deny",
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "eqeqeq": ["warn", "always", { "null": "ignore" }],
+    "import/no-duplicates": "warn",
+    "import/no-self-import": "deny",
+    "node/no-unpublished-import": "off",
+    "node/no-missing-import": "off",
+    "typescript/no-unused-vars": [
+      "deny",
+      {
+        "varsIgnorePattern": "^_",
+        "argsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ],
+    "no-unused-vars": [
+      "warn",
+      {
+        "varsIgnorePattern": "^_",
+        "argsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ],
+    "typescript/consistent-type-imports": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["src/**/__tests__/**/*.{ts,tsx}", "**/*.{spec,test}.{ts,tsx}"],
+      "env": {
+        "vitest": true
+      },
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      "files": ["e2e/**/*.{ts,tsx}"],
+      "env": {
+        "node": true
+      },
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      "files": ["scripts/**/*.{js,mjs,cjs,ts}", "*.config.{js,mjs,cjs,ts}"],
+      "env": {
+        "node": true
+      },
+      "rules": {
+        "no-console": "off"
+      }
+    }
+  ]
+}
