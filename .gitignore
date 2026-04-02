@@ -33,3 +33,7 @@ test-results/
 playwright-report/
 .env.*
 .sisyphus/
+.playwright-cli/
+
+CHANGELOG_LOCAL_*.md
+test_result.txt
