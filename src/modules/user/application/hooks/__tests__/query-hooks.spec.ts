@@ -13,6 +13,7 @@ import { userService } from '@/modules/user/application/service'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 import { approvalInstanceKeys } from '@/modules/approval/application/hooks/useApprovalService'
 import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
+import { STORAGE_KEYS } from '@/constants/storage'
 
 const { keepPreviousDataMarker } = vi.hoisted(() => ({
   keepPreviousDataMarker: Symbol('keepPreviousData'),
@@ -211,6 +212,34 @@ describe('user query hooks', () => {
     await nextTick()
 
     expect(updateTokens).toHaveBeenCalledWith('token-a', 'refresh-existing', 7200)
+  })
+
+  it('useLoadUserInfo prefers latest stored tokens when profile payload omits token fields', async () => {
+    const data = ref<{
+      token?: string
+      refreshToken?: string
+      expiresIn?: number
+    }>()
+    const updateTokens = vi.fn()
+
+    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, 'token-fresh')
+    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'refresh-fresh')
+
+    vi.mocked(useAccountStore).mockReturnValue({
+      token: 'token-stale',
+      refreshToken: 'refresh-stale',
+      updateTokens,
+    } as never)
+    vi.mocked(useQuery).mockImplementationOnce(() => ({ data }) as never)
+
+    useLoadUserInfo(computed(() => 'token-stale'))
+
+    data.value = {
+      expiresIn: 7200,
+    }
+    await nextTick()
+
+    expect(updateTokens).toHaveBeenCalledWith('token-fresh', 'refresh-fresh', 7200)
   })
 
   it('useUserPage uses defaults and delegates queryFn', async () => {
