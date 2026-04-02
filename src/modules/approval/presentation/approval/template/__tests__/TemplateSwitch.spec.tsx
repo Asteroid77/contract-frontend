@@ -2,9 +2,12 @@ import { describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 
-type MockTemplateData = {
-  id?: number | string
-} | null | undefined
+type MockTemplateData =
+  | {
+      id?: number | string
+    }
+  | null
+  | undefined
 
 vi.mock('@/modules/user/presentation/print/UserAdditionInfoPrintTemplate', () => ({
   default: defineComponent({

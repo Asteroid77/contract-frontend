@@ -2,10 +2,7 @@ import { useQuery } from '@tanstack/vue-query'
 import { computed, unref, type Ref } from 'vue'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 import { agentAggregateService } from '../agent-aggregate-service'
-import type {
-  AgentAggregatePerformanceParams,
-  AgentAggregateTrendParams,
-} from '../../domain/types'
+import type { AgentAggregatePerformanceParams, AgentAggregateTrendParams } from '../../domain/types'
 
 type QueryEnabledOption = { enabled?: Ref<boolean> | boolean }
 

@@ -107,7 +107,10 @@ describe('openreplay', () => {
     expect(trackerMock.event).toHaveBeenCalledWith('click', { a: 1 })
 
     trackError(new Error('boom'), { traceId: 't-1' })
-    expect(trackerMock.event).toHaveBeenCalledWith('error', expect.objectContaining({ message: 'boom' }))
+    expect(trackerMock.event).toHaveBeenCalledWith(
+      'error',
+      expect.objectContaining({ message: 'boom' }),
+    )
 
     trackIssue('issue title', { traceId: 't-1' })
     expect(trackerMock.issue).toHaveBeenCalledWith('issue title', { traceId: 't-1' })

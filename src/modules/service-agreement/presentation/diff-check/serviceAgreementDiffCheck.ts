@@ -2,8 +2,14 @@ import { $t } from '@/_utils/i18n'
 import dayjs from 'dayjs'
 
 import type { OssCallbackView as FileView } from '@/modules/file/application/models'
-import type { ServiceAgreementDetail, ServicePointSpecification } from '@/modules/service-agreement/application/models'
-import type { ServiceAgreementRequestDTO, ServicePointSpecificationInput } from '@/modules/service-agreement/domain/dto'
+import type {
+  ServiceAgreementDetail,
+  ServicePointSpecification,
+} from '@/modules/service-agreement/application/models'
+import type {
+  ServiceAgreementRequestDTO,
+  ServicePointSpecificationInput,
+} from '@/modules/service-agreement/domain/dto'
 import {
   PriceCategoryOption,
   PriceModelOption,
@@ -83,21 +89,53 @@ export const buildServiceAgreementDiffCheckFields = (): FieldDefinition[] => {
     { key: 'companyAddress', label: $t('domain.agreement.field.address') as string, type: 'text' },
     { key: 'liaisonName', label: $t('domain.agreement.field.contact') as string, type: 'text' },
     { key: 'liaisonPhone', label: $t('domain.agreement.field.phone') as string, type: 'text' },
-    { key: 'liaisonPosition', label: $t('domain.agreement.field.position') as string, type: 'text' },
-    { key: 'isTimeOfUsePricingEnabled', label: $t('domain.agreement.field.touEnabled') as string, type: 'text' },
-    { key: 'superPeakPercentage', label: $t('domain.agreement.field.superPeak') as string, type: 'text' },
+    {
+      key: 'liaisonPosition',
+      label: $t('domain.agreement.field.position') as string,
+      type: 'text',
+    },
+    {
+      key: 'isTimeOfUsePricingEnabled',
+      label: $t('domain.agreement.field.touEnabled') as string,
+      type: 'text',
+    },
+    {
+      key: 'superPeakPercentage',
+      label: $t('domain.agreement.field.superPeak') as string,
+      type: 'text',
+    },
     { key: 'peakPercentage', label: $t('domain.agreement.field.peak') as string, type: 'text' },
-    { key: 'standardPercentage', label: $t('domain.agreement.field.standard') as string, type: 'text' },
+    {
+      key: 'standardPercentage',
+      label: $t('domain.agreement.field.standard') as string,
+      type: 'text',
+    },
     { key: 'valleyPercentage', label: $t('domain.agreement.field.valley') as string, type: 'text' },
-    { key: 'yearUsableCharge', label: $t('domain.agreement.field.annualUsage') as string, type: 'text' },
+    {
+      key: 'yearUsableCharge',
+      label: $t('domain.agreement.field.annualUsage') as string,
+      type: 'text',
+    },
 
     { key: 'priceModel', label: $t('domain.agreement.field.priceModel') as string, type: 'text' },
-    { key: 'expirationTime', label: $t('domain.agreement.field.expiryDate') as string, type: 'text' },
+    {
+      key: 'expirationTime',
+      label: $t('domain.agreement.field.expiryDate') as string,
+      type: 'text',
+    },
     { key: 'priceType', label: $t('domain.agreement.field.priceType') as string, type: 'text' },
-    { key: 'priceCategory', label: $t('domain.agreement.field.priceCategory') as string, type: 'text' },
+    {
+      key: 'priceCategory',
+      label: $t('domain.agreement.field.priceCategory') as string,
+      type: 'text',
+    },
     { key: 'fixedPrice', label: $t('domain.agreement.field.fixedPrice') as string, type: 'text' },
     { key: 'fixedSpread', label: $t('domain.agreement.field.fixedSpread') as string, type: 'text' },
-    { key: 'revenueShareRatio', label: $t('domain.agreement.field.shareRatio') as string, type: 'text' },
+    {
+      key: 'revenueShareRatio',
+      label: $t('domain.agreement.field.shareRatio') as string,
+      type: 'text',
+    },
     { key: 'comment', label: $t('common.field.remark') as string, type: 'text' },
 
     {
@@ -105,16 +143,40 @@ export const buildServiceAgreementDiffCheckFields = (): FieldDefinition[] => {
       label: $t('domain.servicePoint.title') as string,
       type: 'list',
       children: [
-        { key: 'serviceAccount', label: $t('domain.servicePoint.field.accountNo') as string, type: 'text' },
-        { key: 'transformerCapacity', label: $t('domain.servicePoint.field.capacity') as string, type: 'text' },
-        { key: 'electricityConsumptionType', label: $t('domain.servicePoint.field.category') as string, type: 'text' },
-        { key: 'voltageClass', label: $t('domain.servicePoint.field.voltage') as string, type: 'text' },
+        {
+          key: 'serviceAccount',
+          label: $t('domain.servicePoint.field.accountNo') as string,
+          type: 'text',
+        },
+        {
+          key: 'transformerCapacity',
+          label: $t('domain.servicePoint.field.capacity') as string,
+          type: 'text',
+        },
+        {
+          key: 'electricityConsumptionType',
+          label: $t('domain.servicePoint.field.category') as string,
+          type: 'text',
+        },
+        {
+          key: 'voltageClass',
+          label: $t('domain.servicePoint.field.voltage') as string,
+          type: 'text',
+        },
       ],
     },
 
-    { key: 'contractScanFiles', label: $t('domain.agreement.file.contract') as string, type: 'file' },
+    {
+      key: 'contractScanFiles',
+      label: $t('domain.agreement.file.contract') as string,
+      type: 'file',
+    },
     { key: 'billFiles', label: $t('domain.agreement.file.bill') as string, type: 'file' },
-    { key: 'supplementaryAttachmentFiles', label: $t('domain.agreement.file.other') as string, type: 'file' },
+    {
+      key: 'supplementaryAttachmentFiles',
+      label: $t('domain.agreement.file.other') as string,
+      type: 'file',
+    },
   ]
 }
 
@@ -134,11 +196,19 @@ export const toServiceAgreementDiffCheckForm = (model: ServiceAgreementWithFiles
     liaisonName: model.liaisonName ?? '',
     liaisonPhone: model.liaisonPhone ?? '',
     liaisonPosition: model.liaisonPosition ?? '',
-    isTimeOfUsePricingEnabled: model.isTimeOfUsePricingEnabled ? ($t('common.label.yes') as string) : ($t('common.label.no') as string),
-    superPeakPercentage: model.isTimeOfUsePricingEnabled ? formatPercentage(model.superPeakPercentage) : '',
+    isTimeOfUsePricingEnabled: model.isTimeOfUsePricingEnabled
+      ? ($t('common.label.yes') as string)
+      : ($t('common.label.no') as string),
+    superPeakPercentage: model.isTimeOfUsePricingEnabled
+      ? formatPercentage(model.superPeakPercentage)
+      : '',
     peakPercentage: model.isTimeOfUsePricingEnabled ? formatPercentage(model.peakPercentage) : '',
-    standardPercentage: model.isTimeOfUsePricingEnabled ? formatPercentage(model.standardPercentage) : '',
-    valleyPercentage: model.isTimeOfUsePricingEnabled ? formatPercentage(model.valleyPercentage) : '',
+    standardPercentage: model.isTimeOfUsePricingEnabled
+      ? formatPercentage(model.standardPercentage)
+      : '',
+    valleyPercentage: model.isTimeOfUsePricingEnabled
+      ? formatPercentage(model.valleyPercentage)
+      : '',
     yearUsableCharge: model.yearUsableCharge != null ? String(model.yearUsableCharge) : '',
     priceModel: optionLabel(PriceModelOption, model.priceModel),
     expirationTime: formatDateTime(model.expirationTime),
@@ -146,7 +216,8 @@ export const toServiceAgreementDiffCheckForm = (model: ServiceAgreementWithFiles
     priceCategory: optionLabel(priceCategoryOptions.value, model.priceCategory),
     fixedPrice: model.fixedPrice ?? '',
     fixedSpread: model.fixedSpread ?? '',
-    revenueShareRatio: model.revenueShareRatio != null ? formatPercentage(model.revenueShareRatio) : '',
+    revenueShareRatio:
+      model.revenueShareRatio != null ? formatPercentage(model.revenueShareRatio) : '',
     comment: model.comment ?? '',
     contractScanFiles: model.contractScanFiles || [],
     billFiles: model.billFiles || [],

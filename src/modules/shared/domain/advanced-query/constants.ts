@@ -2,13 +2,48 @@ import { FilterOp, QueryLogic } from '@/modules/shared/domain/query'
 import { FieldType, type FieldConfig, type OperatorConfig } from './types'
 
 export const OPERATOR_CONFIG: Record<FilterOp, OperatorConfig> = {
-  [FilterOp.EQ]: { value: FilterOp.EQ, labelKey: 'common.advancedQuery.operator.eq', needValue: true, valueCount: 1 },
-  [FilterOp.NE]: { value: FilterOp.NE, labelKey: 'common.advancedQuery.operator.ne', needValue: true, valueCount: 1 },
-  [FilterOp.GT]: { value: FilterOp.GT, labelKey: 'common.advancedQuery.operator.gt', needValue: true, valueCount: 1 },
-  [FilterOp.GE]: { value: FilterOp.GE, labelKey: 'common.advancedQuery.operator.ge', needValue: true, valueCount: 1 },
-  [FilterOp.LT]: { value: FilterOp.LT, labelKey: 'common.advancedQuery.operator.lt', needValue: true, valueCount: 1 },
-  [FilterOp.LE]: { value: FilterOp.LE, labelKey: 'common.advancedQuery.operator.le', needValue: true, valueCount: 1 },
-  [FilterOp.LIKE]: { value: FilterOp.LIKE, labelKey: 'common.advancedQuery.operator.like', needValue: true, valueCount: 1 },
+  [FilterOp.EQ]: {
+    value: FilterOp.EQ,
+    labelKey: 'common.advancedQuery.operator.eq',
+    needValue: true,
+    valueCount: 1,
+  },
+  [FilterOp.NE]: {
+    value: FilterOp.NE,
+    labelKey: 'common.advancedQuery.operator.ne',
+    needValue: true,
+    valueCount: 1,
+  },
+  [FilterOp.GT]: {
+    value: FilterOp.GT,
+    labelKey: 'common.advancedQuery.operator.gt',
+    needValue: true,
+    valueCount: 1,
+  },
+  [FilterOp.GE]: {
+    value: FilterOp.GE,
+    labelKey: 'common.advancedQuery.operator.ge',
+    needValue: true,
+    valueCount: 1,
+  },
+  [FilterOp.LT]: {
+    value: FilterOp.LT,
+    labelKey: 'common.advancedQuery.operator.lt',
+    needValue: true,
+    valueCount: 1,
+  },
+  [FilterOp.LE]: {
+    value: FilterOp.LE,
+    labelKey: 'common.advancedQuery.operator.le',
+    needValue: true,
+    valueCount: 1,
+  },
+  [FilterOp.LIKE]: {
+    value: FilterOp.LIKE,
+    labelKey: 'common.advancedQuery.operator.like',
+    needValue: true,
+    valueCount: 1,
+  },
   [FilterOp.NOT_LIKE]: {
     value: FilterOp.NOT_LIKE,
     labelKey: 'common.advancedQuery.operator.notLike',
@@ -39,21 +74,36 @@ export const OPERATOR_CONFIG: Record<FilterOp, OperatorConfig> = {
     needValue: true,
     valueCount: 1,
   },
-  [FilterOp.BETWEEN]: { value: FilterOp.BETWEEN, labelKey: 'common.advancedQuery.operator.between', needValue: true, valueCount: 2 },
+  [FilterOp.BETWEEN]: {
+    value: FilterOp.BETWEEN,
+    labelKey: 'common.advancedQuery.operator.between',
+    needValue: true,
+    valueCount: 2,
+  },
   [FilterOp.NOT_BETWEEN]: {
     value: FilterOp.NOT_BETWEEN,
     labelKey: 'common.advancedQuery.operator.notBetween',
     needValue: true,
     valueCount: 2,
   },
-  [FilterOp.IN]: { value: FilterOp.IN, labelKey: 'common.advancedQuery.operator.in', needValue: true, valueCount: 'multiple' },
+  [FilterOp.IN]: {
+    value: FilterOp.IN,
+    labelKey: 'common.advancedQuery.operator.in',
+    needValue: true,
+    valueCount: 'multiple',
+  },
   [FilterOp.NOT_IN]: {
     value: FilterOp.NOT_IN,
     labelKey: 'common.advancedQuery.operator.notIn',
     needValue: true,
     valueCount: 'multiple',
   },
-  [FilterOp.IS_NULL]: { value: FilterOp.IS_NULL, labelKey: 'common.advancedQuery.operator.isNull', needValue: false, valueCount: 1 },
+  [FilterOp.IS_NULL]: {
+    value: FilterOp.IS_NULL,
+    labelKey: 'common.advancedQuery.operator.isNull',
+    needValue: false,
+    valueCount: 1,
+  },
   [FilterOp.IS_NOT_NULL]: {
     value: FilterOp.IS_NOT_NULL,
     labelKey: 'common.advancedQuery.operator.isNotNull',
@@ -128,12 +178,7 @@ export const FIELD_TYPE_OPERATORS: Record<FieldType, FilterOp[]> = {
     FilterOp.IS_NULL,
     FilterOp.IS_NOT_NULL,
   ],
-  [FieldType.PCA]: [
-    FilterOp.EQ,
-    FilterOp.NE,
-    FilterOp.IS_NULL,
-    FilterOp.IS_NOT_NULL,
-  ],
+  [FieldType.PCA]: [FilterOp.EQ, FilterOp.NE, FilterOp.IS_NULL, FilterOp.IS_NOT_NULL],
 }
 
 export const getFieldOperators = (field?: Pick<FieldConfig, 'type' | 'operators'>): FilterOp[] => {

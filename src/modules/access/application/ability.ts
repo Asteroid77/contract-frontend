@@ -21,33 +21,33 @@ import type { Permission, RoleVo } from '../domain/types'
  * 遵循 CRUD + 特殊操作的模式
  */
 export type Action =
-  | 'create'   // 创建
-  | 'read'     // 读取
-  | 'update'   // 更新
-  | 'delete'   // 删除
-  | 'manage'   // 管理（所有操作）
-  | 'approve'  // 审批
-  | 'reject'   // 拒绝
-  | 'assign'   // 分配
-  | 'export'   // 导出
-  | 'import'   // 导入
+  | 'create' // 创建
+  | 'read' // 读取
+  | 'update' // 更新
+  | 'delete' // 删除
+  | 'manage' // 管理（所有操作）
+  | 'approve' // 审批
+  | 'reject' // 拒绝
+  | 'assign' // 分配
+  | 'export' // 导出
+  | 'import' // 导入
 
 /**
  * 权限主体类型
  * 定义系统中所有可以被权限控制的资源
  */
 export type Subject =
-  | 'User'           // 用户管理
-  | 'Role'           // 角色管理
-  | 'Permission'     // 权限管理
-  | 'Contract'       // 合同
-  | 'Approval'       // 审批
-  | 'ApprovalTask'   // 审批任务
-  | 'Business'       // 业务
-  | 'Dashboard'      // 仪表盘
-  | 'WorkOrder'      // 工单
-  | 'WorkOrderCategory'  // 工单分类
-  | 'all'            // 所有资源
+  | 'User' // 用户管理
+  | 'Role' // 角色管理
+  | 'Permission' // 权限管理
+  | 'Contract' // 合同
+  | 'Approval' // 审批
+  | 'ApprovalTask' // 审批任务
+  | 'Business' // 业务
+  | 'Dashboard' // 仪表盘
+  | 'WorkOrder' // 工单
+  | 'WorkOrderCategory' // 工单分类
+  | 'all' // 所有资源
 
 /**
  * 应用权限类型
@@ -89,10 +89,7 @@ export const ability = createAbility()
  * @param permissions 权限列表
  * @param roles 角色列表
  */
-export function defineAbilityFor(
-  permissions: Permission[],
-  roles: RoleVo[],
-): AppAbility {
+export function defineAbilityFor(permissions: Permission[], roles: RoleVo[]): AppAbility {
   const { can, build } = new AbilityBuilder<AppAbility>(Ability as AbilityClass<AppAbility>)
 
   // 1. 处理细粒度权限
@@ -234,7 +231,10 @@ function normalizeSubject(raw: string): Subject | null {
   return null
 }
 
-function parsePermissionPair(subjectRaw: string, actionRaw: string): { action: Action; subject: Subject } | null {
+function parsePermissionPair(
+  subjectRaw: string,
+  actionRaw: string,
+): { action: Action; subject: Subject } | null {
   const subject = normalizeSubject(subjectRaw)
   const action = normalizeAction(actionRaw)
   if (!subject || !action) {

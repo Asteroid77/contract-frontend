@@ -13,7 +13,11 @@ vi.mock('naive-ui', () => ({
     },
     setup(props, { slots }) {
       return () =>
-        h('div', { 'data-test': 'n-icon', 'data-size': String(props.size ?? '') }, slots.default?.())
+        h(
+          'div',
+          { 'data-test': 'n-icon', 'data-size': String(props.size ?? '') },
+          slots.default?.(),
+        )
     },
   }),
 }))

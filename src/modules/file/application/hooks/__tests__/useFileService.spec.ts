@@ -143,7 +143,11 @@ describe('useFileService hooks', () => {
     }
     const result = await options.queryFn(ctx)
 
-    expect(withQueryRequestContext).toHaveBeenCalledWith(fileKeys.detail(7), ctx, expect.any(Function))
+    expect(withQueryRequestContext).toHaveBeenCalledWith(
+      fileKeys.detail(7),
+      ctx,
+      expect.any(Function),
+    )
     expect(fileService.getFileById).toHaveBeenCalledWith(7)
     expect(result).toEqual(payload)
     expect(query).toBe(options)
@@ -171,7 +175,10 @@ describe('useFileService hooks', () => {
 
     const now = Date.now()
     const fileIds = ref<number[]>([1, 2])
-    const files = [createFileResponse(1, now + 2 * 60 * 1000), createFileResponse(2, now + 2 * 60 * 1000)]
+    const files = [
+      createFileResponse(1, now + 2 * 60 * 1000),
+      createFileResponse(2, now + 2 * 60 * 1000),
+    ]
 
     vi.mocked(fileService.getFilesByIds).mockResolvedValue(files as never)
 
@@ -184,7 +191,11 @@ describe('useFileService hooks', () => {
 
     const result = await options.queryFn(ctx)
 
-    expect(withQueryRequestContext).toHaveBeenCalledWith(fileKeys.batchDetail([1, 2]), ctx, expect.any(Function))
+    expect(withQueryRequestContext).toHaveBeenCalledWith(
+      fileKeys.batchDetail([1, 2]),
+      ctx,
+      expect.any(Function),
+    )
     expect(fileService.getFilesByIds).toHaveBeenCalledWith([1, 2])
     expect(queryClient.setQueryData).toHaveBeenCalledTimes(2)
     expect(queryClient.setQueryData).toHaveBeenCalledWith(fileKeys.detail(1), files[0], {

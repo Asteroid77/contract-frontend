@@ -176,7 +176,9 @@ describe('ImagesUploader', () => {
       },
     })
 
-    const updateFileList = uploadPropsState.value?.['onUpdate:fileList'] as ((list: unknown[]) => void) | undefined
+    const updateFileList = uploadPropsState.value?.['onUpdate:fileList'] as
+      | ((list: unknown[]) => void)
+      | undefined
     expect(updateFileList).toBeTypeOf('function')
 
     updateFileList?.([
@@ -199,7 +201,9 @@ describe('ImagesUploader', () => {
       },
     })
 
-    const customRequest = uploadPropsState.value?.customRequest as ((options: Record<string, unknown>) => void) | undefined
+    const customRequest = uploadPropsState.value?.customRequest as
+      | ((options: Record<string, unknown>) => void)
+      | undefined
     const onError = vi.fn()
 
     customRequest?.({
@@ -224,15 +228,19 @@ describe('ImagesUploader', () => {
       },
     })
 
-    mutateSpy.mockImplementation((_, callbacks: { onSuccess: (value: Record<string, unknown>) => void }) => {
-      callbacks.onSuccess({
-        id: 99,
-        fileName: 'server.png',
-        accessUrl: 'https://cdn/server.png',
-      })
-    })
+    mutateSpy.mockImplementation(
+      (_, callbacks: { onSuccess: (value: Record<string, unknown>) => void }) => {
+        callbacks.onSuccess({
+          id: 99,
+          fileName: 'server.png',
+          accessUrl: 'https://cdn/server.png',
+        })
+      },
+    )
 
-    const updateFileList = uploadPropsState.value?.['onUpdate:fileList'] as ((list: unknown[]) => void) | undefined
+    const updateFileList = uploadPropsState.value?.['onUpdate:fileList'] as
+      | ((list: unknown[]) => void)
+      | undefined
     const tempFile = {
       id: 'temp-id',
       name: 'local.png',
@@ -240,7 +248,9 @@ describe('ImagesUploader', () => {
     }
     updateFileList?.([tempFile as never])
 
-    const customRequest = uploadPropsState.value?.customRequest as ((options: Record<string, unknown>) => void) | undefined
+    const customRequest = uploadPropsState.value?.customRequest as
+      | ((options: Record<string, unknown>) => void)
+      | undefined
     const onFinish = vi.fn(() => {
       tempFile.status = 'finished'
     })

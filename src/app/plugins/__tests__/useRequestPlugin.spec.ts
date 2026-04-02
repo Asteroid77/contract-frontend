@@ -240,7 +240,14 @@ describe('useRequestPlugin', () => {
 
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    const error = new BusinessError('forbidden', 40300, 'trace-403', 'request-403', 'about:blank', 403)
+    const error = new BusinessError(
+      'forbidden',
+      40300,
+      'trace-403',
+      'request-403',
+      'about:blank',
+      403,
+    )
     queryCacheConfig.onError(error, createQueryStub())
 
     expect(showUniqueErrorNotification).not.toHaveBeenCalled()

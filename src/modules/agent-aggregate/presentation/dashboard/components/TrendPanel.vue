@@ -2,7 +2,10 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { NSkeleton } from 'naive-ui'
-import type { AgentAggregateTrendPointVO, AgentAggregateTrendVO } from '@/modules/agent-aggregate/domain/types'
+import type {
+  AgentAggregateTrendPointVO,
+  AgentAggregateTrendVO,
+} from '@/modules/agent-aggregate/domain/types'
 import { VChart } from '../charts/echarts'
 import type { ECOption } from '../charts/ec-option'
 import { chartColor } from '../utils/chart-color'
@@ -28,8 +31,10 @@ const { query } = defineProps<{
 const { t: $t } = useI18n()
 const requestFailedText = computed(() => $t('domain.agentAggregate.dashboard.state.requestFailed'))
 
-const panelState = buildPanelState(query, requestFailedText, (data) =>
-  safeArray<AgentAggregateTrendPointVO>(data?.points).length > 0,
+const panelState = buildPanelState(
+  query,
+  requestFailedText,
+  (data) => safeArray<AgentAggregateTrendPointVO>(data?.points).length > 0,
 )
 
 const trendOption = computed<ECOption>(() => {

@@ -2,8 +2,7 @@ import { accessService } from '@/modules/access/application/service'
 import type { RolePageQuery, RoleForm } from '@/modules/access/application/models'
 import type { BasePageRequest } from '@/modules/shared/application/request/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import { unref, type Ref } from 'vue'
-import { computed } from 'vue'
+import { computed, unref, type Ref } from 'vue'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 
 function resolvePositiveId(value: number): number | null {
@@ -67,7 +66,7 @@ export const useEditRole = () => {
 
   return useMutation({
     mutationFn: (data: RoleForm) => accessService.editRole(data),
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, _variables) => {
       // 使角色列表缓存失效
       queryClient.invalidateQueries({
         queryKey: roleKeys.lists(),

@@ -2,7 +2,10 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { NRadioButton, NRadioGroup, NSkeleton } from 'naive-ui'
-import type { AgentAggregatePerformanceVO, AgentAggregateTopAgentVO } from '@/modules/agent-aggregate/domain/types'
+import type {
+  AgentAggregatePerformanceVO,
+  AgentAggregateTopAgentVO,
+} from '@/modules/agent-aggregate/domain/types'
 import { VChart } from '../charts/echarts'
 import type { ECOption } from '../charts/ec-option'
 import { chartColor } from '../utils/chart-color'
@@ -27,8 +30,10 @@ const props = defineProps<{
 const { t: $t, locale } = useI18n()
 const requestFailedText = computed(() => $t('domain.agentAggregate.dashboard.state.requestFailed'))
 
-const panelState = buildPanelState(props.query, requestFailedText, (data) =>
-  safeArray<AgentAggregateTopAgentVO>(data?.topAgents).length > 0,
+const panelState = buildPanelState(
+  props.query,
+  requestFailedText,
+  (data) => safeArray<AgentAggregateTopAgentVO>(data?.topAgents).length > 0,
 )
 
 const { formatInteger, formatPercent } = useDashboardFormatters(locale, $t)

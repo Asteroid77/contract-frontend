@@ -191,7 +191,9 @@ describe('CustomerInfoSection', () => {
     })
 
     await wrapper.find('[data-path="customerInfo.status"] [data-test="n-select"]').trigger('click')
-    await wrapper.find('[data-path="customerInfo.companyName"] [data-test="n-input"]').trigger('click')
+    await wrapper
+      .find('[data-path="customerInfo.companyName"] [data-test="n-input"]')
+      .trigger('click')
     await wrapper
       .find('[data-path="customerInfo.yearUsableCharge"] [data-test="n-input-number"]')
       .trigger('click')

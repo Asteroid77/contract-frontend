@@ -84,8 +84,8 @@ export default defineComponent({
       <div class="p-6 max-w-4xl mx-auto">
         <NCard title="ErrorBoundary 演示页面" class="mb-6">
           <NAlert type="info" class="mb-4">
-            这个页面用于演示 ErrorBoundary 组件如何捕获和显示不同类型的错误。
-            每个错误场景都被独立的 ErrorBoundary 包裹，互不影响。
+            这个页面用于演示 ErrorBoundary 组件如何捕获和显示不同类型的错误。 每个错误场景都被独立的
+            ErrorBoundary 包裹，互不影响。
           </NAlert>
 
           <NSpace vertical size="large">
@@ -110,19 +110,13 @@ export default defineComponent({
             {/* 场景 2: 生命周期错误 */}
             <div>
               <h3 class="text-lg font-semibold mb-2">场景 2: 生命周期错误</h3>
-              <p class="text-sm text-gray-600 mb-3">
-                组件在 mounted 生命周期钩子中抛出错误
-              </p>
+              <p class="text-sm text-gray-600 mb-3">组件在 mounted 生命周期钩子中抛出错误</p>
               <NButton type="primary" onClick={triggerLifecycleError}>
                 触发生命周期错误
               </NButton>
               <NDivider />
               <div class="border border-gray-200 rounded p-4 min-h-[200px]">
-                {showLifecycleError.value ? (
-                  <LifecycleErrorComponent />
-                ) : (
-                  <p>正常内容显示中...</p>
-                )}
+                {showLifecycleError.value ? <LifecycleErrorComponent /> : <p>正常内容显示中...</p>}
               </div>
             </div>
 
@@ -150,9 +144,7 @@ export default defineComponent({
               <NDivider />
               <div class="border border-gray-200 rounded p-4">
                 <AsyncErrorComponent />
-                <p class="text-xs text-gray-500 mt-2">
-                  异步错误需要使用 try-catch 或全局错误处理
-                </p>
+                <p class="text-xs text-gray-500 mt-2">异步错误需要使用 try-catch 或全局错误处理</p>
               </div>
             </div>
           </NSpace>

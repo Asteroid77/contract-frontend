@@ -55,7 +55,9 @@ export default defineComponent({
       onSuccess: async () => {
         await queryClient.invalidateQueries({ queryKey: userQueryKeys.lists() })
         if (currentUserId.value) {
-          await queryClient.invalidateQueries({ queryKey: userQueryKeys.detail(currentUserId.value) })
+          await queryClient.invalidateQueries({
+            queryKey: userQueryKeys.detail(currentUserId.value),
+          })
           await router.replace({
             name: 'manage-user-detail',
             params: { userId: currentUserId.value },
@@ -107,7 +109,11 @@ export default defineComponent({
         )}
 
         {currentUserId.value && !canView.value && (
-          <NResult status="403" title={$t('common.error.403')} description={$t('common.error.403Desc')} />
+          <NResult
+            status="403"
+            title={$t('common.error.403')}
+            description={$t('common.error.403Desc')}
+          />
         )}
 
         {currentUserId.value && canView.value && (
@@ -136,7 +142,11 @@ export default defineComponent({
                   />
                   <NFlex size={12}>
                     {canSubmit.value && (
-                      <NButton type="primary" loading={updateMutation.isPending.value} onClick={handleSave}>
+                      <NButton
+                        type="primary"
+                        loading={updateMutation.isPending.value}
+                        onClick={handleSave}
+                      >
                         {$t('common.action.save')}
                       </NButton>
                     )}

@@ -78,7 +78,11 @@ describe('auth-session-recovery', () => {
 
     const error = new BusinessError('expired', 40100, 'trace-1', 'req-1', 'about:blank', 401)
 
-    await Promise.all([recoverAuthSession(error), recoverAuthSession(error), recoverAuthSession(error)])
+    await Promise.all([
+      recoverAuthSession(error),
+      recoverAuthSession(error),
+      recoverAuthSession(error),
+    ])
 
     expect(clearSessionSpy).toHaveBeenCalledTimes(1)
   })

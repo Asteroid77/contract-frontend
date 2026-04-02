@@ -2,7 +2,10 @@ import { NQrCode } from 'naive-ui'
 import { defineComponent, type PropType } from 'vue'
 import { $t } from '@/_utils/i18n'
 
-import type { FieldDefinition, FormData } from '@/modules/shared/presentation/diff-check/domain/types/field'
+import type {
+  FieldDefinition,
+  FormData,
+} from '@/modules/shared/presentation/diff-check/domain/types/field'
 import UnifiedFormTable from '@/modules/shared/presentation/diff-check/components/unified/UnifiedFormTable'
 
 export default defineComponent({
@@ -25,7 +28,8 @@ export default defineComponent({
           <div class="print-header-center">
             <h1>{props.title}</h1>
             <div style="font-size:12px;color:#000;">
-              {$t('common.diffCheck.print.docNo')}：{props.docNo || '—'} | {$t('common.diffCheck.print.generatedAt')}：{now}
+              {$t('common.diffCheck.print.docNo')}：{props.docNo || '—'} |{' '}
+              {$t('common.diffCheck.print.generatedAt')}：{now}
             </div>
           </div>
           <div class="print-header-qr">
@@ -36,9 +40,16 @@ export default defineComponent({
 
         <div style="margin-bottom:16px;font-size:11px;">
           <strong>{$t('common.diffCheck.print.legend.title')}：</strong>
-          <span style="text-decoration:line-through;margin-left:8px;">{$t('common.diffCheck.print.legend.strikeThrough')}</span> = {$t('common.diffCheck.print.legend.originalValue')} |
-          <span style="font-weight:bold;border-bottom:1px solid #000;margin-left:8px;">{$t('common.diffCheck.print.legend.boldUnderline')}</span> = {$t('common.diffCheck.print.legend.newValue')} |
-          [{$t('common.action.add')}] = {$t('common.diffCheck.print.legend.addedItem')} | [{$t('common.action.delete')}] = {$t('common.diffCheck.print.legend.removedItem')}
+          <span style="text-decoration:line-through;margin-left:var(--spacing-8);">
+            {$t('common.diffCheck.print.legend.strikeThrough')}
+          </span>{' '}
+          = {$t('common.diffCheck.print.legend.originalValue')} |
+          <span style="font-weight:bold;border-bottom:1px solid #000;margin-left:var(--spacing-8);">
+            {$t('common.diffCheck.print.legend.boldUnderline')}
+          </span>{' '}
+          = {$t('common.diffCheck.print.legend.newValue')} | [{$t('common.action.add')}] ={' '}
+          {$t('common.diffCheck.print.legend.addedItem')} | [{$t('common.action.delete')}] ={' '}
+          {$t('common.diffCheck.print.legend.removedItem')}
         </div>
 
         <UnifiedFormTable

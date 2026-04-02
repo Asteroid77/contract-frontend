@@ -24,7 +24,9 @@ describe('unauth routes config', () => {
 
   it('redirects oauth2 callback and keeps original query', () => {
     const route = getRouteByPath('/unauth/oauth2/callback')
-    const redirect = route?.redirect as ((route: { query: Record<string, unknown> }) => unknown) | undefined
+    const redirect = route?.redirect as
+      | ((route: { query: Record<string, unknown> }) => unknown)
+      | undefined
 
     expect(redirect?.({ query: { code: 'abc', state: 'xyz' } })).toEqual({
       name: 'oauth2-callback',
@@ -34,7 +36,9 @@ describe('unauth routes config', () => {
 
   it('preview attachments props converts query type/id to number or null', () => {
     const route = getRouteByName('approval-preview-attachments')
-    const props = route?.props as ((route: { query: Record<string, unknown> }) => unknown) | undefined
+    const props = route?.props as
+      | ((route: { query: Record<string, unknown> }) => unknown)
+      | undefined
 
     expect(props?.({ query: { type: '1', id: '99' } })).toEqual({ type: 1, id: 99 })
     expect(props?.({ query: { type: 'NaN', id: '' } })).toEqual({ type: null, id: null })

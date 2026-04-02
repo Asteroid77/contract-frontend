@@ -45,21 +45,27 @@ vi.mock('@/modules/agent-aggregate/presentation/dashboard/charts/echarts', () =>
   }),
 }))
 
-vi.mock('@/modules/agent-aggregate/presentation/dashboard/components/DashboardPanelFrame.vue', () => ({
-  default: defineComponent({
-    name: 'DashboardPanelFrame',
-    props: {
-      state: {
-        type: Object,
-        required: true,
+vi.mock(
+  '@/modules/agent-aggregate/presentation/dashboard/components/DashboardPanelFrame.vue',
+  () => ({
+    default: defineComponent({
+      name: 'DashboardPanelFrame',
+      props: {
+        state: {
+          type: Object,
+          required: true,
+        },
       },
-    },
-    setup(_props, { slots }) {
-      return () =>
-        h('section', { 'data-test': 'panel-frame' }, [slots['header-right']?.(), slots.default?.()])
-    },
+      setup(_props, { slots }) {
+        return () =>
+          h('section', { 'data-test': 'panel-frame' }, [
+            slots['header-right']?.(),
+            slots.default?.(),
+          ])
+      },
+    }),
   }),
-}))
+)
 
 import StructurePanel from '@/modules/agent-aggregate/presentation/dashboard/components/StructurePanel.vue'
 

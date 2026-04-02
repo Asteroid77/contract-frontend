@@ -1,7 +1,4 @@
-import type {
-  SignInForm,
-  SignInResponseComplete,
-} from '@/modules/user/application/models'
+import type { SignInForm, SignInResponseComplete } from '@/modules/user/application/models'
 import { useMutation } from '@tanstack/vue-query'
 import { userService } from '@/modules/user/application/service'
 import router from '@/router'
@@ -69,9 +66,8 @@ export function useLogin() {
       }
 
       const complete = data as SignInResponseComplete
-      const { useAccountStore } = await import(
-        '@/modules/user/application/stores/useAccountStore.ts'
-      )
+      const { useAccountStore } =
+        await import('@/modules/user/application/stores/useAccountStore.ts')
       useAccountStore().login(complete)
       void enablePostLoginEnhancements().catch(() => undefined)
       router.push(variable.redirect || { name: 'dashboard' })

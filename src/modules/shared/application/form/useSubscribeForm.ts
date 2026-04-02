@@ -13,9 +13,7 @@ export function useSubscribeForm<T extends object>(
 ) {
   // 1. 本地可编辑的表单数据
   const emptyValue = () => cloneDeep(toValue(source.value ?? ({} as T)))
-  const formValue = isReadOnly
-    ? computed<T>(() => source.value ?? ({} as T))
-    : ref<T>(emptyValue())
+  const formValue = isReadOnly ? computed<T>(() => source.value ?? ({} as T)) : ref<T>(emptyValue())
 
   // 2. 监听外部源数据的变化
   if (!isReadOnly) {

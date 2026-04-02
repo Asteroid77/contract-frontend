@@ -3,7 +3,10 @@ import { NTag } from 'naive-ui'
 import { WorkOrderStatus } from '../domain/enums'
 import { useI18n } from 'vue-i18n'
 
-const statusConfig: Record<WorkOrderStatus, { type: 'success' | 'warning' | 'info' | 'default'; bordered: boolean }> = {
+const statusConfig: Record<
+  WorkOrderStatus,
+  { type: 'success' | 'warning' | 'info' | 'default'; bordered: boolean }
+> = {
   [WorkOrderStatus.COMPLETED]: { type: 'success', bordered: true },
   [WorkOrderStatus.CANCELLED]: { type: 'warning', bordered: true },
   [WorkOrderStatus.PROCESSING]: { type: 'info', bordered: true },

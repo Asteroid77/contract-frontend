@@ -3,7 +3,11 @@ import { approvalService } from '@/modules/approval/application/service'
 import { approvalRepository } from '@/modules/approval/infrastructure/approval-repository'
 import { toDomainPageRequest } from '@/modules/shared/application/query/legacy-query-adapter'
 import { FilterOp } from '@/modules/shared/domain/query'
-import type { ApprovalHistory, ApprovalInstance, LatestAdditionalInfoInstance } from '@/modules/approval/domain/types'
+import type {
+  ApprovalHistory,
+  ApprovalInstance,
+  LatestAdditionalInfoInstance,
+} from '@/modules/approval/domain/types'
 
 vi.mock('@/modules/approval/infrastructure/approval-repository', () => ({
   approvalRepository: {
@@ -61,27 +65,20 @@ describe('approvalService', () => {
   })
 
   it('getInstancePage maps QueryFilters request and normalizes size/orders', async () => {
-    vi.mocked(approvalRepository.getInstancePage).mockResolvedValue(
-      {
-        records: [],
-      } as never,
-    )
+    vi.mocked(approvalRepository.getInstancePage).mockResolvedValue({
+      records: [],
+    } as never)
 
     const queryFilters = {
       filters: [{ field: 'status', op: FilterOp.EQ, value: 'pending' }],
     }
 
-    await approvalService.getInstancePage(
-      {
-        page: 2,
-        size: '20',
-        orders: [
-          { column: 'createdTime' },
-          { column: 'id', direction: 'DESC' },
-        ],
-        query: queryFilters,
-      } as never,
-    )
+    await approvalService.getInstancePage({
+      page: 2,
+      size: '20',
+      orders: [{ column: 'createdTime' }, { column: 'id', direction: 'DESC' }],
+      query: queryFilters,
+    } as never)
 
     expect(toDomainPageRequest).not.toHaveBeenCalled()
     expect(approvalRepository.getInstancePage).toHaveBeenCalledWith({
@@ -96,23 +93,19 @@ describe('approvalService', () => {
   })
 
   it('getInstancePage sets size undefined when QueryFilters size is invalid string', async () => {
-    vi.mocked(approvalRepository.getInstancePage).mockResolvedValue(
-      {
-        records: [],
-      } as never,
-    )
+    vi.mocked(approvalRepository.getInstancePage).mockResolvedValue({
+      records: [],
+    } as never)
 
     const queryFilters = {
       filters: [{ field: 'status', op: FilterOp.EQ, value: 'pending' }],
     }
 
-    await approvalService.getInstancePage(
-      {
-        page: 1,
-        size: 'invalid-size',
-        query: queryFilters,
-      } as never,
-    )
+    await approvalService.getInstancePage({
+      page: 1,
+      size: 'invalid-size',
+      query: queryFilters,
+    } as never)
 
     expect(approvalRepository.getInstancePage).toHaveBeenCalledWith({
       page: 1,
@@ -133,11 +126,9 @@ describe('approvalService', () => {
     }
 
     vi.mocked(toDomainPageRequest).mockReturnValue(mappedRequest as never)
-    vi.mocked(approvalRepository.getInstancePage).mockResolvedValue(
-      {
-        records: [],
-      } as never,
-    )
+    vi.mocked(approvalRepository.getInstancePage).mockResolvedValue({
+      records: [],
+    } as never)
 
     const legacyPageRequest = {
       page: 3,

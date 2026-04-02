@@ -105,7 +105,7 @@ vi.mock('naive-ui', () => ({
                   },
                   String(
                     typeof column?.key === 'string'
-                      ? (row as Record<string, unknown>)[column.key] ?? ''
+                      ? ((row as Record<string, unknown>)[column.key] ?? '')
                       : '',
                   ),
                 )
@@ -152,7 +152,9 @@ describe('ServicePointSpecificationGroup', () => {
     await addBtn!.trigger('click')
 
     expect(motivateSpsSpy).toHaveBeenCalledTimes(1)
-    const callback = motivateSpsSpy.mock.calls[0][0] as (formValue: ReturnType<typeof createSps>) => boolean
+    const callback = motivateSpsSpy.mock.calls[0][0] as (
+      formValue: ReturnType<typeof createSps>,
+    ) => boolean
 
     const result = callback(createSps('A002'))
     expect(result).toBe(true)
@@ -179,7 +181,9 @@ describe('ServicePointSpecificationGroup', () => {
 
     await addBtn!.trigger('click')
 
-    const callback = motivateSpsSpy.mock.calls[0][0] as (formValue: ReturnType<typeof createSps>) => boolean
+    const callback = motivateSpsSpy.mock.calls[0][0] as (
+      formValue: ReturnType<typeof createSps>,
+    ) => boolean
     const result = callback(createSps('A001'))
 
     expect(result).toBe(false)

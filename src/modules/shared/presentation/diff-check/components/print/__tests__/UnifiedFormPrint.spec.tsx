@@ -2,7 +2,10 @@ import { describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 import UnifiedFormPrint from '@/modules/shared/presentation/diff-check/components/print/UnifiedFormPrint'
-import type { FieldDefinition, FormData } from '@/modules/shared/presentation/diff-check/domain/types/field'
+import type {
+  FieldDefinition,
+  FormData,
+} from '@/modules/shared/presentation/diff-check/domain/types/field'
 
 vi.mock('@/_utils/i18n', () => ({
   $t: (key: string) => `t:${key}`,

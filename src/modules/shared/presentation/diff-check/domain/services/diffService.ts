@@ -1,4 +1,10 @@
-import type { FieldDefinition, FieldValue, ListItemValue, FormData, OssCallbackView } from '../types/field'
+import type {
+  FieldDefinition,
+  FieldValue,
+  ListItemValue,
+  FormData,
+  OssCallbackView,
+} from '../types/field'
 import type { DiffType, FieldDiff, ListItemDiff, ListDiff, FileDiffItem } from '../types/diff'
 
 /**
@@ -44,7 +50,11 @@ export class DiffService {
   /**
    * 计算单个字段的 Diff
    */
-  static computeFieldDiff(fieldDef: FieldDefinition, oldData: FormData, newData: FormData): FieldDiff {
+  static computeFieldDiff(
+    fieldDef: FieldDefinition,
+    oldData: FormData,
+    newData: FormData,
+  ): FieldDiff {
     return {
       key: fieldDef.key,
       label: fieldDef.label,
@@ -57,7 +67,11 @@ export class DiffService {
   /**
    * 计算列表字段的 Diff
    */
-  static computeListDiff(fieldDef: FieldDefinition, oldData: FormData, newData: FormData): ListDiff {
+  static computeListDiff(
+    fieldDef: FieldDefinition,
+    oldData: FormData,
+    newData: FormData,
+  ): ListDiff {
     const oldList = (oldData[fieldDef.key] as ListItemValue[]) || []
     const newList = (newData[fieldDef.key] as ListItemValue[]) || []
     const childFields = fieldDef.children || []
@@ -238,4 +252,3 @@ export class DiffService {
     return result
   }
 }
-

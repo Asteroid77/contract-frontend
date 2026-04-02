@@ -1,8 +1,4 @@
-import type {
-  MutationObserverOptions,
-  QueryKey,
-  QueryObserverOptions,
-} from '@tanstack/vue-query'
+import type { MutationObserverOptions, QueryKey, QueryObserverOptions } from '@tanstack/vue-query'
 
 type Assert<T extends true> = T
 
@@ -10,7 +6,7 @@ type QueryMeta = NonNullable<QueryObserverOptions['meta']>
 type MutationMeta = NonNullable<MutationObserverOptions['meta']>
 
 type AppQueryKeyStartsWithString = Assert<
-  QueryKey extends readonly [infer Head extends string, ...ReadonlyArray<unknown>] ? true : false
+  QueryKey extends readonly [infer _Head extends string, ...ReadonlyArray<unknown>] ? true : false
 >
 
 type QueryErrorToastDisallowsString = Assert<

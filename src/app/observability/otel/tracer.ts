@@ -9,7 +9,10 @@ import {
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
 import { ZoneContextManager } from '@opentelemetry/context-zone'
 import { resourceFromAttributes } from '@opentelemetry/resources'
-import { SEMRESATTRS_SERVICE_NAME, SEMRESATTRS_SERVICE_VERSION } from '@opentelemetry/semantic-conventions'
+import {
+  SEMRESATTRS_SERVICE_NAME,
+  SEMRESATTRS_SERVICE_VERSION,
+} from '@opentelemetry/semantic-conventions'
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
 import { FetchInstrumentation } from '@opentelemetry/instrumentation-fetch'
 import { DocumentLoadInstrumentation } from '@opentelemetry/instrumentation-document-load'

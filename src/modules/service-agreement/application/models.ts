@@ -69,8 +69,10 @@ export type ServicePointSpecification = Omit<
  * 备案/签约数据前端展示体
  * @description 对应 Java 中的 ServiceAgreementVo 类
  */
-export interface ServiceAgreementDetail
-  extends Omit<ServiceAgreement, 'expirationTime' | 'createdTime' | 'updatedTime'> {
+export interface ServiceAgreementDetail extends Omit<
+  ServiceAgreement,
+  'expirationTime' | 'createdTime' | 'updatedTime'
+> {
   /**
    * 合同到期时间 (UI 使用 Timestamp)
    */
@@ -102,23 +104,22 @@ export interface ServiceAgreementDetail
   servicePointSpecifications: ServicePointSpecification[]
 }
 
-export interface ServiceAgreementData
-  extends Omit<
-    ServiceAgreement,
-    | 'creator'
-    | 'updatedTime'
-    | 'createdTime'
-    | 'id'
-    | 'expirationTime'
-    | 'companyName'
-    | 'companyArea'
-    | 'companyAddress'
-    | 'industry'
-    | 'liaisonName'
-    | 'liaisonPosition'
-    | 'liaisonPhone'
-    | 'comment'
-  > {
+export interface ServiceAgreementData extends Omit<
+  ServiceAgreement,
+  | 'creator'
+  | 'updatedTime'
+  | 'createdTime'
+  | 'id'
+  | 'expirationTime'
+  | 'companyName'
+  | 'companyArea'
+  | 'companyAddress'
+  | 'industry'
+  | 'liaisonName'
+  | 'liaisonPosition'
+  | 'liaisonPhone'
+  | 'comment'
+> {
   companyName: string | null
   companyArea: string | null
   companyAddress: string | null

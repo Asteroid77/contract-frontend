@@ -22,18 +22,8 @@ export default defineComponent({
 
     const statusText = computed(() => {
       return ['rejected', 'canceled', 'approved'].includes(props.data.status)
-        ? h(
-            StatusTag(
-              props.data.status as ApprovalInstanceStatus,
-              'Instance',
-            ),
-          )
-        : h(
-            StatusTag(
-              props.data.taskStatus as ApprovalTaskStatus,
-              'Task',
-            ),
-          )
+        ? h(StatusTag(props.data.status as ApprovalInstanceStatus, 'Instance'))
+        : h(StatusTag(props.data.taskStatus as ApprovalTaskStatus, 'Task'))
     })
 
     return () => (

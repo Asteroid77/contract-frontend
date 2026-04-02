@@ -48,11 +48,7 @@ function getDefaultConfig(): ObservabilityConfig {
       /AbortError/i,
       /cancelled/i,
     ],
-    ignoreUrls: [
-      /extensions\//i,
-      /^chrome:\/\//i,
-      /^moz-extension:\/\//i,
-    ],
+    ignoreUrls: [/extensions\//i, /^chrome:\/\//i, /^moz-extension:\/\//i],
   }
 }
 
@@ -140,18 +136,8 @@ export {
 
 export { getTracer, withSpan, getCurrentTraceContext, recordError } from './otel/tracer'
 
-export {
-  getSessionId,
-  getSessionUrl,
-  trackEvent,
-  trackIssue,
-} from './replay/openreplay'
+export { getSessionId, getSessionUrl, trackEvent, trackIssue } from './replay/openreplay'
 
-export type {
-  ObservabilityError,
-  ObservabilityConfig,
-  ErrorSource,
-  ErrorSeverity,
-} from './types'
+export type { ObservabilityError, ObservabilityConfig, ErrorSource, ErrorSeverity } from './types'
 
 export type { OpenReplayConfig } from './replay/openreplay'

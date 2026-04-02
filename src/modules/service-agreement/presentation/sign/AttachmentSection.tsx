@@ -1,7 +1,10 @@
 import { defineComponent, type PropType } from 'vue'
 import { NGrid, NFormItemGi } from 'naive-ui'
 import { $t } from '@/_utils/i18n'
-import type { AttachmentDataForInitiation, AttachmentDataForUI } from '@/modules/service-agreement/application/models'
+import type {
+  AttachmentDataForInitiation,
+  AttachmentDataForUI,
+} from '@/modules/service-agreement/application/models'
 
 import ImagesUploader from './ImagesUploader'
 import { FileCategoryEnum } from '@/modules/service-agreement/application/constants'

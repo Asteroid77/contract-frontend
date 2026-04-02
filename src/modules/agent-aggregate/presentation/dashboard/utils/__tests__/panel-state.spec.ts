@@ -11,7 +11,11 @@ describe('buildPanelState', () => {
       error: ref(new Error('refresh failed')),
     }
 
-    const state = buildPanelState(query, computed(() => 'Request failed'), (data) => Boolean(data))
+    const state = buildPanelState(
+      query,
+      computed(() => 'Request failed'),
+      (data) => Boolean(data),
+    )
 
     expect(state.value).toEqual({
       status: 'error',
@@ -31,7 +35,11 @@ describe('buildPanelState', () => {
       error: ref(null),
     }
 
-    const state = buildPanelState(query, computed(() => 'Request failed'), (data) => Boolean(data))
+    const state = buildPanelState(
+      query,
+      computed(() => 'Request failed'),
+      (data) => Boolean(data),
+    )
 
     expect(state.value).toEqual({ status: 'ready' })
   })

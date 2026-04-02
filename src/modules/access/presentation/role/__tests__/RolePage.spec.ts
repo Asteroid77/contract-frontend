@@ -60,7 +60,8 @@ vi.mock('naive-ui', () => ({
     name: 'NButton',
     emits: ['click'],
     setup(_, { emit, slots }) {
-      return () => h('button', { 'data-test': 'n-button', onClick: () => emit('click') }, slots.default?.())
+      return () =>
+        h('button', { 'data-test': 'n-button', onClick: () => emit('click') }, slots.default?.())
     },
   }),
   NSpace: defineComponent({
@@ -100,7 +101,9 @@ vi.mock('naive-ui', () => ({
           rows.map((row) =>
             h('div', { 'data-test': 'n-data-row' }, [
               h('span', { 'data-test': 'role-name' }, String(row.name ?? '')),
-              operate?.render ? h('div', { 'data-test': 'operate-cell' }, [operate.render(row) as never]) : null,
+              operate?.render
+                ? h('div', { 'data-test': 'operate-cell' }, [operate.render(row) as never])
+                : null,
             ]),
           ),
         )
@@ -116,7 +119,12 @@ vi.mock('naive-ui', () => ({
       },
     },
     setup(props, { slots }) {
-      return () => h('div', { 'data-test': 'n-drawer', 'data-show': String(Boolean(props.show)) }, slots.default?.())
+      return () =>
+        h(
+          'div',
+          { 'data-test': 'n-drawer', 'data-show': String(Boolean(props.show)) },
+          slots.default?.(),
+        )
     },
   }),
 }))

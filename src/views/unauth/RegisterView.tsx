@@ -31,7 +31,9 @@ export default defineComponent({
     })
 
     const sendBtnLabel = computed(() =>
-      formData.value.phone ? getSendBtnLabelText(formData.value.phone).value : t('common.action.send'),
+      formData.value.phone
+        ? getSendBtnLabelText(formData.value.phone).value
+        : t('common.action.send'),
     )
 
     const canSendCode = computed(() => {
@@ -115,7 +117,9 @@ export default defineComponent({
               v-model:value={formData.value.dbCheckPassword}
               type="password"
               showPasswordOn="click"
-              placeholder={t('common.placeholder.input', { label: t('auth.field.confirmPassword') })}
+              placeholder={t('common.placeholder.input', {
+                label: t('auth.field.confirmPassword'),
+              })}
               size="large"
             />
           </NFormItem>

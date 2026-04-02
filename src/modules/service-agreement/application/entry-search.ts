@@ -9,7 +9,9 @@ const VALUELESS_OPERATORS = new Set<FilterOp>([FilterOp.IS_NULL, FilterOp.IS_NOT
 const SERVICE_AGREEMENT_PREFILL_FIELDS = ['companyName', 'companyArea', 'status'] as const
 
 type ServiceAgreementPrefillField = (typeof SERVICE_AGREEMENT_PREFILL_FIELDS)[number]
-export type ServiceAgreementPrefill = Partial<Pick<ServiceAgreementDetail, ServiceAgreementPrefillField>>
+export type ServiceAgreementPrefill = Partial<
+  Pick<ServiceAgreementDetail, ServiceAgreementPrefillField>
+>
 
 const getSingleQueryValue = (value: unknown): string | null => {
   if (Array.isArray(value)) return getSingleQueryValue(value[0])
@@ -163,7 +165,8 @@ export const buildServiceAgreementPrefillQuery = (
 
 export const buildServiceAgreementPrefillQueryFromPageQuery = (
   query: QueryFilters | null,
-): Record<string, string> => buildServiceAgreementPrefillQuery(extractServiceAgreementPrefill(query))
+): Record<string, string> =>
+  buildServiceAgreementPrefillQuery(extractServiceAgreementPrefill(query))
 
 export const parseServiceAgreementPrefillQuery = (
   query: Record<string, unknown>,

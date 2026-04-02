@@ -32,7 +32,10 @@ type RequestTarget = AppQuery | AppMutation
 type QueryErrorToastHandler = (error: Error, query: AppQuery) => NaiveNotificationOptions
 type MutationErrorToastHandler = (error: Error, mutation: AppMutation) => NaiveNotificationOptions
 type QuerySuccessToastHandler = (data: unknown, query: AppQuery) => NaiveNotificationOptions
-type MutationSuccessToastHandler = (data: unknown, mutation: AppMutation) => NaiveNotificationOptions
+type MutationSuccessToastHandler = (
+  data: unknown,
+  mutation: AppMutation,
+) => NaiveNotificationOptions
 
 const MAX_QUERY_RETRY_COUNT = 2
 const RETRYABLE_CLIENT_STATUS_CODES = new Set([408, 429])
@@ -83,17 +86,11 @@ function shouldSkipGlobalErrorHandler(target: RequestTarget): boolean {
   return target.meta?.skipGlobalErrorHandler === true
 }
 
-function shouldShowDefaultQueryErrorToast(
-  query: AppQuery,
-): boolean {
+function shouldShowDefaultQueryErrorToast(query: AppQuery): boolean {
   return query.state.data !== undefined
 }
 
-function buildGlobalErrorKey(
-  error: Error,
-  query?: AppQuery,
-  mutation?: AppMutation,
-): string {
+function buildGlobalErrorKey(error: Error, query?: AppQuery, mutation?: AppMutation): string {
   const codePart =
     error instanceof BusinessError && error.code !== undefined ? String(error.code) : 'na'
   const requestIdPart =
@@ -185,11 +182,7 @@ function processApiError(error: Error | undefined): ProcessedError | undefined {
     originalError,
   }
 }
-const globalBaseErrorHandler = (
-  error: unknown,
-  query?: AppQuery,
-  mutation?: AppMutation,
-) => {
+const globalBaseErrorHandler = (error: unknown, query?: AppQuery, mutation?: AppMutation) => {
   const target = query ?? mutation
   if (!target) {
     return

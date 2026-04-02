@@ -37,12 +37,16 @@ vi.mock('naive-ui', () => ({
     },
     setup(props, { slots }) {
       return () =>
-        h('div', {
-          'data-test': 'n-result',
-          'data-status': props.status ?? '',
-          'data-title': props.title ?? '',
-          'data-description': props.description ?? '',
-        }, slots.footer?.())
+        h(
+          'div',
+          {
+            'data-test': 'n-result',
+            'data-status': props.status ?? '',
+            'data-title': props.title ?? '',
+            'data-description': props.description ?? '',
+          },
+          slots.footer?.(),
+        )
     },
   }),
   NButton: defineComponent({

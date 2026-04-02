@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { NMenu, NButton } from 'naive-ui'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { authRoutes } from '@/router'
 import { convertRoutesToMenuItems } from '@/app/presentation/layout/utils/MenuBuilder'
 import clsx from 'clsx'
 import ZwIcon from '@/modules/shared/presentation/widget/ZwIcon.vue'
-import { useTemplateRef } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCssVar } from '@/app/presentation/theme/hooks/useCssVar'
 import LogoImage from '@/assets/logo.png'

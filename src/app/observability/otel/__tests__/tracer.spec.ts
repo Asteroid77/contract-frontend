@@ -204,9 +204,11 @@ describe('otel tracer', () => {
 
     const tracer = module.getTracer('x')
     expect(traceGetTracerSpy).toHaveBeenCalledWith('x')
-    expect(tracer).toEqual(expect.objectContaining({
-      startActiveSpan: expect.any(Function),
-    }))
+    expect(tracer).toEqual(
+      expect.objectContaining({
+        startActiveSpan: expect.any(Function),
+      }),
+    )
 
     expect(module.getActiveSpan()).toBeUndefined()
     expect(module.getCurrentTraceContext()).toEqual({})

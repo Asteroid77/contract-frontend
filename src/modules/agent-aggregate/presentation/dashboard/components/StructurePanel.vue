@@ -2,7 +2,10 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { NSkeleton, NTag } from 'naive-ui'
-import type { AgentAggregateStructureLevelVO, AgentAggregateStructureVO } from '@/modules/agent-aggregate/domain/types'
+import type {
+  AgentAggregateStructureLevelVO,
+  AgentAggregateStructureVO,
+} from '@/modules/agent-aggregate/domain/types'
 import { VChart } from '../charts/echarts'
 import type { ECOption } from '../charts/ec-option'
 import {
@@ -26,8 +29,10 @@ const { query } = defineProps<{
 const { t: $t, locale } = useI18n()
 const requestFailedText = computed(() => $t('domain.agentAggregate.dashboard.state.requestFailed'))
 
-const panelState = buildPanelState(query, requestFailedText, (data) =>
-  safeArray<AgentAggregateStructureLevelVO>(data?.levels).length > 0,
+const panelState = buildPanelState(
+  query,
+  requestFailedText,
+  (data) => safeArray<AgentAggregateStructureLevelVO>(data?.levels).length > 0,
 )
 
 const { formatInteger, formatPercent } = useDashboardFormatters(locale, $t)

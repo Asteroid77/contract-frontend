@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
-import { useAllPermissions, useAnyPermission, useCan, usePermission } from '@/modules/access/application/hooks/useCan'
+import {
+  useAllPermissions,
+  useAnyPermission,
+  useCan,
+  usePermission,
+} from '@/modules/access/application/hooks/useCan'
 
 const { canSpy, cannotSpy } = vi.hoisted(() => ({
   canSpy: vi.fn(),

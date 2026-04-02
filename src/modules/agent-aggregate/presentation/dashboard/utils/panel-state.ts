@@ -89,7 +89,7 @@ export const getBusinessErrorMeta = (
   }
 }
 
-export const buildPanelState = <TData,>(
+export const buildPanelState = <TData>(
   query: QueryPanelLike<TData>,
   requestFailedText: ComputedRef<string>,
   hasData: (data: TData | undefined) => boolean,

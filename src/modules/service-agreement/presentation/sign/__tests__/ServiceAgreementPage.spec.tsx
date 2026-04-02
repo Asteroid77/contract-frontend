@@ -140,7 +140,6 @@ describe('ServiceAgreementPage', () => {
     expect(action.text()).toBe('1')
   })
 
-
   it('forwards empty slot into data table when no rows', () => {
     const wrapper = mount(ServiceAgreementPage, {
       props: {

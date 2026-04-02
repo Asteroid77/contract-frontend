@@ -1,5 +1,4 @@
-import Dexie from 'dexie'
-import type { EntityTable } from 'dexie'
+import type { Dexie, EntityTable } from 'dexie'
 import type { RestSmsCd } from './defineRestSMSCd'
 import type { SignInResponseComplete } from '@/modules/user/application/models'
 import type { QueryCacheEntry } from './QueryCache'

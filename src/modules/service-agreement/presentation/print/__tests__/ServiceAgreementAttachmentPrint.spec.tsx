@@ -73,7 +73,10 @@ const baseProps = {
       title: '合同扫描件',
       key: 'contractScanFiles',
     },
-  ] as Array<{ title: string; key: 'billFiles' | 'contractScanFiles' | 'supplementaryAttachmentFiles' }>,
+  ] as Array<{
+    title: string
+    key: 'billFiles' | 'contractScanFiles' | 'supplementaryAttachmentFiles'
+  }>,
 }
 
 describe('ServiceAgreementAttachmentPrint', () => {

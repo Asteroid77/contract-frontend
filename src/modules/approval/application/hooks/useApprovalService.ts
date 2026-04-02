@@ -30,7 +30,8 @@ export const approvalInstanceKeys = {
   INSTANCE: APPROVAL_INSTANCE_ROOT,
   INSTANCE_PAGE: (params: ApprovalInstancesPageRequest) =>
     [...APPROVAL_INSTANCE_ROOT, 'page', params] as const,
-  INSTANCE_DETAIL: (instanceId: number) => [...APPROVAL_INSTANCE_ROOT, 'detail', instanceId] as const,
+  INSTANCE_DETAIL: (instanceId: number) =>
+    [...APPROVAL_INSTANCE_ROOT, 'detail', instanceId] as const,
   LATEST_ADDITIONAL_INFO_INSTANCE: [...APPROVAL_INSTANCE_ROOT, 'latest-additional-info'] as const,
 }
 

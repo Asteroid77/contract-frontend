@@ -26,7 +26,9 @@ export const readRequestIdFromHeaders = (
   return normalizeRequestId(headers[REQUEST_ID_HEADER.toLowerCase()])
 }
 
-export const readRequestIdFromBody = (body?: Partial<RFC7807Response<unknown>>): string | undefined => {
+export const readRequestIdFromBody = (
+  body?: Partial<RFC7807Response<unknown>>,
+): string | undefined => {
   if (!body) return undefined
 
   const payload = body as Partial<RFC7807Response<unknown>> & {

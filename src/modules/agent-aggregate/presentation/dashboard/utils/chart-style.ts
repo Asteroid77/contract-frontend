@@ -89,7 +89,8 @@ const createDashboardSeriesAnimation = () => ({
   animationEasingUpdate: 'quadraticOut' as const,
 })
 
-const getSeriesShadowTone = (colorStops: string[]) => colorStops.at(-1) ?? colorStops[0] ?? '#60a5fa'
+const getSeriesShadowTone = (colorStops: string[]) =>
+  colorStops.at(-1) ?? colorStops[0] ?? '#60a5fa'
 
 export const createDashboardTooltip = ({
   trigger,
@@ -162,10 +163,7 @@ export const createDashboardGrid = (overrides: GridInput = {}): GridComponentOpt
   ...overrides,
 })
 
-export const createDashboardCategoryAxis = ({
-  data,
-  boundaryGap = false,
-}: CategoryAxisInput) => {
+export const createDashboardCategoryAxis = ({ data, boundaryGap = false }: CategoryAxisInput) => {
   const tokens = themeTokens()
 
   return {
@@ -187,10 +185,7 @@ export const createDashboardCategoryAxis = ({
   }
 }
 
-export const createDashboardValueAxis = ({
-  name,
-  formatter,
-}: ValueAxisInput = {}) => {
+export const createDashboardValueAxis = ({ name, formatter }: ValueAxisInput = {}) => {
   const tokens = themeTokens()
 
   return {

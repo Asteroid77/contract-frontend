@@ -20,7 +20,9 @@ describe('approvalInstanceAdvancedQueryFields', () => {
   })
 
   it('maps processName options from ApprovalProcessNameEnum values', () => {
-    const processField = approvalInstanceAdvancedQueryFields.find((field) => field.key === 'processName')
+    const processField = approvalInstanceAdvancedQueryFields.find(
+      (field) => field.key === 'processName',
+    )
 
     expect(processField).toBeDefined()
     expect(processField?.labelKey).toBe('domain.approval.field.process')
@@ -35,7 +37,9 @@ describe('approvalInstanceAdvancedQueryFields', () => {
   })
 
   it('keeps non-enum fields without options', () => {
-    const nonEnumFields = approvalInstanceAdvancedQueryFields.filter((field) => field.key !== 'processName')
+    const nonEnumFields = approvalInstanceAdvancedQueryFields.filter(
+      (field) => field.key !== 'processName',
+    )
 
     nonEnumFields.forEach((field) => {
       expect(field.options).toBeUndefined()

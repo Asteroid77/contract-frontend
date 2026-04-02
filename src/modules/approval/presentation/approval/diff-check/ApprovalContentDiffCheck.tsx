@@ -8,9 +8,15 @@ import type { UserAdditionalInfo } from '@/modules/user/application/models'
 import { RegisterType, RegisterTypeOption } from '@/modules/user/application/constants'
 import { useFilesDetailQuery } from '@/modules/file/application/hooks/useFileService'
 import type { FileResponse } from '@/modules/file/domain/types'
-import type { FieldDefinition, FormData } from '@/modules/shared/presentation/diff-check/domain/types/field'
+import type {
+  FieldDefinition,
+  FormData,
+} from '@/modules/shared/presentation/diff-check/domain/types/field'
 import UnifiedFormTable from '@/modules/shared/presentation/diff-check/components/unified/UnifiedFormTable'
-import { buildServiceAgreementDiffCheckFields, toServiceAgreementDiffCheckForm } from '@/modules/service-agreement/presentation/diff-check/serviceAgreementDiffCheck'
+import {
+  buildServiceAgreementDiffCheckFields,
+  toServiceAgreementDiffCheckForm,
+} from '@/modules/service-agreement/presentation/diff-check/serviceAgreementDiffCheck'
 import { uniq } from 'lodash'
 import { match } from 'ts-pattern'
 import { computed, defineComponent, type PropType } from 'vue'
@@ -56,7 +62,9 @@ export default defineComponent({
     const isUserAdditionalInfo = computed(() => props.data.processName === '用户信息审批')
 
     const approvalDataUser = computed(() => safeParse<UserAdditionalInfo>(props.data.approvalData))
-    const sourceDataUser = computed(() => (props.data.sourceData ? safeParse<UserAdditionalInfo>(props.data.sourceData) : null))
+    const sourceDataUser = computed(() =>
+      props.data.sourceData ? safeParse<UserAdditionalInfo>(props.data.sourceData) : null,
+    )
 
     const userOrder = [
       'registerType',
@@ -74,11 +82,18 @@ export default defineComponent({
       return match(itemKey)
         .with('registerType', () => RegisterTypeOption.find((item) => item.value === raw)?.label)
         .with('bankName', () => BankOption.find((item) => item.value === raw)?.label)
-        .with('pca', () => findPathInTree(areaData, raw as string)?.map((item) => item.label).join('-'))
+        .with('pca', () =>
+          findPathInTree(areaData, raw as string)
+            ?.map((item) => item.label)
+            .join('-'),
+        )
         .otherwise(() => raw)
     }
 
-    const userLabel = (itemKey: (typeof userOrder)[number], data: UserAdditionalInfo | null | undefined): string => {
+    const userLabel = (
+      itemKey: (typeof userOrder)[number],
+      data: UserAdditionalInfo | null | undefined,
+    ): string => {
       if (!data) return ''
       const labelMap: Record<Exclude<(typeof userOrder)[number], 'name'>, I18nKey> = {
         registerType: 'domain.user.field.registerType',
@@ -99,7 +114,10 @@ export default defineComponent({
       return $t(key) as string
     }
 
-    const userShouldShow = (key: keyof UserAdditionalInfo, data: UserAdditionalInfo | null): boolean => {
+    const userShouldShow = (
+      key: keyof UserAdditionalInfo,
+      data: UserAdditionalInfo | null,
+    ): boolean => {
       if (!data) return false
       const v = data[key]
       return v !== null && v !== undefined && v !== ''
@@ -107,9 +125,15 @@ export default defineComponent({
 
     const userFields = computed<FieldDefinition[]>(() => {
       return userOrder
-        .filter((key) => userShouldShow(key as keyof UserAdditionalInfo, approvalDataUser.value) || userShouldShow(key as keyof UserAdditionalInfo, sourceDataUser.value))
+        .filter(
+          (key) =>
+            userShouldShow(key as keyof UserAdditionalInfo, approvalDataUser.value) ||
+            userShouldShow(key as keyof UserAdditionalInfo, sourceDataUser.value),
+        )
         .map((key) => {
-          const ctx = approvalDataUser.value?.[key] ? approvalDataUser.value : sourceDataUser.value || approvalDataUser.value
+          const ctx = approvalDataUser.value?.[key]
+            ? approvalDataUser.value
+            : sourceDataUser.value || approvalDataUser.value
           return { key, label: userLabel(key, ctx), type: 'text' }
         })
     })
@@ -139,8 +163,12 @@ export default defineComponent({
 
     // ========== Service Agreement ==========
 
-    const approvalDataAgreement = computed(() => props.data.approvalData as unknown as ServiceAgreementRequestDTO)
-    const sourceDataAgreement = computed(() => (props.data.sourceData as unknown as ServiceAgreementRequestDTO | null) ?? null)
+    const approvalDataAgreement = computed(
+      () => props.data.approvalData as unknown as ServiceAgreementRequestDTO,
+    )
+    const sourceDataAgreement = computed(
+      () => (props.data.sourceData as unknown as ServiceAgreementRequestDTO | null) ?? null,
+    )
 
     const agreementFileIdKeys = [
       'billIds',
@@ -175,14 +203,18 @@ export default defineComponent({
       return ids.map((id) => fileMap.value.get(id)).filter(Boolean) as FileResponse[]
     }
 
-    const agreementFields = computed<FieldDefinition[]>(() => buildServiceAgreementDiffCheckFields())
+    const agreementFields = computed<FieldDefinition[]>(() =>
+      buildServiceAgreementDiffCheckFields(),
+    )
 
     const agreementData = computed<FormData>(() => {
       const model = {
         ...approvalDataAgreement.value,
         contractScanFiles: pickFiles(approvalDataAgreement.value.contractScanIds),
         billFiles: pickFiles(approvalDataAgreement.value.billIds),
-        supplementaryAttachmentFiles: pickFiles(approvalDataAgreement.value.supplementaryAttachmentIds),
+        supplementaryAttachmentFiles: pickFiles(
+          approvalDataAgreement.value.supplementaryAttachmentIds,
+        ),
       }
       return toServiceAgreementDiffCheckForm(model)
     })
@@ -193,14 +225,20 @@ export default defineComponent({
         ...sourceDataAgreement.value,
         contractScanFiles: pickFiles(sourceDataAgreement.value.contractScanIds),
         billFiles: pickFiles(sourceDataAgreement.value.billIds),
-        supplementaryAttachmentFiles: pickFiles(sourceDataAgreement.value.supplementaryAttachmentIds),
+        supplementaryAttachmentFiles: pickFiles(
+          sourceDataAgreement.value.supplementaryAttachmentIds,
+        ),
       }
       return toServiceAgreementDiffCheckForm(model)
     })
 
-    const fields = computed(() => (isUserAdditionalInfo.value ? userFields.value : agreementFields.value))
+    const fields = computed(() =>
+      isUserAdditionalInfo.value ? userFields.value : agreementFields.value,
+    )
     const data = computed(() => (isUserAdditionalInfo.value ? userData.value : agreementData.value))
-    const oldData = computed(() => (isUserAdditionalInfo.value ? userOldData.value : agreementOldData.value))
+    const oldData = computed(() =>
+      isUserAdditionalInfo.value ? userOldData.value : agreementOldData.value,
+    )
 
     return () => (
       <UnifiedFormTable
@@ -208,7 +246,9 @@ export default defineComponent({
         fields={fields.value}
         data={data.value}
         oldData={oldData.value}
-        showOnlyChanged={oldData.value ? props.showOnlyChanged && props.variant === 'screen' : false}
+        showOnlyChanged={
+          oldData.value ? props.showOnlyChanged && props.variant === 'screen' : false
+        }
         columnCount={2}
         expandAllLists
         disableListToggle={props.disableListToggle || props.variant === 'print'}

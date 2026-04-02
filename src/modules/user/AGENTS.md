@@ -45,7 +45,7 @@ user/
 | application    | `service.ts`                                      | `UserService`：DTO/VO 映射 + 仓储调用，导出单例 `userService`                   |
 | application    | `totp-service.ts`                                 | `TotpService`：两步验证流程，导出单例 `totpService`                             |
 | application    | `models.ts`                                       | 视图模型（`SignInForm`、`SignInResponse`、`UserPageItem` 等）                   |
-| application    | `mappers.ts`                                      | domain ↔ view 双向映射函数                                                     |
+| application    | `mappers.ts`                                      | domain ↔ view 双向映射函数                                                      |
 | application    | `validation.ts`                                   | 用户附加信息表单校验规则                                                        |
 | application    | `stores/useAccountStore.ts`                       | Pinia store，管理登录态、token、角色、权限                                      |
 | application    | `hooks/`                                          | `useLogin`、`useRegister`、`usePassword`、`useUserPage`、`useTotpManagement` 等 |

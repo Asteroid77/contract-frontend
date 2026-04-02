@@ -22,7 +22,12 @@ export {
 } from './application/ability'
 
 // Hooks - 组合式函数
-export { useCan, usePermission, useAnyPermission, useAllPermissions } from './application/hooks/useCan'
+export {
+  useCan,
+  usePermission,
+  useAnyPermission,
+  useAllPermissions,
+} from './application/hooks/useCan'
 
 // ============================================================
 // Presentation Layer - 表现层

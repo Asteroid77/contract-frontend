@@ -17,10 +17,14 @@ vi.mock('naive-ui', () => ({
     },
     setup(props, { slots }) {
       return () =>
-        h('div', {
-          'data-test': 'n-card',
-          'data-title': props.title || '',
-        }, slots.default?.())
+        h(
+          'div',
+          {
+            'data-test': 'n-card',
+            'data-title': props.title || '',
+          },
+          slots.default?.(),
+        )
     },
   }),
   NSplit: defineComponent({

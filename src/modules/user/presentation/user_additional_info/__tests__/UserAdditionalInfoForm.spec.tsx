@@ -124,8 +124,7 @@ type UserAdditionalInfoFormVm = {
 }
 
 const createLegalForm = (): FormInput<UserAdditionalInfoFormModel> => ({
-  registerType:
-    RegisterType.LEGAL_REPRESENTATIVE as UserAdditionalInfoFormModel['registerType'],
+  registerType: RegisterType.LEGAL_REPRESENTATIVE as UserAdditionalInfoFormModel['registerType'],
   name: 'Acme',
   pca: '110000',
   companyAddress: 'Road 1',

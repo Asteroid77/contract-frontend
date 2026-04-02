@@ -8,4 +8,3 @@ export default defineComponent({
     return () => <div class="diff-check-scope">{slots.default?.()}</div>
   },
 })
-

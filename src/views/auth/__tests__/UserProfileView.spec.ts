@@ -185,7 +185,8 @@ vi.mock('naive-ui', () => ({
   NCard: defineComponent({
     name: 'NCard',
     setup(_, { slots }) {
-      return () => h('section', { 'data-test': 'n-card' }, [slots.default?.(), slots['header-extra']?.()])
+      return () =>
+        h('section', { 'data-test': 'n-card' }, [slots.default?.(), slots['header-extra']?.()])
     },
   }),
   NGrid: defineComponent({
@@ -209,7 +210,8 @@ vi.mock('naive-ui', () => ({
       },
     },
     setup(props, { slots }) {
-      return () => h('button', { 'data-test': 'n-avatar', onClick: props.onClick }, slots.default?.())
+      return () =>
+        h('button', { 'data-test': 'n-avatar', onClick: props.onClick }, slots.default?.())
     },
   }),
   NStatistic: defineComponent({
@@ -224,7 +226,12 @@ vi.mock('naive-ui', () => ({
       },
     },
     setup(props) {
-      return () => h('div', { 'data-test': 'n-statistic', 'data-label': props.label, 'data-value': String(props.value) })
+      return () =>
+        h('div', {
+          'data-test': 'n-statistic',
+          'data-label': props.label,
+          'data-value': String(props.value),
+        })
     },
   }),
   NResult: defineComponent({
@@ -236,7 +243,8 @@ vi.mock('naive-ui', () => ({
       },
     },
     setup(props, { slots }) {
-      return () => h('section', { 'data-test': 'n-result', 'data-status': props.status }, slots.footer?.())
+      return () =>
+        h('section', { 'data-test': 'n-result', 'data-status': props.status }, slots.footer?.())
     },
   }),
   NButton: defineComponent({

@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { FilterOp } from '@/modules/shared/domain/query'
-import { toDomainPageRequest, toQueryFilters } from '@/modules/shared/application/query/legacy-query-adapter'
+import {
+  toDomainPageRequest,
+  toQueryFilters,
+} from '@/modules/shared/application/query/legacy-query-adapter'
 
 describe('legacy-query-adapter', () => {
   it('returns undefined when query is missing or contains only invalid conditions', () => {

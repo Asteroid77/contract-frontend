@@ -2,7 +2,10 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { NSkeleton, NStatistic } from 'naive-ui'
-import type { AgentAggregateOverviewVO, AgentAggregateRegionVO } from '@/modules/agent-aggregate/domain/types'
+import type {
+  AgentAggregateOverviewVO,
+  AgentAggregateRegionVO,
+} from '@/modules/agent-aggregate/domain/types'
 import { VChart } from '../charts/echarts'
 import type { ECOption } from '../charts/ec-option'
 import { chartColor } from '../utils/chart-color'
@@ -38,7 +41,10 @@ const kpis = computed(() => {
   return [
     { label: $t('domain.agentAggregate.dashboard.kpi.agents'), value: overview?.agentCount ?? 0 },
     { label: $t('domain.agentAggregate.dashboard.kpi.filing'), value: overview?.filingCount ?? 0 },
-    { label: $t('domain.agentAggregate.dashboard.kpi.signing'), value: overview?.signingCount ?? 0 },
+    {
+      label: $t('domain.agentAggregate.dashboard.kpi.signing'),
+      value: overview?.signingCount ?? 0,
+    },
     {
       label: $t('domain.agentAggregate.dashboard.kpi.yearCharge'),
       value: overview?.yearUsableChargeTotal ?? 0,

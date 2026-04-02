@@ -86,11 +86,11 @@ export default defineComponent({
 
         <div style="margin-bottom:16px;font-size:11px;">
           <strong>{$t('common.diffCheck.print.legend.title')}：</strong>
-          <span style="text-decoration:line-through;margin-left:8px;">
+          <span style="text-decoration:line-through;margin-left:var(--spacing-8);">
             {$t('common.diffCheck.print.legend.strikeThrough')}
           </span>{' '}
           = {$t('common.diffCheck.print.legend.originalValue')} |
-          <span style="font-weight:bold;border-bottom:1px solid #000;margin-left:8px;">
+          <span style="font-weight:bold;border-bottom:1px solid #000;margin-left:var(--spacing-8);">
             {$t('common.diffCheck.print.legend.boldUnderline')}
           </span>{' '}
           = {$t('common.diffCheck.print.legend.newValue')} | [{$t('common.action.add')}] ={' '}
