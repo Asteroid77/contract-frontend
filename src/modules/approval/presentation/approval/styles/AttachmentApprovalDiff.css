@@ -1,22 +1,25 @@
 .attachment-approval-container {
   width: 100%;
   max-width: 210mm; /* 限制最大宽度为 A4 纸宽度 */
-  margin: 0 auto; /* 居中对齐 */
-  box-sizing: border-box; /* 确保 padding 不会撑大容器 */
-  border-radius: 8px;
-  min-height: 100px; /* 防止内容为空时塌缩太难看 */
+  margin: 0 auto;
+  box-sizing: border-box;
+  border-radius: var(--radius-md);
+  min-height: 6.25rem;
 }
+
 .in-approval-mode {
   display: none;
 }
+
 .attachment-approval__loading {
-  padding: 10px;
+  padding: var(--spacing-8);
 }
 
 @media print {
   .attachment-approval-container {
     display: none;
   }
+
   .in-approval-mode {
     display: block;
   }
