@@ -80,7 +80,7 @@ describe('useRoleService hooks', () => {
     expect(roleKeys.list({ page: 1 })).toEqual(['role', 'list', { page: 1 }])
     expect(roleKeys.details()).toEqual(['role', 'detail'])
     expect(roleKeys.detail(10)).toEqual(['role', 'detail', 10])
-    expect(roleKeys.userRoles(5)).toEqual(['role', 'user', 5])
+    expect(roleKeys.userRoles(5)).toEqual(['role', 'userRoles', { userId: 5 }])
   })
 
   it('useRolePage uses defaults and delegates queryFn', async () => {
@@ -110,7 +110,7 @@ describe('useRoleService hooks', () => {
     useRolesByUserId(userId, { enabled })
     const options = vi.mocked(useQuery).mock.calls[0][0] as unknown as MockRolesByUserIdQueryOptions
 
-    expect(options.queryKey.value).toEqual(roleKeys.userRoles(0))
+    expect(options.queryKey.value).toEqual(['role', 'userRoles', { userId: null }])
     expect(options.enabled.value).toBe(false)
 
     userId.value = 6
@@ -124,7 +124,7 @@ describe('useRoleService hooks', () => {
     expect(accessService.getRolesByUserId).toHaveBeenCalledWith(6)
   })
 
-  it('useEditRole invalidates list and user-role cache on success', async () => {
+  it('useEditRole invalidates role list cache on success', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     useEditRole()
@@ -142,7 +142,7 @@ describe('useRoleService hooks', () => {
 
     options.onSuccess({}, payload)
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: roleKeys.lists() })
-    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: roleKeys.userRoles(9) })
+    expect(queryClient.invalidateQueries).toHaveBeenCalledTimes(1)
 
     options.onError(new Error('failed'))
     expect(errorSpy).toHaveBeenCalled()

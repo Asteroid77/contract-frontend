@@ -5,6 +5,9 @@ import {
   approvalInstanceKeys,
   approvalKeys,
   approvalTaskKeys,
+  useApprovalHistoryQuery,
+  useApprovalInstanceDetail,
+  useApprovalInstancePage,
   useHandleTask,
   useLatestAdditionalInfoInstanceStatus,
 } from '@/modules/approval/application/hooks/useApprovalService'
@@ -25,6 +28,9 @@ vi.mock('@tanstack/vue-query', () => ({
 vi.mock('@/modules/approval/application/service', () => ({
   approvalService: {
     handleTask: vi.fn(),
+    getHistoryList: vi.fn(),
+    getInstanceDetail: vi.fn(),
+    getInstancePage: vi.fn(),
     getLatestAdditionalInfoInstanceStatus: vi.fn(),
   },
 }))
@@ -98,10 +104,50 @@ describe('useApprovalService hooks', () => {
     vi.mocked(approvalService.handleTask).mockResolvedValue(
       createApprovalInstance('用户信息审批') as never,
     )
+    vi.mocked(approvalService.getInstancePage).mockResolvedValue({
+      records: [],
+      total: 0,
+      size: 10,
+      current: 1,
+    } as never)
+    vi.mocked(approvalService.getInstanceDetail).mockResolvedValue(
+      createApprovalInstance('备案/签约信息审批') as never,
+    )
+    vi.mocked(approvalService.getHistoryList).mockResolvedValue([] as never)
     vi.mocked(approvalService.getLatestAdditionalInfoInstanceStatus).mockResolvedValue({
       id: 101,
       status: 'pending',
     } as never)
+  })
+
+  it('keeps approval task and instance keys under stable approval subtrees', () => {
+    const params = {
+      page: 1,
+      size: 10,
+      query: {},
+    }
+
+    expect(approvalTaskKeys.ALL).toEqual(['approval', 'tasks'])
+    expect(approvalKeys.HISTORY(888)).toEqual(['approval', 'tasks', 888, 'history'])
+
+    expect(approvalInstanceKeys.ALL).toEqual(['approval', 'instances'])
+    expect(approvalInstanceKeys.INSTANCE_PAGE(params)).toEqual([
+      'approval',
+      'instances',
+      'page',
+      params,
+    ])
+    expect(approvalInstanceKeys.INSTANCE_DETAIL(101)).toEqual([
+      'approval',
+      'instances',
+      'detail',
+      101,
+    ])
+    expect(approvalInstanceKeys.LATEST_ADDITIONAL_INFO_INSTANCE).toEqual([
+      'approval',
+      'instances',
+      'latest-additional-info',
+    ])
   })
 
   it('useHandleTask invalidates common keys and additional-info key for 用户信息审批', () => {
@@ -204,5 +250,85 @@ describe('useApprovalService hooks', () => {
     expect(options.gcTime).toBe(777)
     expect(options.refetchOnWindowFocus).toBe(true)
     expect(options.refetchOnMount).toBe(true)
+  })
+
+  it('useApprovalInstancePage keeps computed queryKey in sync with reactive params', async () => {
+    const params = ref({
+      page: 1,
+      size: 10,
+      query: {},
+    })
+
+    useApprovalInstancePage(params)
+    const options = getLatestQueryOptions() as unknown as {
+      queryKey: { value: unknown }
+      enabled: { value: boolean }
+      placeholderData: (previousData: unknown) => unknown
+      queryFn: (ctx: { queryKey: unknown }) => Promise<unknown>
+    }
+
+    expect(options.queryKey.value).toEqual(approvalInstanceKeys.INSTANCE_PAGE(params.value))
+    expect(options.enabled.value).toBe(true)
+    expect(options.placeholderData('previous')).toBe('previous')
+
+    await options.queryFn({ queryKey: approvalInstanceKeys.INSTANCE_PAGE(params.value) })
+    expect(approvalService.getInstancePage).toHaveBeenCalledWith(params.value)
+
+    params.value = {
+      ...params.value,
+      page: 2,
+    }
+    expect(options.queryKey.value).toEqual(approvalInstanceKeys.INSTANCE_PAGE(params.value))
+  })
+
+  it('useApprovalInstanceDetail keeps queryKey and enabled in sync with reactive id', async () => {
+    const instanceId = ref(101)
+
+    useApprovalInstanceDetail(instanceId)
+    const options = getLatestQueryOptions() as unknown as {
+      queryKey: { value: unknown }
+      enabled: { value: boolean }
+      placeholderData: (previousData: unknown) => unknown
+      queryFn: (ctx: { queryKey: unknown }) => Promise<unknown>
+    }
+
+    expect(options.queryKey.value).toEqual(approvalInstanceKeys.INSTANCE_DETAIL(101))
+    expect(options.enabled.value).toBe(true)
+    expect(options.placeholderData('previous')).toBe('previous')
+
+    await options.queryFn({ queryKey: approvalInstanceKeys.INSTANCE_DETAIL(101) })
+    expect(approvalService.getInstanceDetail).toHaveBeenCalledWith(101)
+
+    instanceId.value = 202
+    expect(options.queryKey.value).toEqual(approvalInstanceKeys.INSTANCE_DETAIL(202))
+    expect(options.enabled.value).toBe(true)
+
+    instanceId.value = 0
+    expect(options.enabled.value).toBe(false)
+  })
+
+  it('useApprovalHistoryQuery keeps queryKey in sync with reactive instance id', async () => {
+    const instanceId = ref(11)
+
+    useApprovalHistoryQuery(instanceId)
+    const options = getLatestQueryOptions() as unknown as {
+      queryKey: { value: unknown }
+      enabled: { value: boolean }
+      placeholderData: (previousData: unknown) => unknown
+      queryFn: (ctx: { queryKey: unknown }) => Promise<unknown>
+    }
+
+    expect(options.queryKey.value).toEqual(approvalKeys.HISTORY(11))
+    expect(options.enabled.value).toBe(true)
+    expect(options.placeholderData(['previous'])).toEqual(['previous'])
+
+    await options.queryFn({ queryKey: approvalKeys.HISTORY(11) })
+    expect(approvalService.getHistoryList).toHaveBeenCalledWith(11)
+
+    instanceId.value = 12
+    expect(options.queryKey.value).toEqual(approvalKeys.HISTORY(12))
+
+    instanceId.value = 0
+    expect(options.enabled.value).toBe(false)
   })
 })

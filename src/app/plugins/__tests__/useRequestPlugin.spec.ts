@@ -1,5 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
+import {
+  QueryClient,
+  type QueryKey,
+  type QueryObserverOptions,
+  type MutationObserverOptions,
+  VueQueryPlugin,
+} from '@tanstack/vue-query'
 import { BusinessError } from '@/modules/shared/domain/errors'
 import { enableQueryPersistence, useRequestPlugin } from '@/app/plugins/useRequestPlugin'
 import { notification, showUniqueErrorNotification } from '@/_utils/discrete_naive_api'
@@ -52,9 +58,12 @@ vi.mock('@/app/infrastructure/request/request-id', () => ({
   readRequestIdFromHeaders: vi.fn(() => 'req-from-header'),
 }))
 
+type QueryMetaStub = QueryObserverOptions['meta']
+type MutationMetaStub = MutationObserverOptions['meta']
+
 type QueryStub = {
-  meta?: Record<string, unknown>
-  queryKey: unknown[]
+  meta?: QueryMetaStub
+  queryKey: QueryKey
   state: {
     status: string
     fetchStatus: string
@@ -67,14 +76,14 @@ type QueryStub = {
 }
 
 type MutationStub = {
-  meta?: Record<string, unknown>
+  meta?: MutationMetaStub
   mutationId: number
 }
 
 type QueryCacheConfigLike = {
   onError: (error: Error, query: QueryStub) => void
   onSuccess: (data: { detail: string }, query: QueryStub) => void
-  onSettled: (data: unknown, error: unknown, query: { queryKey: unknown[] }) => void
+  onSettled: (data: unknown, error: unknown, query: { queryKey: QueryKey }) => void
 }
 
 type MutationCacheConfigLike = {
@@ -97,7 +106,7 @@ const getQueryRetryOption = (queryClient: QueryClient) =>
     | ((failureCount: number, error: unknown) => boolean)
     | undefined
 
-const createQueryStub = (meta?: Record<string, unknown>, data: unknown = undefined): QueryStub => ({
+const createQueryStub = (meta?: QueryMetaStub, data: unknown = undefined): QueryStub => ({
   meta,
   queryKey: ['approval', 'instance', 1],
   state: {
@@ -111,7 +120,7 @@ const createQueryStub = (meta?: Record<string, unknown>, data: unknown = undefin
   getObserversCount: () => 0,
 })
 
-const createMutationStub = (meta?: Record<string, unknown>): MutationStub => ({
+const createMutationStub = (meta?: MutationMetaStub): MutationStub => ({
   meta,
   mutationId: 123,
 })
@@ -225,6 +234,20 @@ describe('useRequestPlugin', () => {
     consoleErrorSpy.mockRestore()
   })
 
+  it('queryCache onError no longer handles 403 with default toast', () => {
+    const queryClient = useRequestPlugin()[0].option?.queryClient as QueryClient
+    const queryCacheConfig = getQueryCacheConfig(queryClient)
+
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const error = new BusinessError('forbidden', 40300, 'trace-403', 'request-403', 'about:blank', 403)
+    queryCacheConfig.onError(error, createQueryStub())
+
+    expect(showUniqueErrorNotification).not.toHaveBeenCalled()
+
+    consoleErrorSpy.mockRestore()
+  })
+
   it('queryCache onError skips default toast when query has no cached data', () => {
     const queryClient = useRequestPlugin()[0].option?.queryClient as QueryClient
     const queryCacheConfig = getQueryCacheConfig(queryClient)
@@ -257,7 +280,7 @@ describe('useRequestPlugin', () => {
     expect(showUniqueErrorNotification).not.toHaveBeenCalled()
   })
 
-  it('mutationCache onSuccess shows default success notification', () => {
+  it('mutationCache onSuccess does not show notification by default', () => {
     const queryClient = useRequestPlugin()[0].option?.queryClient as QueryClient
     const mutationCacheConfig = getMutationCacheConfig(queryClient)
 
@@ -270,12 +293,7 @@ describe('useRequestPlugin', () => {
       createMutationStub(),
     )
 
-    expect(notification.success).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 't:common.status.success',
-        content: 'mutation-ok',
-      }),
-    )
+    expect(notification.success).not.toHaveBeenCalled()
   })
 
   it('queryCache onSuccess can show notification when toastOnSuccess enabled', () => {
@@ -295,6 +313,29 @@ describe('useRequestPlugin', () => {
       expect.objectContaining({
         title: 't:common.status.success',
         content: 'query-success',
+      }),
+    )
+  })
+
+  it('mutationCache onSuccess can show notification when toastOnSuccess enabled', () => {
+    const queryClient = useRequestPlugin()[0].option?.queryClient as QueryClient
+    const mutationCacheConfig = getMutationCacheConfig(queryClient)
+
+    mutationCacheConfig.onSuccess(
+      {
+        detail: 'mutation-ok',
+      },
+      null,
+      null,
+      createMutationStub({
+        toastOnSuccess: true,
+      }),
+    )
+
+    expect(notification.success).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 't:common.status.success',
+        content: 'mutation-ok',
       }),
     )
   })

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { userKeys, useLoadUserInfo } from '@/modules/user/application/hooks/useLoadUserInfo'
 import {
@@ -12,6 +12,8 @@ import { useUserAdditionalInfoRequest } from '@/modules/user/application/hooks/u
 import { userService } from '@/modules/user/application/service'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 import { approvalInstanceKeys } from '@/modules/approval/application/hooks/useApprovalService'
+import { useAccountStore } from '@/modules/user/application/stores/useAccountStore'
+import { STORAGE_KEYS } from '@/constants/storage'
 
 const { keepPreviousDataMarker } = vi.hoisted(() => ({
   keepPreviousDataMarker: Symbol('keepPreviousData'),
@@ -34,13 +36,17 @@ vi.mock('@/modules/user/application/service', () => ({
   },
 }))
 
+vi.mock('@/modules/user/application/stores/useAccountStore', () => ({
+  useAccountStore: vi.fn(),
+}))
+
 vi.mock('@/app/infrastructure/query/query-request-context', () => ({
   withQueryRequestContext: vi.fn((_queryKey, _ctx, runner) => runner()),
 }))
 
 vi.mock('@/modules/approval/application/hooks/useApprovalService', () => ({
   approvalInstanceKeys: {
-    LATEST_ADDITIONAL_INFO_INSTANCE: ['approval', 'instance', 'additional_info'],
+    LATEST_ADDITIONAL_INFO_INSTANCE: ['approval', 'instances', 'latest-additional-info'],
   },
 }))
 
@@ -88,6 +94,11 @@ describe('user query hooks', () => {
     vi.clearAllMocks()
     localStorage.clear()
     vi.mocked(useQueryClient).mockReturnValue(queryClient as never)
+    vi.mocked(useAccountStore).mockReturnValue({
+      token: 'token-a',
+      refreshToken: null,
+      updateTokens: vi.fn(),
+    } as never)
 
     vi.mocked(userService.getCurrentUserInfo).mockResolvedValue({ token: 'token-a' } as never)
     vi.mocked(userService.getUserPage).mockResolvedValue({
@@ -107,7 +118,7 @@ describe('user query hooks', () => {
 
   it('defines stable user keys', () => {
     expect(userKeys.ALL).toEqual(['user'])
-    expect(userKeys.INFO('abc')).toEqual(['user', 'info', 'abc'])
+    expect(userKeys.INFO).toEqual(['user', 'info', 'current'])
 
     expect(userQueryKeys.all).toEqual(['users'])
     expect(userQueryKeys.lists()).toEqual(['users', 'list'])
@@ -119,22 +130,116 @@ describe('user query hooks', () => {
     useLoadUserInfo('token-1')
     const options = getLatestQueryOptions()
 
-    expect(options.queryKey).toEqual(userKeys.INFO('token-1'))
+    expect(options.queryKey).toEqual(userKeys.INFO)
 
-    await options.queryFn({ queryKey: userKeys.INFO('token-1') })
+    await options.queryFn({ queryKey: userKeys.INFO })
 
     expect(withQueryRequestContext).toHaveBeenCalled()
     expect(userService.getCurrentUserInfo).toHaveBeenCalledWith()
   })
 
-  it('useLoadUserInfo keeps token in queryKey for cache partitioning', async () => {
+  it('useLoadUserInfo does not use token as cache identity', async () => {
     useLoadUserInfo('token-stale')
     const options = getLatestQueryOptions()
 
-    await options.queryFn({ queryKey: userKeys.INFO('token-stale') })
+    await options.queryFn({ queryKey: userKeys.INFO })
 
-    expect(options.queryKey).toEqual(userKeys.INFO('token-stale'))
+    expect(options.queryKey).toEqual(userKeys.INFO)
     expect(userService.getCurrentUserInfo).toHaveBeenCalledWith()
+  })
+
+  it('useLoadUserInfo keeps a stable queryKey when reactive token changes', () => {
+    const token = ref('token-1')
+
+    useLoadUserInfo(computed(() => token.value))
+    const options = getLatestQueryOptions()
+
+    expect(options.queryKey).toEqual(userKeys.INFO)
+
+    token.value = 'token-2'
+
+    expect(options.queryKey).toEqual(userKeys.INFO)
+  })
+
+  it('useLoadUserInfo syncs tokens from successful profile payload back into account store', async () => {
+    const data = ref<{
+      token: string
+      refreshToken?: string
+      expiresIn?: number
+    }>()
+    const updateTokens = vi.fn()
+
+    vi.mocked(useAccountStore).mockReturnValue({
+      token: 'token-a',
+      refreshToken: null,
+      updateTokens,
+    } as never)
+    vi.mocked(useQuery).mockImplementationOnce(() => ({ data }) as never)
+
+    useLoadUserInfo(computed(() => 'token-a'))
+
+    data.value = {
+      token: 'token-a',
+      refreshToken: 'refresh-a',
+      expiresIn: 7200,
+    }
+    await nextTick()
+
+    expect(updateTokens).toHaveBeenCalledWith('token-a', 'refresh-a', 7200)
+  })
+
+  it('useLoadUserInfo preserves existing refresh token when profile payload omits it', async () => {
+    const data = ref<{
+      token: string
+      refreshToken?: string
+      expiresIn?: number
+    }>()
+    const updateTokens = vi.fn()
+
+    vi.mocked(useAccountStore).mockReturnValue({
+      token: 'token-a',
+      refreshToken: 'refresh-existing',
+      updateTokens,
+    } as never)
+    vi.mocked(useQuery).mockImplementationOnce(() => ({ data }) as never)
+
+    useLoadUserInfo(computed(() => 'token-a'))
+
+    data.value = {
+      token: 'token-a',
+      expiresIn: 7200,
+    }
+    await nextTick()
+
+    expect(updateTokens).toHaveBeenCalledWith('token-a', 'refresh-existing', 7200)
+  })
+
+  it('useLoadUserInfo prefers latest stored tokens when profile payload omits token fields', async () => {
+    const data = ref<{
+      token?: string
+      refreshToken?: string
+      expiresIn?: number
+    }>()
+    const updateTokens = vi.fn()
+
+    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, 'token-fresh')
+    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'refresh-fresh')
+
+    vi.mocked(useAccountStore).mockReturnValue({
+      token: 'token-stale',
+      refreshToken: 'refresh-stale',
+      updateTokens,
+    } as never)
+    vi.mocked(useQuery).mockImplementationOnce(() => ({ data }) as never)
+
+    useLoadUserInfo(computed(() => 'token-stale'))
+
+    data.value = {
+      expiresIn: 7200,
+    }
+    await nextTick()
+
+    expect(updateTokens).toHaveBeenCalledWith('token-fresh', 'refresh-fresh', 7200)
   })
 
   it('useUserPage uses defaults and delegates queryFn', async () => {

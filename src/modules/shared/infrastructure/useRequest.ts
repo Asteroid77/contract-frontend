@@ -20,6 +20,12 @@ import {
   hasStoredRefreshToken,
   isLogoutInProgress,
 } from '@/modules/access/application/token-manager'
+import {
+  isRecoverableAuthSessionError,
+  recoverAuthSession,
+} from '@/modules/access/application/auth-session-recovery'
+import { ResponseCode } from '@/modules/shared/application/constants/response-code'
+import { reportAuthErrorFeedback } from '@/modules/shared/infrastructure/request-auth-feedback'
 
 export function useRequest<T, D = unknown>(
   config: CustomAxiosRequestConfig<D> & { responseShape: 'data' },
@@ -62,11 +68,11 @@ export async function useRequest<T, D = unknown>(
         await forceRefreshAccessToken()
         return await executeRequest<T, D>(config, true)
       } catch (retryError) {
-        throwMappedRequestError(retryError, config)
+        return await throwMappedRequestError(retryError, config)
       }
     }
 
-    throwMappedRequestError(error, config)
+    return await throwMappedRequestError(error, config)
   }
 }
 
@@ -103,7 +109,12 @@ function shouldRetryWithTokenRefresh(error: unknown, config: CustomAxiosRequestC
   const status = error.response.status ?? problemDetails?.status
   const code = problemDetails?.code
 
-  return status === 401 || code === 401
+  return (
+    status === 401 ||
+    code === 401 ||
+    code === ResponseCode.OAUTH2_TOKEN_VERIFY_ERROR ||
+    code === ResponseCode.OAUTH2_TOKEN_EXPIRED
+  )
 }
 
 function shouldRefreshBeforeRetry(config: CustomAxiosRequestConfig): boolean {
@@ -119,7 +130,10 @@ function shouldRefreshBeforeRetry(config: CustomAxiosRequestConfig): boolean {
   return true
 }
 
-function throwMappedRequestError(error: unknown, config: CustomAxiosRequestConfig): never {
+async function throwMappedRequestError(
+  error: unknown,
+  config: CustomAxiosRequestConfig,
+): Promise<never> {
   console.error(error)
 
   if (axios.isAxiosError(error) && error.response) {
@@ -128,7 +142,7 @@ function throwMappedRequestError(error: unknown, config: CustomAxiosRequestConfi
       error.response as AxiosResponse<RFC7807Response>,
     )
 
-    throw new BusinessError(
+    const mappedError = new BusinessError(
       problemDetails.detail || problemDetails.title || 'Error',
       problemDetails.code,
       problemDetails.traceId,
@@ -136,6 +150,19 @@ function throwMappedRequestError(error: unknown, config: CustomAxiosRequestConfi
       problemDetails.type,
       problemDetails.status,
     )
+
+    reportAuthErrorFeedback(mappedError)
+    if (isRecoverableAuthSessionError(mappedError)) {
+      await recoverAuthSession(mappedError)
+    }
+    throw mappedError
+  }
+
+  if (error instanceof BusinessError) {
+    reportAuthErrorFeedback(error)
+    if (isRecoverableAuthSessionError(error)) {
+      await recoverAuthSession(error)
+    }
   }
 
   throw error

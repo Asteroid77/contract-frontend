@@ -12,11 +12,8 @@ import { enablePostLoginEnhancements } from '@/app/plugins/post-login-enhancemen
 
 type AuthGuardDependencies = {
   useAccountStore: typeof import('@/modules/user/application/stores/useAccountStore').useAccountStore
-  useQueryClient: typeof import('@tanstack/vue-query').useQueryClient
-  userKeys: typeof import('@/modules/user/application/hooks/useLoadUserInfo').userKeys
   userService: typeof import('@/modules/user/application/service').userService
   axios: typeof import('axios').default
-  withQueryRequestContext: typeof import('@/app/infrastructure/query/query-request-context').withQueryRequestContext
   ResponseCode: typeof import('@/modules/shared/application/constants/response-code').ResponseCode
 }
 
@@ -26,48 +23,22 @@ const loadAuthGuardDependencies = (): Promise<AuthGuardDependencies> => {
   if (!authGuardDependenciesPromise) {
     authGuardDependenciesPromise = Promise.all([
       import('@/modules/user/application/stores/useAccountStore'),
-      import('@tanstack/vue-query'),
-      import('@/modules/user/application/hooks/useLoadUserInfo'),
       import('@/modules/user/application/service'),
       import('axios'),
-      import('@/app/infrastructure/query/query-request-context'),
       import('@/modules/shared/application/constants/response-code'),
-    ]).then(
-      ([
-        storeModule,
-        queryModule,
-        userInfoModule,
-        userServiceModule,
-        axiosModule,
-        contextModule,
-        codeModule,
-      ]) => ({
-        useAccountStore: storeModule.useAccountStore,
-        useQueryClient: queryModule.useQueryClient,
-        userKeys: userInfoModule.userKeys,
-        userService: userServiceModule.userService,
-        axios: axiosModule.default,
-        withQueryRequestContext: contextModule.withQueryRequestContext,
-        ResponseCode: codeModule.ResponseCode,
-      }),
-    )
+    ]).then(([storeModule, userServiceModule, axiosModule, codeModule]) => ({
+      useAccountStore: storeModule.useAccountStore,
+      userService: userServiceModule.userService,
+      axios: axiosModule.default,
+      ResponseCode: codeModule.ResponseCode,
+    }))
   }
 
   return authGuardDependenciesPromise
 }
 
-const loadCurrentUserInfo = async (
-  accessToken: string,
-  deps: AuthGuardDependencies,
-): Promise<SignInResponse> => {
-  const queryClient = deps.useQueryClient()
-
-  return queryClient.ensureQueryData({
-    queryKey: deps.userKeys.INFO(accessToken),
-    queryFn: (ctx) =>
-      deps.withQueryRequestContext(ctx.queryKey, ctx, () => deps.userService.getCurrentUserInfo()),
-    staleTime: 1000 * 60 * 5,
-  }) as Promise<SignInResponse>
+const loadCurrentUserInfo = async (deps: AuthGuardDependencies): Promise<SignInResponse> => {
+  return deps.userService.getCurrentUserInfo() as Promise<SignInResponse>
 }
 
 const mergeStoredRefreshToken = (data: SignInResponse): SignInResponseComplete => {
@@ -100,7 +71,7 @@ const isAuthError = (error: unknown, deps: AuthGuardDependencies): boolean => {
       ) {
         return true
       }
-      return bizError.status === 401 || bizError.status === 403
+      return bizError.status === 401
     }
   }
 
@@ -110,7 +81,6 @@ const isAuthError = (error: unknown, deps: AuthGuardDependencies): boolean => {
     const code = payload?.code
     return (
       status === 401 ||
-      status === 403 ||
       code === deps.ResponseCode.OAUTH2_TOKEN_VERIFY_ERROR ||
       code === deps.ResponseCode.OAUTH2_TOKEN_EXPIRED
     )
@@ -118,6 +88,8 @@ const isAuthError = (error: unknown, deps: AuthGuardDependencies): boolean => {
 
   return false
 }
+
+const ERROR_ROUTE_NAMES = new Set(['403', '404', '500'])
 
 export function setupAuthGuards(router: Router) {
   router.beforeEach(async (to) => {
@@ -150,7 +122,11 @@ export function setupAuthGuards(router: Router) {
       return { name: 'login', query: { redirect: to.fullPath } }
     }
 
-    if (!requiresAuth && to.name !== 'oauth2-callback') {
+    if (
+      !requiresAuth &&
+      to.name !== 'oauth2-callback' &&
+      !ERROR_ROUTE_NAMES.has(String(to.name ?? ''))
+    ) {
       void enablePostLoginEnhancements().catch(() => undefined)
       return { name: 'dashboard' }
     }
@@ -158,11 +134,9 @@ export function setupAuthGuards(router: Router) {
     const deps = await loadAuthGuardDependencies()
     const accountStore = deps.useAccountStore()
 
-    void enablePostLoginEnhancements().catch(() => undefined)
-
     if (!accountStore.isLoadedData) {
       try {
-        const data = await loadCurrentUserInfo(token, deps)
+        const data = await loadCurrentUserInfo(deps)
         accountStore.login(mergeStoredRefreshToken(data))
       } catch (error) {
         captureError(error as Error, {
@@ -177,6 +151,11 @@ export function setupAuthGuards(router: Router) {
           accountStore.clearSession()
           return { name: 'login', query: { redirect: to.fullPath } }
         }
+
+        if (ERROR_ROUTE_NAMES.has(String(to.name ?? ''))) {
+          return true
+        }
+
         return { name: '500' }
       }
     }
@@ -186,9 +165,8 @@ export function setupAuthGuards(router: Router) {
     }
 
     const requirePerms = to.meta.permissions
-    const requireRoles = to.meta.roles
 
-    if (!requirePerms && !requireRoles) {
+    if (!requirePerms) {
       return true
     }
 
@@ -208,21 +186,7 @@ export function setupAuthGuards(router: Router) {
       }
     }
 
-    if (requireRoles) {
-      const hasAllRoles = requireRoles.every((role) => accountStore.hasRole(role))
-      if (!hasAllRoles) {
-        captureError(new Error('Role denied'), {
-          source: 'permission',
-          severity: 'warning',
-          context: {
-            route: to.name,
-            requiredRoles: requireRoles,
-            userRoles: accountStore.roleList.map((item) => item.name),
-          },
-        })
-        return { name: '403' }
-      }
-    }
+    void enablePostLoginEnhancements().catch(() => undefined)
 
     return true
   })

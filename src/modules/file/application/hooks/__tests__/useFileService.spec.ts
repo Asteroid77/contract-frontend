@@ -102,9 +102,14 @@ describe('useFileService hooks', () => {
     expect(fileKeys.all).toEqual(['files'])
     expect(fileKeys.details()).toEqual(['files', 'detail'])
     expect(fileKeys.detail(9)).toEqual(['files', 'detail', 9])
-    expect(fileKeys.batchDetail([1, 2])).toEqual(['files', 'detail', 'batch', 1, 2])
+    expect(fileKeys.batchDetail([1, 2])).toEqual(['files', 'detail', 'batch', { ids: [1, 2] }])
     expect(fileKeys.metaDetail(2)).toEqual(['files', 'meta', 2])
-    expect(fileKeys.batchMetaDetail([1, 2])).toEqual(['files', 'meta', 1, 2])
+    expect(fileKeys.batchMetaDetail([1, 2])).toEqual(['files', 'meta', 'batch', { ids: [1, 2] }])
+  })
+
+  it('normalizes batch file keys when ids are order-insensitive', () => {
+    expect(fileKeys.batchDetail([1, 2, 3])).toEqual(fileKeys.batchDetail([3, 2, 1]))
+    expect(fileKeys.batchMetaDetail([10, 20, 30])).toEqual(fileKeys.batchMetaDetail([30, 10, 20]))
   })
 
   it('useFileDetailQuery rejects when fileId is missing', async () => {

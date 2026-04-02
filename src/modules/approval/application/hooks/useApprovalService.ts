@@ -3,34 +3,35 @@ import type {
   ApprovalOpinionForm,
   ApprovalInstancesPageRequest,
   ApprovalInstance,
-  ApprovalInstancePage,
-  ApprovalHistory,
-  LatestAdditionalInfoInstance,
 } from '@/modules/approval/application/models'
-import type { IPage } from '@/modules/shared/application/request/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import type { AxiosError } from 'axios'
 import { computed, unref, type Ref } from 'vue'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
+import { $t } from '@/_utils/i18n'
+
+const APPROVAL_ROOT = ['approval'] as const
+const APPROVAL_TASK_ROOT = [...APPROVAL_ROOT, 'tasks'] as const
+const APPROVAL_INSTANCE_ROOT = [...APPROVAL_ROOT, 'instances'] as const
+
 export const approvalKeys = {
-  ALL: ['approval'] as const,
-  DETAIL: (id: number) => ['approval', 'detail', id] as const,
-  HISTORY: (taskId: number) => ['approval', 'history', taskId] as const,
-  COMMENTS: (taskId: number) => ['approval', 'comments', taskId] as const,
+  ALL: APPROVAL_ROOT,
+  DETAIL: (id: number) => [...APPROVAL_ROOT, 'detail', id] as const,
+  HISTORY: (taskId: number) => [...APPROVAL_TASK_ROOT, taskId, 'history'] as const,
+  COMMENTS: (taskId: number) => [...APPROVAL_TASK_ROOT, taskId, 'comments'] as const,
 }
 
 export const approvalTaskKeys = {
-  ALL: ['tasks'] as const,
+  ALL: APPROVAL_TASK_ROOT,
   CLAIM: (taskId: number) => [...approvalTaskKeys.ALL, 'claim', taskId] as const,
 }
 
 export const approvalInstanceKeys = {
-  ALL: ['approval', 'instance'],
-  INSTANCE: ['approval', 'instance'] as const,
+  ALL: APPROVAL_INSTANCE_ROOT,
+  INSTANCE: APPROVAL_INSTANCE_ROOT,
   INSTANCE_PAGE: (params: ApprovalInstancesPageRequest) =>
-    ['approval', 'instances', 'page', params] as const,
-  INSTANCE_DETAIL: (instanceId: number) => ['approval', 'instance', instanceId] as const,
-  LATEST_ADDITIONAL_INFO_INSTANCE: ['approval', 'instance', 'additional_info'],
+    [...APPROVAL_INSTANCE_ROOT, 'page', params] as const,
+  INSTANCE_DETAIL: (instanceId: number) => [...APPROVAL_INSTANCE_ROOT, 'detail', instanceId] as const,
+  LATEST_ADDITIONAL_INFO_INSTANCE: [...APPROVAL_INSTANCE_ROOT, 'latest-additional-info'] as const,
 }
 
 /**
@@ -50,6 +51,14 @@ export const useClaimTask = () => {
       queryClient.invalidateQueries({ queryKey: approvalKeys.HISTORY(taskId) })
     },
     onError: () => {},
+    meta: {
+      toastOnSuccess: {
+        title: $t('common.status.success'),
+        content: $t('domain.approval.message.claimSuccess'),
+        duration: 5000,
+        keepAliveOnHover: true,
+      },
+    },
   })
 }
 
@@ -97,6 +106,24 @@ export const useHandleTask = (options?: {
       // 执行自定义错误回调
       options?.onError?.(error, variables)
     },
+    meta: {
+      toastOnSuccess: (_data, mutation) => {
+        const variables = mutation.state.variables as ApprovalOpinionForm | undefined
+        const contentKey =
+          variables?.approved === true
+            ? 'domain.approval.message.approveSuccess'
+            : variables?.approved === false
+              ? 'domain.approval.message.rejectSuccess'
+              : 'domain.approval.message.handleSuccess'
+
+        return {
+          title: $t('common.status.success'),
+          content: $t(contentKey),
+          duration: 5000,
+          keepAliveOnHover: true,
+        }
+      },
+    },
   })
 }
 
@@ -115,6 +142,14 @@ export const useCancelApprovalInstance = () => {
         queryKey: approvalInstanceKeys.ALL,
       })
     },
+    meta: {
+      toastOnSuccess: {
+        title: $t('common.status.success'),
+        content: $t('domain.approval.message.cancelSuccess'),
+        duration: 5000,
+        keepAliveOnHover: true,
+      },
+    },
   })
 }
 
@@ -128,7 +163,7 @@ export const useApprovalInstancePage = (
     refetchInterval?: number
   },
 ) => {
-  return useQuery<IPage<ApprovalInstancePage>, AxiosError<unknown>, IPage<ApprovalInstancePage>>({
+  return useQuery({
     queryKey: computed(() => approvalInstanceKeys.INSTANCE_PAGE(unref(params))),
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () =>
@@ -145,17 +180,13 @@ export const useApprovalInstancePage = (
  * 获取审批实例分页数据
  */
 export const useApprovalInstanceDetail = (params: Ref<number>) => {
-  return useQuery<
-    ApprovalInstance<Record<string, unknown>>,
-    AxiosError<unknown>,
-    ApprovalInstance<Record<string, unknown>>
-  >({
-    queryKey: approvalInstanceKeys.INSTANCE_DETAIL(params.value),
+  return useQuery({
+    queryKey: computed(() => approvalInstanceKeys.INSTANCE_DETAIL(params.value)),
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () =>
         approvalService.getInstanceDetail(params.value),
       ),
-    enabled: !!params.value && params.value > 0,
+    enabled: computed(() => !!params.value && params.value > 0),
     placeholderData: (previousData) => previousData, // 保持之前的数据
   })
 }
@@ -166,8 +197,8 @@ export const useApprovalInstanceDetail = (params: Ref<number>) => {
  * @returns
  */
 export const useApprovalHistoryQuery = (instanceId: Ref<number>) => {
-  return useQuery<ApprovalHistory[], AxiosError<unknown>, ApprovalHistory[]>({
-    queryKey: approvalKeys.HISTORY(instanceId.value),
+  return useQuery({
+    queryKey: computed(() => approvalKeys.HISTORY(instanceId.value)),
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () =>
         approvalService.getHistoryList(instanceId.value),
@@ -184,7 +215,7 @@ export const useLatestAdditionalInfoInstanceStatus = (options?: {
   refetchOnWindowFocus?: boolean
   refetchOnMount?: boolean | 'always'
 }) => {
-  return useQuery<LatestAdditionalInfoInstance, AxiosError<unknown>, LatestAdditionalInfoInstance>({
+  return useQuery({
     queryKey: approvalInstanceKeys.LATEST_ADDITIONAL_INFO_INSTANCE,
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () =>

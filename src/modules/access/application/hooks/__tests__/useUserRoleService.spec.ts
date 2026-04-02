@@ -69,9 +69,9 @@ describe('useUserRoleService hooks', () => {
   it('defines stable user-role keys', () => {
     expect(userRoleKeys.all).toEqual(['userRole'])
     expect(userRoleKeys.assignedUsers()).toEqual(['userRole', 'assignedUsers'])
-    expect(userRoleKeys.assignedUsersByRole(3)).toEqual(['userRole', 'assignedUsers', 3])
+    expect(userRoleKeys.assignedUsersByRole(3)).toEqual(['userRole', 'assignedUsers', { roleId: 3 }])
     expect(userRoleKeys.assignedRoles()).toEqual(['userRole', 'assignedRoles'])
-    expect(userRoleKeys.assignedRolesToUser(8)).toEqual(['userRole', 'assignedRoles', 8])
+    expect(userRoleKeys.assignedRolesToUser(8)).toEqual(['userRole', 'assignedRoles', { userId: 8 }])
   })
 
   it('useAssignedUsersByRole handles missing roleId safely', async () => {
@@ -81,10 +81,12 @@ describe('useUserRoleService hooks', () => {
     useAssignedUsersByRole(roleId, { enabled })
     const options = vi.mocked(useQuery).mock.calls[0][0] as unknown as MockQueryOptions
 
-    expect(options.queryKey.value).toEqual(['empty'])
+    expect(options.queryKey.value).toEqual(['userRole', 'assignedUsers', { roleId: null }])
     expect(options.enabled.value).toBe(false)
 
-    expect(() => options.queryFn({ queryKey: ['empty'] })).toThrow('Role ID is required')
+    expect(() =>
+      options.queryFn({ queryKey: ['userRole', 'assignedUsers', { roleId: null }] }),
+    ).toThrow('Role ID is required')
 
     roleId.value = 7
     expect(options.queryKey.value).toEqual(userRoleKeys.assignedUsersByRole(7))

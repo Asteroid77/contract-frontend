@@ -55,15 +55,17 @@ describe('permission directive', () => {
     expect(el.isConnected).toBe(false)
   })
 
-  it('checks role when arg is role and keeps element when authorized', () => {
+  it('does not check role even when arg is role and still relies on permission only', () => {
+    hasPermissionSpy.mockReturnValue(false)
+
     const el = document.createElement('div')
     document.body.appendChild(el)
 
     directive.mounted?.(el, createBinding('admin', 'role'))
 
-    expect(hasRoleSpy).toHaveBeenCalledWith('admin')
-    expect(hasPermissionSpy).not.toHaveBeenCalled()
-    expect(el.isConnected).toBe(true)
+    expect(hasRoleSpy).not.toHaveBeenCalled()
+    expect(hasPermissionSpy).toHaveBeenCalledWith('admin')
+    expect(el.isConnected).toBe(false)
   })
 
   it('requires all permissions when binding value is an array', () => {

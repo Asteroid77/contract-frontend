@@ -1,11 +1,5 @@
-import {
-  Mutation,
-  MutationCache,
-  Query,
-  QueryCache,
-  QueryClient,
-  VueQueryPlugin,
-} from '@tanstack/vue-query'
+import { MutationCache, QueryCache, QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
+import type { Mutation, Query, QueryKey } from '@tanstack/vue-query'
 import type { ToBeInstalledPlugin } from '.'
 import { notification, showUniqueErrorNotification } from '@/_utils/discrete_naive_api'
 import { $t } from '@/_utils/i18n'
@@ -29,9 +23,16 @@ interface ProcessedError {
   originalError: unknown
 }
 
-type QueryOrMutation =
-  | Query<unknown, unknown, unknown>
-  | Mutation<unknown, unknown, unknown, unknown>
+type SuccessPayload = RFC7807Response<unknown> | AxiosResponse<RFC7807Response<unknown>>
+
+type AppQuery = Query<unknown, unknown, unknown, QueryKey>
+type AppMutation = Mutation<unknown, unknown, unknown, unknown>
+type RequestTarget = AppQuery | AppMutation
+
+type QueryErrorToastHandler = (error: Error, query: AppQuery) => NaiveNotificationOptions
+type MutationErrorToastHandler = (error: Error, mutation: AppMutation) => NaiveNotificationOptions
+type QuerySuccessToastHandler = (data: unknown, query: AppQuery) => NaiveNotificationOptions
+type MutationSuccessToastHandler = (data: unknown, mutation: AppMutation) => NaiveNotificationOptions
 
 const MAX_QUERY_RETRY_COUNT = 2
 const RETRYABLE_CLIENT_STATUS_CODES = new Set([408, 429])
@@ -78,18 +79,20 @@ function shouldRetryQueryError(failureCount: number, error: unknown): boolean {
   return retryableError && failureCount < MAX_QUERY_RETRY_COUNT
 }
 
-function shouldSkipGlobalErrorHandler(target: QueryOrMutation): boolean {
+function shouldSkipGlobalErrorHandler(target: RequestTarget): boolean {
   return target.meta?.skipGlobalErrorHandler === true
 }
 
-function shouldShowDefaultQueryErrorToast(query: Query<unknown, unknown, unknown>): boolean {
+function shouldShowDefaultQueryErrorToast(
+  query: AppQuery,
+): boolean {
   return query.state.data !== undefined
 }
 
 function buildGlobalErrorKey(
   error: Error,
-  query?: Query<unknown, unknown, unknown>,
-  mutation?: Mutation<unknown, unknown, unknown, unknown>,
+  query?: AppQuery,
+  mutation?: AppMutation,
 ): string {
   const codePart =
     error instanceof BusinessError && error.code !== undefined ? String(error.code) : 'na'
@@ -184,35 +187,41 @@ function processApiError(error: Error | undefined): ProcessedError | undefined {
 }
 const globalBaseErrorHandler = (
   error: unknown,
-  query?: Query<unknown, unknown, unknown>,
-  mutation?: Mutation<unknown, unknown, unknown, unknown>,
+  query?: AppQuery,
+  mutation?: AppMutation,
 ) => {
-  const gatherStruction = query ? query : (mutation as Mutation<unknown, unknown, unknown, unknown>)
+  const target = query ?? mutation
+  if (!target) {
+    return
+  }
 
-  if (shouldSkipGlobalErrorHandler(gatherStruction)) {
+  if (shouldSkipGlobalErrorHandler(target)) {
     return
   }
 
   const isDefaultToastOnError = query ? shouldShowDefaultQueryErrorToast(query) : true
   const isExecute =
-    gatherStruction.meta?.toastOnError === undefined
-      ? isDefaultToastOnError
-      : !!gatherStruction.meta?.toastOnError
+    target.meta?.toastOnError === undefined ? isDefaultToastOnError : !!target.meta?.toastOnError
   if (isExecute) {
     if (error instanceof Error) {
       console.error('A global request error was caught:', error)
       const errorKey = buildGlobalErrorKey(error, query, mutation)
-      const toastOnErrorConfig = gatherStruction.meta?.toastOnError ?? true
+      const toastOnErrorConfig = target.meta?.toastOnError ?? true
       match(typeof toastOnErrorConfig)
         .with('function', () => {
-          const throwOnError = gatherStruction.meta?.toastOnError as (
-            error: Error,
-            query: Query<unknown, unknown, unknown> | Mutation<unknown, unknown, unknown, unknown>,
-          ) => NaiveNotificationOptions
-          showUniqueErrorNotification(errorKey, throwOnError(error, gatherStruction))
+          if (query) {
+            const throwOnError = toastOnErrorConfig as QueryErrorToastHandler
+            showUniqueErrorNotification(errorKey, throwOnError(error, query))
+            return
+          }
+
+          if (mutation) {
+            const throwOnError = toastOnErrorConfig as MutationErrorToastHandler
+            showUniqueErrorNotification(errorKey, throwOnError(error, mutation))
+          }
         })
         .with('object', () => {
-          const throwOnError = gatherStruction.meta?.toastOnError as NaiveNotificationOptions
+          const throwOnError = toastOnErrorConfig as NaiveNotificationOptions
           showUniqueErrorNotification(errorKey, throwOnError)
         })
         .otherwise(() => {
@@ -227,7 +236,7 @@ const globalBaseErrorHandler = (
           }
         })
     } else {
-      const result = processApiError(error as undefined)
+      const result = processApiError(undefined)
       if (result) {
         const errorKey = 'unknown-error'
         showUniqueErrorNotification(errorKey, {
@@ -244,46 +253,71 @@ const globalMutationErrorHandler = (
   error: unknown,
   _context: unknown,
   _variables: unknown,
-  mutation: Mutation<unknown, unknown, unknown, unknown>,
+  mutation: AppMutation,
 ) => {
   globalBaseErrorHandler(error, undefined, mutation)
 }
 const globalSuccessHandler = (
-  data: RFC7807Response<unknown> | AxiosResponse<RFC7807Response<unknown>>,
-  _variabbles: unknown,
+  data: SuccessPayload,
+  _variables: unknown,
   _context: unknown,
-  query?: Query<unknown, unknown, unknown>,
-  mutation?: Mutation<unknown, unknown, unknown, unknown>,
+  query?: AppQuery,
+  mutation?: AppMutation,
 ) => {
-  const gatherStruction = query ? query : (mutation as Mutation<unknown, unknown, unknown, unknown>)
-  const isDefaultToastOnSuccess = query ? false : true
-  const isExecute = isDefaultToastOnSuccess || !!gatherStruction.meta?.toastOnSuccess
-  const toastOnErrorConfig = gatherStruction.meta?.toastOnSuccess ?? true
-  if (isExecute) {
-    match(typeof toastOnErrorConfig)
-      .with('function', () => {
-        const toastOnSuccess = gatherStruction.meta?.toastOnSuccess as (
-          data: RFC7807Response<unknown> | AxiosResponse<RFC7807Response<unknown>>,
-          query: Query<unknown, unknown, unknown> | Mutation<unknown, unknown, unknown, unknown>,
-        ) => NaiveNotificationOptions
-        notification.success(toastOnSuccess(data, gatherStruction))
-      })
-      .with('object', () => {
-        const toastOnSuccess = gatherStruction.meta?.toastOnSuccess as NaiveNotificationOptions
-        notification.success(toastOnSuccess)
-      })
-      .otherwise(() => {
-        if (toastOnErrorConfig) {
-          notification.success({
-            title: $t('common.status.success'),
-            content: data.hasOwnProperty('config')
-              ? (data as AxiosResponse<RFC7807Response<unknown>>).data.detail
-              : (data as RFC7807Response<unknown>).detail,
-            duration: 5000,
-            keepAliveOnHover: true,
-          })
-        }
-      })
+  const target = query ?? mutation
+  if (!target) {
+    return
+  }
+  const toastOnSuccessConfig = target.meta?.toastOnSuccess
+
+  // best-practice: success toast 默认关闭，仅显式开启才提示（避免冗余、避免与局部 message.success 重复）。
+  if (toastOnSuccessConfig === undefined || toastOnSuccessConfig === false) {
+    return
+  }
+
+  if (typeof toastOnSuccessConfig === 'function') {
+    if (query) {
+      const toastOnSuccess = toastOnSuccessConfig as QuerySuccessToastHandler
+      notification.success(toastOnSuccess(data, query))
+      return
+    }
+
+    if (mutation) {
+      const toastOnSuccess = toastOnSuccessConfig as MutationSuccessToastHandler
+      notification.success(toastOnSuccess(data, mutation))
+    }
+    return
+  }
+
+  if (typeof toastOnSuccessConfig === 'object' && toastOnSuccessConfig) {
+    const toastOnSuccess = toastOnSuccessConfig as NaiveNotificationOptions
+    notification.success(toastOnSuccess)
+    return
+  }
+
+  if (toastOnSuccessConfig === true) {
+    const successDetail = (() => {
+      if (!data || typeof data !== 'object') {
+        return undefined
+      }
+
+      if ('config' in data && 'data' in data) {
+        return (data as AxiosResponse<RFC7807Response<unknown>>).data?.detail
+      }
+
+      if ('detail' in data) {
+        return (data as RFC7807Response<unknown>).detail
+      }
+
+      return undefined
+    })()
+
+    notification.success({
+      title: $t('common.status.success'),
+      content: successDetail ?? $t('common.status.success'),
+      duration: 5000,
+      keepAliveOnHover: true,
+    })
   }
 }
 const queryClient = new QueryClient({
@@ -299,7 +333,7 @@ const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: globalBaseErrorHandler,
     onSuccess(data, query) {
-      const result = data as RFC7807Response<unknown> | AxiosResponse<RFC7807Response<unknown>>
+      const result = data as SuccessPayload
       globalSuccessHandler(result, null, null, query, undefined)
     },
     onSettled(_data, _error, query) {
@@ -309,7 +343,7 @@ const queryClient = new QueryClient({
   mutationCache: new MutationCache({
     onError: globalMutationErrorHandler,
     onSuccess(data, _variables, _context, mutation) {
-      const result = data as RFC7807Response<unknown> | AxiosResponse<RFC7807Response<unknown>>
+      const result = data as SuccessPayload
       globalSuccessHandler(result, null, null, undefined, mutation)
     },
   }),

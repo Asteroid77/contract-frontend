@@ -1,11 +1,14 @@
 import { accessService } from '@/modules/access/application/service'
-import type { RolePageQuery, RoleForm, RoleItem } from '@/modules/access/application/models'
-import type { BasePageRequest, IPage } from '@/modules/shared/application/request/types'
+import type { RolePageQuery, RoleForm } from '@/modules/access/application/models'
+import type { BasePageRequest } from '@/modules/shared/application/request/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import type { AxiosError } from 'axios'
 import { unref, type Ref } from 'vue'
 import { computed } from 'vue'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
+
+function resolvePositiveId(value: number): number | null {
+  return value > 0 ? value : null
+}
 
 export const roleKeys = {
   all: ['role'] as const,
@@ -13,7 +16,7 @@ export const roleKeys = {
   list: (filters: BasePageRequest<RolePageQuery>) => [...roleKeys.lists(), filters] as const,
   details: () => [...roleKeys.all, 'detail'] as const,
   detail: (id: number) => [...roleKeys.details(), id] as const,
-  userRoles: (userId: number) => [...roleKeys.all, 'user', userId] as const,
+  userRoles: (userId: number | null) => [...roleKeys.all, 'userRoles', { userId }] as const,
 }
 
 // 1. 获取角色分页列表
@@ -25,7 +28,7 @@ export const useRolePage = (
     gcTime?: number
   },
 ) => {
-  return useQuery<IPage<RoleItem>, AxiosError<unknown>, IPage<RoleItem>>({
+  return useQuery({
     queryKey: computed(() => roleKeys.list(unref(params))),
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () => accessService.getRolePage(unref(params))),
@@ -42,15 +45,18 @@ export const useRolesByUserId = (
     staleTime?: number
   },
 ) => {
-  return useQuery<RoleItem[], AxiosError<unknown>, RoleItem[]>({
-    queryKey: computed(() => roleKeys.userRoles(unref(userId))),
-    queryFn: (ctx) =>
-      withQueryRequestContext(ctx.queryKey, ctx, () => accessService.getRolesByUserId(unref(userId))),
+  return useQuery({
+    queryKey: computed(() => roleKeys.userRoles(resolvePositiveId(unref(userId)))),
+    queryFn: (ctx) => {
+      const id = resolvePositiveId(unref(userId))
+      if (id === null) throw new Error('User ID is required')
+      return withQueryRequestContext(ctx.queryKey, ctx, () => accessService.getRolesByUserId(id))
+    },
     staleTime: options?.staleTime ?? 5 * 60 * 1000,
     enabled: computed(() => {
-      const id = unref(userId)
+      const id = resolvePositiveId(unref(userId))
       const enabled = unref(options?.enabled ?? true)
-      return enabled && !!id
+      return enabled && id !== null
     }),
   })
 }
@@ -66,13 +72,6 @@ export const useEditRole = () => {
       queryClient.invalidateQueries({
         queryKey: roleKeys.lists(),
       })
-
-      // 如果编辑的角色有关联用户，也可以使相关用户的角色缓存失效
-      if (variables.id) {
-        queryClient.invalidateQueries({
-          queryKey: roleKeys.userRoles(variables.id),
-        })
-      }
     },
     onError: (error) => {
       // 错误处理

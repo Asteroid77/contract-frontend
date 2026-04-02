@@ -1,7 +1,8 @@
 import { invitationService } from '@/modules/invitation/application/service'
-import type { InvitationCode, InvitationUpdateForm } from '@/modules/invitation/application/models'
+import type { InvitationUpdateForm } from '@/modules/invitation/application/models'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
+import { $t } from '@/_utils/i18n'
 
 // 查询键前缀
 export const invitationKeys = {
@@ -15,7 +16,7 @@ export const invitationKeys = {
  * 获取邀请码列表的 Hook
  */
 export const useInvitationCodeListQuery = () => {
-  return useQuery<InvitationCode[], unknown, InvitationCode[]>({
+  return useQuery({
     queryKey: invitationKeys.lists(),
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () => invitationService.getInvitationCodeList()),
@@ -26,7 +27,7 @@ export const useInvitationCodeListQuery = () => {
  * 获取已邀请人数的 Hook
  */
 export const useInvitatedCountQuery = () => {
-  return useQuery<number, unknown, number>({
+  return useQuery({
     queryKey: invitationKeys.count(),
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () => invitationService.getInvitedCount()),
@@ -48,6 +49,14 @@ export const useCreateInvitationCodeMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: invitationKeys.lists() })
     },
+    meta: {
+      toastOnSuccess: {
+        title: $t('common.status.success'),
+        content: $t('domain.invitation.message.createSuccess'),
+        duration: 5000,
+        keepAliveOnHover: true,
+      },
+    },
   })
 }
 
@@ -65,6 +74,14 @@ export const useUpdateInvitationCodeMutation = (successCallback: () => void) => 
       queryClient.invalidateQueries({ queryKey: invitationKeys.lists() })
       successCallback()
     },
+    meta: {
+      toastOnSuccess: {
+        title: $t('common.status.success'),
+        content: $t('domain.invitation.message.updateSuccess'),
+        duration: 5000,
+        keepAliveOnHover: true,
+      },
+    },
   })
 }
 /**
@@ -79,6 +96,14 @@ export const useDeleteInvitationCodeMutation = (successCallback: () => void) => 
       // 更新成功后，同样让列表缓存失效
       queryClient.invalidateQueries({ queryKey: invitationKeys.lists() })
       successCallback()
+    },
+    meta: {
+      toastOnSuccess: {
+        title: $t('common.status.success'),
+        content: $t('domain.invitation.message.deleteSuccess'),
+        duration: 5000,
+        keepAliveOnHover: true,
+      },
     },
   })
 }
