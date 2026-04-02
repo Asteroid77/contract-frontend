@@ -1,9 +1,10 @@
+/* [打印豁免] 面向 A4 纸输出，硬编码色值符合 Rule.md 打印豁免条款 */
 /* ========== 打印版样式 ========== */
 .print-container {
   background: white;
   color: #000;
   padding: 24px;
-  font-family: "SimSun", "宋体", serif;
+  font-family: 'SimSun', '宋体', serif;
 }
 
 .print-header {
@@ -202,7 +203,10 @@
 }
 
 @media print {
-  body { background: white !important; }
-  .no-print { display: none !important; }
+  body {
+    background: white !important;
+  }
+  .no-print {
+    display: none !important;
+  }
 }
-

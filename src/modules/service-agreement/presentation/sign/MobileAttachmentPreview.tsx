@@ -80,22 +80,26 @@ export default defineComponent({
       if (!fileList.length) return null
 
       return (
-        <section class="section">
-          <div class="section-title">
-            <span class="icon">{icon}</span> {title}
-            <span class="count">({fileList.length})</span>
+        <section class="mobile-attachment-preview__section">
+          <div class="mobile-attachment-preview__section-title">
+            <span>{icon}</span> {title}
+            <span class="mobile-attachment-preview__section-count">({fileList.length})</span>
           </div>
-          <div class="file-grid">
+          <div class="mobile-attachment-preview__file-grid">
             {fileList.map((file) => (
-              <div key={file.id} class="file-card" onClick={() => handlePreview(file)}>
-                <div class="thumbnail">
+              <div
+                key={file.id}
+                class="mobile-attachment-preview__file-card"
+                onClick={() => handlePreview(file)}
+              >
+                <div class="mobile-attachment-preview__thumbnail">
                   {isImage(file) ? (
                     <img src={file.path} loading="lazy" alt={file.fileName} />
                   ) : (
-                    <div class="pdf-icon">PDF</div>
+                    <div class="mobile-attachment-preview__pdf-icon">PDF</div>
                   )}
                 </div>
-                <div class="file-name">{file.fileName}</div>
+                <div class="mobile-attachment-preview__file-name">{file.fileName}</div>
               </div>
             ))}
           </div>
@@ -104,26 +108,45 @@ export default defineComponent({
     }
 
     return () => (
-      <div class="mobile-preview-container">
+      <div class="mobile-attachment-preview">
         {/* Header */}
-        <div class="header">
+        <div class="mobile-attachment-preview__header">
           <h2>{$t('domain.agreement.preview.attachmentsTitle')}</h2>
-          <p class="sub-title">{props.agreementData.companyName || $t('domain.agreement.preview.unnamedCompany')}</p>
+          <p class="mobile-attachment-preview__subtitle">
+            {props.agreementData.companyName || $t('domain.agreement.preview.unnamedCompany')}
+          </p>
         </div>
 
         {/* Sections */}
-        {renderFileGrid($t('domain.agreement.file.contract') as string, '📄', groupedFiles.value.contract)}
+        {renderFileGrid(
+          $t('domain.agreement.file.contract') as string,
+          '📄',
+          groupedFiles.value.contract,
+        )}
         {renderFileGrid($t('domain.agreement.file.bill') as string, '🧾', groupedFiles.value.bill)}
-        {renderFileGrid($t('domain.agreement.file.other') as string, '📎', groupedFiles.value.supplementary)}
+        {renderFileGrid(
+          $t('domain.agreement.file.other') as string,
+          '📎',
+          groupedFiles.value.supplementary,
+        )}
 
         {/* Empty State */}
-        {isEmpty.value && <div class="empty-state">{$t('domain.agreement.preview.noAttachmentsData')}</div>}
+        {isEmpty.value && (
+          <div class="mobile-attachment-preview__empty-state">
+            {$t('domain.agreement.preview.noAttachmentsData')}
+          </div>
+        )}
 
         {/* Image Viewer Modal */}
         {previewImage.value && (
-          <div class="image-viewer" onClick={() => (previewImage.value = null)}>
+          <div
+            class="mobile-attachment-preview__image-viewer"
+            onClick={() => (previewImage.value = null)}
+          >
             <img src={previewImage.value} />
-            <div class="close-tip">{$t('domain.agreement.preview.clickAnywhereToClose')}</div>
+            <div class="mobile-attachment-preview__close-tip">
+              {$t('domain.agreement.preview.clickAnywhereToClose')}
+            </div>
           </div>
         )}
       </div>

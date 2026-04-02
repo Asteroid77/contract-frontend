@@ -1,5 +1,5 @@
 .diff-section {
-  margin-bottom: 24px;
+  margin-bottom: var(--spacing-24);
 }
 
 .diff-section:last-child {
@@ -7,11 +7,11 @@
 }
 
 .diff-section__title {
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: bold;
-  margin-bottom: 12px;
-  padding-left: 8px;
-  border-left: 4px solid #2080f0; /* 主题色 */
-  color: #333;
+  margin-bottom: 0.75rem;
+  padding-left: var(--spacing-8);
+  border-left: 4px solid var(--color-accent);
+  color: var(--color-text-main);
   line-height: 1.2;
 }

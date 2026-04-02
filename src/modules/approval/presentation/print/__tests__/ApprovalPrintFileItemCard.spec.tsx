@@ -105,7 +105,7 @@ describe('ApprovalPrintFileItemCard', () => {
     expect(tag.attributes('data-type')).toBe('error')
     expect(tag.text()).toBe('common.action.delete')
 
-    await wrapper.get('.pdf-placeholder').trigger('click')
+    await wrapper.get('.file-diff-card__pdf-placeholder').trigger('click')
     expect(window.open).toHaveBeenCalledWith('https://cdn/manual.pdf', '_blank')
   })
 })
