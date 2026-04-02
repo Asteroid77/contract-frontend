@@ -1,19 +1,11 @@
 import { workOrderService } from '../work-order-service'
 import type {
-  WorkOrderDetailVO,
-  WorkOrderSummaryVO,
-  WorkOrderReplyVO,
-  WorkOrderCategoryVO,
-  WorkOrderPerformanceVO,
-  PendingCountVO,
   CreateWorkOrderDTO,
   WorkOrderReplyDTO,
   WorkOrderScoreDTO,
   WorkOrderListParams,
 } from '../../domain/types'
-import type { IPage } from '@/modules/shared/domain/page'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import type { AxiosError } from 'axios'
 import { computed, unref, type Ref } from 'vue'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 
@@ -38,7 +30,7 @@ export const useWorkOrderList = (
   params: Ref<WorkOrderListParams> | WorkOrderListParams,
   options?: { enabled?: Ref<boolean> | boolean },
 ) => {
-  return useQuery<IPage<WorkOrderSummaryVO>, AxiosError<unknown>, IPage<WorkOrderSummaryVO>>({
+  return useQuery({
     queryKey: computed(() => workOrderKeys.LIST(unref(params))),
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () => workOrderService.getList(unref(params))),
@@ -52,7 +44,7 @@ export const useWorkOrderDetail = (
   id: Ref<number>,
   options?: { enabled?: Ref<boolean> | boolean },
 ) => {
-  return useQuery<WorkOrderDetailVO, AxiosError<unknown>, WorkOrderDetailVO>({
+  return useQuery({
     queryKey: computed(() => workOrderKeys.DETAIL(id.value)),
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () => workOrderService.getDetail(id.value)),
@@ -65,7 +57,7 @@ export const useWorkOrderReplies = (
   id: Ref<number>,
   options?: { enabled?: Ref<boolean> | boolean },
 ) => {
-  return useQuery<WorkOrderReplyVO[], AxiosError<unknown>, WorkOrderReplyVO[]>({
+  return useQuery({
     queryKey: computed(() => workOrderKeys.REPLIES(id.value)),
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () => workOrderService.getReplies(id.value)),
@@ -80,8 +72,8 @@ export const useWorkOrderReplies = (
 
 export const useCreateWorkOrder = () => {
   const queryClient = useQueryClient()
-  return useMutation<WorkOrderDetailVO, AxiosError, CreateWorkOrderDTO>({
-    mutationFn: (dto) => workOrderService.create(dto),
+  return useMutation({
+    mutationFn: (dto: CreateWorkOrderDTO) => workOrderService.create(dto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: workOrderKeys.ALL })
     },
@@ -90,20 +82,19 @@ export const useCreateWorkOrder = () => {
 
 export const useAddReply = () => {
   const queryClient = useQueryClient()
-  return useMutation<WorkOrderReplyVO, AxiosError, { workOrderId: number; dto: WorkOrderReplyDTO }>(
-    {
-      mutationFn: ({ workOrderId, dto }) => workOrderService.addReply(workOrderId, dto),
-      onSuccess: (_, { workOrderId }) => {
-        queryClient.invalidateQueries({ queryKey: workOrderKeys.REPLIES(workOrderId) })
-      },
+  return useMutation({
+    mutationFn: ({ workOrderId, dto }: { workOrderId: number; dto: WorkOrderReplyDTO }) =>
+      workOrderService.addReply(workOrderId, dto),
+    onSuccess: (_, { workOrderId }) => {
+      queryClient.invalidateQueries({ queryKey: workOrderKeys.REPLIES(workOrderId) })
     },
-  )
+  })
 }
 
 export const useCancelWorkOrder = () => {
   const queryClient = useQueryClient()
-  return useMutation<WorkOrderDetailVO, AxiosError, number>({
-    mutationFn: (id) => workOrderService.cancel(id),
+  return useMutation({
+    mutationFn: (id: number) => workOrderService.cancel(id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: workOrderKeys.ALL })
       queryClient.setQueryData(workOrderKeys.DETAIL(data.id), data)
@@ -113,8 +104,8 @@ export const useCancelWorkOrder = () => {
 
 export const useCompleteWorkOrder = () => {
   const queryClient = useQueryClient()
-  return useMutation<WorkOrderDetailVO, AxiosError, number>({
-    mutationFn: (id) => workOrderService.complete(id),
+  return useMutation({
+    mutationFn: (id: number) => workOrderService.complete(id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: workOrderKeys.ALL })
       queryClient.setQueryData(workOrderKeys.DETAIL(data.id), data)
@@ -124,8 +115,9 @@ export const useCompleteWorkOrder = () => {
 
 export const useRejectHandler = () => {
   const queryClient = useQueryClient()
-  return useMutation<WorkOrderDetailVO, AxiosError, { id: number; remark?: string }>({
-    mutationFn: ({ id, remark }) => workOrderService.rejectHandler(id, remark),
+  return useMutation({
+    mutationFn: ({ id, remark }: { id: number; remark?: string }) =>
+      workOrderService.rejectHandler(id, remark),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: workOrderKeys.ALL })
       queryClient.setQueryData(workOrderKeys.DETAIL(data.id), data)
@@ -135,8 +127,8 @@ export const useRejectHandler = () => {
 
 export const useReopenWorkOrder = () => {
   const queryClient = useQueryClient()
-  return useMutation<WorkOrderDetailVO, AxiosError, number>({
-    mutationFn: (id) => workOrderService.reopen(id),
+  return useMutation({
+    mutationFn: (id: number) => workOrderService.reopen(id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: workOrderKeys.ALL })
       queryClient.setQueryData(workOrderKeys.DETAIL(data.id), data)
@@ -146,8 +138,9 @@ export const useReopenWorkOrder = () => {
 
 export const useScoreWorkOrder = () => {
   const queryClient = useQueryClient()
-  return useMutation<WorkOrderDetailVO, AxiosError, { id: number; dto: WorkOrderScoreDTO }>({
-    mutationFn: ({ id, dto }) => workOrderService.score(id, dto),
+  return useMutation({
+    mutationFn: ({ id, dto }: { id: number; dto: WorkOrderScoreDTO }) =>
+      workOrderService.score(id, dto),
     onSuccess: (data) => {
       queryClient.setQueryData(workOrderKeys.DETAIL(data.id), data)
     },
@@ -156,8 +149,9 @@ export const useScoreWorkOrder = () => {
 
 export const useUpdateScore = () => {
   const queryClient = useQueryClient()
-  return useMutation<WorkOrderDetailVO, AxiosError, { id: number; dto: WorkOrderScoreDTO }>({
-    mutationFn: ({ id, dto }) => workOrderService.updateScore(id, dto),
+  return useMutation({
+    mutationFn: ({ id, dto }: { id: number; dto: WorkOrderScoreDTO }) =>
+      workOrderService.updateScore(id, dto),
     onSuccess: (data) => {
       queryClient.setQueryData(workOrderKeys.DETAIL(data.id), data)
     },
@@ -166,8 +160,8 @@ export const useUpdateScore = () => {
 
 export const useRemoveBlacklist = () => {
   const queryClient = useQueryClient()
-  return useMutation<boolean, AxiosError, number>({
-    mutationFn: (handlerId) => workOrderService.removeBlacklist(handlerId),
+  return useMutation({
+    mutationFn: (handlerId: number) => workOrderService.removeBlacklist(handlerId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: workOrderKeys.ALL })
     },
@@ -179,7 +173,7 @@ export const useRemoveBlacklist = () => {
 // ============================================================
 
 export const useHandlerCategories = (options?: { enabled?: Ref<boolean> | boolean }) => {
-  return useQuery<WorkOrderCategoryVO[], AxiosError<unknown>, WorkOrderCategoryVO[]>({
+  return useQuery({
     queryKey: workOrderKeys.HANDLER_CATEGORIES,
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () => workOrderService.getHandlerCategories()),
@@ -192,7 +186,7 @@ export const useHandlerWorkOrderList = (
   params: Ref<WorkOrderListParams> | WorkOrderListParams,
   options?: { enabled?: Ref<boolean> | boolean },
 ) => {
-  return useQuery<IPage<WorkOrderSummaryVO>, AxiosError<unknown>, IPage<WorkOrderSummaryVO>>({
+  return useQuery({
     queryKey: computed(() => workOrderKeys.HANDLER_LIST(unref(params))),
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () =>
@@ -205,7 +199,7 @@ export const useHandlerWorkOrderList = (
 }
 
 export const useHandlerPendingCount = (options?: { enabled?: Ref<boolean> | boolean }) => {
-  return useQuery<PendingCountVO, AxiosError<unknown>, PendingCountVO>({
+  return useQuery({
     queryKey: workOrderKeys.HANDLER_PENDING_COUNT,
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () => workOrderService.getHandlerPendingCount()),
@@ -218,7 +212,7 @@ export const useHandlerDetail = (
   id: Ref<number>,
   options?: { enabled?: Ref<boolean> | boolean },
 ) => {
-  return useQuery<WorkOrderDetailVO, AxiosError<unknown>, WorkOrderDetailVO>({
+  return useQuery({
     queryKey: computed(() => workOrderKeys.DETAIL(id.value)),
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () => workOrderService.getHandlerDetail(id.value)),
@@ -231,7 +225,7 @@ export const useHandlerReplies = (
   id: Ref<number>,
   options?: { enabled?: Ref<boolean> | boolean },
 ) => {
-  return useQuery<WorkOrderReplyVO[], AxiosError<unknown>, WorkOrderReplyVO[]>({
+  return useQuery({
     queryKey: computed(() => workOrderKeys.REPLIES(id.value)),
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () =>
@@ -248,8 +242,8 @@ export const useHandlerReplies = (
 
 export const useClaimWorkOrder = () => {
   const queryClient = useQueryClient()
-  return useMutation<WorkOrderDetailVO, AxiosError, number>({
-    mutationFn: (id) => workOrderService.claim(id),
+  return useMutation({
+    mutationFn: (id: number) => workOrderService.claim(id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: workOrderKeys.ALL })
       queryClient.invalidateQueries({ queryKey: workOrderKeys.HANDLER_ALL })
@@ -260,8 +254,8 @@ export const useClaimWorkOrder = () => {
 
 export const useReleaseWorkOrder = () => {
   const queryClient = useQueryClient()
-  return useMutation<WorkOrderDetailVO, AxiosError, number>({
-    mutationFn: (id) => workOrderService.release(id),
+  return useMutation({
+    mutationFn: (id: number) => workOrderService.release(id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: workOrderKeys.ALL })
       queryClient.invalidateQueries({ queryKey: workOrderKeys.HANDLER_ALL })
@@ -272,8 +266,8 @@ export const useReleaseWorkOrder = () => {
 
 export const useHandlerComplete = () => {
   const queryClient = useQueryClient()
-  return useMutation<WorkOrderDetailVO, AxiosError, number>({
-    mutationFn: (id) => workOrderService.handlerComplete(id),
+  return useMutation({
+    mutationFn: (id: number) => workOrderService.handlerComplete(id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: workOrderKeys.ALL })
       queryClient.invalidateQueries({ queryKey: workOrderKeys.HANDLER_ALL })
@@ -284,18 +278,17 @@ export const useHandlerComplete = () => {
 
 export const useHandlerAddReply = () => {
   const queryClient = useQueryClient()
-  return useMutation<WorkOrderReplyVO, AxiosError, { workOrderId: number; dto: WorkOrderReplyDTO }>(
-    {
-      mutationFn: ({ workOrderId, dto }) => workOrderService.addHandlerReply(workOrderId, dto),
-      onSuccess: (_, { workOrderId }) => {
-        queryClient.invalidateQueries({ queryKey: workOrderKeys.REPLIES(workOrderId) })
-      },
+  return useMutation({
+    mutationFn: ({ workOrderId, dto }: { workOrderId: number; dto: WorkOrderReplyDTO }) =>
+      workOrderService.addHandlerReply(workOrderId, dto),
+    onSuccess: (_, { workOrderId }) => {
+      queryClient.invalidateQueries({ queryKey: workOrderKeys.REPLIES(workOrderId) })
     },
-  )
+  })
 }
 
 export const useHandlerPerformance = (options?: { enabled?: Ref<boolean> | boolean }) => {
-  return useQuery<WorkOrderPerformanceVO, AxiosError<unknown>, WorkOrderPerformanceVO>({
+  return useQuery({
     queryKey: workOrderKeys.HANDLER_PERFORMANCE,
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () => workOrderService.getPerformance()),

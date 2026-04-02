@@ -36,7 +36,7 @@ describe('useCaptcha', () => {
     vi.mocked(captchaService.getCaptcha).mockResolvedValue(payload as never)
 
     const queryResult = useCaptcha()
-    const options = vi.mocked(useQuery).mock.calls[0][0] as MockCaptchaQueryOptions
+    const options = vi.mocked(useQuery).mock.calls[0][0] as unknown as MockCaptchaQueryOptions
 
     expect(options.queryKey).toEqual(['captcha'])
 

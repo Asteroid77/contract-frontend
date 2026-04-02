@@ -3,7 +3,6 @@ import type { OssCallbackView } from '@/modules/file/application/models'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { fileKeys } from '@/modules/file/application/hooks/useFileService'
 import type {
-  PreviewAttachmentsData,
   ServiceAgreementPageQuery,
   PreviewAttachmentsQuery,
   ServiceAgreementDetail,
@@ -13,7 +12,6 @@ import type { BasePageRequest, BaseQuery } from '@/modules/shared/application/re
 import type { QueryFilters as DomainQueryFilters } from '@/modules/shared/domain/query'
 import type { ApprovalInstance } from '@/modules/approval/domain/types'
 import { computed, type Ref } from 'vue'
-import type { AxiosError } from 'axios'
 import type { FileCategory } from '@/modules/service-agreement/domain/enums'
 import { withQueryRequestContext } from '@/app/infrastructure/query/query-request-context'
 
@@ -50,6 +48,7 @@ export const useServiceAgreementDetail = (id: Ref<number | null>) => {
  */
 export const useServiceAgreementPage = (
   pageRequest: Ref<BasePageRequest<ServiceAgreementPageQuery | QueryFilters>>,
+  enabled: Ref<boolean> = computed(() => true),
 ) => {
   return useQuery({
     queryKey: computed(() => signKeys.list(pageRequest.value)),
@@ -57,6 +56,7 @@ export const useServiceAgreementPage = (
       withQueryRequestContext(ctx.queryKey, ctx, () =>
         serviceAgreementService.page(pageRequest.value),
       ),
+    enabled,
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000,
   })
@@ -71,8 +71,8 @@ export const usePreviewAttachments = (
   paramsRef: Ref<PreviewAttachmentsQuery>,
   enabled: Ref<boolean>,
 ) => {
-  return useQuery<PreviewAttachmentsData, AxiosError<unknown>, PreviewAttachmentsData>({
-    queryKey: signKeys.preview(paramsRef.value!),
+  return useQuery({
+    queryKey: computed(() => signKeys.preview(paramsRef.value!)),
     queryFn: (ctx) =>
       withQueryRequestContext(ctx.queryKey, ctx, () =>
         serviceAgreementService.getPreviewAttachments(paramsRef.value),
