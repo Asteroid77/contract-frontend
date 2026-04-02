@@ -57,8 +57,15 @@ pnpm test:e2e tests/example.spec.ts
 pnpm test:e2e --debug
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+### Lint with [oxlint](https://oxc.rs/docs/guide/usage/linter.html)
 
 ```sh
 pnpm lint
+```
+
+### Format with [oxfmt](https://oxc.rs/docs/guide/usage/formatter.html)
+
+```sh
+pnpm format
+pnpm format:check
 ```
