@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { defineComponent, h } from 'vue'
 import FilterPill from '@/modules/shared/presentation/advanced-query/modern/FilterPill'
 import { FieldType } from '@/modules/shared/domain/advanced-query'
 import { FilterOp } from '@/modules/shared/domain/query'
@@ -7,6 +8,29 @@ import { FilterOp } from '@/modules/shared/domain/query'
 vi.mock('@/_utils/i18n', () => ({
   $t: (key: string) => `t:${key}`,
   $te: () => false,
+}))
+
+vi.mock('@/modules/shared/presentation/widget/PCACascader', () => ({
+  default: defineComponent({
+    name: 'PCACascader',
+    props: {
+      value: { type: String, required: false },
+    },
+    setup(props, { attrs }) {
+      return () =>
+        h(
+          'button',
+          {
+            'data-test': 'mock-pca-cascader',
+            onClick: () => {
+              const handler = attrs['onUpdate:value'] as ((value: string) => void) | undefined
+              handler?.('330100')
+            },
+          },
+          props.value ?? 'empty',
+        )
+    },
+  }),
 }))
 
 const baseFields = [
@@ -21,6 +45,12 @@ const baseFields = [
       { label: 'option.active', value: 'active' },
       { label: 'option.inactive', value: 'inactive' },
     ],
+  },
+  {
+    key: 'companyArea',
+    labelKey: 'field.companyArea',
+    type: FieldType.PCA,
+    operators: [FilterOp.EQ],
   },
 ]
 
@@ -246,5 +276,31 @@ describe('FilterPill', () => {
 
     expect(wrapper.find('.n-base-selection').exists()).toBe(true)
     expect(wrapper.find('.max-h-40.overflow-y-auto').exists()).toBe(false)
+  })
+
+  it('renders PCACascader for PCA field and updates value', async () => {
+    const onUpdate = vi.fn()
+    const wrapper = mount(FilterPill, {
+      props: {
+        condition: {
+          field: 'companyArea',
+          op: FilterOp.EQ,
+          value: '110000',
+        },
+        fields: baseFields,
+        onUpdate,
+        onRemove: vi.fn(),
+      },
+    })
+
+    await wrapper.get('[data-test="filter-pill-value-button"]').trigger('click')
+    expect(wrapper.find('[data-test="mock-pca-cascader"]').exists()).toBe(true)
+
+    await wrapper.get('[data-test="mock-pca-cascader"]').trigger('click')
+    expect(onUpdate).toHaveBeenCalledWith({
+      field: 'companyArea',
+      op: FilterOp.EQ,
+      value: '330100',
+    })
   })
 })

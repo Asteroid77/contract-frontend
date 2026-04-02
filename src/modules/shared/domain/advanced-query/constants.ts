@@ -128,6 +128,12 @@ export const FIELD_TYPE_OPERATORS: Record<FieldType, FilterOp[]> = {
     FilterOp.IS_NULL,
     FilterOp.IS_NOT_NULL,
   ],
+  [FieldType.PCA]: [
+    FilterOp.EQ,
+    FilterOp.NE,
+    FilterOp.IS_NULL,
+    FilterOp.IS_NOT_NULL,
+  ],
 }
 
 export const getFieldOperators = (field?: Pick<FieldConfig, 'type' | 'operators'>): FilterOp[] => {

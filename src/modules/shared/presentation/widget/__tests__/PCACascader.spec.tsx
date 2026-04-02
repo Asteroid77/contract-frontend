@@ -7,6 +7,7 @@ import areaData from '@/modules/shared/application/constants/PCA.json'
 vi.mock('naive-ui', () => ({
   cascaderProps: {
     value: { type: [String, Number, Array, Object], required: false },
+    to: { type: [String, Object], required: false, default: '__unset__' },
   },
   NCascader: defineComponent({
     name: 'MockNCascader',
@@ -17,6 +18,7 @@ vi.mock('naive-ui', () => ({
       checkStrategy: { type: String, required: false },
       value: { type: [String, Number, Array, Object], required: false },
       placeholder: { type: String, required: false },
+      to: { type: [String, Boolean, Object], required: false },
     },
     setup(props, { slots }) {
       return () =>
@@ -29,6 +31,7 @@ vi.mock('naive-ui', () => ({
             'data-check-strategy': props.checkStrategy,
             'data-placeholder': props.placeholder,
             'data-value': props.value === undefined ? 'undefined' : String(props.value),
+            'data-to': String(props.to),
           },
           slots.default?.(),
         )
@@ -57,6 +60,12 @@ describe('PCACascader', () => {
     expect(root.attributes('data-check-strategy')).toBe('child')
     expect(root.attributes('data-placeholder')).toBe('请选择省市区')
     expect(root.attributes('data-value')).toBe('110000')
+  })
+
+  it('keeps menu inside current container for embedded usage', () => {
+    const wrapper = mount(PCACascader)
+
+    expect(wrapper.find('[data-test="NCascader"]').attributes('data-to')).toBe('false')
   })
 
   it('converts falsy value to undefined', () => {

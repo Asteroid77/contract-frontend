@@ -2,9 +2,16 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useRequest } from '@/modules/shared/infrastructure/useRequest'
 import { serviceAgreementRepository } from '@/modules/service-agreement/infrastructure/service-agreement-repository'
 import type { CustomAxiosRequestConfig } from '@/modules/shared/application/request/types'
+import axios from 'axios'
 
 vi.mock('@/modules/shared/infrastructure/useRequest', () => ({
   useRequest: vi.fn(),
+}))
+
+vi.mock('axios', () => ({
+  default: {
+    post: vi.fn(),
+  },
 }))
 
 type UploadRequestConfig = CustomAxiosRequestConfig<FormData> & {
@@ -15,7 +22,11 @@ type RecordedRequestConfig = {
   method?: string
   url?: string
   headers?: Record<string, unknown>
-  data?: FormData
+  data?: FormData | Record<string, unknown>
+}
+
+type RecordedAxiosUploadConfig = {
+  onUploadProgress?: (event: { loaded: number; total?: number }) => void
 }
 
 describe('serviceAgreementRepository contract', () => {
@@ -23,33 +34,54 @@ describe('serviceAgreementRepository contract', () => {
     vi.clearAllMocks()
   })
 
-  it('uploadFile builds formData, reports progress and returns data', async () => {
+  it('uploadFile requests oss policy, uploads to oss, reports progress and returns data', async () => {
     const file = new File(['x'], 'a.txt', { type: 'text/plain' })
     const progressSpy = vi.fn()
-    const payload = { id: 1, path: 'https://oss/a.txt' }
+    const policy = {
+      accessId: 'test-access-id',
+      policy: 'encoded-policy',
+      signature: 'signed-value',
+      dir: 'service-agreement/',
+      host: 'https://oss.example.com',
+      expire: '1741852800',
+      callback: 'base64-callback',
+    }
+    const payload = { id: 1, fileName: 'a.txt', path: 'https://oss/a.txt', expireTime: 1234567890 }
 
-    vi.mocked(useRequest).mockImplementation((config) => {
-      const uploadConfig = config as UploadRequestConfig
+    vi.mocked(useRequest).mockResolvedValueOnce(policy as never)
+    vi.mocked(axios.post).mockImplementation((_url, _data, config) => {
+      const uploadConfig = config as RecordedAxiosUploadConfig
       uploadConfig.onUploadProgress?.({ loaded: 1, total: 2 })
-      return Promise.resolve(payload as never)
+      return Promise.resolve({ data: payload } as never)
     })
 
     const result = await serviceAgreementRepository.uploadFile(file, 'BILL', progressSpy)
 
     const requestConfig = vi.mocked(useRequest).mock.calls[0][0] as RecordedRequestConfig
 
-    expect(requestConfig.method).toBe('POST')
-    expect(requestConfig.url).toBe('/service_agreement/upload')
-    expect(requestConfig.headers).toEqual({
-      'Content-Type': undefined,
+    expect(requestConfig).toEqual({
+      method: 'POST',
+      url: '/file/policy',
+      data: {
+        fileName: 'a.txt',
+      },
     })
-    const requestData = requestConfig.data
+
+    expect(axios.post).toHaveBeenCalledTimes(1)
+    const [uploadUrl, requestData] = vi.mocked(axios.post).mock.calls[0] ?? []
+    expect(uploadUrl).toBe('https://oss.example.com')
     expect(requestData).toBeInstanceOf(FormData)
     if (!(requestData instanceof FormData)) {
       throw new Error('request payload is not FormData')
     }
+
+    expect(requestData.get('key')).toBe('service-agreement/a.txt')
+    expect(requestData.get('policy')).toBe('encoded-policy')
+    expect(requestData.get('OSSAccessKeyId')).toBe('test-access-id')
+    expect(requestData.get('signature')).toBe('signed-value')
+    expect(requestData.get('callback')).toBe('base64-callback')
+    expect(requestData.get('success_action_status')).toBe('200')
     expect(requestData.get('file')).toBe(file)
-    expect(requestData.get('fileCategory')).toBe('BILL')
     expect(progressSpy).toHaveBeenCalledWith({ percent: 50 })
     expect(result).toEqual(payload)
   })

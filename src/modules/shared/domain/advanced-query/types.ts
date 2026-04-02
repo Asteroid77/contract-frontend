@@ -7,6 +7,7 @@ export enum FieldType {
   DATETIME = 'DATETIME',
   BOOLEAN = 'BOOLEAN',
   ENUM = 'ENUM',
+  PCA = 'PCA',
 }
 
 export type FieldOption = { label: string; value: string | number }

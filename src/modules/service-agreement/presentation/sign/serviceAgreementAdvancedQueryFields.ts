@@ -10,6 +10,12 @@ export const serviceAgreementAdvancedQueryFields: FieldConfig[] = [
     operators: [FilterOp.LIKE_RIGHT],
   },
   {
+    key: 'companyArea',
+    labelKey: 'domain.agreement.field.area',
+    type: FieldType.PCA,
+    operators: [FilterOp.EQ],
+  },
+  {
     key: 'status',
     labelKey: 'common.label.status',
     type: FieldType.ENUM,
