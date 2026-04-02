@@ -16,28 +16,24 @@ export default defineComponent({
     // 样式映射
     const styleMap = {
       added: {
-        borderColor: '#18a058',
         tagType: 'success',
         tagText: $t('common.action.add'),
-        opacity: 1,
+        modifier: 'added',
       },
       removed: {
-        borderColor: '#d03050',
         tagType: 'error',
         tagText: $t('common.action.delete'),
-        opacity: 0.6,
+        modifier: 'removed',
       },
       kept: {
-        borderColor: '#e0e0e6',
         tagType: 'default',
         tagText: $t('domain.approval.label.noChange'),
-        opacity: 1,
+        modifier: 'kept',
       },
       normal: {
-        borderColor: '#e0e0e6',
         tagType: 'default',
         tagText: '',
-        opacity: 1,
+        modifier: 'normal',
       },
     } as const
 
@@ -48,16 +44,10 @@ export default defineComponent({
     }
 
     return () => (
-      <div
-        class="file-diff-card"
-        style={{
-          border: `1px solid ${currentStyle.borderColor}`,
-          opacity: currentStyle.opacity,
-        }}
-      >
+      <div class={['file-diff-card', `file-diff-card--${currentStyle.modifier}`]}>
         {/* 状态角标 */}
         {props.status !== 'normal' && (
-          <div class="status-badge">
+          <div class="file-diff-card__badge">
             <NTag type={currentStyle.tagType} size="small" bordered={false}>
               {currentStyle.tagText}
             </NTag>
@@ -65,21 +55,20 @@ export default defineComponent({
         )}
 
         {/* 内容区 */}
-        <div class="card-content">
+        <div class="file-diff-card__content">
           {isImage ? (
             <NImage
               src={props.file.accessUrl}
               objectFit="cover"
-              class="preview-image"
-              // 启用图片预览组
+              class="file-diff-card__preview-image"
               preview-src={props.file.accessUrl}
             />
           ) : (
-            <div class="pdf-placeholder" onClick={handlePdfClick}>
-              <NIcon size="40" color="#ff4d4f">
+            <div class="file-diff-card__pdf-placeholder" onClick={handlePdfClick}>
+              <NIcon size="40">
                 <FilePdfOutlined />
               </NIcon>
-              <span class="click-tip">{$t('common.action.preview')}</span>
+              <span class="file-diff-card__click-tip">{$t('common.action.preview')}</span>
             </div>
           )}
         </div>

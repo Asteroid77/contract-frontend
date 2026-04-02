@@ -32,7 +32,7 @@ describe('MobileAttachmentPreview', () => {
     })
 
     expect(wrapper.text()).toContain('domain.agreement.preview.noAttachmentsData')
-    expect(wrapper.findAll('.file-card')).toHaveLength(0)
+    expect(wrapper.findAll('.mobile-attachment-preview__file-card')).toHaveLength(0)
   })
 
   it('groups attachments by ids and opens pdf in new window', async () => {
@@ -72,7 +72,7 @@ describe('MobileAttachmentPreview', () => {
     expect(wrapper.text()).toContain('domain.agreement.file.bill')
     expect(wrapper.text()).toContain('domain.agreement.file.other')
 
-    const cards = wrapper.findAll('.file-card')
+    const cards = wrapper.findAll('.mobile-attachment-preview__file-card')
     expect(cards).toHaveLength(3)
 
     await cards[1].trigger('click')
@@ -101,16 +101,18 @@ describe('MobileAttachmentPreview', () => {
       },
     })
 
-    const card = wrapper.find('.file-card')
+    const card = wrapper.find('.mobile-attachment-preview__file-card')
     expect(card.exists()).toBe(true)
 
     await card.trigger('click')
 
-    const viewer = wrapper.find('.image-viewer')
+    const viewer = wrapper.find('.mobile-attachment-preview__image-viewer')
     expect(viewer.exists()).toBe(true)
-    expect(wrapper.find('.image-viewer img').attributes('src')).toBe('https://oss/contract.jpg')
+    expect(wrapper.find('.mobile-attachment-preview__image-viewer img').attributes('src')).toBe(
+      'https://oss/contract.jpg',
+    )
 
     await viewer.trigger('click')
-    expect(wrapper.find('.image-viewer').exists()).toBe(false)
+    expect(wrapper.find('.mobile-attachment-preview__image-viewer').exists()).toBe(false)
   })
 })

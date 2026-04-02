@@ -1,33 +1,41 @@
-/* ========== 主题 CSS 变量 - 作用域隔离（diff-check） ========== */
+/*
+ * ========== 主题 CSS 变量 - 作用域隔离（diff-check） ==========
+ *
+ * 此组件可独立于主项目运行（如嵌入外部页面）。
+ * Light 主题的值使用 var(--全局token, 硬编码fallback) 格式：
+ *   - 嵌入主项目时自动继承全局主题 token
+ *   - 独立运行时使用 fallback 值确保正常渲染
+ * dark/sakura 主题为组件自有切换，值保持硬编码。
+ */
 .diff-check-scope {
-  /* Light 主题 (默认) */
-  --color-primary: #334155;
-  --color-primary-hover: #475569;
-  --color-primary-pressed: #1e293b;
-  --color-primary-suppl: #334155;
-  --color-accent: #2563eb;
-  --color-accent-hover: #1d4ed8;
-  --color-accent-pressed: #1e40af;
-  --color-bg-body: #f8fafc;
-  --color-bg-card: #ffffff;
-  --color-text-main: #0f172a;
-  --color-text-body: #334155;
-  --color-text-light: #64748b;
-  --color-text-disabled: #cbd5e1;
-  --color-border: #e2e8f0;
+  /* Light 主题 (默认) — 继承全局 token，fallback 为独立默认值 */
+  --color-primary: var(--color-primary-default, #334155);
+  --color-primary-hover: var(--color-primary-hover, #475569);
+  --color-primary-pressed: var(--color-primary-pressed, #1e293b);
+  --color-primary-suppl: var(--color-primary-suppl, #334155);
+  --color-accent: var(--color-accent-default, #2563eb);
+  --color-accent-hover: var(--color-accent-hover, #1d4ed8);
+  --color-accent-pressed: var(--color-accent-pressed, #1e40af);
+  --color-bg-body: var(--color-background-body, #f8fafc);
+  --color-bg-card: var(--color-background-card, #ffffff);
+  --color-text-main: var(--color-text-main, #0f172a);
+  --color-text-body: var(--color-text-body, #334155);
+  --color-text-light: var(--color-text-light, #64748b);
+  --color-text-disabled: var(--color-text-disabled, #cbd5e1);
+  --color-border: var(--color-border-default, #e2e8f0);
 
-  /* 通用 Tokens */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --padding-card: 16px;
+  /* 通用 Tokens — 继承全局 spacing/radius */
+  --radius-sm: var(--radius-sm, 4px);
+  --radius-md: var(--radius-md, 8px);
+  --radius-lg: var(--radius-lg, 12px);
+  --spacing-xs: var(--spacing-4, 4px);
+  --spacing-sm: var(--spacing-8, 8px);
+  --spacing-md: var(--spacing-16, 16px);
+  --spacing-lg: var(--spacing-24, 24px);
+  --spacing-xl: var(--spacing-32, 32px);
+  --padding-card: var(--padding-card, 16px);
 
-  /* Diff 状态色 */
+  /* Diff 状态色（组件专有，全局无对应 token） */
   --diff-added-bg: rgba(34, 197, 94, 0.12);
   --diff-added-text: #15803d;
   --diff-removed-bg: rgba(239, 68, 68, 0.12);
@@ -101,7 +109,7 @@
   background-color: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: 16px;
+  padding: var(--padding-card);
 }
 
 /* ========== 表格样式 ========== */
@@ -115,15 +123,15 @@
   color: var(--color-text-main);
   font-weight: 600;
   text-align: left;
-  padding: 10px 16px;
-  font-size: 13px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 0.8125rem;
   border-bottom: 1px solid var(--color-border);
 }
 
 .diff-check-scope .form-table td {
-  padding: 12px 16px;
+  padding: 0.75rem var(--spacing-md);
   border-bottom: 1px solid var(--color-border);
-  font-size: 14px;
+  font-size: 0.875rem;
   vertical-align: top;
 }
 
@@ -136,7 +144,7 @@
 }
 
 .diff-check-scope .field-label {
-  width: 120px;
+  width: 7.5rem;
   color: var(--color-text-light);
   font-weight: 500;
 }
@@ -150,20 +158,20 @@
 .diff-check-scope .diff-inline-group {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--spacing-xs);
   flex-wrap: wrap;
 }
 
 .diff-check-scope .diff-arrow {
   color: var(--color-text-light);
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 .diff-check-scope .diff-inline {
   display: inline-block;
-  padding: 2px 8px;
+  padding: 2px var(--spacing-sm);
   border-radius: var(--radius-sm);
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 
 .diff-check-scope .diff-inline--added {
@@ -192,22 +200,22 @@
 .diff-check-scope .list-summary {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-sm);
   cursor: pointer;
   user-select: none;
 }
 
 .diff-check-scope .list-toggle {
   color: var(--color-text-light);
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 .diff-check-scope .badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 6px;
+  padding: 2px var(--spacing-xs);
   border-radius: var(--radius-sm);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
 }
 
@@ -230,7 +238,7 @@
 }
 
 .diff-check-scope .list-nested {
-  padding: 8px 16px 16px 16px;
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md) var(--spacing-md);
 }
 
 .diff-check-scope .form-table--nested {
@@ -240,7 +248,7 @@
 }
 
 .diff-check-scope .col-index {
-  width: 40px;
+  width: 2.5rem;
   text-align: center;
   color: var(--color-text-light);
 }
@@ -260,23 +268,23 @@
 .diff-check-scope .file-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 0.75rem;
 }
 
 .diff-check-scope .file-diff-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 0.75rem;
   align-items: flex-start;
 }
 
 .diff-check-scope .file-item {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 8px;
+  padding: var(--spacing-sm);
   background-color: var(--color-bg-card);
   position: relative;
-  max-width: 220px;
+  max-width: 13.75rem;
 }
 
 .diff-check-scope .file-item--added {
@@ -318,12 +326,12 @@
 
 .diff-check-scope .file-status-tag {
   position: absolute;
-  top: -6px;
-  right: -6px;
-  font-size: 10px;
-  padding: 2px 6px;
+  top: -0.375rem;
+  right: -0.375rem;
+  font-size: 0.625rem;
+  padding: 2px var(--spacing-xs);
   border-radius: var(--radius-sm);
-  color: #fff;
+  color: var(--color-bg-card, #fff);
   z-index: 2;
   pointer-events: none;
 }
@@ -339,8 +347,8 @@
 .diff-check-scope .file-info {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
+  gap: var(--spacing-xs);
+  font-size: 0.8125rem;
 }
 
 .diff-check-scope .file-name {
@@ -362,14 +370,14 @@
 
 .diff-check-scope .file-size {
   color: var(--color-text-light);
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 .diff-check-scope .file-status-badge {
-  font-size: 12px;
-  padding: 1px 6px;
+  font-size: 0.75rem;
+  padding: 1px var(--spacing-xs);
   border-radius: var(--radius-sm);
-  color: #fff;
+  color: var(--color-bg-card, #fff);
 }
 
 .diff-check-scope .file-status-badge--added {
@@ -382,7 +390,7 @@
 .diff-check-scope .file-diff-replace {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-sm);
 }
 
 .diff-check-scope .file-diff-arrow {
@@ -391,11 +399,11 @@
 
 .diff-check-scope .empty-row {
   text-align: center;
-  padding: 16px;
+  padding: var(--spacing-md);
 }
 
 /* ========== 移动端：强制单列排布（仅作用于顶层表格） ========== */
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 48rem) {
   .diff-check-scope .unified-table-wrapper > table.form-table,
   .diff-check-scope .unified-table-wrapper > table.form-table > tbody,
   .diff-check-scope .unified-table-wrapper > table.form-table > tbody > tr,
@@ -406,12 +414,12 @@
 
   .diff-check-scope .unified-table-wrapper > table.form-table > tbody > tr > td {
     border-bottom: none;
-    padding: 6px 0;
+    padding: var(--spacing-xs) 0;
   }
 
   .diff-check-scope .unified-table-wrapper > table.form-table > tbody > tr {
     border-bottom: 1px solid var(--color-border);
-    padding: 10px 0;
+    padding: var(--spacing-sm) 0;
   }
 
   .diff-check-scope .unified-table-wrapper > table.form-table > tbody > tr:last-child {
