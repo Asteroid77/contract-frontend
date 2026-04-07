@@ -29,6 +29,7 @@ describe('captchaRepository contract', () => {
     expect(useRequest).toHaveBeenCalledWith({
       method: 'GET',
       url: '/captcha/arithmetic',
+      authMode: 'passthrough',
       notify: {
         success: false,
       },
@@ -56,6 +57,7 @@ describe('captchaRepository contract', () => {
       method: 'POST',
       url: '/captcha/sms/send',
       data: '13800000000',
+      authMode: 'passthrough',
       notify: {
         success: {
           title: '发送成功',

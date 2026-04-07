@@ -4,9 +4,11 @@ import { showUniqueErrorNotification } from '@/_utils/discrete_naive_api'
 import {
   buildAuthFeedbackKey,
   isAuthFeedbackError,
+  reportRefreshFailureFeedback,
   reportAuthErrorFeedback,
   resetAuthFeedbackStateForTests,
 } from '@/modules/shared/infrastructure/request-auth-feedback'
+import { ResponseCode } from '@/modules/shared/application/constants/response-code'
 
 vi.mock('@/_utils/i18n', () => ({
   $t: (key: string) => `t:${key}`,
@@ -140,5 +142,47 @@ describe('request-auth-feedback', () => {
     reportAuthErrorFeedback(error)
 
     expect(showUniqueErrorNotification).not.toHaveBeenCalled()
+  })
+
+  it('reports refresh origin failures with explicit backend detail', () => {
+    const error = new BusinessError(
+      '请求来源校验失败',
+      ResponseCode.AUTH_REQUEST_ORIGIN_INVALID,
+      'trace-3',
+      'req-3',
+      'about:blank',
+      403,
+    )
+
+    reportRefreshFailureFeedback(error)
+
+    expect(showUniqueErrorNotification).toHaveBeenCalledWith(
+      'refresh-failure:403:20009',
+      expect.objectContaining({
+        title: '登录续期失败',
+        content: '续期请求被拒绝：请求来源校验失败',
+      }),
+    )
+  })
+
+  it('reports non-problem refresh failures with development hint copy', () => {
+    reportRefreshFailureFeedback({
+      isAxiosError: true,
+      response: {
+        status: 403,
+        data: '<html>forbidden</html>',
+        headers: {
+          'content-type': 'text/html;charset=UTF-8',
+        },
+      },
+    })
+
+    expect(showUniqueErrorNotification).toHaveBeenCalledWith(
+      'refresh-failure:non-problem:403',
+      expect.objectContaining({
+        title: '登录续期失败',
+        content: '续期请求未返回标准错误体，优先检查本地代理、CORS 或网关配置。',
+      }),
+    )
   })
 })

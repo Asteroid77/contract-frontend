@@ -26,12 +26,20 @@ describe('auth-session-recovery', () => {
     resetAuthSessionRecoveryStateForTests()
   })
 
-  it('recognizes only 401 business errors as recoverable auth session errors', () => {
+  it('recognizes only 401 business errors without refresh token as recoverable auth session errors', () => {
     expect(
       isRecoverableAuthSessionError(
         new BusinessError('expired', 40100, 'trace-1', 'req-1', 'about:blank', 401),
       ),
     ).toBe(true)
+
+    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'refresh-token')
+    expect(
+      isRecoverableAuthSessionError(
+        new BusinessError('expired', 40100, 'trace-1', 'req-1', 'about:blank', 401),
+      ),
+    ).toBe(false)
+
     expect(
       isRecoverableAuthSessionError(
         new BusinessError('forbidden', 40300, 'trace-2', 'req-2', 'about:blank', 403),
@@ -47,6 +55,17 @@ describe('auth-session-recovery', () => {
     )
 
     expect(clearSessionSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not clear session for 401 errors when refresh token still exists', async () => {
+    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, 'access-token')
+    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'refresh-token')
+
+    await recoverAuthSession(
+      new BusinessError('expired', 40100, 'trace-1', 'req-1', 'about:blank', 401),
+    )
+
+    expect(clearSessionSpy).not.toHaveBeenCalled()
   })
 
   it('does nothing for 403 errors', async () => {

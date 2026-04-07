@@ -1,10 +1,10 @@
 import type { AxiosResponse } from 'axios'
-import axios from 'axios'
 import { STORAGE_KEYS } from '@/constants/storage'
 import { apiClient } from '@/app/infrastructure/request/http-client'
 import type { RFC7807Response } from '@/modules/shared/domain/response'
 import { AUTH_ENDPOINTS } from '../infrastructure/auth-endpoints'
-import { ResponseCode } from '@/modules/shared/application/constants/response-code'
+import { reportRefreshFailureFeedback } from '@/modules/shared/infrastructure/request-auth-feedback'
+import { shouldClearSessionForRefreshFailure } from './refresh-failure-classifier'
 
 const EXPIRING_SOON_THRESHOLD_SECONDS = 5 * 60
 const PROACTIVE_REFRESH_MAX_LEAD_SECONDS = 60
@@ -543,24 +543,6 @@ const waitForRefreshByOtherTab = async (
 const isRefreshSuppressedDuringLogoutError = (error: unknown): boolean =>
   error instanceof Error && error.message === REFRESH_SUPPRESSED_DURING_LOGOUT_ERROR
 
-const shouldClearTokensAfterRefreshFailure = (error: unknown): boolean => {
-  if (!axios.isAxiosError(error) || !error.response) {
-    return false
-  }
-
-  const payload = error.response.data as RFC7807Response | undefined
-  const status = error.response.status ?? payload?.status
-  const code = payload?.code
-
-  if (status === 401 || status === 403) {
-    return true
-  }
-
-  return (
-    code === ResponseCode.OAUTH2_TOKEN_VERIFY_ERROR || code === ResponseCode.OAUTH2_TOKEN_EXPIRED
-  )
-}
-
 export const forceRefreshAccessToken = async (): Promise<AuthTokenPair> => {
   if (logoutInProgress) {
     throw new Error(REFRESH_SUPPRESSED_DURING_LOGOUT_ERROR)
@@ -619,13 +601,14 @@ export const forceRefreshAccessToken = async (): Promise<AuthTokenPair> => {
       const latestRefreshToken = getStoredRefreshToken()
       const stillUsingSameRefreshToken = latestRefreshToken === refreshToken
 
-      if (stillUsingSameRefreshToken && shouldClearTokensAfterRefreshFailure(error)) {
+      if (stillUsingSameRefreshToken && shouldClearSessionForRefreshFailure(error)) {
         clearAuthTokens()
         throw error
       }
 
       if (stillUsingSameRefreshToken && !isRefreshSuppressedDuringLogoutError(error)) {
         markRefreshFailure(refreshToken)
+        reportRefreshFailureFeedback(error)
       }
 
       throw error

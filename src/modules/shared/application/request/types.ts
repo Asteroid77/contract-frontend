@@ -36,6 +36,7 @@ export interface Notify {
 }
 
 export type RequestResponseShape = 'data' | 'envelope' | 'raw'
+export type RequestAuthMode = 'managed' | 'passthrough' | 'no-refresh'
 
 /**
  * 拓展AxiosRequestConfig中的自定义配置
@@ -57,13 +58,12 @@ export interface CustomAxiosRequestConfig<D = unknown> extends AxiosRequestConfi
    */
   requestContext?: RequestContext
   /**
-   * 跳过自动刷新逻辑（用于刷新令牌接口自身）
+   * 认证策略：
+   * - `managed`: 自动注入本地 access token，并在 401 时尝试 refresh
+   * - `passthrough`: 不注入本地 token，也不触发 refresh
+   * - `no-refresh`: 注入本地 access token，但不触发 refresh
    */
-  skipAuthRefresh?: boolean
-  /**
-   * 跳过自动注入 Authorization
-   */
-  skipAuthToken?: boolean
+  authMode?: RequestAuthMode
   /**
    * 内部标识：401 刷新后已重放一次
    */

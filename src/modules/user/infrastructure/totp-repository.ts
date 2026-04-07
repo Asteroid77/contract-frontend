@@ -14,8 +14,7 @@ export const totpRepository: ITotpRepository = {
       method: 'POST',
       url: TOTP_ENDPOINTS.VERIFY,
       data,
-      skipAuthToken: true,
-      skipAuthRefresh: true,
+      authMode: 'passthrough',
       withCredentials: true,
     }),
 

@@ -70,8 +70,8 @@ const isAuthError = (error: unknown, deps: AuthGuardDependencies): boolean => {
     const bizError = error as { isBusinessError?: boolean; code?: number; status?: number }
     if (bizError.isBusinessError) {
       if (
-        bizError.code === deps.ResponseCode.OAUTH2_TOKEN_VERIFY_ERROR ||
-        bizError.code === deps.ResponseCode.OAUTH2_TOKEN_EXPIRED
+        bizError.code === deps.ResponseCode.AUTH_ACCESS_TOKEN_INVALID ||
+        bizError.code === deps.ResponseCode.AUTH_ACCESS_TOKEN_EXPIRED
       ) {
         return true
       }
@@ -85,8 +85,8 @@ const isAuthError = (error: unknown, deps: AuthGuardDependencies): boolean => {
     const code = payload?.code
     return (
       status === 401 ||
-      code === deps.ResponseCode.OAUTH2_TOKEN_VERIFY_ERROR ||
-      code === deps.ResponseCode.OAUTH2_TOKEN_EXPIRED
+      code === deps.ResponseCode.AUTH_ACCESS_TOKEN_INVALID ||
+      code === deps.ResponseCode.AUTH_ACCESS_TOKEN_EXPIRED
     )
   }
 
@@ -151,9 +151,20 @@ export function setupAuthGuards(router: Router) {
             action: 'loadUserInfo',
           },
         })
-        if (isAuthError(error, deps)) {
+
+        const latestAccessToken = getStoredAccessToken()
+        const latestHasRefreshToken = hasStoredRefreshToken()
+        if (!latestAccessToken || !latestHasRefreshToken) {
           accountStore.clearSession()
           return { name: 'login', query: { redirect: to.fullPath } }
+        }
+
+        if (isAuthError(error, deps)) {
+          if (ERROR_ROUTE_NAMES.has(String(to.name ?? ''))) {
+            return true
+          }
+
+          return { name: '500' }
         }
 
         if (ERROR_ROUTE_NAMES.has(String(to.name ?? ''))) {

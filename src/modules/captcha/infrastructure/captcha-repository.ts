@@ -13,6 +13,7 @@ export const captchaRepository = {
     useRequest<ImageCaptchaResponse, undefined>({
       method: 'GET',
       url: CAPTCHA_ENDPOINTS.ARITHMETIC,
+      authMode: 'passthrough',
       notify: {
         success: false,
       },
@@ -22,6 +23,7 @@ export const captchaRepository = {
       method: 'POST',
       url: CAPTCHA_ENDPOINTS.SMS_SEND,
       data: phone,
+      authMode: 'passthrough',
       notify: {
         success: { title: $t('auth.sms.sentSuccess'), type: 'notification' },
       },

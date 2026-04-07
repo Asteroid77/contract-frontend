@@ -10,7 +10,7 @@ import {
 let authSessionRecoveryPromise: Promise<void> | null = null
 
 export function isRecoverableAuthSessionError(error: unknown): error is BusinessError {
-  return error instanceof BusinessError && error.status === 401
+  return error instanceof BusinessError && error.status === 401 && !getStoredRefreshToken()
 }
 
 function hasStoredSession(): boolean {

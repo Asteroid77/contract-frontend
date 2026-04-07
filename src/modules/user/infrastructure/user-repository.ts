@@ -29,17 +29,22 @@ export const userRepository: IUserRepository = {
       method: 'POST',
       url: USER_ENDPOINTS.LOGIN,
       data,
+      authMode: 'passthrough',
       withCredentials: true,
     }),
   register: (data: RegisterRequestDTO) =>
-    useRequest<number, RegisterRequestDTO>({ method: 'POST', url: USER_ENDPOINTS.REGISTER, data }),
+    useRequest<number, RegisterRequestDTO>({
+      method: 'POST',
+      url: USER_ENDPOINTS.REGISTER,
+      data,
+      authMode: 'passthrough',
+    }),
   exchangeOAuth2Code: (data: OAuth2ExchangeRequestDTO) =>
     useRequest<OAuth2ExchangeVo, OAuth2ExchangeRequestDTO>({
       method: 'POST',
       url: OAUTH2_ENDPOINTS.EXCHANGE,
       data,
-      skipAuthToken: true,
-      skipAuthRefresh: true,
+      authMode: 'passthrough',
       withCredentials: true,
     }),
   getCurrentUserInfo: (accessToken?: string) =>
@@ -52,8 +57,7 @@ export const userRepository: IUserRepository = {
               Authorization: accessToken,
             },
             // OAuth2 回调首跳使用传入 token，避免复用旧本地 token 干扰请求。
-            skipAuthToken: true,
-            skipAuthRefresh: true,
+            authMode: 'passthrough',
           }
         : {}),
     }).then((userInfo) => {
@@ -115,12 +119,13 @@ export const userRepository: IUserRepository = {
       method: 'POST',
       url: USER_ENDPOINTS.PASSWORD_RECOVERY,
       data,
+      authMode: 'passthrough',
     }),
   logout: () =>
     useRequest<boolean, never>({
       method: 'POST',
       url: USER_ENDPOINTS.LOGOUT,
-      skipAuthRefresh: true,
+      authMode: 'no-refresh',
       withCredentials: true,
       notify: { success: false },
     }),

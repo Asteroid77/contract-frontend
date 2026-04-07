@@ -7,19 +7,24 @@ import { ResponseCode } from '@/modules/shared/application/constants/response-co
 import { AUTH_ENDPOINTS } from '@/modules/access/infrastructure/auth-endpoints'
 import { STORAGE_KEYS } from '@/constants/storage'
 
-const { reportAuthErrorFeedbackSpy } = vi.hoisted(() => ({
+const { reportAuthErrorFeedbackSpy, reportRefreshFailureFeedbackSpy } = vi.hoisted(() => ({
   reportAuthErrorFeedbackSpy: vi.fn(),
+  reportRefreshFailureFeedbackSpy: vi.fn(),
 }))
 
 const { isRecoverableAuthSessionErrorSpy, recoverAuthSessionSpy } = vi.hoisted(() => ({
   isRecoverableAuthSessionErrorSpy: vi.fn(
-    (error: unknown) => error instanceof BusinessError && error.status === 401,
+    (error: unknown) =>
+      error instanceof BusinessError &&
+      error.status === 401 &&
+      !localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN),
   ),
   recoverAuthSessionSpy: vi.fn(),
 }))
 
 vi.mock('@/modules/shared/infrastructure/request-auth-feedback', () => ({
   reportAuthErrorFeedback: reportAuthErrorFeedbackSpy,
+  reportRefreshFailureFeedback: reportRefreshFailureFeedbackSpy,
 }))
 
 vi.mock('@/modules/access/application/auth-session-recovery', () => ({
@@ -228,7 +233,7 @@ describe('useRequest behavior branches', () => {
             title: 'token expired',
             status: 401,
             detail: 'access token expired',
-            code: ResponseCode.OAUTH2_TOKEN_EXPIRED,
+            code: ResponseCode.AUTH_ACCESS_TOKEN_EXPIRED,
             traceId: 'trace-expired',
           },
         ]
@@ -317,11 +322,111 @@ describe('useRequest behavior branches', () => {
         message: 'refresh token invalid',
       }),
     )
+    expect(reportRefreshFailureFeedbackSpy).toHaveBeenCalledTimes(1)
+    expect(recoverAuthSessionSpy).not.toHaveBeenCalled()
+  })
+
+  it('does not inject token or trigger refresh when authMode is passthrough', async () => {
+    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, 'access-old')
+    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'refresh-old')
+
+    mock.onGet('/public-auth-mode').reply((config) => {
+      expect(config.headers?.Authorization).toBeUndefined()
+      return [
+        401,
+        {
+          type: 'about:blank',
+          title: 'unauthorized',
+          status: 401,
+          detail: 'public endpoint unauthorized',
+          code: ResponseCode.AUTH_ACCESS_TOKEN_INVALID,
+          traceId: 'trace-public-auth-mode',
+        },
+      ]
+    })
+
+    await expect(
+      useRequest<{ ok: boolean }>({
+        method: 'GET',
+        url: '/public-auth-mode',
+        authMode: 'passthrough',
+      }),
+    ).rejects.toEqual(
+      expect.objectContaining<Partial<BusinessError>>({
+        status: 401,
+        message: 'public endpoint unauthorized',
+      }),
+    )
+
+    expect(mock.history.post).toHaveLength(0)
+    expect(recoverAuthSessionSpy).not.toHaveBeenCalled()
+  })
+
+  it('does not trigger refresh when authMode is no-refresh', async () => {
+    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, 'access-old')
+    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'refresh-old')
+
+    mock.onGet('/secure-no-refresh-mode').reply((config) => {
+      expect(config.headers?.Authorization).toBe('access-old')
+      return [
+        401,
+        {
+          type: 'about:blank',
+          title: 'unauthorized',
+          status: 401,
+          detail: 'protected endpoint unauthorized',
+          code: ResponseCode.AUTH_ACCESS_TOKEN_INVALID,
+          traceId: 'trace-no-refresh-mode',
+        },
+      ]
+    })
+
+    await expect(
+      useRequest<{ ok: boolean }>({
+        method: 'GET',
+        url: '/secure-no-refresh-mode',
+        authMode: 'no-refresh',
+      }),
+    ).rejects.toEqual(
+      expect.objectContaining<Partial<BusinessError>>({
+        status: 401,
+        message: 'protected endpoint unauthorized',
+      }),
+    )
+
+    expect(mock.history.post).toHaveLength(0)
+    expect(recoverAuthSessionSpy).not.toHaveBeenCalled()
+  })
+
+  it('recovers auth session for direct 401 responses when no refresh token exists', async () => {
+    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, 'access-old')
+
+    mock.onGet('/secure-no-refresh').reply(401, {
+      type: 'about:blank',
+      title: 'unauthorized',
+      status: 401,
+      detail: 'access token invalid',
+      code: ResponseCode.AUTH_ACCESS_TOKEN_INVALID,
+      traceId: 'trace-auth-invalid',
+    })
+
+    await expect(
+      useRequest<{ ok: boolean }>({
+        method: 'GET',
+        url: '/secure-no-refresh',
+      }),
+    ).rejects.toEqual(
+      expect.objectContaining<Partial<BusinessError>>({
+        status: 401,
+        message: 'access token invalid',
+      }),
+    )
+
     expect(recoverAuthSessionSpy).toHaveBeenCalledTimes(1)
     expect(recoverAuthSessionSpy).toHaveBeenCalledWith(
       expect.objectContaining<Partial<BusinessError>>({
         status: 401,
-        message: 'refresh token invalid',
+        message: 'access token invalid',
       }),
     )
   })

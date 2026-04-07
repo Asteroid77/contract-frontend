@@ -1,5 +1,6 @@
 import type {
   CustomAxiosRequestConfig,
+  RequestAuthMode,
   RequestResponseShape,
 } from '@/modules/shared/application/request/types'
 import type { RFC7807Response, RFC7807SuccessResponse } from '@/modules/shared/domain/response'
@@ -93,7 +94,7 @@ async function executeRequest<T, D>(
 
 function shouldRetryWithTokenRefresh(error: unknown, config: CustomAxiosRequestConfig): boolean {
   if (
-    config.skipAuthRefresh ||
+    resolveAuthMode(config) !== 'managed' ||
     config._authRetried ||
     !hasStoredRefreshToken() ||
     isLogoutInProgress()
@@ -112,8 +113,8 @@ function shouldRetryWithTokenRefresh(error: unknown, config: CustomAxiosRequestC
   return (
     status === 401 ||
     code === 401 ||
-    code === ResponseCode.OAUTH2_TOKEN_VERIFY_ERROR ||
-    code === ResponseCode.OAUTH2_TOKEN_EXPIRED
+    code === ResponseCode.AUTH_ACCESS_TOKEN_INVALID ||
+    code === ResponseCode.AUTH_ACCESS_TOKEN_EXPIRED
   )
 }
 
@@ -246,8 +247,9 @@ function setToken(
   tokenName: string,
   forceReloadToken: boolean = false,
 ): string | undefined {
-  if (config.skipAuthToken) {
-    return undefined
+  const authMode = resolveAuthMode(config)
+  if (authMode === 'passthrough') {
+    return normalizeAccessToken(config.headers?.[tokenName])
   }
 
   config.headers = config.headers || {}
@@ -272,6 +274,10 @@ function setToken(
   }
 
   return normalizeAccessToken(token)
+}
+
+function resolveAuthMode(config: CustomAxiosRequestConfig): RequestAuthMode {
+  return config.authMode ?? 'managed'
 }
 
 function normalizeAccessToken(token: unknown): string | undefined {

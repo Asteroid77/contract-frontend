@@ -31,6 +31,7 @@ describe('userRepository contract', () => {
       method: 'POST',
       url: USER_ENDPOINTS.LOGIN,
       data: dto,
+      authMode: 'passthrough',
       withCredentials: true,
     })
     expect(result).toEqual(payload)
@@ -53,6 +54,7 @@ describe('userRepository contract', () => {
       method: 'POST',
       url: USER_ENDPOINTS.REGISTER,
       data: dto,
+      authMode: 'passthrough',
     })
     expect(result).toBe(payload)
   })
@@ -77,8 +79,7 @@ describe('userRepository contract', () => {
       method: 'POST',
       url: OAUTH2_ENDPOINTS.EXCHANGE,
       data: dto,
-      skipAuthToken: true,
-      skipAuthRefresh: true,
+      authMode: 'passthrough',
       withCredentials: true,
     })
     expect(result).toEqual(payload)
@@ -109,8 +110,7 @@ describe('userRepository contract', () => {
       headers: {
         Authorization: token,
       },
-      skipAuthRefresh: true,
-      skipAuthToken: true,
+      authMode: 'passthrough',
     })
     expect(result).toEqual(payload)
   })
@@ -274,6 +274,7 @@ describe('userRepository contract', () => {
       method: 'POST',
       url: USER_ENDPOINTS.PASSWORD_RECOVERY,
       data: dto,
+      authMode: 'passthrough',
     })
     expect(result).toBe(true)
   })
@@ -295,7 +296,7 @@ describe('userRepository contract', () => {
     expect(useRequest).toHaveBeenCalledWith({
       method: 'POST',
       url: USER_ENDPOINTS.LOGOUT,
-      skipAuthRefresh: true,
+      authMode: 'no-refresh',
       withCredentials: true,
       notify: { success: false },
     })

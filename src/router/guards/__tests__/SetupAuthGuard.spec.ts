@@ -12,6 +12,8 @@ import { userService } from '@/modules/user/application/service'
 import type { SignInResponseComplete } from '@/modules/user/application/models'
 import { captureError } from '@/app/observability/lazy'
 import { enablePostLoginEnhancements } from '@/app/plugins/post-login-enhancements'
+import { BusinessError } from '@/modules/shared/domain/errors'
+import { ResponseCode } from '@/modules/shared/application/constants/response-code'
 
 vi.mock('@/modules/access/application/token-manager', () => ({
   forceRefreshAccessToken: vi.fn(),
@@ -193,6 +195,64 @@ describe('setupAuthGuards', () => {
     expect(userService.getCurrentUserInfo).toHaveBeenCalledWith()
     expect(accountStore.login).toHaveBeenCalledTimes(1)
     expect(result).toBe(true)
+  })
+
+  it('keeps session and routes to 500 when bootstrap auth request ends with 401 but refresh token still exists', async () => {
+    vi.mocked(getStoredAccessToken).mockReturnValue('access-token')
+    vi.mocked(hasStoredRefreshToken).mockReturnValue(true)
+
+    const accountStore = createAccountStore()
+    accountStore.isLoadedData = false
+    vi.mocked(useAccountStore).mockReturnValue(accountStore as never)
+    vi.mocked(userService.getCurrentUserInfo).mockRejectedValue(
+      new BusinessError(
+        'refresh token invalid',
+        ResponseCode.AUTH_ACCESS_TOKEN_INVALID,
+        'trace-auth-invalid',
+        'req-auth-invalid',
+        'about:blank',
+        401,
+      ),
+    )
+
+    const { guard } = setupGuard()
+    const result = await guard({
+      name: 'dashboard',
+      fullPath: '/dashboard',
+      meta: {},
+    })
+
+    expect(accountStore.clearSession).not.toHaveBeenCalled()
+    expect(result).toEqual({ name: '500' })
+  })
+
+  it('clears session and redirects to login when bootstrap auth request fails without refresh token', async () => {
+    vi.mocked(getStoredAccessToken).mockReturnValue('access-token')
+    vi.mocked(hasStoredRefreshToken).mockReturnValue(false)
+
+    const accountStore = createAccountStore()
+    accountStore.isLoadedData = false
+    vi.mocked(useAccountStore).mockReturnValue(accountStore as never)
+    vi.mocked(userService.getCurrentUserInfo).mockRejectedValue(
+      new BusinessError(
+        'access token invalid',
+        ResponseCode.AUTH_ACCESS_TOKEN_INVALID,
+        'trace-auth-invalid',
+        'req-auth-invalid',
+        'about:blank',
+        401,
+      ),
+    )
+
+    const { guard } = setupGuard()
+    const result = await guard({
+      name: 'dashboard',
+      fullPath: '/dashboard',
+      meta: {},
+    })
+
+    expect(accountStore.clearSession).toHaveBeenCalledTimes(1)
+    expect(result).toEqual({ name: 'login', query: { redirect: '/dashboard' } })
   })
 
   it('skips refresh workflow when logout is in progress', async () => {

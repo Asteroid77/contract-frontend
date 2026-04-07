@@ -7,7 +7,9 @@ describe('ResponseCode', () => {
     expect(ResponseCode.SYSTEM_ERROR).toBe(10001)
     expect(ResponseCode.PARAM_ERROR).toBe(10002)
 
-    expect(ResponseCode.OAUTH2_TOKEN_EXPIRED).toBe(20005)
+    expect(ResponseCode.AUTH_ACCESS_TOKEN_EXPIRED).toBe(20005)
+    expect(ResponseCode.AUTH_REFRESH_GRANT_INVALID).toBe(20008)
+    expect(ResponseCode.AUTH_REQUEST_ORIGIN_INVALID).toBe(20009)
     expect(ResponseCode.USER_NOT_FOUND).toBe(30001)
     expect(ResponseCode.CAPTCHA_INVALID).toBe(50001)
   })
@@ -17,5 +19,6 @@ describe('ResponseCode', () => {
     expect(ResponseCode.APPROVAL_INSTANCE_NOT_EXIST).toBe(90001)
     expect(ResponseCode.SIGN_NOT_FOUND).toBe(140001)
     expect(ResponseCode.SIGN_USER_NO_PERMISSION).toBe(140002)
+    expect(ResponseCode.FILE_UPLOAD_TICKET_INVALID).toBe(130006)
   })
 })

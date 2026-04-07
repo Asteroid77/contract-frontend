@@ -344,7 +344,7 @@ describe('token-manager', () => {
     expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBe('refresh-old')
   })
 
-  it('clears tokens when refresh failed with plain 401', async () => {
+  it('keeps tokens when refresh failed with plain 401', async () => {
     setAuthTokens({
       accessToken: createJwtWithExpOffset(10),
       refreshToken: 'refresh-old',
@@ -360,28 +360,52 @@ describe('token-manager', () => {
     })
 
     await expect(forceRefreshAccessToken()).rejects.toBeTruthy()
-    expect(localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)).toBeNull()
-    expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBeNull()
+    expect(localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)).toBeTruthy()
+    expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBe('refresh-old')
   })
 
-  it('clears tokens when refresh failed with token-expired business code', async () => {
+  it('clears tokens when refresh failed with invalid-grant business code', async () => {
     setAuthTokens({
       accessToken: createJwtWithExpOffset(10),
       refreshToken: 'refresh-old',
     })
 
-    mock.onPost(AUTH_ENDPOINTS.TOKEN_REFRESH).reply(401, {
+    mock.onPost(AUTH_ENDPOINTS.TOKEN_REFRESH).reply(400, {
       type: 'about:blank',
-      title: 'unauthorized',
-      status: 401,
-      detail: 'refresh token invalid',
-      code: ResponseCode.OAUTH2_TOKEN_EXPIRED,
+      title: 'refresh grant invalid',
+      status: 400,
+      detail: 'refresh token revoked',
+      code: ResponseCode.AUTH_REFRESH_GRANT_INVALID,
       traceId: 'trace-refresh-expired',
+      data: {
+        oauthError: 'invalid_grant',
+        reason: 'refresh_token_revoked',
+      },
     })
 
     await expect(forceRefreshAccessToken()).rejects.toBeTruthy()
     expect(localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)).toBeNull()
     expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBeNull()
+  })
+
+  it('keeps tokens when refresh failed with forbidden origin error', async () => {
+    setAuthTokens({
+      accessToken: createJwtWithExpOffset(10),
+      refreshToken: 'refresh-old',
+    })
+
+    mock.onPost(AUTH_ENDPOINTS.TOKEN_REFRESH).reply(403, {
+      type: 'about:blank',
+      title: 'origin invalid',
+      status: 403,
+      detail: '请求来源校验失败',
+      code: ResponseCode.AUTH_REQUEST_ORIGIN_INVALID,
+      traceId: 'trace-refresh-origin',
+    })
+
+    await expect(forceRefreshAccessToken()).rejects.toBeTruthy()
+    expect(localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)).toBeTruthy()
+    expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBe('refresh-old')
   })
 
   it('keeps old tokens when refresh request fails due network error', async () => {

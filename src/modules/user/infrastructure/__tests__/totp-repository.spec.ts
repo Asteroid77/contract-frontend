@@ -29,8 +29,7 @@ describe('totpRepository contract', () => {
       method: 'POST',
       url: TOTP_ENDPOINTS.VERIFY,
       data: dto,
-      skipAuthToken: true,
-      skipAuthRefresh: true,
+      authMode: 'passthrough',
       withCredentials: true,
     })
     expect(result).toEqual(payload)
