@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
-import { useViewportMode } from '@/app/presentation/hooks/useViewportMode'
+import { resolveViewportMode, useViewportMode } from '@/app/presentation/hooks/useViewportMode'
 
 const setViewportWidth = (width: number) => {
   Object.defineProperty(window, 'innerWidth', {
@@ -34,6 +34,13 @@ describe('useViewportMode', () => {
   afterEach(() => {
     addEventListenerSpy.mockClear()
     removeEventListenerSpy.mockClear()
+  })
+
+  it('resolves viewport mode boundaries', () => {
+    expect(resolveViewportMode(767)).toBe('mobile')
+    expect(resolveViewportMode(768)).toBe('compact-desktop')
+    expect(resolveViewportMode(1199)).toBe('compact-desktop')
+    expect(resolveViewportMode(1200)).toBe('desktop')
   })
 
   it('maps viewport widths to desktop, compact-desktop and mobile', async () => {
