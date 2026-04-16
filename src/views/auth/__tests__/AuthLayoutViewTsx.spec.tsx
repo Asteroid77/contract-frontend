@@ -1,6 +1,6 @@
 import { defineComponent, h, nextTick } from 'vue'
 import { mount, type VueWrapper } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 type DropdownOption = {
   key: string
@@ -306,6 +306,10 @@ vi.mock('naive-ui', () => ({
 
 import AuthLayoutView from '@/views/auth/AuthLayoutView'
 
+const mountedWrappers: VueWrapper[] = []
+let addEventListenerSpy: ReturnType<typeof vi.spyOn>
+let removeEventListenerSpy: ReturnType<typeof vi.spyOn>
+
 const setViewportWidth = (width: number) => {
   Object.defineProperty(window, 'innerWidth', {
     configurable: true,
@@ -313,6 +317,12 @@ const setViewportWidth = (width: number) => {
     value: width,
   })
   window.dispatchEvent(new Event('resize'))
+}
+
+const mountAuthLayoutView = () => {
+  const wrapper = mount(AuthLayoutView)
+  mountedWrappers.push(wrapper)
+  return wrapper
 }
 
 const findClickableByText = (wrapper: VueWrapper, text: string) => {
@@ -334,6 +344,8 @@ const findClickableByText = (wrapper: VueWrapper, text: string) => {
 describe('AuthLayoutView.tsx', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    addEventListenerSpy = vi.spyOn(window, 'addEventListener')
+    removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
     setViewportWidth(1366)
 
     routeState.name = 'dashboard'
@@ -357,8 +369,27 @@ describe('AuthLayoutView.tsx', () => {
     tabsStoreState.setActiveTab = setActiveTabSpy
   })
 
+  afterEach(() => {
+    while (mountedWrappers.length > 0) {
+      mountedWrappers.pop()?.unmount()
+    }
+
+    const addedResizeListeners = addEventListenerSpy.mock.calls.filter(
+      ([eventName]) => eventName === 'resize',
+    )
+    const removedResizeListeners = removeEventListenerSpy.mock.calls.filter(
+      ([eventName]) => eventName === 'resize',
+    )
+
+    expect(removedResizeListeners).toHaveLength(addedResizeListeners.length)
+
+    addEventListenerSpy.mockRestore()
+    removeEventListenerSpy.mockRestore()
+    mountedWrappers.length = 0
+  })
+
   it('adds current route tab on mount and renders router content', () => {
-    const wrapper = mount(AuthLayoutView)
+    const wrapper = mountAuthLayoutView()
 
     expect(addTabSpy).toHaveBeenCalledWith(routeState)
     expect(wrapper.find('[data-test="error-boundary"]').exists()).toBe(true)
@@ -367,7 +398,7 @@ describe('AuthLayoutView.tsx', () => {
   })
 
   it('handles dropdown actions for locale, theme and user menu', async () => {
-    const wrapper = mount(AuthLayoutView)
+    const wrapper = mountAuthLayoutView()
 
     await wrapper.get('[data-test="dropdown-option-en"]').trigger('click')
     await wrapper.get('[data-test="dropdown-option-dark"]').trigger('click')
@@ -383,7 +414,7 @@ describe('AuthLayoutView.tsx', () => {
   })
 
   it('navigates by sidebar menu and closes active tab to next path', async () => {
-    const wrapper = mount(AuthLayoutView)
+    const wrapper = mountAuthLayoutView()
 
     await findClickableByText(wrapper, 'menu.entry').trigger('click')
     expect(routerPushSpy).toHaveBeenCalledWith('/dashboard')
@@ -406,7 +437,7 @@ describe('AuthLayoutView.tsx', () => {
   })
 
   it('switches active tab and routes when tab body is clicked', async () => {
-    const wrapper = mount(AuthLayoutView)
+    const wrapper = mountAuthLayoutView()
 
     await findClickableByText(wrapper, 'tab.second').trigger('click')
 
@@ -416,17 +447,15 @@ describe('AuthLayoutView.tsx', () => {
 
   it('defaults to expanded sidebar on desktop viewport and compact sidebar on compact-desktop viewport', async () => {
     setViewportWidth(1366)
-    const desktopWrapper = mount(AuthLayoutView)
+    const desktopWrapper = mountAuthLayoutView()
     await nextTick()
 
     expect(desktopWrapper.find('[data-test="icon-chevron-back"]').exists()).toBe(true)
     expect(desktopWrapper.find('[data-test="auth-mobile-active-tab"]').exists()).toBe(false)
     expect(desktopWrapper.find('[data-test="icon-menu"]').exists()).toBe(false)
 
-    desktopWrapper.unmount()
-
     setViewportWidth(1024)
-    const compactWrapper = mount(AuthLayoutView)
+    const compactWrapper = mountAuthLayoutView()
     await nextTick()
 
     expect(compactWrapper.find('[data-test="icon-chevron-forward"]').exists()).toBe(true)
@@ -437,7 +466,7 @@ describe('AuthLayoutView.tsx', () => {
 
   it('resets sidebar default when re-entering compact-desktop viewport', async () => {
     setViewportWidth(1024)
-    const wrapper = mount(AuthLayoutView)
+    const wrapper = mountAuthLayoutView()
     await nextTick()
 
     const toggleButton = wrapper
@@ -462,7 +491,7 @@ describe('AuthLayoutView.tsx', () => {
 
   it('renders mobile tab controls only on mobile viewport', async () => {
     setViewportWidth(375)
-    const wrapper = mount(AuthLayoutView)
+    const wrapper = mountAuthLayoutView()
     await nextTick()
 
     expect(wrapper.find('[data-test="icon-menu"]').exists()).toBe(true)
@@ -473,7 +502,7 @@ describe('AuthLayoutView.tsx', () => {
 
   it('preserves expanded sidebar state when entering mobile viewport', async () => {
     setViewportWidth(1024)
-    const wrapper = mount(AuthLayoutView)
+    const wrapper = mountAuthLayoutView()
     await nextTick()
 
     const toggleButton = wrapper
@@ -497,7 +526,7 @@ describe('AuthLayoutView.tsx', () => {
 
   it('opens mobile tabs drawer and supports select/close actions', async () => {
     setViewportWidth(375)
-    const wrapper = mount(AuthLayoutView)
+    const wrapper = mountAuthLayoutView()
 
     expect(wrapper.get('[data-test="n-drawer"]').attributes('data-show')).toBe('false')
     expect(wrapper.get('[data-test="auth-mobile-tabs-toggle"]').text()).toContain('+1')
