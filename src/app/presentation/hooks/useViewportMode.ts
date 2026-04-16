@@ -9,21 +9,18 @@ export const resolveViewportMode = (width: number): ViewportMode => {
 }
 
 export function useViewportMode(): ComputedRef<ViewportMode> {
-  const viewportWidth = ref(typeof window === 'undefined' ? 1200 : window.innerWidth)
+  const viewportWidth = ref(window.innerWidth)
 
   const syncViewportWidth = () => {
-    if (typeof window === 'undefined') return
     viewportWidth.value = window.innerWidth
   }
 
   onMounted(() => {
     syncViewportWidth()
-    if (typeof window === 'undefined') return
     window.addEventListener('resize', syncViewportWidth)
   })
 
   onBeforeUnmount(() => {
-    if (typeof window === 'undefined') return
     window.removeEventListener('resize', syncViewportWidth)
   })
 
