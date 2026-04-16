@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 import {
@@ -35,10 +35,27 @@ describe('useResponsiveTableMode', () => {
     vi.stubGlobal('ResizeObserver', ResizeObserverMock)
   })
 
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   it('maps widths into wide, compact and stacked buckets', () => {
     expect(resolveResponsiveTableMode(960)).toBe('wide')
     expect(resolveResponsiveTableMode(760)).toBe('compact')
     expect(resolveResponsiveTableMode(520)).toBe('stacked')
+  })
+
+  it('derives default thresholds from rem semantics instead of fixed 16px assumptions', () => {
+    vi.spyOn(window, 'getComputedStyle').mockImplementation(
+      () =>
+        ({
+          fontSize: '20px',
+        }) as CSSStyleDeclaration,
+    )
+
+    expect(resolveResponsiveTableMode(960)).toBe('compact')
+    expect(resolveResponsiveTableMode(799)).toBe('stacked')
+    expect(resolveResponsiveTableMode(1120)).toBe('wide')
   })
 
   it('updates mode from observed container width', async () => {

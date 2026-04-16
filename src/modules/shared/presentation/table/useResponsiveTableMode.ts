@@ -8,6 +8,7 @@ import {
   type ComputedRef,
   type ShallowRef,
 } from 'vue'
+import { parseCssLengthToPx } from '@/app/presentation/layout/utils/cssLength'
 
 export type ResponsiveTableMode = 'wide' | 'compact' | 'stacked'
 
@@ -16,15 +17,19 @@ type ResponsiveTableModeOptions = {
   compactMin?: number
 }
 
-const DEFAULT_WIDE_MIN = 56 * 16
-const DEFAULT_COMPACT_MIN = 40 * 16
+const DEFAULT_WIDE_MIN_TOKEN = '56rem'
+const DEFAULT_COMPACT_MIN_TOKEN = '40rem'
+
+const getDefaultWideMin = () => parseCssLengthToPx(DEFAULT_WIDE_MIN_TOKEN)
+
+const getDefaultCompactMin = () => parseCssLengthToPx(DEFAULT_COMPACT_MIN_TOKEN)
 
 export const resolveResponsiveTableMode = (
   width: number,
   options: ResponsiveTableModeOptions = {},
 ): ResponsiveTableMode => {
-  const wideMin = options.wideMin ?? DEFAULT_WIDE_MIN
-  const compactMin = options.compactMin ?? DEFAULT_COMPACT_MIN
+  const wideMin = options.wideMin ?? getDefaultWideMin()
+  const compactMin = options.compactMin ?? getDefaultCompactMin()
 
   if (width >= wideMin) return 'wide'
   if (width >= compactMin) return 'compact'
@@ -36,7 +41,7 @@ export function useResponsiveTableMode(options: ResponsiveTableModeOptions = {})
   mode: ComputedRef<ResponsiveTableMode>
 } {
   const containerRef = shallowRef<HTMLElement | null>(null)
-  const containerWidth = ref(options.wideMin ?? DEFAULT_WIDE_MIN)
+  const containerWidth = ref(options.wideMin ?? getDefaultWideMin())
   let observer: ResizeObserver | null = null
 
   const observeElement = (element: HTMLElement | null) => {

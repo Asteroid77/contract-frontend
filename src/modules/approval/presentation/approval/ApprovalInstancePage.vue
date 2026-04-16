@@ -26,18 +26,18 @@ import {
   QueryActionButtons,
 } from '@/modules/shared/presentation/advanced-query'
 import { useListQueryState } from '@/modules/shared/presentation/advanced-query/useListQueryState'
+import { useResponsiveTableMode } from '@/modules/shared/presentation/table/useResponsiveTableMode'
 import MobilePrimarySecondaryText from '@/modules/shared/presentation/widget/MobilePrimarySecondaryText'
 import { approvalInstanceAdvancedQueryFields } from './approvalInstanceAdvancedQueryFields'
-import { useIsMobile } from '@/app/presentation/hooks/useIsMobile'
 const router = useRouter()
 const { t: $t } = useI18n()
 const accountStore = useAccountStore()
-const isMobile = useIsMobile(768)
 
 type Row = ApprovalInstance<Record<string, unknown>>
 
 const { draftQueryFilters, appliedQueryFilters, pagination, bindRefetchHandlers } =
   useListQueryState()
+const { containerRef: tableContainerRef, mode: tableMode } = useResponsiveTableMode()
 
 const searchData = computed(() => {
   const result: ApprovalInstancesPageRequest = {
@@ -72,6 +72,32 @@ const handleClaim = (row: Row) => {
   claimMutation.mutate(row.taskId)
 }
 
+const renderProcessSummary = (row: Row, mode: 'compact' | 'stacked') =>
+  h(MobilePrimarySecondaryText, {
+    primary: row.processName,
+    secondary:
+      mode === 'compact'
+        ? [
+            row.nodeName,
+            formatApprovalUserName(row.applicantName),
+            formatted(row.createdTime).standard,
+          ]
+        : [
+            `${row.nodeName} · ${formatApprovalUserName(row.applicantName)}`,
+            formatted(row.createdTime).standard,
+          ],
+  })
+
+const renderStatusSummary = (row: Row) =>
+  h('div', { class: 'min-w-0 flex flex-col gap-1.5' }, [
+    h('div', { class: 'text-xs text-[var(--color-text-main)] truncate leading-5' }, [
+      h(StatusTag(row.status, 'Instance')),
+    ]),
+    h('div', { class: 'text-xs text-[var(--color-text-light)] truncate leading-5' }, [
+      h(StatusTag(row.taskStatus, 'Task', isApprovalFinish(row.status))),
+    ]),
+  ])
+
 const renderOperate = (row: Row) => {
   const buttonArray: ReturnType<typeof h>[] = []
   const claimResult = canClaimTask(row, accountStore.account as SignInResponseComplete)
@@ -101,70 +127,74 @@ const renderOperate = (row: Row) => {
   return h(NSpace, {}, { default: () => buttonArray })
 }
 
+const getWideColumns = (): DataTableColumns<Row> => [
+  {
+    title: $t('domain.approval.field.process'),
+    key: 'processName',
+  },
+  {
+    title: $t('domain.approval.field.nodeName'),
+    key: 'nodeName',
+  },
+  {
+    title: $t('common.label.status'),
+    key: 'status',
+    render: (row: Row) => h(StatusTag(row.status, 'Instance')),
+  },
+  {
+    title: $t('common.label.status'),
+    key: 'taskStatus',
+    render: (row: Row) => h(StatusTag(row.taskStatus, 'Task', isApprovalFinish(row.status))),
+  },
+  {
+    title: $t('domain.approval.field.approver'),
+    key: 'assigneeName',
+    render: (row: Row) => formatApprovalUserName(row.assigneeName),
+  },
+  {
+    title: $t('domain.approval.field.applicant'),
+    key: 'applicantName',
+    render: (row: Row) => formatApprovalUserName(row.applicantName),
+  },
+  {
+    title: $t('common.time.created'),
+    key: 'createdTime',
+    render: (row: Row) => formatted(row.createdTime).standard,
+  },
+]
+
+const getCompactColumns = (): DataTableColumns<Row> => [
+  {
+    title: $t('domain.approval.field.process'),
+    key: 'processName',
+    render: (row: Row) => renderProcessSummary(row, 'compact'),
+  },
+  {
+    title: $t('common.label.status'),
+    key: 'status',
+    render: (row: Row) => renderStatusSummary(row),
+  },
+]
+
+const getStackedColumns = (): DataTableColumns<Row> => [
+  {
+    title: $t('domain.approval.field.process'),
+    key: 'processName',
+    render: (row: Row) => renderProcessSummary(row, 'stacked'),
+  },
+  {
+    title: $t('common.label.status'),
+    key: 'status',
+    render: (row: Row) => renderStatusSummary(row),
+  },
+]
+
 const columns = computed<DataTableColumns<Row>>(() => [
-  ...(isMobile.value
-    ? [
-        {
-          title: $t('domain.approval.field.process'),
-          key: 'processName',
-          render: (row: Row) =>
-            h(MobilePrimarySecondaryText, {
-              primary: row.processName,
-              secondary: [
-                `${row.nodeName} · ${formatApprovalUserName(row.applicantName)}`,
-                formatted(row.createdTime).standard,
-              ],
-            }),
-        },
-        {
-          title: $t('common.label.status'),
-          key: 'status',
-          render: (row: Row) =>
-            h('div', { class: 'min-w-0 flex flex-col gap-1.5' }, [
-              h('div', { class: 'text-xs text-[var(--color-text-main)] truncate leading-5' }, [
-                h(StatusTag(row.status, 'Instance')),
-              ]),
-              h('div', { class: 'text-xs text-[var(--color-text-light)] truncate leading-5' }, [
-                h(StatusTag(row.taskStatus, 'Task', isApprovalFinish(row.status))),
-              ]),
-            ]),
-        },
-      ]
-    : [
-        {
-          title: $t('domain.approval.field.process'),
-          key: 'processName',
-        },
-        {
-          title: $t('domain.approval.field.nodeName'),
-          key: 'nodeName',
-        },
-        {
-          title: $t('common.label.status'),
-          key: 'status',
-          render: (row: Row) => h(StatusTag(row.status, 'Instance')),
-        },
-        {
-          title: $t('common.label.status'),
-          key: 'taskStatus',
-          render: (row: Row) => h(StatusTag(row.taskStatus, 'Task', isApprovalFinish(row.status))),
-        },
-        {
-          title: $t('domain.approval.field.approver'),
-          key: 'assigneeName',
-          render: (row: Row) => formatApprovalUserName(row.assigneeName),
-        },
-        {
-          title: $t('domain.approval.field.applicant'),
-          key: 'applicantName',
-          render: (row: Row) => formatApprovalUserName(row.applicantName),
-        },
-        {
-          title: $t('common.time.created'),
-          key: 'createdTime',
-          render: (row: Row) => formatted(row.createdTime).standard,
-        },
-      ]),
+  ...(tableMode.value === 'wide'
+    ? getWideColumns()
+    : tableMode.value === 'compact'
+      ? getCompactColumns()
+      : getStackedColumns()),
   {
     title: $t('common.action.operate'),
     key: 'operate',
@@ -187,13 +217,15 @@ const columns = computed<DataTableColumns<Row>>(() => [
       />
     </n-space>
 
-    <n-data-table
-      :bordered="false"
-      :single-line="false"
-      :columns="columns"
-      :data="instanceQuery.data.value?.records || []"
-      :pagination="pagination"
-      :loading="instanceQuery.isLoading.value"
-    />
+    <div ref="tableContainerRef">
+      <n-data-table
+        :bordered="false"
+        :single-line="false"
+        :columns="columns"
+        :data="instanceQuery.data.value?.records || []"
+        :pagination="pagination"
+        :loading="instanceQuery.isLoading.value"
+      />
+    </div>
   </n-space>
 </template>

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, ref } from 'vue'
 import { mount } from '@vue/test-utils'
 
 type MockDataTableColumn = {
@@ -8,6 +8,7 @@ type MockDataTableColumn = {
 }
 
 const {
+  tableModeRef,
   routerPushSpy,
   claimMutateSpy,
   refetchSpy,
@@ -17,6 +18,9 @@ const {
   showIncompletedUserNameSpy,
   statusTagFactorySpy,
 } = vi.hoisted(() => ({
+  tableModeRef: {
+    value: 'wide' as 'wide' | 'compact' | 'stacked',
+  },
   routerPushSpy: vi.fn(),
   claimMutateSpy: vi.fn(),
   refetchSpy: vi.fn(),
@@ -36,6 +40,13 @@ vi.mock('vue-router', () => ({
 vi.mock('vue-i18n', () => ({
   useI18n: () => ({
     t: (key: string) => key,
+  }),
+}))
+
+vi.mock('@/modules/shared/presentation/table/useResponsiveTableMode', () => ({
+  useResponsiveTableMode: () => ({
+    containerRef: ref<HTMLElement | null>(null),
+    mode: tableModeRef,
   }),
 }))
 
@@ -124,22 +135,29 @@ vi.mock('naive-ui', () => ({
       return () => {
         const columns = (props.columns || []) as MockDataTableColumn[]
         const rows = (props.data || []) as Array<Record<string, unknown>>
+        const processColumn = columns.find((column) => column.key === 'processName')
+        const statusColumn = columns.find((column) => column.key === 'status')
         const operateColumn = columns.find((column) => column.key === 'operate')
+        const row = rows[0]
 
         return h(
           'div',
           {
             'data-test': 'n-data-table',
             'data-loading': String(Boolean(props.loading)),
+            'data-column-keys': columns.map((column) => String(column.key ?? '')).join(','),
           },
-          rows.map((row, index) =>
-            h('div', { 'data-test': 'n-data-row', 'data-index': String(index) }, [
-              h('span', { 'data-test': 'process-name' }, String(row.processName ?? '')),
-              operateColumn?.render
-                ? h('div', { 'data-test': 'operate-cell' }, [operateColumn.render(row) as never])
-                : null,
-            ]),
-          ),
+          [
+            processColumn?.render && row
+              ? h('div', { 'data-test': 'process-cell' }, [processColumn.render(row) as never])
+              : null,
+            statusColumn?.render && row
+              ? h('div', { 'data-test': 'status-cell' }, [statusColumn.render(row) as never])
+              : null,
+            operateColumn?.render && row
+              ? h('div', { 'data-test': 'operate-cell' }, [operateColumn.render(row) as never])
+              : null,
+          ],
         )
       }
     },
@@ -230,6 +248,30 @@ vi.mock('@/modules/shared/presentation/advanced-query', () => ({
   }),
 }))
 
+vi.mock('@/modules/shared/presentation/widget/MobilePrimarySecondaryText', () => ({
+  default: defineComponent({
+    name: 'MobilePrimarySecondaryText',
+    props: {
+      primary: {
+        type: String,
+        required: false,
+      },
+      secondary: {
+        type: Array,
+        required: false,
+      },
+    },
+    setup(props) {
+      return () =>
+        h('div', {
+          'data-test': 'mobile-primary-secondary',
+          'data-primary': props.primary ?? '',
+          'data-secondary': JSON.stringify(props.secondary ?? []),
+        })
+    },
+  }),
+}))
+
 vi.mock('@/modules/approval/presentation/approval/StatusTag', () => ({
   default: (status: string) => {
     statusTagFactorySpy(status)
@@ -247,10 +289,44 @@ import ApprovalInstancePage from '@/modules/approval/presentation/approval/Appro
 describe('ApprovalInstancePage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    tableModeRef.value = 'wide'
     canClaimTaskSpy.mockReturnValue({ canClaim: true })
     isApprovalFinishSpy.mockReturnValue(false)
     isApproveBtnVisibleSpy.mockReturnValue(true)
     showIncompletedUserNameSpy.mockImplementation((name?: string) => name ?? '-')
+  })
+
+  it('keeps full columns in wide mode', () => {
+    tableModeRef.value = 'wide'
+    const wrapper = mount(ApprovalInstancePage)
+
+    expect(wrapper.get('[data-test="n-data-table"]').attributes('data-column-keys')).toBe(
+      'processName,nodeName,status,taskStatus,assigneeName,applicantName,createdTime,operate',
+    )
+  })
+
+  it('uses compact columns and merges secondary fields into the primary cell', () => {
+    tableModeRef.value = 'compact'
+    const wrapper = mount(ApprovalInstancePage)
+
+    expect(wrapper.get('[data-test="n-data-table"]').attributes('data-column-keys')).toBe(
+      'processName,status,operate',
+    )
+    expect(wrapper.get('[data-test="mobile-primary-secondary"]').attributes('data-secondary')).toBe(
+      JSON.stringify(['节点A', '申请人A', 'fmt:2026-01-01T10:00:00+08:00']),
+    )
+  })
+
+  it('uses stacked columns and keeps the existing mobile summary grouping', () => {
+    tableModeRef.value = 'stacked'
+    const wrapper = mount(ApprovalInstancePage)
+
+    expect(wrapper.get('[data-test="n-data-table"]').attributes('data-column-keys')).toBe(
+      'processName,status,operate',
+    )
+    expect(wrapper.get('[data-test="mobile-primary-secondary"]').attributes('data-secondary')).toBe(
+      JSON.stringify(['节点A · 申请人A', 'fmt:2026-01-01T10:00:00+08:00']),
+    )
   })
 
   it('forces refetch on search/reset when page is first and query unchanged', async () => {
