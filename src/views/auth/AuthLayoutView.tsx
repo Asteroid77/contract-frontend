@@ -191,8 +191,6 @@ export default defineComponent({
           siderCollapsed.value = true
           return
         }
-
-        siderCollapsed.value = true
       },
       { immediate: true },
     )
@@ -460,14 +458,16 @@ export default defineComponent({
             class="h-16 bg-[var(--color-bg-card)] border-b border-[var(--color-border)] flex items-center px-4 gap-4 shrink-0"
             style={{ height: 'var(--header-height)', minHeight: 'var(--header-height)' }}
           >
-            <button
-              class="md:hidden p-2 rounded-lg hover:bg-[var(--color-border)] text-[var(--color-text-body)]"
-              onClick={() => {
-                mobileMenuOpen.value = true
-              }}
-            >
-              <MenuOutline class="w-5 h-5" />
-            </button>
+            {isMobileViewport.value && (
+              <button
+                class="md:hidden p-2 rounded-lg hover:bg-[var(--color-border)] text-[var(--color-text-body)]"
+                onClick={() => {
+                  mobileMenuOpen.value = true
+                }}
+              >
+                <MenuOutline class="w-5 h-5" />
+              </button>
+            )}
 
             {isMobileViewport.value ? (
               <div class="flex-1 min-w-0 flex items-center justify-end gap-2 overflow-hidden">

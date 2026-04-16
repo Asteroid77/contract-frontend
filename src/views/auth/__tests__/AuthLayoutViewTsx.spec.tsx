@@ -421,6 +421,7 @@ describe('AuthLayoutView.tsx', () => {
 
     expect(desktopWrapper.find('[data-test="icon-chevron-back"]').exists()).toBe(true)
     expect(desktopWrapper.find('[data-test="auth-mobile-active-tab"]').exists()).toBe(false)
+    expect(desktopWrapper.find('[data-test="icon-menu"]').exists()).toBe(false)
 
     desktopWrapper.unmount()
 
@@ -430,6 +431,7 @@ describe('AuthLayoutView.tsx', () => {
 
     expect(compactWrapper.find('[data-test="icon-chevron-forward"]').exists()).toBe(true)
     expect(compactWrapper.find('[data-test="auth-mobile-active-tab"]').exists()).toBe(false)
+    expect(compactWrapper.find('[data-test="icon-menu"]').exists()).toBe(false)
     expect(compactWrapper.find('[data-test="n-scrollbar"]').exists()).toBe(true)
   })
 
@@ -463,9 +465,34 @@ describe('AuthLayoutView.tsx', () => {
     const wrapper = mount(AuthLayoutView)
     await nextTick()
 
+    expect(wrapper.find('[data-test="icon-menu"]').exists()).toBe(true)
     expect(wrapper.find('[data-test="auth-mobile-active-tab"]').exists()).toBe(true)
     expect(wrapper.find('[data-test="auth-mobile-tabs-toggle"]').exists()).toBe(true)
     expect(wrapper.find('[data-test="n-scrollbar"]').exists()).toBe(false)
+  })
+
+  it('preserves expanded sidebar state when entering mobile viewport', async () => {
+    setViewportWidth(1024)
+    const wrapper = mount(AuthLayoutView)
+    await nextTick()
+
+    const toggleButton = wrapper
+      .findAll('button')
+      .find((buttonItem) => buttonItem.find('[data-test="icon-chevron-forward"]').exists())
+
+    if (!toggleButton) {
+      throw new Error('sidebar toggle button not found')
+    }
+
+    await toggleButton.trigger('click')
+    expect(wrapper.find('[data-test="icon-chevron-back"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('common.brand.name')
+
+    setViewportWidth(375)
+    await nextTick()
+
+    expect(wrapper.find('[data-test="auth-mobile-active-tab"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('common.brand.name')
   })
 
   it('opens mobile tabs drawer and supports select/close actions', async () => {
