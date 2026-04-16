@@ -1,4 +1,4 @@
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, nextTick } from 'vue'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -306,6 +306,15 @@ vi.mock('naive-ui', () => ({
 
 import AuthLayoutView from '@/views/auth/AuthLayoutView'
 
+const setViewportWidth = (width: number) => {
+  Object.defineProperty(window, 'innerWidth', {
+    configurable: true,
+    writable: true,
+    value: width,
+  })
+  window.dispatchEvent(new Event('resize'))
+}
+
 const findClickableByText = (wrapper: VueWrapper, text: string) => {
   const node = wrapper.findAll('*').find((item) => {
     const className = item.attributes('class') || ''
@@ -325,6 +334,7 @@ const findClickableByText = (wrapper: VueWrapper, text: string) => {
 describe('AuthLayoutView.tsx', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    setViewportWidth(1366)
 
     routeState.name = 'dashboard'
     routeState.path = '/dashboard'
@@ -404,7 +414,62 @@ describe('AuthLayoutView.tsx', () => {
     expect(routerPushSpy).toHaveBeenCalledWith('/reports')
   })
 
+  it('defaults to expanded sidebar on desktop viewport and compact sidebar on compact-desktop viewport', async () => {
+    setViewportWidth(1366)
+    const desktopWrapper = mount(AuthLayoutView)
+    await nextTick()
+
+    expect(desktopWrapper.find('[data-test="icon-chevron-back"]').exists()).toBe(true)
+    expect(desktopWrapper.find('[data-test="auth-mobile-active-tab"]').exists()).toBe(false)
+
+    desktopWrapper.unmount()
+
+    setViewportWidth(1024)
+    const compactWrapper = mount(AuthLayoutView)
+    await nextTick()
+
+    expect(compactWrapper.find('[data-test="icon-chevron-forward"]').exists()).toBe(true)
+    expect(compactWrapper.find('[data-test="auth-mobile-active-tab"]').exists()).toBe(false)
+    expect(compactWrapper.find('[data-test="n-scrollbar"]').exists()).toBe(true)
+  })
+
+  it('resets sidebar default when re-entering compact-desktop viewport', async () => {
+    setViewportWidth(1024)
+    const wrapper = mount(AuthLayoutView)
+    await nextTick()
+
+    const toggleButton = wrapper
+      .findAll('button')
+      .find((buttonItem) => buttonItem.find('[data-test="icon-chevron-forward"]').exists())
+
+    if (!toggleButton) {
+      throw new Error('sidebar toggle button not found')
+    }
+
+    await toggleButton.trigger('click')
+    expect(wrapper.find('[data-test="icon-chevron-back"]').exists()).toBe(true)
+
+    setViewportWidth(1366)
+    await nextTick()
+    expect(wrapper.find('[data-test="icon-chevron-back"]').exists()).toBe(true)
+
+    setViewportWidth(1024)
+    await nextTick()
+    expect(wrapper.find('[data-test="icon-chevron-forward"]').exists()).toBe(true)
+  })
+
+  it('renders mobile tab controls only on mobile viewport', async () => {
+    setViewportWidth(375)
+    const wrapper = mount(AuthLayoutView)
+    await nextTick()
+
+    expect(wrapper.find('[data-test="auth-mobile-active-tab"]').exists()).toBe(true)
+    expect(wrapper.find('[data-test="auth-mobile-tabs-toggle"]').exists()).toBe(true)
+    expect(wrapper.find('[data-test="n-scrollbar"]').exists()).toBe(false)
+  })
+
   it('opens mobile tabs drawer and supports select/close actions', async () => {
+    setViewportWidth(375)
     const wrapper = mount(AuthLayoutView)
 
     expect(wrapper.get('[data-test="n-drawer"]').attributes('data-show')).toBe('false')

@@ -32,6 +32,7 @@ import { resolvePlatformLabelKey } from '@/modules/user/application/utils/platfo
 import { resolveUserDisplayName } from '@/modules/user/application/utils/displayName'
 import ErrorBoundary from '@/app/observability/components/ErrorBoundary'
 import logoSvgUrl from '@/assets/logo.svg?url'
+import { useViewportMode } from '@/app/presentation/hooks/useViewportMode'
 
 type LocaleType = AppLocale
 
@@ -61,6 +62,7 @@ export default defineComponent({
     const { currentTheme, setTheme } = useTheme()
     const tabsStore = useTabsStore()
     const accountStore = useAccountStore()
+    const viewportMode = useViewportMode()
 
     const siderCollapsed = ref(false)
     const mobileMenuOpen = ref(false)
@@ -68,6 +70,7 @@ export default defineComponent({
     const actionIconSize = 'var(--spacing-16)'
     const sidebarAvatarSize = 'var(--spacing-32)'
     const currentLocale = computed<LocaleType>(() => language.value)
+    const isMobileViewport = computed(() => viewportMode.value === 'mobile')
     const siderWidth = computed(() =>
       siderCollapsed.value ? 'var(--sider-collapsed-width)' : 'var(--sider-width)',
     )
@@ -174,6 +177,27 @@ export default defineComponent({
     const additionalTabCount = computed(() => Math.max(tabsStore.tabList.length - 1, 0))
 
     watch(
+      viewportMode,
+      (mode) => {
+        mobileMenuOpen.value = false
+        mobileTabsDrawerOpen.value = false
+
+        if (mode === 'desktop') {
+          siderCollapsed.value = false
+          return
+        }
+
+        if (mode === 'compact-desktop') {
+          siderCollapsed.value = true
+          return
+        }
+
+        siderCollapsed.value = true
+      },
+      { immediate: true },
+    )
+
+    watch(
       () => route.fullPath,
       () => {
         tabsStore.addTab(route)
@@ -256,9 +280,9 @@ export default defineComponent({
     return () => (
       <div class="flex h-screen overflow-hidden bg-[var(--color-bg-body)]">
         <Transition name="fade">
-          {mobileMenuOpen.value && (
+          {isMobileViewport.value && mobileMenuOpen.value && (
             <div
-              class="fixed inset-0 bg-[var(--color-primitive-slate-950)]/45 z-40 md:hidden"
+              class="fixed inset-0 bg-[var(--color-primitive-slate-950)]/45 z-40"
               onClick={() => {
                 mobileMenuOpen.value = false
               }}
@@ -445,52 +469,54 @@ export default defineComponent({
               <MenuOutline class="w-5 h-5" />
             </button>
 
-            <div class="hidden md:flex flex-1 items-center gap-2 text-sm min-w-0 overflow-x-auto md:pl-[var(--spacing-sm)]">
-              {breadcrumbs.value.map((crumb, index) => (
-                <div class="flex items-center gap-2 shrink-0" key={`${crumb.path}-${index}`}>
-                  {index > 0 && (
-                    <span class="text-sm font-medium leading-none text-[var(--color-text-light)] shrink-0">
-                      {'>'}
-                    </span>
-                  )}
-                  <span
-                    class={[
-                      'truncate',
-                      index === breadcrumbs.value.length - 1
-                        ? 'text-[var(--color-text-main)] font-medium'
-                        : 'text-[var(--color-text-light)]',
-                    ]}
-                  >
-                    {crumb.title}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div class="md:hidden flex-1 min-w-0 flex items-center justify-end gap-2 overflow-hidden">
-              <button
-                class="min-w-0 max-w-full px-3 py-1.5 rounded-md text-sm font-medium text-[var(--color-text-main)] bg-[var(--color-border)]/70 truncate"
-                onClick={() => {
-                  if (additionalTabCount.value > 0) {
-                    mobileTabsDrawerOpen.value = true
-                  }
-                }}
-                data-test="auth-mobile-active-tab"
-              >
-                {activeTabTitle.value}
-              </button>
-              {additionalTabCount.value > 0 && (
+            {isMobileViewport.value ? (
+              <div class="flex-1 min-w-0 flex items-center justify-end gap-2 overflow-hidden">
                 <button
-                  class="px-2.5 py-1.5 rounded-md text-xs font-medium text-[var(--color-text-body)] bg-[var(--color-border)] hover:bg-[var(--color-border)]/80 transition-colors"
+                  class="min-w-0 max-w-full px-3 py-1.5 rounded-md text-sm font-medium text-[var(--color-text-main)] bg-[var(--color-border)]/70 truncate"
                   onClick={() => {
-                    mobileTabsDrawerOpen.value = true
+                    if (additionalTabCount.value > 0) {
+                      mobileTabsDrawerOpen.value = true
+                    }
                   }}
-                  data-test="auth-mobile-tabs-toggle"
+                  data-test="auth-mobile-active-tab"
                 >
-                  {`+${additionalTabCount.value}`}
+                  {activeTabTitle.value}
                 </button>
-              )}
-            </div>
+                {additionalTabCount.value > 0 && (
+                  <button
+                    class="px-2.5 py-1.5 rounded-md text-xs font-medium text-[var(--color-text-body)] bg-[var(--color-border)] hover:bg-[var(--color-border)]/80 transition-colors"
+                    onClick={() => {
+                      mobileTabsDrawerOpen.value = true
+                    }}
+                    data-test="auth-mobile-tabs-toggle"
+                  >
+                    {`+${additionalTabCount.value}`}
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div class="flex-1 items-center gap-2 text-sm min-w-0 overflow-x-auto pl-[var(--spacing-sm)] hidden md:flex">
+                {breadcrumbs.value.map((crumb, index) => (
+                  <div class="flex items-center gap-2 shrink-0" key={`${crumb.path}-${index}`}>
+                    {index > 0 && (
+                      <span class="text-sm font-medium leading-none text-[var(--color-text-light)] shrink-0">
+                        {'>'}
+                      </span>
+                    )}
+                    <span
+                      class={[
+                        'truncate',
+                        index === breadcrumbs.value.length - 1
+                          ? 'text-[var(--color-text-main)] font-medium'
+                          : 'text-[var(--color-text-light)]',
+                      ]}
+                    >
+                      {crumb.title}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div class="flex items-center gap-2">
               <NDropdown options={localeOptions} onSelect={handleLocaleChange} trigger="click">
@@ -513,45 +539,47 @@ export default defineComponent({
             </div>
           </header>
 
-          <div class="hidden md:block h-10 bg-[var(--color-bg-card)] border-b border-[var(--color-border)] px-2 shrink-0">
-            <NScrollbar xScrollable trigger="hover" size={3} class="h-full" contentClass="h-full">
-              <div class="h-full flex items-center gap-1 w-max min-w-full">
-                {tabsStore.tabList.map((tab) => (
-                  <div
-                    key={tab.path}
-                    class={[
-                      'flex items-center gap-2 px-3 py-1.5 rounded-md text-sm cursor-pointer transition-colors whitespace-nowrap group',
-                      tabsStore.activeTab === tab.path
-                        ? 'bg-[var(--color-primary)] text-[var(--color-bg-card)]'
-                        : 'text-[var(--color-text-body)] hover:bg-[var(--color-border)]',
-                    ]}
-                    onClick={() => {
-                      tabsStore.setActiveTab(tab.path)
-                      router.push(tab.path)
-                    }}
-                  >
-                    <span class="truncate max-w-40">{`${t(tab.titleKey)}${tab.titleSuffix ?? ''}`}</span>
-                    {tabsStore.tabList.length > 1 && (
-                      <button
-                        class={[
-                          'opacity-0 group-hover:opacity-100 p-0.5 rounded transition-opacity',
-                          tabsStore.activeTab === tab.path
-                            ? 'hover:bg-[var(--color-bg-card)]/20'
-                            : 'hover:bg-[var(--color-text-light)]/20',
-                        ]}
-                        onClick={(event) => {
-                          event.stopPropagation()
-                          handleTabClose(tab.path)
-                        }}
-                      >
-                        <CloseOutline class="w-3 h-3" />
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </NScrollbar>
-          </div>
+          {!isMobileViewport.value && (
+            <div class="h-10 bg-[var(--color-bg-card)] border-b border-[var(--color-border)] px-2 shrink-0">
+              <NScrollbar xScrollable trigger="hover" size={3} class="h-full" contentClass="h-full">
+                <div class="h-full flex items-center gap-1 w-max min-w-full">
+                  {tabsStore.tabList.map((tab) => (
+                    <div
+                      key={tab.path}
+                      class={[
+                        'flex items-center gap-2 px-3 py-1.5 rounded-md text-sm cursor-pointer transition-colors whitespace-nowrap group',
+                        tabsStore.activeTab === tab.path
+                          ? 'bg-[var(--color-primary)] text-[var(--color-bg-card)]'
+                          : 'text-[var(--color-text-body)] hover:bg-[var(--color-border)]',
+                      ]}
+                      onClick={() => {
+                        tabsStore.setActiveTab(tab.path)
+                        router.push(tab.path)
+                      }}
+                    >
+                      <span class="truncate max-w-40">{`${t(tab.titleKey)}${tab.titleSuffix ?? ''}`}</span>
+                      {tabsStore.tabList.length > 1 && (
+                        <button
+                          class={[
+                            'opacity-0 group-hover:opacity-100 p-0.5 rounded transition-opacity',
+                            tabsStore.activeTab === tab.path
+                              ? 'hover:bg-[var(--color-bg-card)]/20'
+                              : 'hover:bg-[var(--color-text-light)]/20',
+                          ]}
+                          onClick={(event) => {
+                            event.stopPropagation()
+                            handleTabClose(tab.path)
+                          }}
+                        >
+                          <CloseOutline class="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </NScrollbar>
+            </div>
+          )}
 
           <NDrawer
             show={mobileTabsDrawerOpen.value}
