@@ -13,6 +13,7 @@ import type {
   ListItemDiff,
 } from '@/modules/shared/presentation/diff-check/domain/types/diff'
 import { DiffService } from '@/modules/shared/presentation/diff-check/domain/services/diffService'
+import { resolveAllowedAccessUrl } from '@/modules/shared/application/security/access-url'
 import InlineDiffValue from './InlineDiffValue'
 import { $t } from '@/_utils/i18n'
 
@@ -174,11 +175,16 @@ export default defineComponent({
     const isPdfFile = (file: OssCallbackView): boolean => getFileExt(file) === 'pdf'
     const isTextFile = (file: OssCallbackView): boolean => textPreviewExts.has(getFileExt(file))
     const isDocPreviewable = (file: OssCallbackView): boolean => isPdfFile(file) || isTextFile(file)
+    const getAllowedAccessUrl = (file: OssCallbackView): string | null =>
+      resolveAllowedAccessUrl(file.accessUrl)
 
     const previewFile = ref<OssCallbackView | null>(null)
     const previewLoading = ref(false)
     const previewText = ref('')
     const previewError = ref<string | null>(null)
+    const previewAccessUrl = computed(() =>
+      previewFile.value ? getAllowedAccessUrl(previewFile.value) : null,
+    )
     const previewKind = computed<'pdf' | 'text' | 'unknown'>(() => {
       if (!previewFile.value) return 'unknown'
       if (isPdfFile(previewFile.value)) return 'pdf'
@@ -198,6 +204,8 @@ export default defineComponent({
     const openPreview = async (file: OssCallbackView) => {
       if (isPrint.value) return
       if (!isDocPreviewable(file)) return
+      const accessUrl = getAllowedAccessUrl(file)
+      if (!accessUrl) return
 
       previewFile.value = file
       previewText.value = ''
@@ -212,7 +220,7 @@ export default defineComponent({
       previewLoading.value = true
       const currentId = ++previewRequestId
       try {
-        const resp = await fetch(file.accessUrl)
+        const resp = await fetch(accessUrl)
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
         const text = await resp.text()
         if (currentId !== previewRequestId) return
@@ -226,8 +234,10 @@ export default defineComponent({
     }
 
     const openInNewTab = (file: OssCallbackView | null) => {
-      if (!file?.accessUrl) return
-      window.open(file.accessUrl, '_blank', 'noopener')
+      if (!file) return
+      const accessUrl = getAllowedAccessUrl(file)
+      if (!accessUrl) return
+      window.open(accessUrl, '_blank', 'noopener')
     }
 
     // 渲染单个文件项
@@ -256,6 +266,7 @@ export default defineComponent({
       }
 
       const isImage = isImageFile(file)
+      const accessUrl = getAllowedAccessUrl(file)
       const statusClass =
         status === 'added' ? 'file-item--added' : status === 'removed' ? 'file-item--removed' : ''
 
@@ -264,11 +275,11 @@ export default defineComponent({
           {isImage ? (
             <div class="file-image-wrapper">
               <NImage
-                src={file.accessUrl}
+                src={accessUrl ?? undefined}
                 alt={file.fileName}
                 class="file-image-thumb"
                 objectFit="cover"
-                preview-src={file.accessUrl}
+                preview-src={accessUrl ?? undefined}
               />
               {status !== 'normal' && (
                 <span class={`file-status-tag file-status-tag--${status}`}>
@@ -280,12 +291,12 @@ export default defineComponent({
             <div class="file-info">
               <span class="file-icon">📎</span>
               <a
-                class={isDocPreviewable(file) ? 'file-name file-link' : 'file-name'}
-                href={file.accessUrl}
+                class={accessUrl && isDocPreviewable(file) ? 'file-name file-link' : 'file-name'}
+                href={accessUrl ?? undefined}
                 target="_blank"
                 rel="noopener"
                 onClick={(e) => {
-                  if (!isDocPreviewable(file)) return
+                  if (!accessUrl || !isDocPreviewable(file)) return
                   e.preventDefault()
                   void openPreview(file)
                 }}
@@ -783,7 +794,7 @@ export default defineComponent({
 
               {previewKind.value === 'pdf' && previewFile.value ? (
                 <iframe
-                  src={previewFile.value.accessUrl}
+                  src={previewAccessUrl.value ?? undefined}
                   style="width:100%;height:75vh;border:none;"
                 />
               ) : previewKind.value === 'text' ? (

@@ -72,15 +72,19 @@ describe('ApprovalPrintFileItemCard', () => {
         file: {
           id: 1,
           fileName: 'test.png',
-          accessUrl: 'https://cdn/test.png',
+          accessUrl: 'https://zwlh-powergrid.oss-cn-guangzhou.aliyuncs.com/test.png',
         } as never,
         status: 'added',
       },
     })
 
     const image = wrapper.get('[data-test="n-image"]')
-    expect(image.attributes('data-src')).toBe('https://cdn/test.png')
-    expect(image.attributes('data-preview-src')).toBe('https://cdn/test.png')
+    expect(image.attributes('data-src')).toBe(
+      'https://zwlh-powergrid.oss-cn-guangzhou.aliyuncs.com/test.png',
+    )
+    expect(image.attributes('data-preview-src')).toBe(
+      'https://zwlh-powergrid.oss-cn-guangzhou.aliyuncs.com/test.png',
+    )
 
     const tag = wrapper.get('[data-test="n-tag"]')
     expect(tag.attributes('data-type')).toBe('success')
@@ -93,7 +97,7 @@ describe('ApprovalPrintFileItemCard', () => {
         file: {
           id: 2,
           fileName: 'manual.pdf',
-          accessUrl: 'https://cdn/manual.pdf',
+          accessUrl: 'https://oss-cn-guangzhou.aliyuncs.com/manual.pdf',
         } as never,
         status: 'removed',
       },
@@ -106,6 +110,42 @@ describe('ApprovalPrintFileItemCard', () => {
     expect(tag.text()).toBe('common.action.delete')
 
     await wrapper.get('.file-diff-card__pdf-placeholder').trigger('click')
-    expect(window.open).toHaveBeenCalledWith('https://cdn/manual.pdf', '_blank')
+    expect(window.open).toHaveBeenCalledWith(
+      'https://oss-cn-guangzhou.aliyuncs.com/manual.pdf',
+      '_blank',
+    )
+  })
+
+  it('does not open invalid external PDF URLs', async () => {
+    const wrapper = mount(ApprovalPrintFileItemCard, {
+      props: {
+        file: {
+          id: 3,
+          fileName: 'blocked.pdf',
+          accessUrl: 'https://evil.example/blocked.pdf',
+        } as never,
+        status: 'normal',
+      },
+    })
+
+    await wrapper.get('.file-diff-card__pdf-placeholder').trigger('click')
+    expect(window.open).not.toHaveBeenCalled()
+  })
+
+  it('does not pass invalid image URLs into image preview props', () => {
+    const wrapper = mount(ApprovalPrintFileItemCard, {
+      props: {
+        file: {
+          id: 4,
+          fileName: 'blocked.png',
+          accessUrl: 'javascript:alert(1)',
+        } as never,
+        status: 'normal',
+      },
+    })
+
+    const image = wrapper.get('[data-test="n-image"]')
+    expect(image.attributes('data-src')).toBe('')
+    expect(image.attributes('data-preview-src')).toBe('')
   })
 })
