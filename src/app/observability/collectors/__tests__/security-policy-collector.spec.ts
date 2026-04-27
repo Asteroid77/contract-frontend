@@ -28,6 +28,7 @@ const baseConfig: ObservabilityConfig = {
   buildId: 'run-123',
   releaseChannel: 'staging',
   environment: 'development',
+  otelTracesEndpoint: 'https://otel.example.com',
   otelEndpoint: 'https://otel.example.com',
   frontendObservabilityEndpoint: 'https://frontend-observability.example.com',
   enabled: false,
@@ -84,6 +85,7 @@ describe('securityPolicyCollector', () => {
 
   afterEach(() => {
     securityPolicyCollector.destroy()
+    vi.useRealTimers()
   })
 
   it('registers listener only once and removes it on destroy', () => {
@@ -94,10 +96,12 @@ describe('securityPolicyCollector', () => {
     securityPolicyCollector.init(baseConfig)
     securityPolicyCollector.destroy()
 
-    expect(addSpy).toHaveBeenCalledTimes(1)
+    expect(addSpy).toHaveBeenCalledTimes(2)
     expect(addSpy).toHaveBeenCalledWith('securitypolicyviolation', expect.any(Function))
-    expect(removeSpy).toHaveBeenCalledTimes(1)
+    expect(addSpy).toHaveBeenCalledWith('pagehide', expect.any(Function))
+    expect(removeSpy).toHaveBeenCalledTimes(2)
     expect(removeSpy).toHaveBeenCalledWith('securitypolicyviolation', expect.any(Function))
+    expect(removeSpy).toHaveBeenCalledWith('pagehide', expect.any(Function))
 
     addSpy.mockRestore()
     removeSpy.mockRestore()
@@ -181,5 +185,59 @@ describe('securityPolicyCollector', () => {
 
     expect(sendCspViolationReport).toHaveBeenCalledTimes(1)
     expect(trackEvent).toHaveBeenCalledTimes(1)
+  })
+
+  it('caps duplicate CSP violation reports and emits a duplicate summary after the window', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(1_000)
+    securityPolicyCollector.init(baseConfig)
+
+    window.dispatchEvent(createSecurityPolicyViolationEvent())
+    window.dispatchEvent(createSecurityPolicyViolationEvent())
+    window.dispatchEvent(createSecurityPolicyViolationEvent())
+    window.dispatchEvent(createSecurityPolicyViolationEvent())
+    window.dispatchEvent(createSecurityPolicyViolationEvent())
+
+    expect(sendCspViolationReport).toHaveBeenCalledTimes(3)
+
+    vi.advanceTimersByTime(60_000)
+
+    expect(sendCspViolationReport).toHaveBeenCalledTimes(4)
+    expect(sendCspViolationReport).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        cspReportKind: 'duplicate-summary',
+        cspOccurrenceCount: 2,
+        cspSuppressedDuplicateCount: 2,
+        release: 'release-a',
+        sourceFile: 'https://dev.astro777.cfd/index.html',
+      }),
+      expect.objectContaining(baseConfig),
+    )
+  })
+
+  it('flushes pending duplicate CSP summaries on pagehide', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(1_000)
+    securityPolicyCollector.init(baseConfig)
+
+    window.dispatchEvent(createSecurityPolicyViolationEvent())
+    window.dispatchEvent(createSecurityPolicyViolationEvent())
+    window.dispatchEvent(createSecurityPolicyViolationEvent())
+    window.dispatchEvent(createSecurityPolicyViolationEvent())
+
+    expect(sendCspViolationReport).toHaveBeenCalledTimes(3)
+
+    window.dispatchEvent(new Event('pagehide'))
+
+    expect(sendCspViolationReport).toHaveBeenCalledTimes(4)
+    expect(sendCspViolationReport).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        cspReportKind: 'duplicate-summary',
+        cspOccurrenceCount: 1,
+        cspSuppressedDuplicateCount: 1,
+        sourceFile: 'https://dev.astro777.cfd/index.html',
+      }),
+      expect.objectContaining(baseConfig),
+    )
   })
 })
