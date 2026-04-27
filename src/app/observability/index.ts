@@ -7,6 +7,7 @@ import type { ObservabilityConfig } from './types'
 import { initTracer, shutdownTracer } from './otel/tracer'
 import { initErrorCollector } from './collectors/error-collector'
 import { jsErrorCollector } from './collectors/js-error-collector'
+import { securityPolicyCollector } from './collectors/security-policy-collector'
 import { setupVueErrorHandler } from './collectors/vue-error-collector'
 import {
   initOpenReplay,
@@ -35,8 +36,15 @@ function getDefaultConfig(): ObservabilityConfig {
   return {
     serviceName: import.meta.env.VITE_APP_NAME || 'contract-frontend',
     serviceVersion: import.meta.env.VITE_APP_VERSION || '0.0.0',
+    serviceRelease:
+      import.meta.env.VITE_APP_RELEASE || import.meta.env.VITE_APP_VERSION || '0.0.0',
+    buildId: import.meta.env.VITE_APP_BUILD_ID,
+    gitBranch: import.meta.env.VITE_GIT_BRANCH,
+    gitCommit: import.meta.env.VITE_GIT_COMMIT,
+    releaseChannel: import.meta.env.VITE_RELEASE_CHANNEL || (isDev ? 'development' : 'production'),
     environment: isDev ? 'development' : 'production',
     otelEndpoint: import.meta.env.VITE_OTEL_ENDPOINT || 'http://localhost:4318',
+    frontendObservabilityEndpoint: import.meta.env.VITE_FRONTEND_OBSERVABILITY_ENDPOINT || undefined,
     sourcemapResolverEndpoint: import.meta.env.VITE_SOURCEMAP_RESOLVER_ENDPOINT || undefined,
     enabled: !isDev, // 生产环境默认启用
     sampleRate: isDev ? 1.0 : 0.1, // 开发环境全采样，生产环境 10%
@@ -89,6 +97,9 @@ export function initObservability(app: App, options: InitOptions = {}): void {
   // 5. 初始化全局 JS 错误收集器
   jsErrorCollector.init()
 
+  // 6. 初始化 CSP violation 收集器
+  securityPolicyCollector.init(config)
+
   isInitialized = true
   console.log('[Observability] Initialized successfully')
 }
@@ -100,6 +111,7 @@ export async function shutdownObservability(): Promise<void> {
   if (!isInitialized) return
 
   jsErrorCollector.destroy()
+  securityPolicyCollector.destroy()
   stopOpenReplay()
   await shutdownTracer()
 
