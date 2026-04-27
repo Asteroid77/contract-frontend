@@ -3,19 +3,42 @@ import { printElement } from '@/modules/approval/presentation/print/printUtils'
 
 type MockPrintWindow = {
   document: Document
+  documentOpen: ReturnType<typeof vi.fn>
+  documentWrite: ReturnType<typeof vi.fn>
+  documentClose: ReturnType<typeof vi.fn>
   focus: ReturnType<typeof vi.fn>
   print: ReturnType<typeof vi.fn>
   close: ReturnType<typeof vi.fn>
   onload: (() => void) | null
 }
 
-const createMockPrintWindow = (): MockPrintWindow => ({
-  document: document.implementation.createHTMLDocument('print-window'),
-  focus: vi.fn(),
-  print: vi.fn(),
-  close: vi.fn(),
-  onload: null,
-})
+const clearElement = (element: Element) => {
+  while (element.firstChild) {
+    element.removeChild(element.firstChild)
+  }
+}
+
+const createMockPrintWindow = (): MockPrintWindow => {
+  const printDocument = document.implementation.createHTMLDocument('print-window')
+  const documentOpen = vi.fn()
+  const documentWrite = vi.fn()
+  const documentClose = vi.fn()
+
+  printDocument.open = documentOpen as typeof printDocument.open
+  printDocument.write = documentWrite as typeof printDocument.write
+  printDocument.close = documentClose as typeof printDocument.close
+
+  return {
+    document: printDocument,
+    documentOpen,
+    documentWrite,
+    documentClose,
+    focus: vi.fn(),
+    print: vi.fn(),
+    close: vi.fn(),
+    onload: null,
+  }
+}
 
 const appendTargetElement = (id: string, text: string) => {
   const target = document.createElement('div')
@@ -42,14 +65,14 @@ const appendStyleAndLink = () => {
 describe('printElement', () => {
   beforeEach(() => {
     vi.restoreAllMocks()
-    document.body.innerHTML = ''
-    document.head.innerHTML = ''
+    clearElement(document.body)
+    clearElement(document.head)
   })
 
   afterEach(() => {
     vi.useRealTimers()
-    document.body.innerHTML = ''
-    document.head.innerHTML = ''
+    clearElement(document.body)
+    clearElement(document.head)
   })
 
   it('logs error and returns when target element does not exist', () => {
@@ -82,8 +105,14 @@ describe('printElement', () => {
 
     printElement('to-print', { title: '审批打印' })
 
+    expect(printWindow.documentOpen).not.toHaveBeenCalled()
+    expect(printWindow.documentWrite).not.toHaveBeenCalled()
+    expect(printWindow.documentClose).not.toHaveBeenCalled()
     expect(printWindow.document.documentElement.outerHTML).toContain('content-with-link')
     expect(printWindow.document.documentElement.outerHTML).toContain('<title>审批打印</title>')
+    expect(printWindow.document.getElementById('to-print')).not.toBeNull()
+    expect(printWindow.document.getElementById('print-wrapper')).not.toBeNull()
+    expect(printWindow.document.head.textContent).toContain('padding: var(--spacing-24, 1.5rem);')
 
     const copiedLinks = printWindow.document.querySelectorAll(
       'link[rel="stylesheet"]',
@@ -118,6 +147,7 @@ describe('printElement', () => {
 
     printElement('to-print')
 
+    expect(printWindow.documentWrite).not.toHaveBeenCalled()
     expect(printWindow.onload).toBeNull()
     expect(printWindow.print).not.toHaveBeenCalled()
 
