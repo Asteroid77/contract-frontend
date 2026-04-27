@@ -1,11 +1,23 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { sendBatchToSigNoz, sendToSigNoz } from '@/app/observability/transports/signoz-transport'
 import type { ObservabilityConfig, ObservabilityError } from '@/app/observability/types'
+import { sendEventBatch, sendEventEnvelope } from '@/app/observability/transports/events-transport'
+
+vi.mock('@/app/observability/transports/events-transport', () => ({
+  sendEventEnvelope: vi.fn(),
+  sendEventBatch: vi.fn(),
+}))
 
 const baseConfig: ObservabilityConfig = {
   serviceName: 'contract-frontend',
   serviceVersion: '1.0.0',
+  serviceRelease: 'release-a',
+  gitCommit: 'commit-a',
+  gitBranch: 'main',
+  buildId: 'run-123',
+  releaseChannel: 'staging',
   environment: 'development',
+  otelTracesEndpoint: 'https://otel.example.com',
   otelEndpoint: 'https://otel.example.com',
   enabled: true,
   sampleRate: 1,
@@ -26,7 +38,6 @@ const baseError: ObservabilityError = {
 describe('signoz-transport', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.stubGlobal('fetch', vi.fn())
   })
 
   it('does not send when config.enabled is false', async () => {
@@ -35,47 +46,52 @@ describe('signoz-transport', () => {
       enabled: false,
     })
 
-    expect(fetch).not.toHaveBeenCalled()
+    expect(sendEventEnvelope).not.toHaveBeenCalled()
   })
 
-  it('sends payload to sourcemap endpoint when configured', async () => {
-    vi.mocked(fetch).mockResolvedValue({ ok: true } as never)
+  it('maps errors to the unified events transport', async () => {
+    vi.mocked(sendEventEnvelope).mockResolvedValue(undefined)
 
     await sendToSigNoz(baseError, {
       ...baseConfig,
-      sourcemapResolverEndpoint: 'https://resolver.example.com',
+      frontendObservabilityEndpoint: 'https://frontend-observability.example.com',
     })
 
-    expect(fetch).toHaveBeenCalledTimes(1)
-    const [url, options] = vi.mocked(fetch).mock.calls[0]
-    expect(url).toBe('https://resolver.example.com/v1/errors')
-    expect((options as RequestInit).method).toBe('POST')
-    expect((options as RequestInit).keepalive).toBe(true)
-    expect((options as RequestInit).headers).toEqual({ 'Content-Type': 'application/json' })
-    expect(typeof (options as RequestInit).body).toBe('string')
+    expect(sendEventEnvelope).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventId: 'err-1',
+        category: 'error',
+        level: 'error',
+        message: 'boom',
+        service: expect.objectContaining({
+          version: '1.0.0',
+          release: 'release-a',
+        }),
+        payload: {
+          kind: 'error',
+          data: expect.objectContaining({
+            source: 'js',
+          }),
+        },
+        tags: expect.objectContaining({
+          'git.commit': 'commit-a',
+          'git.branch': 'main',
+          'build.id': 'run-123',
+          'release.channel': 'staging',
+        }),
+      }),
+      expect.objectContaining(baseConfig),
+    )
   })
 
-  it('warns in debug mode when response is not ok or fetch fails', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
-    vi.mocked(fetch).mockResolvedValueOnce({ ok: false, status: 500 } as never)
-    await sendToSigNoz(baseError, baseConfig)
-
-    vi.mocked(fetch).mockRejectedValueOnce(new Error('network down'))
-    await sendToSigNoz(baseError, baseConfig)
-
-    expect(warnSpy).toHaveBeenCalledTimes(2)
-    warnSpy.mockRestore()
-  })
-
-  it('sendBatchToSigNoz skips when disabled/empty and sends each error otherwise', async () => {
-    vi.mocked(fetch).mockResolvedValue({ ok: true } as never)
+  it('sendBatchToSigNoz skips when disabled/empty and batches each error otherwise', async () => {
+    vi.mocked(sendEventBatch).mockResolvedValue(undefined)
 
     await sendBatchToSigNoz([], baseConfig)
-    expect(fetch).not.toHaveBeenCalled()
+    expect(sendEventBatch).not.toHaveBeenCalled()
 
     await sendBatchToSigNoz([baseError], { ...baseConfig, enabled: false })
-    expect(fetch).not.toHaveBeenCalled()
+    expect(sendEventBatch).not.toHaveBeenCalled()
 
     await sendBatchToSigNoz(
       [
@@ -89,6 +105,19 @@ describe('signoz-transport', () => {
       baseConfig,
     )
 
-    expect(fetch).toHaveBeenCalledTimes(2)
+    expect(sendEventBatch).toHaveBeenCalledTimes(1)
+    expect(sendEventBatch).toHaveBeenCalledWith(
+      [
+        expect.objectContaining({
+          eventId: 'err-1',
+          category: 'error',
+        }),
+        expect.objectContaining({
+          eventId: 'err-2',
+          category: 'error',
+        }),
+      ],
+      expect.objectContaining(baseConfig),
+    )
   })
 })

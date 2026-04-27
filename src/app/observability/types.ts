@@ -55,17 +55,73 @@ export interface ObservabilityError {
   tags?: Record<string, string>
 }
 
+export type FrontendEventCategory = 'log' | 'custom' | 'error' | 'security'
+
+export type FrontendEventLevel = 'debug' | 'info' | 'warn' | 'error'
+
+export interface FrontendEventEnvelope {
+  eventId: string
+  timestamp: number
+  category: FrontendEventCategory
+  level: FrontendEventLevel
+  message: string
+  service: {
+    name: string
+    version: string
+    environment: string
+    release: string
+  }
+  context: {
+    url: string
+    route: string
+  }
+  session?: {
+    sessionId?: string
+    sessionUrl?: string
+  }
+  trace?: {
+    traceId?: string
+    spanId?: string
+  }
+  payload?: {
+    kind: string
+    data?: Record<string, unknown>
+  }
+  tags: Record<string, string>
+}
+
+export interface LoggerEventOptions {
+  module?: string
+  component?: string
+  data?: Record<string, unknown>
+  tags?: Record<string, string>
+}
+
 /** 可观测性配置 */
 export interface ObservabilityConfig {
   /** 服务名称 */
   serviceName: string
   /** 服务版本 */
   serviceVersion: string
+  /** 部署发布标识；用于 sourcemap / event / trace 归属 */
+  serviceRelease: string
+  /** 构建流水线或本地打包标识；用于排查 artifact 来源 */
+  buildId?: string
+  /** 构建输入分支；仅作为查询上下文，不作为 sourcemap lookup key */
+  gitBranch?: string
+  /** 构建输入 commit；用于审计和代码定位 */
+  gitCommit?: string
+  /** 发布通道；用于区分 staging / production 等环境 */
+  releaseChannel?: 'development' | 'staging' | 'production'
   /** 环境 */
   environment: 'development' | 'staging' | 'production'
-  /** OTEL Collector 端点 */
-  otelEndpoint: string
-  /** Source Map Resolver 端点 (可选，默认使用 otelEndpoint) */
+  /** OTLP traces 最终上报端点 */
+  otelTracesEndpoint: string
+  /** 已弃用：兼容旧名，语义与 otelTracesEndpoint 相同 */
+  otelEndpoint?: string
+  /** Frontend Observability 服务端点 */
+  frontendObservabilityEndpoint?: string
+  /** Source Map Resolver 端点 (可选，默认使用 frontendObservabilityEndpoint) */
   sourcemapResolverEndpoint?: string
   /** 是否启用 */
   enabled: boolean
