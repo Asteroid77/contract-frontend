@@ -7,15 +7,9 @@ import { useCreateWorkOrder } from '../application/hooks/useWorkOrderService'
 import { useWorkOrderUpload } from '../application/hooks/useWorkOrderUpload'
 import { useRouter } from 'vue-router'
 import WorkOrderCategorySelect from './WorkOrderCategorySelect'
+import { loadMdEditor } from './md-editor-loader'
 
-const AsyncMdEditor = defineAsyncComponent(async () => {
-  const [{ default: MdEditor }] = await Promise.all([
-    import('md-editor-v3/lib/es/MdEditor.mjs'),
-    import('md-editor-v3/lib/style.css'),
-  ])
-
-  return MdEditor
-})
+const AsyncMdEditor = defineAsyncComponent(loadMdEditor)
 
 defineProps<{
   show: boolean

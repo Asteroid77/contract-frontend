@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 import UnifiedFormTable from '@/modules/shared/presentation/diff-check/components/unified/UnifiedFormTable'
@@ -83,6 +83,16 @@ const buildListField = (): FieldDefinition => ({
 })
 
 describe('UnifiedFormTable', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.stubGlobal('fetch', vi.fn())
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.unstubAllGlobals()
+  })
+
   it('renders normal field value and empty placeholder in non-diff mode', () => {
     const fields: FieldDefinition[] = [
       { key: 'name', label: '姓名' },
@@ -197,5 +207,36 @@ describe('UnifiedFormTable', () => {
     await nextTick()
 
     expect(wrapper.find('.list-expand-row').exists()).toBe(false)
+  })
+
+  it('does not open text preview or keep href for disallowed accessUrl', async () => {
+    const fields: FieldDefinition[] = [{ key: 'attachment', label: '附件', type: 'file' }]
+
+    const wrapper = mount(UnifiedFormTable, {
+      props: {
+        fields,
+        data: {
+          attachment: [
+            {
+              id: 1,
+              fileName: 'note.txt',
+              fileType: 'txt',
+              fileSize: 8,
+              ossObjectKey: 'note.txt',
+              accessUrl: 'https://evil.example/note.txt',
+            },
+          ],
+        } as FormData,
+      },
+    })
+
+    const link = wrapper.get('.file-name')
+    expect(link.attributes('href')).toBeUndefined()
+
+    await link.trigger('click')
+    await nextTick()
+
+    expect(fetch).not.toHaveBeenCalled()
+    expect(wrapper.find('[data-test="NModal"]').exists()).toBe(false)
   })
 })

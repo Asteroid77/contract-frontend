@@ -146,8 +146,12 @@ describe('ImagesUploader', () => {
       props: {
         value: [],
         initialFileList: [
-          createInitialFile(1, 'a.png', 'https://a'),
-          createInitialFile(2, 'b.png', 'https://b'),
+          createInitialFile(
+            1,
+            'a.png',
+            'https://zwlh-powergrid.oss-cn-guangzhou.aliyuncs.com/a.png',
+          ),
+          createInitialFile(2, 'b.png', 'https://oss-cn-guangzhou.aliyuncs.com/b.png'),
         ],
         fileCategory: 'BILL',
       },
@@ -164,7 +168,23 @@ describe('ImagesUploader', () => {
     }
     expect(firstFile.id).toBe('1')
     expect(firstFile.name).toBe('a.png')
-    expect(firstFile.url).toBe('https://a')
+    expect(firstFile.url).toBe('https://zwlh-powergrid.oss-cn-guangzhou.aliyuncs.com/a.png')
+  })
+
+  it('does not pass disallowed accessUrl into upload file-list', async () => {
+    mount(ImagesUploader, {
+      props: {
+        value: [],
+        initialFileList: [createInitialFile(1, 'a.png', 'https://evil.example/a.png')],
+        fileCategory: 'BILL',
+      },
+    })
+
+    await nextTick()
+
+    const fileList = uploadPropsState.value?.fileList
+    const firstFile = fileList?.[0] as { url?: string } | undefined
+    expect(firstFile?.url).toBe('')
   })
 
   it('emits numeric finished ids when file-list updates', async () => {
@@ -233,7 +253,7 @@ describe('ImagesUploader', () => {
         callbacks.onSuccess({
           id: 99,
           fileName: 'server.png',
-          accessUrl: 'https://cdn/server.png',
+          accessUrl: 'https://oss-cn-guangzhou.aliyuncs.com/server.png',
         })
       },
     )
@@ -272,5 +292,60 @@ describe('ImagesUploader', () => {
     const emitted = wrapper.emitted('update:value') || []
     const lastPayload = emitted[emitted.length - 1][0] as number[]
     expect(lastPayload).toEqual([99])
+  })
+
+  it('does not keep disallowed accessUrl after upload success', async () => {
+    mount(ImagesUploader, {
+      props: {
+        value: [],
+        initialFileList: [],
+        fileCategory: 'BILL',
+      },
+    })
+
+    mutateSpy.mockImplementation(
+      (_, callbacks: { onSuccess: (value: Record<string, unknown>) => void }) => {
+        callbacks.onSuccess({
+          id: 99,
+          fileName: 'server.png',
+          accessUrl: 'https://evil.example/server.png',
+        })
+      },
+    )
+
+    const updateFileList = uploadPropsState.value?.['onUpdate:fileList'] as
+      | ((list: unknown[]) => void)
+      | undefined
+    const tempFile = {
+      id: 'temp-id',
+      name: 'local.png',
+      status: 'uploading',
+    }
+    updateFileList?.([tempFile as never])
+
+    const customRequest = uploadPropsState.value?.customRequest as
+      | ((options: Record<string, unknown>) => void)
+      | undefined
+    const onFinish = vi.fn(() => {
+      tempFile.status = 'finished'
+    })
+
+    customRequest?.({
+      file: {
+        id: 'temp-id',
+        name: 'local.png',
+        file: new File(['123'], 'local.png', { type: 'image/png' }),
+      },
+      onFinish,
+      onError: vi.fn(),
+      onProgress: vi.fn(),
+    })
+
+    await nextTick()
+
+    const fileList = uploadPropsState.value?.fileList
+    const firstFile = fileList?.[0] as { id?: string; url?: string } | undefined
+    expect(firstFile?.id).toBe('99')
+    expect(firstFile?.url).toBe('')
   })
 })

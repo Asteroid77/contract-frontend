@@ -100,10 +100,7 @@ export function reportAuthErrorFeedback(error: unknown): void {
 
 export function reportRefreshFailureFeedback(error: unknown): void {
   if (error instanceof BusinessError) {
-    if (
-      error.status === 400 &&
-      error.code === ResponseCode.AUTH_REFRESH_GRANT_INVALID
-    ) {
+    if (error.status === 400 && error.code === ResponseCode.AUTH_REFRESH_GRANT_INVALID) {
       return
     }
 
@@ -114,9 +111,7 @@ export function reportRefreshFailureFeedback(error: unknown): void {
 
     markAuthFeedbackShown(key)
     const content =
-      error.status === 403
-        ? `续期请求被拒绝：${error.message}`
-        : '登录续期失败，请重试'
+      error.status === 403 ? `续期请求被拒绝：${error.message}` : '登录续期失败，请重试'
 
     showUniqueErrorNotification(key, {
       title: '登录续期失败',
@@ -139,17 +134,15 @@ export function reportRefreshFailureFeedback(error: unknown): void {
   markAuthFeedbackShown(key)
   const payload = error.response.data as RFC7807Response | undefined
   const contentType = String(error.response.headers?.['content-type'] ?? '')
-  const detail =
-    contentType.includes('application/problem+json')
-      ? payload?.detail || payload?.title || '登录续期失败，请重试'
-      : '续期请求未返回标准错误体，优先检查本地代理、CORS 或网关配置。'
+  const detail = contentType.includes('application/problem+json')
+    ? payload?.detail || payload?.title || '登录续期失败，请重试'
+    : '续期请求未返回标准错误体，优先检查本地代理、CORS 或网关配置。'
 
   showUniqueErrorNotification(key, {
     title: '登录续期失败',
-    content:
-      contentType.includes('application/problem+json')
-        ? `续期请求被拒绝：${detail}`
-        : detail,
+    content: contentType.includes('application/problem+json')
+      ? `续期请求被拒绝：${detail}`
+      : detail,
     duration: 5000,
     keepAliveOnHover: true,
   })

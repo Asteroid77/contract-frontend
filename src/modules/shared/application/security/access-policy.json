@@ -1,0 +1,8 @@
+{
+  "accessUrlAllowedHosts": ["oss-cn-guangzhou.aliyuncs.com", "*.oss-cn-guangzhou.aliyuncs.com"],
+  "cspSharedOrigins": [
+    "https://oss-cn-guangzhou.aliyuncs.com",
+    "https://*.oss-cn-guangzhou.aliyuncs.com"
+  ],
+  "cspWorkerSources": ["blob:"]
+}

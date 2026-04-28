@@ -1,71 +1,64 @@
 # contract-frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+前端仓库，负责合同管理系统的 Vue 3 Web 应用，包括认证与权限、审批、售电协议、工单、共享组件、路由视图和主题系统。
 
-## Recommended IDE Setup
+## What This Repository Owns
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- 前端应用入口、路由、页面与模块装配
+- 业务模块：`access`、`approval`、`captcha`、`file`、`invitation`、`service-agreement`、`user`、`work-order`
+- 公共能力：`shared` 模块、主题系统、请求链路、测试与构建脚本
+- 仓库级文档治理：根级入口文件、`docs/` 知识库、社区健康文件
 
-## Type Support for `.vue` Imports in TS
+## Local Development
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+### Prerequisites
 
-## Customize configuration
+- Node.js 24
+- pnpm 9
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+### Install
 
-## Project Setup
-
-```sh
+```bash
 pnpm install
 ```
 
-### Compile and Hot-Reload for Development
+### Start Dev Server
 
-```sh
+```bash
 pnpm dev
 ```
 
-### Type-Check, Compile and Minify for Production
+## Common Commands
 
-```sh
+```bash
+pnpm dev
+pnpm check
+pnpm test:unit --run
 pnpm build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
-pnpm test:unit
-```
-
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
-
-```sh
-# Install browsers for the first run
-npx playwright install
-
-# When testing on CI, must build the project first
-pnpm build
-
-# Runs the end-to-end tests
 pnpm test:e2e
-# Runs the tests only on Chromium
-pnpm test:e2e --project=chromium
-# Runs the tests of a specific file
-pnpm test:e2e tests/example.spec.ts
-# Runs the tests in debug mode
-pnpm test:e2e --debug
 ```
 
-### Lint with [oxlint](https://oxc.rs/docs/guide/usage/linter.html)
+## Module Map
 
-```sh
-pnpm lint
-```
+- `src/app/`: 应用装配、主题、插件、基础设施
+- `src/modules/access`: 认证、refresh、权限
+- `src/modules/approval`: 审批流程与打印
+- `src/modules/service-agreement`: 售电协议
+- `src/modules/work-order`: 工单业务
+- `src/modules/shared`: 跨模块公共能力
+- `src/views/`: 页面级入口与路由组合
+- `scripts/`: 校验、生成、发布辅助脚本
 
-### Format with [oxfmt](https://oxc.rs/docs/guide/usage/formatter.html)
+## Documentation Map
 
-```sh
-pnpm format
-pnpm format:check
-```
+- Human entry: `docs/index.md`
+- Agent entry: `AGENTS.md`
+- Contribution rules: `CONTRIBUTING.md`
+- Security reporting: `SECURITY.md`
+- Support path: `SUPPORT.md`
+
+## Collaboration Notes
+
+- 文档治理遵循“先按用途分层，再按模块做子分类”。
+- 根级 `README.md` 只做入口，不承载完整知识库正文。
+- 模块目录内只保留必要的 `README.md` / `AGENTS.md`，不建立模块内 `docs/`。

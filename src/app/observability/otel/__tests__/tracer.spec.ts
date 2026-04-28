@@ -140,7 +140,9 @@ vi.mock('@opentelemetry/api', () => ({
 const baseConfig: ObservabilityConfig = {
   serviceName: 'contract-frontend',
   serviceVersion: '1.0.0',
+  serviceRelease: 'release-a',
   environment: 'development',
+  otelTracesEndpoint: 'https://otel.example.com',
   otelEndpoint: 'https://otel.example.com',
   enabled: true,
   sampleRate: 1,
@@ -196,6 +198,25 @@ describe('otel tracer', () => {
     expect(warnSpy).toHaveBeenCalledWith('[OTEL] Tracer already initialized')
 
     warnSpy.mockRestore()
+    logSpy.mockRestore()
+  })
+
+  it('uses the provided traces endpoint directly when otelTracesEndpoint already includes /v1/traces', async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    const module = await import('@/app/observability/otel/tracer')
+
+    module.initTracer({
+      ...baseConfig,
+      otelTracesEndpoint: 'https://dev.astro777.cfd/observability/frontend/v1/traces',
+      debug: true,
+    })
+
+    expect(exporterCtor).toHaveBeenCalledWith({
+      url: 'https://dev.astro777.cfd/observability/frontend/v1/traces',
+      headers: {},
+    })
+
     logSpy.mockRestore()
   })
 

@@ -1,53 +1,98 @@
 /**
- * SigNoz 日志传输器
- * 通过 Source Map Resolver 解析堆栈后发送到 OTEL Collector
+ * Error 事件传输器
+ * 将前端错误统一映射到 frontend observability events ingest
  */
-import type { ObservabilityError, ObservabilityConfig } from '../types'
+import { sendEventBatch, sendEventEnvelope } from './events-transport'
+import type {
+  FrontendEventEnvelope,
+  FrontendEventLevel,
+  ObservabilityConfig,
+  ObservabilityError,
+} from '../types'
 
 /**
- * 发送错误到 Source Map Resolver (解析后转发到 SigNoz)
+ * 将错误严重级别映射到统一 event level
  */
+function toEventLevel(severity: ObservabilityError['severity']): FrontendEventLevel {
+  switch (severity) {
+    case 'debug':
+      return 'debug'
+    case 'info':
+      return 'info'
+    case 'warning':
+      return 'warn'
+    case 'error':
+    case 'fatal':
+      return 'error'
+  }
+}
+
+function buildReleaseTags(config: ObservabilityConfig): Record<string, string> {
+  return Object.fromEntries(
+    [
+      ['git.commit', config.gitCommit],
+      ['git.branch', config.gitBranch],
+      ['build.id', config.buildId],
+      ['release.channel', config.releaseChannel],
+    ].filter((entry): entry is [string, string] => Boolean(entry[1])),
+  )
+}
+
+export function buildErrorEventEnvelope(
+  error: ObservabilityError,
+  config: ObservabilityConfig,
+): FrontendEventEnvelope {
+  return {
+    eventId: error.id,
+    timestamp: error.timestamp,
+    category: 'error',
+    level: toEventLevel(error.severity),
+    message: error.message,
+    service: {
+      name: config.serviceName,
+      version: config.serviceVersion,
+      environment: config.environment,
+      release: config.serviceRelease,
+    },
+    context: {
+      url: error.page?.url || window.location.href,
+      route: error.page?.route || window.location.pathname,
+    },
+    session: {
+      sessionId: error.context?.sessionId as string | undefined,
+      sessionUrl: error.context?.sessionUrl as string | undefined,
+    },
+    trace: {
+      traceId: error.traceId,
+      spanId: error.spanId,
+    },
+    payload: {
+      kind: 'error',
+      data: {
+        source: error.source,
+        stack: error.stack,
+        code: error.code,
+        httpStatus: error.httpStatus,
+        problemType: error.problemType,
+      },
+    },
+    tags: {
+      ...error.tags,
+      'error.source': error.source,
+      ...buildReleaseTags(config),
+    },
+  }
+}
+
 export async function sendToSigNoz(
   error: ObservabilityError,
   config: ObservabilityConfig,
 ): Promise<void> {
-  if (!config.enabled) return
-
-  // 使用 sourcemap resolver 端点 (如果配置了)
-  const endpoint = config.sourcemapResolverEndpoint || config.otelEndpoint
-
-  const payload = {
-    message: error.message,
-    stack: error.stack || '',
-    traceId: error.traceId,
-    spanId: error.spanId,
-    sessionId: error.context?.sessionId as string,
-    timestamp: error.timestamp,
-    source: error.source,
-    severity: error.severity,
-    code: error.code,
-    httpStatus: error.httpStatus,
-    page: error.page,
-    user: error.user,
-    tags: error.tags,
+  if (!config.enabled) {
+    return
   }
 
-  try {
-    const response = await fetch(`${endpoint}/v1/errors`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      keepalive: true,
-    })
-
-    if (!response.ok && config.debug) {
-      console.warn('[SigNoz] Failed to send error:', response.status)
-    }
-  } catch (err) {
-    if (config.debug) {
-      console.warn('[SigNoz] Failed to send error:', err)
-    }
-  }
+  await sendEventEnvelope(buildErrorEventEnvelope(error, config), config)
 }
 
 /**
@@ -59,6 +104,8 @@ export async function sendBatchToSigNoz(
 ): Promise<void> {
   if (!config.enabled || errors.length === 0) return
 
-  // 并行发送
-  await Promise.allSettled(errors.map((error) => sendToSigNoz(error, config)))
+  await sendEventBatch(
+    errors.map((error) => buildErrorEventEnvelope(error, config)),
+    config,
+  )
 }

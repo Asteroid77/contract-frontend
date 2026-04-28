@@ -54,7 +54,7 @@ import { spawnSync } from 'node:child_process'
  *
  *   resolveBaseRef(baseRefArg)
  *     确定用于 diff 比较的基准 ref。优先使用用户显式传入的 baseRefArg；
- *     否则依次尝试追踪分支、origin/main、origin/master 等常见默认值。
+ *     否则依次尝试追踪分支、仓库主开发分支、远端默认分支等常见默认值。
  *
  *   getMergeBase(baseRef)
  *     计算当前 HEAD 与基准 ref 的最近公共祖先（merge-base），
@@ -64,7 +64,7 @@ import { spawnSync } from 'node:child_process'
  *     根据 mode 执行对应的 git diff 命令，返回统一格式的 diff 文本。
  *
  *   parsePxWhitelist()
- *     读取 docs/design-contract.yaml，解析出两类白名单：
+ *     读取 docs/reference/api/design-contract.yaml，解析出两类白名单：
  *     - px whitelist：全局允许的 px 数值列表。
  *     - radius allowed_px：圆角等场景额外允许的 px 数值。
  *     这样开发者只要在设计契约里声明过的 px 值就不会被拦截。
@@ -99,8 +99,9 @@ import { spawnSync } from 'node:child_process'
 
 const FILE_PATTERNS = ['*.ts', '*.tsx', '*.vue', '*.css', '*.scss']
 const PX_PATTERN = /(\d+(?:\.\d+)?)px\b/g
+const GIT_OUTPUT_MAX_BUFFER = 64 * 1024 * 1024
 
-const CONTRACT_PATH = resolve(process.cwd(), 'docs/design-contract.yaml')
+const CONTRACT_PATH = resolve(process.cwd(), 'docs/reference/api/design-contract.yaml')
 
 // 解析命令行参数，决定 diff 收集模式与基线。
 const parseArgs = () => {
@@ -135,13 +136,14 @@ const runGit = (args, { allowFail = false } = {}) => {
   const result = spawnSync('git', args, {
     cwd: process.cwd(),
     encoding: 'utf8',
+    maxBuffer: GIT_OUTPUT_MAX_BUFFER,
   })
 
   // 默认策略：失败即抛错。
   // allowFail=true 用于“探测性命令”（例如 upstream 可能不存在）。
   // 这类命令失败并不一定代表脚本无法继续，可以交给上层走 fallback。
   if (result.status !== 0 && !allowFail) {
-    const stderr = result.stderr?.trim() || 'Unknown git error'
+    const stderr = result.stderr?.trim() || result.error?.message || 'Unknown git error'
     throw new Error(stderr)
   }
 
@@ -226,16 +228,21 @@ const resolveBaseRef = (baseRefArg) => {
   const trackedRef = pickExistingRef(trackingRef)
   if (trackedRef) return trackedRef
 
-  // 第四优先级：远端默认分支符号引用（origin/HEAD -> origin/main/dev）。
+  // 第四优先级：仓库主开发分支。
+  // 当前仓库以 dev 为集成基线；本地 origin/HEAD 可能仍指向 master，
+  // 因此 dev 必须优先于 origin/HEAD，避免把 master..dev 历史差异混入检查窗口。
+  const developmentRef = pickExistingRef('origin/dev', 'dev')
+  if (developmentRef) return developmentRef
+
+  // 第五优先级：远端默认分支符号引用（origin/HEAD -> origin/main/master）。
   const originHead = runGit(['symbolic-ref', '--short', 'refs/remotes/origin/HEAD'], {
     allowFail: true,
   })
   const originHeadRef = pickExistingRef(originHead.trim())
   if (originHeadRef) return originHeadRef
 
-  // 第五优先级：硬编码兜底。
-  // 这里把 dev 放在前面，贴合当前仓库主开发分支。
-  const fallbackRefs = ['origin/dev', 'dev', 'origin/master', 'origin/main', 'master', 'main']
+  // 第六优先级：硬编码兜底。
+  const fallbackRefs = ['origin/master', 'origin/main', 'master', 'main']
   const fallbackRef = pickExistingRef(...fallbackRefs)
   if (fallbackRef) return fallbackRef
 
@@ -247,6 +254,8 @@ const resolveBaseRef = (baseRefArg) => {
     githubBaseRef,
     githubBaseRef ? `origin/${githubBaseRef}` : undefined,
     trackingRef,
+    'origin/dev',
+    'dev',
     originHead.trim(),
     ...fallbackRefs,
   ]
@@ -275,7 +284,7 @@ const getMergeBase = (baseRef) => {
 
 // 根据模式收集 diff 文本：工作区增量或分支与基线差异。
 const getDiffText = (mode, baseRefArg) => {
-  if (mode === 'working-tree') {
+  const getWorkingTreeDiffText = () => {
     // working-tree 模式只看“当前本地改动”，适合开发者本地自检。
     // --diff-filter=AM: 仅检查新增/修改文件，忽略删除文件。
     // --unified=0: 不携带上下文行，减少后续解析复杂度与文本体积。
@@ -300,35 +309,41 @@ const getDiffText = (mode, baseRefArg) => {
     return { diffText: `${unstaged}\n${staged}`, resolvedMode: 'working-tree', baseRef: null }
   }
 
-  // branch / auto 都需要先解析基线并计算 merge-base。
-  const baseRef = resolveBaseRef(baseRefArg)
-  const mergeBase = getMergeBase(baseRef)
-  // 分支比较窗口：mergeBase...HEAD（三点语法）。
-  // 只拿“当前分支相对基线新增的改动”，避免把基线已有改动混进来。
-  const branchDiff = runGit([
-    'diff',
-    '--no-color',
-    '--unified=0',
-    '--diff-filter=AM',
-    `${mergeBase}...HEAD`,
-    '--',
-    ...FILE_PATTERNS,
-  ])
+  const getBranchDiffText = () => {
+    const baseRef = resolveBaseRef(baseRefArg)
+    const mergeBase = getMergeBase(baseRef)
+    // 分支比较窗口：mergeBase...HEAD（三点语法）。
+    // 只拿“当前分支相对基线新增的改动”，避免把基线已有改动混进来。
+    const branchDiff = runGit([
+      'diff',
+      '--no-color',
+      '--unified=0',
+      '--diff-filter=AM',
+      `${mergeBase}...HEAD`,
+      '--',
+      ...FILE_PATTERNS,
+    ])
+
+    return { diffText: branchDiff, resolvedMode: 'branch', baseRef }
+  }
+
+  if (mode === 'working-tree') {
+    return getWorkingTreeDiffText()
+  }
 
   if (mode === 'branch') {
-    return { diffText: branchDiff, resolvedMode: 'branch', baseRef }
+    return getBranchDiffText()
   }
 
   // auto 模式：
   // - 无本地改动时，用 branch 结果（更贴近 CI）
   // - 有本地改动时，切回 working-tree（更贴近开发者当前编辑状态）
   const useWorkingTree = hasWorkingTreeChanges()
-  if (!useWorkingTree) {
-    return { diffText: branchDiff, resolvedMode: 'branch', baseRef }
+  if (useWorkingTree) {
+    return getWorkingTreeDiffText()
   }
 
-  const workingTree = getDiffText('working-tree', baseRefArg)
-  return { ...workingTree, resolvedMode: 'working-tree', baseRef }
+  return getBranchDiffText()
 }
 
 // 从设计token读取并构建允许的 px 白名单集合。

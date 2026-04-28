@@ -10,7 +10,7 @@ import {
   initErrorCollector,
 } from '@/app/observability/collectors/error-collector'
 import { recordError } from '@/app/observability/otel/tracer'
-import { sendToSigNoz } from '@/app/observability/transports/signoz-transport'
+import { sendEventEnvelope } from '@/app/observability/transports/events-transport'
 import { trackError } from '@/app/observability/replay/openreplay'
 
 vi.mock('@/app/observability/utils/nanoid', () => ({
@@ -22,8 +22,8 @@ vi.mock('@/app/observability/otel/tracer', () => ({
   recordError: vi.fn(),
 }))
 
-vi.mock('@/app/observability/transports/signoz-transport', () => ({
-  sendToSigNoz: vi.fn(),
+vi.mock('@/app/observability/transports/events-transport', () => ({
+  sendEventEnvelope: vi.fn(),
 }))
 
 vi.mock('@/app/observability/replay/openreplay', () => ({
@@ -39,7 +39,9 @@ vi.mock('@/_utils/i18n', () => ({
 const baseConfig: ObservabilityConfig = {
   serviceName: 'contract-frontend',
   serviceVersion: '1.0.0',
+  serviceRelease: 'release-a',
   environment: 'development',
+  otelTracesEndpoint: 'https://otel.example.com',
   otelEndpoint: 'https://otel.example.com',
   enabled: true,
   sampleRate: 1,
@@ -58,7 +60,7 @@ describe('error-collector', () => {
     })
   })
 
-  it('captureError enriches payload and delegates to tracer/sigNoz/openreplay', () => {
+  it('captureError enriches payload and delegates to tracer/events/openreplay', () => {
     const result = captureError(new Error('core-error-1'), {
       source: 'js',
       code: 1001,
@@ -85,7 +87,21 @@ describe('error-collector', () => {
     })
 
     expect(recordError).toHaveBeenCalledTimes(1)
-    expect(sendToSigNoz).toHaveBeenCalledWith(result, expect.objectContaining(baseConfig))
+    expect(sendEventEnvelope).toHaveBeenCalledWith(
+      expect.objectContaining({
+        category: 'error',
+        level: 'error',
+        message: 'core-error-1',
+        payload: {
+          kind: 'error',
+          data: expect.objectContaining({
+            source: 'js',
+            stack: expect.any(String),
+          }),
+        },
+      }),
+      expect.objectContaining(baseConfig),
+    )
     expect(trackError).toHaveBeenCalledWith(expect.any(Error), {
       traceId: 'trace-1',
       source: 'js',
@@ -114,7 +130,7 @@ describe('error-collector', () => {
 
     const sampledOut = captureError(new Error('sample-out-message'))
     expect(sampledOut).toBeNull()
-    expect(sendToSigNoz).not.toHaveBeenCalled()
+    expect(sendEventEnvelope).not.toHaveBeenCalled()
 
     randomSpy.mockRestore()
   })
@@ -126,7 +142,7 @@ describe('error-collector', () => {
 
     expect(first).toBeTruthy()
     expect(second).toBeNull()
-    expect(sendToSigNoz).toHaveBeenCalledTimes(1)
+    expect(sendEventEnvelope).toHaveBeenCalledTimes(1)
   })
 
   it('captureVueError/captureHttpError/capturePermissionError map source and severity correctly', () => {

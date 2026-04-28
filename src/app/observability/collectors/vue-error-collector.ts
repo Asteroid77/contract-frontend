@@ -46,6 +46,4 @@ export function setupVueErrorHandler(app: App): void {
       }
     }
   }
-
-  console.log('[VueErrorCollector] Installed')
 }

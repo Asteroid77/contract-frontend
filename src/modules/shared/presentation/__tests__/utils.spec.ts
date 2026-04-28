@@ -50,7 +50,7 @@ const treeData: TreeItem[] = [
 
 describe('shared/presentation/utils', () => {
   beforeEach(() => {
-    document.head.innerHTML = ''
+    document.head.replaceChildren()
     vi.restoreAllMocks()
   })
 
@@ -123,18 +123,17 @@ describe('shared/presentation/utils', () => {
     })
   })
 
-  it('inspectPropsDefaults logs only props containing default field', () => {
-    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-
-    inspectPropsDefaults({
-      text: { type: Boolean, default: false },
-      size: { type: String, default: 'medium' },
-      requiredName: { type: String, required: true },
-      nullable: null,
-    })
-
-    expect(logSpy).toHaveBeenCalledTimes(2)
-    expect(logSpy).toHaveBeenNthCalledWith(1, 'text', '→', false)
-    expect(logSpy).toHaveBeenNthCalledWith(2, 'size', '→', 'medium')
+  it('inspectPropsDefaults returns only props containing default field', () => {
+    expect(
+      inspectPropsDefaults({
+        text: { type: Boolean, default: false },
+        size: { type: String, default: 'medium' },
+        requiredName: { type: String, required: true },
+        nullable: null,
+      }),
+    ).toEqual([
+      ['text', false],
+      ['size', 'medium'],
+    ])
   })
 })

@@ -1,5 +1,4 @@
-import fs from 'fs'
-import path from 'path'
+import { resolve } from 'node:path'
 import type { ViteDevServer } from 'vite'
 
 import {
@@ -8,6 +7,16 @@ import {
   semanticColorTokens,
   spacingScaleTokens,
 } from '../src/app/presentation/theme/ThemeToken'
+import { createGeneratedAsset, writeGeneratedAssetIfChanged } from './shared/generated-asset'
+
+type GenerateThemeCssAssetOptions = {
+  sourcePath?: string
+  outputPath?: string
+  metaPath?: string
+  check?: boolean
+}
+
+type ThemeGeneratorPluginOptions = Omit<GenerateThemeCssAssetOptions, 'check'>
 
 function toKebabCase(str: string): string {
   return str
@@ -18,13 +27,27 @@ function toKebabCase(str: string): string {
     .toLowerCase()
 }
 
+function normalizeCssValue(value: string) {
+  return value.replace(/#[\da-f]{3,8}\b/gi, (color) => color.toLowerCase())
+}
+
 function appendCssVars(lines: string[], values: Record<string, string>, prefix = ''): void {
   for (const [key, value] of Object.entries(values)) {
-    lines.push(`  --${prefix}${toKebabCase(key)}: ${value};`)
+    const name = `--${prefix}${toKebabCase(key)}`
+    const normalizedValue = normalizeCssValue(value)
+    const line = `  ${name}: ${normalizedValue};`
+
+    if (line.length > 100 && normalizedValue.includes(',')) {
+      lines.push(`  ${name}:`)
+      lines.push(`    ${normalizedValue};`)
+      continue
+    }
+
+    lines.push(line)
   }
 }
 
-function generateCss() {
+export function generateThemeCss() {
   const lines: string[] = [
     '/*',
     ' * ==========================================================================',
@@ -60,33 +83,59 @@ function generateCss() {
     lines.push('')
   }
 
-  return `${lines.join('\n')}\n`
+  return `${lines.join('\n').trimEnd()}\n`
 }
 
-function writeThemeCss() {
-  try {
-    const css = generateCss()
-    const outputPath = path.resolve(
-      process.cwd(),
-      'src/app/presentation/theme/styles/generated-theme.css',
-    )
+function resolveThemeGeneratorOptions(options: GenerateThemeCssAssetOptions = {}) {
+  const sourcePath =
+    options.sourcePath ?? resolve(process.cwd(), 'src/app/presentation/theme/ThemeToken.ts')
+  const outputPath =
+    options.outputPath ??
+    resolve(process.cwd(), 'src/app/presentation/theme/styles/generated-theme.css')
+  const metaPath =
+    options.metaPath ??
+    resolve(process.cwd(), 'src/app/presentation/theme/styles/generated-theme.meta.json')
 
-    fs.writeFileSync(outputPath, css, 'utf-8')
-    console.log(`[ThemeGen] CSS updated at ${new Date().toLocaleTimeString()}`)
-  } catch (error) {
-    console.error('[ThemeGen] Error:', error)
+  return {
+    sourcePath,
+    outputPath,
+    metaPath,
   }
 }
 
-export const themeGeneratorPlugin = () => {
+export function generateThemeCssAsset(options: GenerateThemeCssAssetOptions = {}) {
+  const paths = resolveThemeGeneratorOptions(options)
+  const css = generateThemeCss()
+
+  return writeGeneratedAssetIfChanged(
+    createGeneratedAsset({
+      name: 'theme-css',
+      sourcePaths: [paths.sourcePath],
+      outputPath: paths.outputPath,
+      metaPath: paths.metaPath,
+      content: css,
+      hashInput: css,
+    }),
+    { check: options.check },
+  )
+}
+
+export const themeGeneratorPlugin = (options: ThemeGeneratorPluginOptions = {}) => {
+  const paths = resolveThemeGeneratorOptions(options)
+  const generate = () => generateThemeCssAsset(paths)
+
   return {
     name: 'vite-plugin-naive-tailwind-theme',
     buildStart() {
-      writeThemeCss()
+      generate()
     },
     handleHotUpdate({ file, server }: { file: string; server: ViteDevServer }) {
-      if (file.includes('ThemeToken.ts')) {
-        writeThemeCss()
+      if (file !== paths.sourcePath) {
+        return
+      }
+
+      const result = generate()
+      if (result.changed) {
         server.ws.send({
           type: 'full-reload',
           path: '*',

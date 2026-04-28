@@ -22,6 +22,14 @@ import type { ObservabilityConfig } from '../types'
 let provider: WebTracerProvider | null = null
 let isInitialized = false
 
+function resolveTraceExporterUrl(otelTracesEndpoint: string): string {
+  if (/\/v1\/traces\/?$/.test(otelTracesEndpoint)) {
+    return otelTracesEndpoint.replace(/\/$/, '')
+  }
+
+  return `${otelTracesEndpoint.replace(/\/$/, '')}/v1/traces`
+}
+
 /**
  * 初始化 OpenTelemetry 追踪器
  */
@@ -32,7 +40,6 @@ export function initTracer(config: ObservabilityConfig): void {
   }
 
   if (!config.enabled) {
-    console.log('[OTEL] Tracing disabled')
     return
   }
 
@@ -43,7 +50,7 @@ export function initTracer(config: ObservabilityConfig): void {
   })
 
   const exporter = new OTLPTraceExporter({
-    url: `${config.otelEndpoint}/v1/traces`,
+    url: resolveTraceExporterUrl(config.otelTracesEndpoint),
     headers: {},
   })
 
@@ -82,10 +89,6 @@ export function initTracer(config: ObservabilityConfig): void {
   })
 
   isInitialized = true
-  console.log('[OTEL] Tracer initialized', {
-    serviceName: config.serviceName,
-    endpoint: config.otelEndpoint,
-  })
 }
 
 /**
@@ -175,6 +178,5 @@ export async function shutdownTracer(): Promise<void> {
     await provider.shutdown()
     isInitialized = false
     provider = null
-    console.log('[OTEL] Tracer shutdown')
   }
 }

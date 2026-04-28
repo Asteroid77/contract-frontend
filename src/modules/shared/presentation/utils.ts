@@ -111,11 +111,12 @@ export const diffKeys = (a: object, b: object) => ({
   onlyInB: Object.keys(b).filter((k) => !(k in a)),
 })
 
-/** 快速查看 Vue props 的默认值定义 */
-export const inspectPropsDefaults = (propsDefinition: object) => {
-  Object.entries(propsDefinition).forEach(([key, def]) => {
+/** 提取 Vue props 的默认值定义 */
+export const inspectPropsDefaults = (propsDefinition: object): Array<[string, unknown]> =>
+  Object.entries(propsDefinition).flatMap(([key, def]) => {
     if (def && typeof def === 'object' && 'default' in def) {
-      console.log(key, '→', def.default)
+      return [[key, def.default]]
     }
+
+    return []
   })
-}

@@ -7,7 +7,10 @@ import type { ObservabilityConfig } from './types'
 import { initTracer, shutdownTracer } from './otel/tracer'
 import { initErrorCollector } from './collectors/error-collector'
 import { jsErrorCollector } from './collectors/js-error-collector'
+import { securityPolicyCollector } from './collectors/security-policy-collector'
 import { setupVueErrorHandler } from './collectors/vue-error-collector'
+import { initLogger } from './logger'
+import { resolveEndpoint } from './utils/resolve-endpoint'
 import {
   initOpenReplay,
   stopOpenReplay,
@@ -31,13 +34,33 @@ export interface InitOptions {
  */
 function getDefaultConfig(): ObservabilityConfig {
   const isDev = import.meta.env.DEV
+  const defaultOtelTracesEndpoint =
+    resolveEndpoint(
+      import.meta.env.VITE_OTEL_TRACES_ENDPOINT || import.meta.env.VITE_OTEL_ENDPOINT,
+    ) || '/observability/frontend/v1/traces'
 
   return {
     serviceName: import.meta.env.VITE_APP_NAME || 'contract-frontend',
     serviceVersion: import.meta.env.VITE_APP_VERSION || '0.0.0',
+    serviceRelease:
+      import.meta.env.VITE_APP_RELEASE ||
+      import.meta.env.VITE_APP_VERSION ||
+      __GIT_COMMIT_HASH__ ||
+      '0.0.0',
+    buildId: import.meta.env.VITE_APP_BUILD_ID,
+    gitBranch: import.meta.env.VITE_GIT_BRANCH || __GIT_BRANCH__,
+    gitCommit: import.meta.env.VITE_GIT_COMMIT || __GIT_COMMIT_HASH__,
+    releaseChannel: import.meta.env.VITE_RELEASE_CHANNEL || (isDev ? 'development' : 'production'),
     environment: isDev ? 'development' : 'production',
-    otelEndpoint: import.meta.env.VITE_OTEL_ENDPOINT || 'http://localhost:4318',
-    sourcemapResolverEndpoint: import.meta.env.VITE_SOURCEMAP_RESOLVER_ENDPOINT || undefined,
+    otelTracesEndpoint: defaultOtelTracesEndpoint,
+    otelEndpoint: defaultOtelTracesEndpoint,
+    frontendObservabilityEndpoint:
+      resolveEndpoint(import.meta.env.VITE_FRONTEND_OBSERVABILITY_ENDPOINT) ||
+      '/observability/frontend',
+    sourcemapResolverEndpoint:
+      resolveEndpoint(import.meta.env.VITE_SOURCEMAP_RESOLVER_ENDPOINT) ||
+      resolveEndpoint(import.meta.env.VITE_FRONTEND_OBSERVABILITY_ENDPOINT) ||
+      '/observability/frontend',
     enabled: !isDev, // 生产环境默认启用
     sampleRate: isDev ? 1.0 : 0.1, // 开发环境全采样，生产环境 10%
     debug: isDev,
@@ -61,36 +84,49 @@ export function initObservability(app: App, options: InitOptions = {}): void {
     return
   }
 
+  const explicitOtelTracesEndpoint = resolveEndpoint(options.observability?.otelTracesEndpoint)
+  const explicitLegacyOtelEndpoint = resolveEndpoint(options.observability?.otelEndpoint)
+
   const config: ObservabilityConfig = {
     ...getDefaultConfig(),
     ...options.observability,
   }
 
-  console.log('[Observability] Initializing...', {
-    serviceName: config.serviceName,
-    environment: config.environment,
-    enabled: config.enabled,
-  })
+  config.otelTracesEndpoint =
+    explicitOtelTracesEndpoint ||
+    explicitLegacyOtelEndpoint ||
+    resolveEndpoint(config.otelTracesEndpoint || config.otelEndpoint) ||
+    `${window.location.origin}/observability/frontend/v1/traces`
+  config.otelEndpoint = config.otelTracesEndpoint
+  config.frontendObservabilityEndpoint =
+    resolveEndpoint(config.frontendObservabilityEndpoint) ||
+    `${window.location.origin}/observability/frontend`
+  config.sourcemapResolverEndpoint = resolveEndpoint(config.sourcemapResolverEndpoint)
 
-  // 1. 初始化错误收集器核心
+  // 1. 初始化统一 logger
+  initLogger(config)
+
+  // 2. 初始化错误收集器核心
   initErrorCollector(config)
 
-  // 2. 初始化 OpenTelemetry 追踪器
+  // 3. 初始化 OpenTelemetry 追踪器
   initTracer(config)
 
-  // 3. 初始化 OpenReplay (如果配置了)
+  // 4. 初始化 OpenReplay (如果配置了)
   if (options.openReplay?.projectKey) {
     initOpenReplay(options.openReplay, config)
   }
 
-  // 4. 安装 Vue 错误处理器
+  // 5. 安装 Vue 错误处理器
   setupVueErrorHandler(app)
 
-  // 5. 初始化全局 JS 错误收集器
+  // 6. 初始化全局 JS 错误收集器
   jsErrorCollector.init()
 
+  // 7. 初始化 CSP violation 收集器
+  securityPolicyCollector.init(config)
+
   isInitialized = true
-  console.log('[Observability] Initialized successfully')
 }
 
 /**
@@ -100,11 +136,11 @@ export async function shutdownObservability(): Promise<void> {
   if (!isInitialized) return
 
   jsErrorCollector.destroy()
+  securityPolicyCollector.destroy()
   stopOpenReplay()
   await shutdownTracer()
 
   isInitialized = false
-  console.log('[Observability] Shutdown complete')
 }
 
 /**
@@ -137,6 +173,8 @@ export {
 export { getTracer, withSpan, getCurrentTraceContext, recordError } from './otel/tracer'
 
 export { getSessionId, getSessionUrl, trackEvent, trackIssue } from './replay/openreplay'
+
+export { logger } from './logger'
 
 export type { ObservabilityError, ObservabilityConfig, ErrorSource, ErrorSeverity } from './types'
 

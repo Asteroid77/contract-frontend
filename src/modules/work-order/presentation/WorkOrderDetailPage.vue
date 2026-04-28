@@ -38,24 +38,11 @@ import WorkOrderStatusBadge from './WorkOrderStatusBadge'
 import WorkOrderScoreSection from './WorkOrderScoreSection.vue'
 import { formatted } from '@/modules/shared/presentation/time'
 import { resolveUserDisplayName } from '@/modules/user/application/utils/displayName'
+import { loadMdEditor, loadMdPreview } from './md-editor-loader'
 
-const AsyncMdPreview = defineAsyncComponent(async () => {
-  const [{ default: MdPreview }] = await Promise.all([
-    import('md-editor-v3/lib/es/MdPreview.mjs'),
-    import('md-editor-v3/lib/preview.css'),
-  ])
+const AsyncMdPreview = defineAsyncComponent(loadMdPreview)
 
-  return MdPreview
-})
-
-const AsyncMdEditor = defineAsyncComponent(async () => {
-  const [{ default: MdEditor }] = await Promise.all([
-    import('md-editor-v3/lib/es/MdEditor.mjs'),
-    import('md-editor-v3/lib/style.css'),
-  ])
-
-  return MdEditor
-})
+const AsyncMdEditor = defineAsyncComponent(loadMdEditor)
 
 const route = useRoute()
 const { t: $t } = useI18n()

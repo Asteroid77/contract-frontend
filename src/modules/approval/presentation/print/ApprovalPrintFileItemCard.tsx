@@ -1,8 +1,9 @@
 import type { OssCallbackView } from '@/modules/file/application/models'
+import { resolveAllowedAccessUrl } from '@/modules/shared/application/security/access-url'
 import { FilePdfOutlined } from '@vicons/antd'
 import { NIcon, NImage, NTag } from 'naive-ui'
 import type { PropType } from 'vue'
-import { defineComponent } from 'vue'
+import { computed, defineComponent } from 'vue'
 import { $t } from '@/_utils/i18n'
 import '@/modules/approval/presentation/approval/styles/FileItemCard.css'
 export default defineComponent({
@@ -12,6 +13,7 @@ export default defineComponent({
   },
   setup(props) {
     const isImage = /\.(jpg|jpeg|png|webp|gif)$/i.test(props.file.fileName)
+    const accessUrl = computed(() => resolveAllowedAccessUrl(props.file.accessUrl))
 
     // 样式映射
     const styleMap = {
@@ -40,7 +42,8 @@ export default defineComponent({
     const currentStyle = styleMap[props.status]
 
     const handlePdfClick = () => {
-      window.open(props.file.accessUrl, '_blank')
+      if (!accessUrl.value) return
+      window.open(accessUrl.value, '_blank')
     }
 
     return () => (
@@ -58,10 +61,10 @@ export default defineComponent({
         <div class="file-diff-card__content">
           {isImage ? (
             <NImage
-              src={props.file.accessUrl}
+              src={accessUrl.value ?? undefined}
               objectFit="cover"
               class="file-diff-card__preview-image"
-              preview-src={props.file.accessUrl}
+              preview-src={accessUrl.value ?? undefined}
             />
           ) : (
             <div class="file-diff-card__pdf-placeholder" onClick={handlePdfClick}>

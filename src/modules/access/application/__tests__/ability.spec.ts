@@ -72,6 +72,49 @@ describe('access ability', () => {
     expect(ability.can('delete', 'User')).toBe(true)
   })
 
+  it('defineAbilityFor accepts backend action permissions and multi-segment subjects', () => {
+    const ability = defineAbilityFor(
+      [
+        { id: 1, name: 'page:user', description: 'page user' },
+        { id: 2, name: 'assign:user-role', description: 'assign user role' },
+        { id: 3, name: 'claim:approval-task', description: 'claim approval task' },
+        { id: 4, name: 'handle:approval-task', description: 'handle approval task' },
+        { id: 5, name: 'record:service-agreement', description: 'record service agreement' },
+        {
+          id: 6,
+          name: 'duplicate-check:service-agreement',
+          description: 'duplicate check service agreement',
+        },
+        {
+          id: 7,
+          name: 'upload:service-agreement-file',
+          description: 'upload service agreement file',
+        },
+        {
+          id: 8,
+          name: 'preview:service-agreement-attachments',
+          description: 'preview service agreement attachments',
+        },
+        {
+          id: 9,
+          name: 'view:agent-dashboard:global',
+          description: 'view global agent dashboard',
+        },
+      ],
+      [],
+    )
+
+    expect(ability.can('read', 'User')).toBe(true)
+    expect(ability.can('assign', 'UserRole')).toBe(true)
+    expect(ability.can('claim', 'ApprovalTask')).toBe(true)
+    expect(ability.can('handle', 'ApprovalTask')).toBe(true)
+    expect(ability.can('record', 'ServiceAgreement')).toBe(true)
+    expect(ability.can('duplicate-check', 'ServiceAgreement')).toBe(true)
+    expect(ability.can('upload', 'ServiceAgreementFile')).toBe(true)
+    expect(ability.can('read', 'ServiceAgreementAttachments')).toBe(true)
+    expect(ability.can('read', 'AgentDashboardGlobal')).toBe(true)
+  })
+
   it('defineAbilityFor ignores invalid permission formats and warns', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 

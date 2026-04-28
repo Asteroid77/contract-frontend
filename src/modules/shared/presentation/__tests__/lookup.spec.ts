@@ -49,7 +49,7 @@ describe('SelectLookup', () => {
     const lookup = new SelectLookup([])
 
     expect(lookup.getLabel('x')).toBe('x')
-    expect(logSpy).toHaveBeenCalled()
+    expect(logSpy).not.toHaveBeenCalled()
   })
 })
 

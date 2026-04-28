@@ -5,6 +5,7 @@ import type { FileCategory } from '@/modules/service-agreement/domain/enums'
 import { message } from '@/_utils/discrete_naive_api'
 import { useUploadFileMutation } from '@/modules/service-agreement/application/hooks/useSignService'
 import { useFilesDetailQuery } from '@/modules/file/application/hooks/useFileService'
+import { resolveAllowedAccessUrl } from '@/modules/shared/application/security/access-url'
 import { ImageOutlined } from '@vicons/material'
 import { $t } from '@/_utils/i18n'
 
@@ -32,6 +33,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const uploadFileMutation = useUploadFileMutation()
     const internalFileList = ref<UploadFileInfo[]>([])
+    const getSafeUploadUrl = (accessUrl: string): string => resolveAllowedAccessUrl(accessUrl) ?? ''
 
     // 标志位，用于区分是内部更新还是外部 props 变化
     const isInternalUpdate = ref(false)
@@ -59,7 +61,7 @@ export default defineComponent({
           id: String(file.id),
           name: file.fileName,
           status: 'finished',
-          url: file.accessUrl,
+          url: getSafeUploadUrl(file.accessUrl),
         }))
         return
       }
@@ -80,7 +82,7 @@ export default defineComponent({
         internalFileList.value.forEach((existingFile) => {
           const fetchedVersion = fetchedMap.get(existingFile.id)
           if (fetchedVersion) {
-            existingFile.url = fetchedVersion.accessUrl
+            existingFile.url = getSafeUploadUrl(fetchedVersion.accessUrl)
             newFileList.push(existingFile)
             // 从 map 中移除，剩下的就是新增的
             fetchedMap.delete(existingFile.id)
@@ -96,7 +98,7 @@ export default defineComponent({
             id: String(newFile.id),
             name: newFile.fileName,
             status: 'finished',
-            url: newFile.accessUrl,
+            url: getSafeUploadUrl(newFile.accessUrl),
           })
         })
 
@@ -138,7 +140,7 @@ export default defineComponent({
             if (targetFile) {
               // 3. 原地更新文件对象，用从服务器返回的真实数据替换。
               targetFile.id = String(uploadedFileData.id)
-              targetFile.url = uploadedFileData.accessUrl
+              targetFile.url = getSafeUploadUrl(uploadedFileData.accessUrl)
               targetFile.name = uploadedFileData.fileName
             }
 

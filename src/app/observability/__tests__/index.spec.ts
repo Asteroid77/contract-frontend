@@ -4,6 +4,7 @@ const {
   initTracerSpy,
   shutdownTracerSpy,
   initErrorCollectorSpy,
+  initLoggerSpy,
   setupVueErrorHandlerSpy,
   initOpenReplaySpy,
   stopOpenReplaySpy,
@@ -16,6 +17,7 @@ const {
   initTracerSpy: vi.fn(),
   shutdownTracerSpy: vi.fn(() => Promise.resolve()),
   initErrorCollectorSpy: vi.fn(),
+  initLoggerSpy: vi.fn(),
   setupVueErrorHandlerSpy: vi.fn(),
   initOpenReplaySpy: vi.fn(),
   stopOpenReplaySpy: vi.fn(),
@@ -44,6 +46,16 @@ vi.mock('@/app/observability/collectors/error-collector', () => ({
   getRecentErrors: vi.fn(() => []),
 }))
 
+vi.mock('@/app/observability/logger', () => ({
+  initLogger: initLoggerSpy,
+  logger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+}))
+
 vi.mock('@/app/observability/collectors/js-error-collector', () => ({
   jsErrorCollector: {
     init: jsInitSpy,
@@ -69,6 +81,86 @@ describe('observability index', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.resetModules()
+    vi.unstubAllEnvs()
+  })
+
+  it('initObservability falls back to frontend traces endpoint when traces endpoint config is omitted', async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    const module = await import('@/app/observability')
+    const app = { config: {} }
+
+    module.initObservability(app as never, {
+      observability: {
+        enabled: true,
+      },
+    })
+
+    expect(initTracerSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        otelTracesEndpoint: `${window.location.origin}/observability/frontend/v1/traces`,
+        otelEndpoint: `${window.location.origin}/observability/frontend/v1/traces`,
+      }),
+    )
+
+    logSpy.mockRestore()
+  })
+
+  it('initObservability normalizes legacy otelEndpoint into otelTracesEndpoint', async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    const module = await import('@/app/observability')
+    const app = { config: {} }
+
+    module.initObservability(app as never, {
+      observability: {
+        enabled: true,
+        otelEndpoint: '/legacy-traces',
+      } as never,
+    })
+
+    expect(initTracerSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        otelTracesEndpoint: `${window.location.origin}/legacy-traces`,
+        otelEndpoint: `${window.location.origin}/legacy-traces`,
+      }),
+    )
+
+    logSpy.mockRestore()
+  })
+
+  it('initObservability keeps semantic version separate from frontend release metadata', async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    vi.stubEnv('VITE_APP_VERSION', '1.0.0')
+    vi.stubEnv('VITE_APP_RELEASE', 'release-a')
+    vi.stubEnv('VITE_GIT_COMMIT', 'commit-a')
+    vi.stubEnv('VITE_GIT_BRANCH', 'main')
+    vi.stubEnv('VITE_APP_BUILD_ID', 'run-123')
+    vi.stubEnv('VITE_RELEASE_CHANNEL', 'staging')
+
+    const module = await import('@/app/observability')
+    const app = { config: {} }
+
+    module.initObservability(app as never, {
+      observability: {
+        enabled: true,
+      },
+    })
+
+    expect(initTracerSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        serviceName: 'contract-frontend',
+        serviceVersion: '1.0.0',
+        serviceRelease: 'release-a',
+        gitCommit: 'commit-a',
+        gitBranch: 'main',
+        buildId: 'run-123',
+        releaseChannel: 'staging',
+      }),
+    )
+
+    logSpy.mockRestore()
   })
 
   it('initObservability initializes all modules and prevents duplicate init', async () => {
@@ -89,6 +181,7 @@ describe('observability index', () => {
       },
     })
 
+    expect(initLoggerSpy).toHaveBeenCalledTimes(1)
     expect(initErrorCollectorSpy).toHaveBeenCalledTimes(1)
     expect(initTracerSpy).toHaveBeenCalledTimes(1)
     expect(setupVueErrorHandlerSpy).toHaveBeenCalledWith(app)
