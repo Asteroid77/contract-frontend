@@ -9,6 +9,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { themeGeneratorPlugin } from './vite-plugin/ThemeGeneratorVitePlugin.js'
 import { trustedTypesDevClientPlugin } from './vite-plugin/TrustedTypesDevClientPlugin'
 import { cspHeadersPlugin } from './vite-plugin/CspHeadersVitePlugin.js'
+import { iconfontSpritePlugin } from './vite-plugin/IconfontSpriteVitePlugin'
 import svgLoader from 'vite-svg-loader'
 
 // 构建时获取当前git info
@@ -79,6 +80,7 @@ export default defineConfig(({ mode }) => {
       themeGeneratorPlugin(),
       trustedTypesDevClientPlugin(),
       cspHeadersPlugin(env),
+      iconfontSpritePlugin(),
     ],
     resolve: {
       alias: {
