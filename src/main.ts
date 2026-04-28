@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import '@/app/presentation/theme/styles/token.css'
+import { mountIconfontSprite } from '@/app/plugins/iconfont-sprite'
 import { usePlugins } from '@/app/plugins/usePlugins.ts'
 import { enablePostLoginEnhancements } from '@/app/plugins/post-login-enhancements'
 import { initObservabilityDeferred } from '@/app/observability/lazy'
@@ -10,6 +11,8 @@ import {
 import App from './App.vue'
 
 const app = createApp(App)
+
+mountIconfontSprite()
 
 // 初始化可观测性体系（需在 plugins 之前，尽早捕获错误）
 initObservabilityDeferred(app, {

@@ -115,6 +115,14 @@
     overflow: hidden;
   }
 
+  #app-iconfont-sprite-root,
+  .app-iconfont-sprite {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
   .notion-card {
     background-color: var(--color-bg-card);
     border: 1px solid var(--color-border);
