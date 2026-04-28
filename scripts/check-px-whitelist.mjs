@@ -64,7 +64,7 @@ import { spawnSync } from 'node:child_process'
  *     根据 mode 执行对应的 git diff 命令，返回统一格式的 diff 文本。
  *
  *   parsePxWhitelist()
- *     读取 docs/design-contract.yaml，解析出两类白名单：
+ *     读取 docs/reference/api/design-contract.yaml，解析出两类白名单：
  *     - px whitelist：全局允许的 px 数值列表。
  *     - radius allowed_px：圆角等场景额外允许的 px 数值。
  *     这样开发者只要在设计契约里声明过的 px 值就不会被拦截。
@@ -100,7 +100,7 @@ import { spawnSync } from 'node:child_process'
 const FILE_PATTERNS = ['*.ts', '*.tsx', '*.vue', '*.css', '*.scss']
 const PX_PATTERN = /(\d+(?:\.\d+)?)px\b/g
 
-const CONTRACT_PATH = resolve(process.cwd(), 'docs/design-contract.yaml')
+const CONTRACT_PATH = resolve(process.cwd(), 'docs/reference/api/design-contract.yaml')
 
 // 解析命令行参数，决定 diff 收集模式与基线。
 const parseArgs = () => {
