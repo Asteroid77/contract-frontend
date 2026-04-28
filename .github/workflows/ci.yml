@@ -42,6 +42,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Check release scripts
+        run: |
+          test -f scripts/upload-sourcemaps.mjs
+          test -f scripts/release/frontend-package.sh
+
       - name: Lint
         run: pnpm lint
 

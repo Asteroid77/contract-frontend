@@ -23,6 +23,10 @@ concurrency:
   group: cd-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  FRONTEND_RELEASE: ${{ github.sha }}
+  FRONTEND_BUILD_ID: ${{ github.run_id }}
+
 jobs:
   package:
     runs-on: ubuntu-latest
@@ -47,6 +51,12 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          VITE_APP_BUILD_ID: ${{ env.FRONTEND_BUILD_ID }}
+          VITE_APP_RELEASE: ${{ env.FRONTEND_RELEASE }}
+          VITE_GIT_BRANCH: ${{ github.ref_name }}
+          VITE_GIT_COMMIT: ${{ github.sha }}
+          VITE_RELEASE_CHANNEL: production
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -58,7 +68,9 @@ jobs:
 
       - name: Upload sourcemaps
         if: ${{ secrets.SOURCEMAP_RESOLVER_ENDPOINT != '' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.upload_sourcemaps == 'true')) }}
-        run: node ./scripts/upload-sourcemaps.mjs
+        run: pnpm upload:sourcemaps
         env:
           DIST_DIR: ./dist/assets
           SOURCEMAP_RESOLVER_ENDPOINT: ${{ secrets.SOURCEMAP_RESOLVER_ENDPOINT }}
+          SOURCEMAP_SERVICE_NAME: contract-frontend
+          SOURCEMAP_RELEASE: ${{ env.FRONTEND_RELEASE }}
