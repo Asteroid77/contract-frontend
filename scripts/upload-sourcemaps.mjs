@@ -66,23 +66,50 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const DIST_DIR = process.env.DIST_DIR || path.join(__dirname, '../dist/assets')
 // 解析服务地址可被环境变量注入；本地默认值用于开发联调。
 const RESOLVER_ENDPOINT = process.env.SOURCEMAP_RESOLVER_ENDPOINT || 'http://localhost:3001'
+const SERVICE_NAME = process.env.SOURCEMAP_SERVICE_NAME || 'contract-frontend'
+const RELEASE_ID = process.env.SOURCEMAP_RELEASE || process.env.RELEASE_ID || process.env.GITHUB_SHA
+
+function collectSourceMaps(rootDir) {
+  const results = []
+
+  for (const entry of fs.readdirSync(rootDir, { withFileTypes: true })) {
+    const absolutePath = path.join(rootDir, entry.name)
+
+    if (entry.isDirectory()) {
+      results.push(...collectSourceMaps(absolutePath))
+      continue
+    }
+
+    if (entry.isFile() && entry.name.endsWith('.map')) {
+      results.push(absolutePath)
+    }
+  }
+
+  return results
+}
+
+function toUploadFilename(filePath) {
+  return path.relative(path.dirname(DIST_DIR), filePath).replace(/\\/g, '/')
+}
 
 async function uploadSourceMap(filePath) {
   // 上传单个 sourcemap：文件名作为 query 参数，文件内容作为请求体。
-  const filename = path.basename(filePath)
+  const filename = toUploadFilename(filePath)
   // sourcemap 文件是文本 JSON，这里直接按 Buffer 读取并传输。
   const content = fs.readFileSync(filePath)
+  const params = new URLSearchParams({
+    service: SERVICE_NAME,
+    release: RELEASE_ID,
+    filename,
+  })
 
-  // 服务端协议：PUT /v1/sourcemaps?filename=<name>
+  // 服务端协议：PUT /v1/sourcemaps?service=<service>&release=<release>&filename=<relative-map-path>
   // 返回非 2xx 视为上传失败。
-  const response = await fetch(
-    `${RESOLVER_ENDPOINT}/v1/sourcemaps?filename=${encodeURIComponent(filename)}`,
-    {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: content,
-    },
-  )
+  const response = await fetch(`${RESOLVER_ENDPOINT}/v1/sourcemaps?${params.toString()}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: content,
+  })
 
   if (!response.ok) {
     throw new Error(`Failed to upload ${filename}: ${response.status}`)
@@ -95,7 +122,14 @@ async function main() {
   // 主入口：检查目录 -> 扫描文件 -> 逐个上传 -> 汇总结果。
   console.log(`Uploading source maps from: ${DIST_DIR}`)
   console.log(`Target endpoint: ${RESOLVER_ENDPOINT}`)
+  console.log(`Service name: ${SERVICE_NAME}`)
+  console.log(`Release id: ${RELEASE_ID || '<missing>'}`)
   console.log('')
+
+  if (!RELEASE_ID) {
+    console.error('Error: SOURCEMAP_RELEASE, RELEASE_ID, or GITHUB_SHA must be set')
+    process.exit(1)
+  }
 
   if (!fs.existsSync(DIST_DIR)) {
     // 目录不存在通常说明 build 尚未执行，或 DIST_DIR 指错。
@@ -104,7 +138,7 @@ async function main() {
   }
 
   // 仅处理 .map 文件，其它构建产物跳过。
-  const files = fs.readdirSync(DIST_DIR).filter((f) => f.endsWith('.map'))
+  const files = collectSourceMaps(DIST_DIR)
 
   if (files.length === 0) {
     // 无 sourcemap 视为可接受场景（例如关闭了 sourcemap 输出）。
@@ -120,11 +154,11 @@ async function main() {
 
   for (const file of files) {
     try {
-      await uploadSourceMap(path.join(DIST_DIR, file))
+      await uploadSourceMap(file)
       success++
     } catch (err) {
       // 单文件失败不立即中断：继续上传剩余文件，最后统一给出汇总结果。
-      console.error(`✗ Failed: ${file} - ${err.message}`)
+      console.error(`✗ Failed: ${toUploadFilename(file)} - ${err.message}`)
       failed++
     }
   }

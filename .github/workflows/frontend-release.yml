@@ -38,6 +38,21 @@ jobs:
 
       - name: Package frontend release
         run: bash scripts/release/frontend-package.sh
+        env:
+          VITE_APP_BUILD_ID: ${{ github.run_id }}
+          VITE_APP_RELEASE: ${{ env.RELEASE_ID }}
+          VITE_GIT_BRANCH: ${{ github.ref_name }}
+          VITE_GIT_COMMIT: ${{ github.sha }}
+          VITE_RELEASE_CHANNEL: production
+
+      - name: Upload release sourcemaps
+        if: ${{ secrets.SOURCEMAP_RESOLVER_ENDPOINT != '' }}
+        run: pnpm upload:sourcemaps
+        env:
+          DIST_DIR: ./dist/assets
+          SOURCEMAP_RESOLVER_ENDPOINT: ${{ secrets.SOURCEMAP_RESOLVER_ENDPOINT }}
+          SOURCEMAP_SERVICE_NAME: contract-frontend
+          SOURCEMAP_RELEASE: ${{ env.RELEASE_ID }}
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v4

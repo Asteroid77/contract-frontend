@@ -63,6 +63,7 @@ export default defineConfig(({ mode }) => {
     },
     build: isProduction
       ? {
+          sourcemap: 'hidden',
           minify: 'esbuild',
           esbuild: {
             drop: ['console', 'debugger'],
