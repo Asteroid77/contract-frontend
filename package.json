@@ -17,6 +17,7 @@
     "lint": "oxlint . && pnpm check:px",
     "lint:fix": "oxlint . --fix",
     "check:px": "node ./scripts/check-px-whitelist.mjs",
+    "check:security-origins": "node ./scripts/sync-frontend-security-origins.mjs --check",
     "check:unwrap": "node ./scripts/check-unwrap-allowlist.mjs",
     "format": "oxfmt --write src/",
     "format:check": "oxfmt --check src/",
