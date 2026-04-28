@@ -54,7 +54,7 @@ import { spawnSync } from 'node:child_process'
  *
  *   resolveBaseRef(baseRefArg)
  *     确定用于 diff 比较的基准 ref。优先使用用户显式传入的 baseRefArg；
- *     否则依次尝试追踪分支、origin/main、origin/master 等常见默认值。
+ *     否则依次尝试追踪分支、仓库主开发分支、远端默认分支等常见默认值。
  *
  *   getMergeBase(baseRef)
  *     计算当前 HEAD 与基准 ref 的最近公共祖先（merge-base），
@@ -228,16 +228,21 @@ const resolveBaseRef = (baseRefArg) => {
   const trackedRef = pickExistingRef(trackingRef)
   if (trackedRef) return trackedRef
 
-  // 第四优先级：远端默认分支符号引用（origin/HEAD -> origin/main/dev）。
+  // 第四优先级：仓库主开发分支。
+  // 当前仓库以 dev 为集成基线；本地 origin/HEAD 可能仍指向 master，
+  // 因此 dev 必须优先于 origin/HEAD，避免把 master..dev 历史差异混入检查窗口。
+  const developmentRef = pickExistingRef('origin/dev', 'dev')
+  if (developmentRef) return developmentRef
+
+  // 第五优先级：远端默认分支符号引用（origin/HEAD -> origin/main/master）。
   const originHead = runGit(['symbolic-ref', '--short', 'refs/remotes/origin/HEAD'], {
     allowFail: true,
   })
   const originHeadRef = pickExistingRef(originHead.trim())
   if (originHeadRef) return originHeadRef
 
-  // 第五优先级：硬编码兜底。
-  // 这里把 dev 放在前面，贴合当前仓库主开发分支。
-  const fallbackRefs = ['origin/dev', 'dev', 'origin/master', 'origin/main', 'master', 'main']
+  // 第六优先级：硬编码兜底。
+  const fallbackRefs = ['origin/master', 'origin/main', 'master', 'main']
   const fallbackRef = pickExistingRef(...fallbackRefs)
   if (fallbackRef) return fallbackRef
 
@@ -249,6 +254,8 @@ const resolveBaseRef = (baseRefArg) => {
     githubBaseRef,
     githubBaseRef ? `origin/${githubBaseRef}` : undefined,
     trackingRef,
+    'origin/dev',
+    'dev',
     originHead.trim(),
     ...fallbackRefs,
   ]

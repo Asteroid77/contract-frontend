@@ -53,8 +53,9 @@ Source of truth: yes
     1. CLI/`PX_BASE_REF`
     2. `GITHUB_BASE_REF`
     3. upstream
-    4. `origin/HEAD`
-    5. `origin/dev`, `dev`, `origin/master`, `origin/main`, `master`, `main`
+    4. `origin/dev`, `dev`
+    5. `origin/HEAD`
+    6. `origin/master`, `origin/main`, `master`, `main`
   - 全部失败时抛错并输出尝试过的 ref 列表。
 
 - `getMergeBase(baseRef)`
