@@ -3,9 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "engines": {
-    "node": "^24.0.0"
-  },
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
@@ -23,7 +20,8 @@
     "check": "run-p format:check lint type-check",
     "release": "standard-version",
     "backup": "git add . && git commit -m \"wip: temp backup $(date +%Y-%m-%d_%H:%M:%S)\" && git push nutstore HEAD:backup-branch --force && git reset HEAD~1",
-    "theme:gen": "ts-node --esm ./scripts/GenerateTheme.ts"
+    "theme:gen": "ts-node --esm ./scripts/GenerateTheme.ts",
+    "prepare": "simple-git-hooks"
   },
   "dependencies": {
     "@ant-design/colors": "^7.2.1",
@@ -87,10 +85,12 @@
     "async-validator": "^4.2.5",
     "jiti": "^2.5.1",
     "jsdom": "^26.1.0",
+    "lint-staged": "^16.4.0",
     "npm-run-all2": "^8.0.4",
     "oxfmt": "^0.42.0",
     "oxlint": "^1.57.0",
     "seemly": "^0.3.10",
+    "simple-git-hooks": "^2.13.1",
     "standard-version": "^9.5.0",
     "typescript": "~6.0.2",
     "vite": "^7.3.1",
@@ -98,5 +98,15 @@
     "vite-svg-loader": "^5.1.0",
     "vitest": "^3.2.4",
     "vue-tsc": "^3.2.6"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm exec lint-staged"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,vue,css,json}": "oxfmt --write",
+    "*.{ts,tsx,js,jsx}": "oxlint --fix"
+  },
+  "engines": {
+    "node": "^24.0.0"
   }
 }
