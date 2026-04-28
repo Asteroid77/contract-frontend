@@ -43,7 +43,6 @@ export function initOpenReplay(
   }
 
   if (config.enabled === false) {
-    console.log('[OpenReplay] Disabled')
     return null
   }
 
@@ -75,17 +74,12 @@ export function initOpenReplay(
   // 启动追踪
   tracker.start().then((sessionInfo) => {
     if (sessionInfo && 'sessionID' in sessionInfo && sessionInfo.sessionID) {
-      console.log('[OpenReplay] Session started:', sessionInfo.sessionID)
       // 存储 sessionId 供其他模块使用
       sessionStorage.setItem('openreplay_session_id', sessionInfo.sessionID)
     }
   })
 
   isInitialized = true
-  console.log('[OpenReplay] Initialized', {
-    projectKey: config.projectKey,
-    ingestPoint,
-  })
 
   return tracker
 }
@@ -168,6 +162,5 @@ export function stopOpenReplay(): void {
     sessionStorage.removeItem('openreplay_session_id')
     releaseTrustedWorkerScriptUrls?.()
     releaseTrustedWorkerScriptUrls = null
-    console.log('[OpenReplay] Stopped')
   }
 }

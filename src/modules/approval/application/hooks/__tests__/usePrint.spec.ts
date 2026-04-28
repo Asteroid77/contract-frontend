@@ -30,7 +30,7 @@ describe('usePrint', () => {
       style: '.mock-print-style{}',
       scanStyles: false,
     })
-    expect(logSpy).toHaveBeenCalledWith('print invoke file name', '审批文件')
+    expect(logSpy).not.toHaveBeenCalled()
   })
 
   it('uses custom element id when provided', () => {
@@ -44,10 +44,10 @@ describe('usePrint', () => {
         printable: 'custom-print-node',
       }),
     )
-    expect(logSpy).toHaveBeenCalledWith('print invoke file name', '自定义文件')
+    expect(logSpy).not.toHaveBeenCalled()
   })
 
-  it('logs undefined filename when no filename passed to hook', () => {
+  it('prints without requiring a filename', () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
     const { print } = usePrint()
@@ -58,6 +58,6 @@ describe('usePrint', () => {
         printable: 'node-id',
       }),
     )
-    expect(logSpy).toHaveBeenCalledWith('print invoke file name', undefined)
+    expect(logSpy).not.toHaveBeenCalled()
   })
 })

@@ -137,7 +137,6 @@ export default defineComponent({
       )
 
       const isSign = status === ServiceAgreementStatusEnum.Sign
-      console.log('props.compareData', props.compareData)
       const sectionTitleClass = clsx(
         `${props.compareData === undefined ? 'section-title' : 'sub-section-title'}`,
       )

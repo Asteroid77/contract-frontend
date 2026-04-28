@@ -19,6 +19,4 @@ export function setupCasl(app: App): void {
 
   // 2. 注册 v-can 指令
   app.directive('can', canDirective)
-
-  console.log('[CASL] Initialized successfully')
 }

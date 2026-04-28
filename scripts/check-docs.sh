@@ -48,6 +48,7 @@ obsolete_patterns=(
   "docs/commit-plan.md"
   "docs/design-contract.yaml"
   "docs/design-token-spec.yaml"
+  "docs/frontend-csp-rollout.md"
   "docs/layout-change-review-2026-02-25.md"
   "docs/module-test-coverage-audit.md"
   "docs/perf-playbook.md"

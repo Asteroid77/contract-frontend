@@ -32,7 +32,9 @@ describe('resolveAllowedAccessUrl', () => {
 
   it('rejects non-http protocols', () => {
     expect(resolveAllowedAccessUrl('javascript:alert(1)')).toBeNull()
-    expect(resolveAllowedAccessUrl('data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==')).toBeNull()
+    expect(
+      resolveAllowedAccessUrl('data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg=='),
+    ).toBeNull()
     expect(resolveAllowedAccessUrl('file:///tmp/test.pdf')).toBeNull()
   })
 

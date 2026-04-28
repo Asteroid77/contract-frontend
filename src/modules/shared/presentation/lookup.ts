@@ -42,8 +42,6 @@ export class SelectLookup {
     // 2. 尝试从 Map 获取
     const label = this.valueMap.get(value)
 
-    console.log(label, value)
-
     // 3. 如果找到了，返回 label
     if (label !== undefined) {
       return label

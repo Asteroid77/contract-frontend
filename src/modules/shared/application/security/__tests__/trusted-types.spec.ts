@@ -15,17 +15,11 @@ describe('trusted-types policy', () => {
   })
 
   it('falls back to plain strings when browser trustedTypes is unavailable', async () => {
-    const {
-      asSanitizedHtmlInput,
-      createTrustedHtmlFromSanitized,
-      getContractFrontendHtmlPolicy,
-    } =
+    const { asSanitizedHtmlInput, createTrustedHtmlFromSanitized, getContractFrontendHtmlPolicy } =
       await import('@/modules/shared/application/security/trusted-types')
 
     expect(getContractFrontendHtmlPolicy()).toBeNull()
-    expect(createTrustedHtmlFromSanitized(asSanitizedHtmlInput('<p>safe</p>'))).toBe(
-      '<p>safe</p>',
-    )
+    expect(createTrustedHtmlFromSanitized(asSanitizedHtmlInput('<p>safe</p>'))).toBe('<p>safe</p>')
   })
 
   it('creates the named policy once and reuses it', async () => {

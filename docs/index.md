@@ -24,6 +24,7 @@ Agent 入口：`../AGENTS.md`
   - `how-to/operations/clickhouse-internal-logs-sizing.md`
   - `how-to/operations/perf-playbook.md`
   - `how-to/operations/openreplay-setup.md`
+  - `how-to/operations/frontend-csp-rollout.md`
   - `how-to/operations/csp-rollout-template.md`
   - 当前 Trusted Types / CSP 落地计划归档参考：`plans/completed/2026-04-21-trusted-types-rollout.md`
   - Markdown DOMPurify / Trusted Types 标准化归档参考：`plans/completed/2026-04-24-markdown-trusted-types-standardization-plan.md`

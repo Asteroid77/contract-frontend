@@ -99,6 +99,7 @@ import { spawnSync } from 'node:child_process'
 
 const FILE_PATTERNS = ['*.ts', '*.tsx', '*.vue', '*.css', '*.scss']
 const PX_PATTERN = /(\d+(?:\.\d+)?)px\b/g
+const GIT_OUTPUT_MAX_BUFFER = 64 * 1024 * 1024
 
 const CONTRACT_PATH = resolve(process.cwd(), 'docs/reference/api/design-contract.yaml')
 
@@ -135,13 +136,14 @@ const runGit = (args, { allowFail = false } = {}) => {
   const result = spawnSync('git', args, {
     cwd: process.cwd(),
     encoding: 'utf8',
+    maxBuffer: GIT_OUTPUT_MAX_BUFFER,
   })
 
   // 默认策略：失败即抛错。
   // allowFail=true 用于“探测性命令”（例如 upstream 可能不存在）。
   // 这类命令失败并不一定代表脚本无法继续，可以交给上层走 fallback。
   if (result.status !== 0 && !allowFail) {
-    const stderr = result.stderr?.trim() || 'Unknown git error'
+    const stderr = result.stderr?.trim() || result.error?.message || 'Unknown git error'
     throw new Error(stderr)
   }
 
@@ -275,7 +277,7 @@ const getMergeBase = (baseRef) => {
 
 // 根据模式收集 diff 文本：工作区增量或分支与基线差异。
 const getDiffText = (mode, baseRefArg) => {
-  if (mode === 'working-tree') {
+  const getWorkingTreeDiffText = () => {
     // working-tree 模式只看“当前本地改动”，适合开发者本地自检。
     // --diff-filter=AM: 仅检查新增/修改文件，忽略删除文件。
     // --unified=0: 不携带上下文行，减少后续解析复杂度与文本体积。
@@ -300,35 +302,41 @@ const getDiffText = (mode, baseRefArg) => {
     return { diffText: `${unstaged}\n${staged}`, resolvedMode: 'working-tree', baseRef: null }
   }
 
-  // branch / auto 都需要先解析基线并计算 merge-base。
-  const baseRef = resolveBaseRef(baseRefArg)
-  const mergeBase = getMergeBase(baseRef)
-  // 分支比较窗口：mergeBase...HEAD（三点语法）。
-  // 只拿“当前分支相对基线新增的改动”，避免把基线已有改动混进来。
-  const branchDiff = runGit([
-    'diff',
-    '--no-color',
-    '--unified=0',
-    '--diff-filter=AM',
-    `${mergeBase}...HEAD`,
-    '--',
-    ...FILE_PATTERNS,
-  ])
+  const getBranchDiffText = () => {
+    const baseRef = resolveBaseRef(baseRefArg)
+    const mergeBase = getMergeBase(baseRef)
+    // 分支比较窗口：mergeBase...HEAD（三点语法）。
+    // 只拿“当前分支相对基线新增的改动”，避免把基线已有改动混进来。
+    const branchDiff = runGit([
+      'diff',
+      '--no-color',
+      '--unified=0',
+      '--diff-filter=AM',
+      `${mergeBase}...HEAD`,
+      '--',
+      ...FILE_PATTERNS,
+    ])
+
+    return { diffText: branchDiff, resolvedMode: 'branch', baseRef }
+  }
+
+  if (mode === 'working-tree') {
+    return getWorkingTreeDiffText()
+  }
 
   if (mode === 'branch') {
-    return { diffText: branchDiff, resolvedMode: 'branch', baseRef }
+    return getBranchDiffText()
   }
 
   // auto 模式：
   // - 无本地改动时，用 branch 结果（更贴近 CI）
   // - 有本地改动时，切回 working-tree（更贴近开发者当前编辑状态）
   const useWorkingTree = hasWorkingTreeChanges()
-  if (!useWorkingTree) {
-    return { diffText: branchDiff, resolvedMode: 'branch', baseRef }
+  if (useWorkingTree) {
+    return getWorkingTreeDiffText()
   }
 
-  const workingTree = getDiffText('working-tree', baseRefArg)
-  return { ...workingTree, resolvedMode: 'working-tree', baseRef }
+  return getBranchDiffText()
 }
 
 // 从设计token读取并构建允许的 px 白名单集合。

@@ -40,7 +40,6 @@ export function initTracer(config: ObservabilityConfig): void {
   }
 
   if (!config.enabled) {
-    console.log('[OTEL] Tracing disabled')
     return
   }
 
@@ -90,10 +89,6 @@ export function initTracer(config: ObservabilityConfig): void {
   })
 
   isInitialized = true
-  console.log('[OTEL] Tracer initialized', {
-    serviceName: config.serviceName,
-    endpoint: config.otelTracesEndpoint,
-  })
 }
 
 /**
@@ -183,6 +178,5 @@ export async function shutdownTracer(): Promise<void> {
     await provider.shutdown()
     isInitialized = false
     provider = null
-    console.log('[OTEL] Tracer shutdown')
   }
 }

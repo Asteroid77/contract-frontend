@@ -57,7 +57,6 @@ export default defineComponent({
     const handleValidate = async () => {
       return new Promise((resolve) => {
         formRef.value?.validate((errors) => {
-          console.log('errors', errors)
           if (errors && errors.length) {
             validationErrors.value = errors as ValidateError[][]
             resolve(false)

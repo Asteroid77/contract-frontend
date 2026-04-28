@@ -103,12 +103,6 @@ export function initObservability(app: App, options: InitOptions = {}): void {
     `${window.location.origin}/observability/frontend`
   config.sourcemapResolverEndpoint = resolveEndpoint(config.sourcemapResolverEndpoint)
 
-  console.log('[Observability] Initializing...', {
-    serviceName: config.serviceName,
-    environment: config.environment,
-    enabled: config.enabled,
-  })
-
   // 1. 初始化统一 logger
   initLogger(config)
 
@@ -133,7 +127,6 @@ export function initObservability(app: App, options: InitOptions = {}): void {
   securityPolicyCollector.init(config)
 
   isInitialized = true
-  console.log('[Observability] Initialized successfully')
 }
 
 /**
@@ -148,7 +141,6 @@ export async function shutdownObservability(): Promise<void> {
   await shutdownTracer()
 
   isInitialized = false
-  console.log('[Observability] Shutdown complete')
 }
 
 /**

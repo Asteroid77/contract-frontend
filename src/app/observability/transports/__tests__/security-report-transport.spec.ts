@@ -7,6 +7,7 @@ const baseConfig: ObservabilityConfig = {
   serviceVersion: '1.0.0',
   serviceRelease: 'release-a',
   environment: 'development',
+  otelTracesEndpoint: 'https://otel.example.com',
   otelEndpoint: 'https://otel.example.com',
   frontendObservabilityEndpoint: 'https://frontend-observability.example.com',
   enabled: false,
