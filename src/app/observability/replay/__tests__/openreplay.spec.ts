@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { trackerMock, trackerCtor } = vi.hoisted(() => {
+const { trackerMock, trackerCtor, workerCtor, createObjectURLMock } = vi.hoisted(() => {
   const tracker = {
     start: vi.fn(() => Promise.resolve({ sessionID: 'session-abc' })),
     getSessionID: vi.fn(() => 'session-live'),
@@ -12,11 +12,28 @@ const { trackerMock, trackerCtor } = vi.hoisted(() => {
     stop: vi.fn(),
   }
 
-  const ctor = vi.fn(() => tracker)
+  const worker = vi.fn(function WorkerMock(_scriptURL?: string | URL, _options?: WorkerOptions) {
+    return {
+      postMessage: vi.fn(),
+      terminate: vi.fn(),
+    }
+  })
+  const createObjectURL = vi.fn(
+    (_object: Blob | MediaSource) => 'blob:https://example.test/openreplay-worker',
+  )
+  const ctor = vi.fn(() => {
+    const workerUrl = createObjectURL(
+      new Blob(['self.onmessage = () => {}'], { type: 'text/javascript' }),
+    )
+    new globalThis.Worker(workerUrl)
+    return tracker
+  })
 
   return {
     trackerMock: tracker,
     trackerCtor: ctor,
+    workerCtor: worker,
+    createObjectURLMock: createObjectURL,
   }
 })
 
@@ -37,15 +54,43 @@ import {
 } from '@/app/observability/replay/openreplay'
 
 describe('openreplay', () => {
+  const originalCreateObjectURL = URL.createObjectURL
+  const originalWorker = globalThis.Worker
+
   beforeEach(() => {
     vi.clearAllMocks()
     sessionStorage.clear()
     stopOpenReplay()
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      writable: true,
+      value: createObjectURLMock,
+    })
+    Object.defineProperty(globalThis, 'Worker', {
+      configurable: true,
+      writable: true,
+      value: workerCtor,
+    })
   })
 
   afterEach(() => {
     stopOpenReplay()
     sessionStorage.clear()
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      writable: true,
+      value: originalCreateObjectURL,
+    })
+    if (originalWorker) {
+      Object.defineProperty(globalThis, 'Worker', {
+        configurable: true,
+        writable: true,
+        value: originalWorker,
+      })
+    } else {
+      Reflect.deleteProperty(globalThis, 'Worker')
+    }
+    Reflect.deleteProperty(window as Window & { trustedTypes?: unknown }, 'trustedTypes')
   })
 
   it('returns null and does not initialize when disabled', () => {
@@ -84,6 +129,109 @@ describe('openreplay', () => {
     expect(warnSpy).toHaveBeenCalledWith('[OpenReplay] Already initialized')
 
     warnSpy.mockRestore()
+    logSpy.mockRestore()
+  })
+
+  it('resolves same-origin relative ingest points before constructing tracker', () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    initOpenReplay({
+      projectKey: 'pk',
+      ingestPoint: '/observability/frontend/replay',
+      enabled: true,
+    })
+
+    expect(trackerCtor).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ingestPoint: `${window.location.origin}/observability/frontend/replay`,
+      }),
+    )
+
+    logSpy.mockRestore()
+  })
+
+  it('defaults ingest point to same-origin replay path when not configured', () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    initOpenReplay({
+      projectKey: 'pk',
+      enabled: true,
+    })
+
+    expect(trackerCtor).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ingestPoint: `${window.location.origin}/observability/frontend/replay`,
+      }),
+    )
+
+    logSpy.mockRestore()
+  })
+
+  it('wraps OpenReplay worker blob URLs with Trusted Types when supported', () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const createScriptURLSpy = vi.fn((input: string) => `trusted:${input}`)
+    const createPolicySpy = vi.fn(() => ({
+      createHTML: (input: string) => input,
+      createScriptURL: createScriptURLSpy,
+    }))
+
+    Object.defineProperty(window, 'trustedTypes', {
+      configurable: true,
+      value: {
+        createPolicy: createPolicySpy,
+      },
+    })
+
+    initOpenReplay({
+      projectKey: 'pk',
+      enabled: true,
+    })
+
+    expect(createPolicySpy).toHaveBeenCalledTimes(1)
+    expect(createScriptURLSpy).toHaveBeenCalledWith('blob:https://example.test/openreplay-worker')
+    expect(workerCtor).toHaveBeenCalledWith(
+      'trusted:blob:https://example.test/openreplay-worker',
+      undefined,
+    )
+
+    logSpy.mockRestore()
+  })
+
+  it('keeps wrapping blob worker URLs created after tracker construction', () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const createScriptURLSpy = vi.fn((input: string) => `trusted:${input}`)
+    const createPolicySpy = vi.fn(() => ({
+      createHTML: (input: string) => input,
+      createScriptURL: createScriptURLSpy,
+    }))
+
+    Object.defineProperty(window, 'trustedTypes', {
+      configurable: true,
+      value: {
+        createPolicy: createPolicySpy,
+      },
+    })
+
+    trackerCtor.mockImplementationOnce(() => trackerMock)
+    trackerMock.start.mockImplementationOnce(() => {
+      const workerUrl = createObjectURLMock(
+        new Blob(['self.onmessage = () => {}'], { type: 'text/javascript' }),
+      )
+      new globalThis.Worker(workerUrl)
+      return Promise.resolve({ sessionID: 'session-abc' })
+    })
+
+    initOpenReplay({
+      projectKey: 'pk',
+      enabled: true,
+    })
+
+    expect(createScriptURLSpy).toHaveBeenCalledWith('blob:https://example.test/openreplay-worker')
+    expect(workerCtor).toHaveBeenCalledWith(
+      'trusted:blob:https://example.test/openreplay-worker',
+      undefined,
+    )
+
     logSpy.mockRestore()
   })
 

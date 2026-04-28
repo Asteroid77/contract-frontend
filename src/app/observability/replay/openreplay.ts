@@ -2,10 +2,13 @@
  * OpenReplay Session Replay 集成
  */
 import Tracker from '@openreplay/tracker'
+import { installTrustedTypesWorkerConstructors } from '@/modules/shared/application/security/trusted-types'
 import type { ObservabilityConfig } from '../types'
+import { resolveEndpoint } from '../utils/resolve-endpoint'
 
 let tracker: Tracker | null = null
 let isInitialized = false
+let releaseTrustedWorkerScriptUrls: (() => void) | null = null
 
 export interface OpenReplayConfig {
   /** OpenReplay 项目 Key */
@@ -44,20 +47,30 @@ export function initOpenReplay(
     return null
   }
 
-  tracker = new Tracker({
-    projectKey: config.projectKey,
-    ingestPoint: config.ingestPoint,
-    __DISABLE_SECURE_MODE: import.meta.env.DEV, // 开发环境允许 HTTP
-    network: {
-      capturePayload: true, // 捕获请求/响应体
-      failuresOnly: false,
-      sessionTokenHeader: 'X-OpenReplay-SessionToken',
-      ignoreHeaders: ['Authorization', 'Cookie'], // 隐私保护
-      captureInIframes: false,
-    },
-    obscureTextEmails: config.privacy?.obscureTextEmails ?? true,
-    obscureTextNumbers: config.privacy?.obscureTextNumbers ?? false,
-  })
+  const ingestPoint = resolveEndpoint(config.ingestPoint || '/observability/frontend/replay')
+
+  releaseTrustedWorkerScriptUrls = installTrustedTypesWorkerConstructors()
+
+  try {
+    tracker = new Tracker({
+      projectKey: config.projectKey,
+      ingestPoint,
+      __DISABLE_SECURE_MODE: import.meta.env.DEV, // 开发环境允许 HTTP
+      network: {
+        capturePayload: true, // 捕获请求/响应体
+        failuresOnly: false,
+        sessionTokenHeader: 'X-OpenReplay-SessionToken',
+        ignoreHeaders: ['Authorization', 'Cookie'], // 隐私保护
+        captureInIframes: false,
+      },
+      obscureTextEmails: config.privacy?.obscureTextEmails ?? true,
+      obscureTextNumbers: config.privacy?.obscureTextNumbers ?? false,
+    })
+  } catch (error) {
+    releaseTrustedWorkerScriptUrls?.()
+    releaseTrustedWorkerScriptUrls = null
+    throw error
+  }
 
   // 启动追踪
   tracker.start().then((sessionInfo) => {
@@ -71,7 +84,7 @@ export function initOpenReplay(
   isInitialized = true
   console.log('[OpenReplay] Initialized', {
     projectKey: config.projectKey,
-    ingestPoint: config.ingestPoint,
+    ingestPoint,
   })
 
   return tracker
@@ -153,6 +166,8 @@ export function stopOpenReplay(): void {
     tracker = null
     isInitialized = false
     sessionStorage.removeItem('openreplay_session_id')
+    releaseTrustedWorkerScriptUrls?.()
+    releaseTrustedWorkerScriptUrls = null
     console.log('[OpenReplay] Stopped')
   }
 }
