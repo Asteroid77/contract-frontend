@@ -29,6 +29,12 @@ export type Action =
   | 'approve' // 审批
   | 'reject' // 拒绝
   | 'assign' // 分配
+  | 'claim' // 领取
+  | 'handle' // 处理
+  | 'record' // 记录
+  | 'submit' // 提交
+  | 'upload' // 上传
+  | 'duplicate-check' // 重复校验
   | 'export' // 导出
   | 'import' // 导入
 
@@ -38,13 +44,21 @@ export type Action =
  */
 export type Subject =
   | 'User' // 用户管理
+  | 'UserRole' // 用户角色关联
   | 'Role' // 角色管理
   | 'Permission' // 权限管理
   | 'Contract' // 合同
   | 'Approval' // 审批
+  | 'ApprovalInstance' // 审批实例
+  | 'ApprovalHistory' // 审批历史
   | 'ApprovalTask' // 审批任务
   | 'Business' // 业务
   | 'Dashboard' // 仪表盘
+  | 'AgentDashboard' // 代理看板
+  | 'AgentDashboardGlobal' // 代理看板全局权限
+  | 'ServiceAgreement' // 售电协议
+  | 'ServiceAgreementFile' // 售电协议附件
+  | 'ServiceAgreementAttachments' // 售电协议附件预览
   | 'WorkOrder' // 工单
   | 'WorkOrderCategory' // 工单分类
   | 'all' // 所有资源
@@ -121,28 +135,33 @@ export function defineAbilityFor(permissions: Permission[], roles: RoleVo[]): Ap
  * - "create:user" -> { action: 'create', subject: 'User' }
  * - "contract:*" -> { action: 'manage', subject: 'Contract' }
  * - "view:user" -> { action: 'read', subject: 'User' }
+ * - "page:user" -> { action: 'read', subject: 'User' }
  * - "edit:user" -> { action: 'update', subject: 'User' }
  * - "disabled:user" -> { action: 'delete', subject: 'User' }
- * - "list:user" -> { action: 'read', subject: 'User' }
+ * - "claim:approval-task" -> { action: 'claim', subject: 'ApprovalTask' }
+ * - "view:agent-dashboard:global" -> { action: 'read', subject: 'AgentDashboardGlobal' }
  *
  * @param permissionName 权限名称
  */
 function parsePermission(permissionName: string): { action: Action; subject: Subject } | null {
-  const parts = permissionName.split(':')
-  if (parts.length !== 2) {
+  const parts = permissionName
+    .split(':')
+    .map((part) => part.trim())
+    .filter(Boolean)
+
+  if (parts.length < 2) {
     console.warn(`[CASL] Invalid permission format: ${permissionName}`)
     return null
   }
 
-  const [left, right] = parts
-  const direct = parsePermissionPair(left, right)
-  if (direct) {
-    return direct
+  const subjectFirst = parsePermissionPair(parts.slice(0, -1).join(':'), parts[parts.length - 1]!)
+  if (subjectFirst) {
+    return subjectFirst
   }
 
-  const reversed = parsePermissionPair(right, left)
-  if (reversed) {
-    return reversed
+  const actionFirst = parsePermissionPair(parts.slice(1).join(':'), parts[0]!)
+  if (actionFirst) {
+    return actionFirst
   }
 
   console.warn(`[CASL] Invalid permission value: ${permissionName}`)
@@ -179,12 +198,15 @@ function capitalizeFirstLetter(str: string): string {
 
 /**
  * 权限别名映射
- * - 兼容后端常见命名：view/edit/disabled/list
+ * - 兼容后端已提交的动作权限字典
+ * - 保持现有前端 `read/update/delete` 语义不变
  */
 const ACTION_ALIAS_MAP: Record<string, Action> = {
   '*': 'manage',
   view: 'read',
+  page: 'read',
   list: 'read',
+  preview: 'read',
   edit: 'update',
   disabled: 'delete',
   disable: 'delete',
@@ -192,15 +214,23 @@ const ACTION_ALIAS_MAP: Record<string, Action> = {
 
 const SUBJECT_ALIAS_MAP: Record<string, Subject> = {
   user: 'User',
+  'user-role': 'UserRole',
   role: 'Role',
   permission: 'Permission',
   contract: 'Contract',
   approval: 'Approval',
+  'approval-instance': 'ApprovalInstance',
+  'approval-history': 'ApprovalHistory',
   approvaltask: 'ApprovalTask',
   approval_task: 'ApprovalTask',
   'approval-task': 'ApprovalTask',
   business: 'Business',
   dashboard: 'Dashboard',
+  'agent-dashboard': 'AgentDashboard',
+  'agent-dashboard:global': 'AgentDashboardGlobal',
+  'service-agreement': 'ServiceAgreement',
+  'service-agreement-file': 'ServiceAgreementFile',
+  'service-agreement-attachments': 'ServiceAgreementAttachments',
   workorder: 'WorkOrder',
   work_order: 'WorkOrder',
   'work-order': 'WorkOrder',
@@ -249,13 +279,21 @@ function parsePermissionPair(
 function isValidSubject(subject: string): subject is Subject {
   const validSubjects: Subject[] = [
     'User',
+    'UserRole',
     'Role',
     'Permission',
     'Contract',
     'Approval',
+    'ApprovalInstance',
+    'ApprovalHistory',
     'ApprovalTask',
     'Business',
     'Dashboard',
+    'AgentDashboard',
+    'AgentDashboardGlobal',
+    'ServiceAgreement',
+    'ServiceAgreementFile',
+    'ServiceAgreementAttachments',
     'WorkOrder',
     'WorkOrderCategory',
     'all',
@@ -276,6 +314,12 @@ function isValidAction(action: string): action is Action {
     'approve',
     'reject',
     'assign',
+    'claim',
+    'handle',
+    'record',
+    'submit',
+    'upload',
+    'duplicate-check',
     'export',
     'import',
   ]
