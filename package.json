@@ -17,10 +17,11 @@
     "lint": "oxlint . && pnpm check:px",
     "lint:fix": "oxlint . --fix",
     "check:px": "node ./scripts/check-px-whitelist.mjs",
+    "check:generated": "node ./scripts/check-generated-assets.mjs",
     "check:unwrap": "node ./scripts/check-unwrap-allowlist.mjs",
     "format": "oxfmt --write src/",
     "format:check": "oxfmt --check src/",
-    "check": "run-p format:check lint type-check",
+    "check": "run-p format:check lint type-check check:generated",
     "release": "standard-version",
     "backup": "git add . && git commit -m \"wip: temp backup $(date +%Y-%m-%d_%H:%M:%S)\" && git push nutstore HEAD:backup-branch --force && git reset HEAD~1",
     "theme:gen": "ts-node --esm ./scripts/GenerateTheme.ts"

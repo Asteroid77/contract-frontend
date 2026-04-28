@@ -1,0 +1,7 @@
+{
+  "name": "theme-css",
+  "hash": "sha256-33cbf20cca5f2eb45babcc09ba1263e3950f1f1e62641fcde7fe3e8551630ea4",
+  "sources": ["src/app/presentation/theme/ThemeToken.ts"],
+  "output": "src/app/presentation/theme/styles/generated-theme.css",
+  "generatedAt": "2026-04-28T03:18:44.759Z"
+}
