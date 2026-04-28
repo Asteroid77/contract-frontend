@@ -7,6 +7,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import { execSync } from 'child_process'
 import tailwindcss from '@tailwindcss/vite'
 import { themeGeneratorPlugin } from './vite-plugin/ThemeGeneratorVitePlugin.js'
+import { trustedTypesDevClientPlugin } from './vite-plugin/TrustedTypesDevClientPlugin'
 import svgLoader from 'vite-svg-loader'
 
 // 构建时获取当前git info
@@ -67,7 +68,15 @@ export default defineConfig(({ mode }) => {
           },
         }
       : undefined,
-    plugins: [vue(), vueJsx(), svgLoader(), vueDevTools(), tailwindcss(), themeGeneratorPlugin()],
+    plugins: [
+      vue(),
+      vueJsx(),
+      svgLoader(),
+      vueDevTools(),
+      tailwindcss(),
+      themeGeneratorPlugin(),
+      trustedTypesDevClientPlugin(),
+    ],
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
