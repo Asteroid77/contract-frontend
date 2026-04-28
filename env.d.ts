@@ -59,4 +59,14 @@ interface Window {
   $message?: {
     success: (message: string) => void
   }
+  trustedTypes?: {
+    createPolicy: (
+      name: string,
+      rules: {
+        createHTML: (input: string) => string
+      },
+    ) => {
+      createHTML: (input: string) => string
+    }
+  }
 }
