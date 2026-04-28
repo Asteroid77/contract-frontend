@@ -86,7 +86,7 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
         '@protobufjs/inquire': fileURLToPath(
-          new URL('./src/app/observability/otel/protobufjs-inquire-browser.ts', import.meta.url),
+          new URL('./src/app/observability/otel/protobufjs-inquire-browser.cjs', import.meta.url),
         ),
       },
     },
