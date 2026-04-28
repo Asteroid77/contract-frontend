@@ -50,7 +50,7 @@ const treeData: TreeItem[] = [
 
 describe('shared/presentation/utils', () => {
   beforeEach(() => {
-    document.head.innerHTML = ''
+    document.head.replaceChildren()
     vi.restoreAllMocks()
   })
 
