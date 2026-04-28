@@ -1,3 +1,65 @@
+const PRINT_WINDOW_FEATURES = 'width=1000,height=800,left=200,top=100'
+
+const BASE_PRINT_STYLES = `
+  body {
+    margin: 0;
+    padding: var(--spacing-24, 1.5rem);
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+`
+
+const createBaseDocumentStructure = (doc: Document, title: string) => {
+  doc.documentElement.lang = 'zh-CN'
+
+  const titleElement = doc.createElement('title')
+  titleElement.textContent = title
+
+  const charsetMeta = doc.createElement('meta')
+  charsetMeta.setAttribute('charset', 'utf-8')
+
+  const viewportMeta = doc.createElement('meta')
+  viewportMeta.setAttribute('name', 'viewport')
+  viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0')
+
+  const style = doc.createElement('style')
+  style.textContent = BASE_PRINT_STYLES
+
+  const wrapper = doc.createElement('div')
+  wrapper.id = 'print-wrapper'
+
+  doc.head.replaceChildren(titleElement, charsetMeta, viewportMeta, style)
+  doc.body.replaceChildren(wrapper)
+
+  return wrapper
+}
+
+const copyPrintStyles = (doc: Document) => {
+  const styles = document.querySelectorAll('style, link[rel="stylesheet"]')
+  styles.forEach((node) => {
+    const clonedNode = node.cloneNode(true)
+    doc.head.appendChild(clonedNode)
+  })
+
+  doc.querySelectorAll('link[rel="stylesheet"]').forEach((node) => {
+    if (!(node instanceof HTMLLinkElement)) {
+      return
+    }
+
+    const href = node.getAttribute('href')
+    if (!href || href.startsWith('http')) {
+      return
+    }
+
+    node.href = new URL(href, window.location.origin).href
+  })
+}
+
 /**
  * 打印指定的 DOM 元素
  * @param elementId 要打印的容器 ID
@@ -12,60 +74,19 @@ export function printElement(elementId: string, options?: { title?: string }) {
   }
 
   // 2. 创建新窗口 (宽高设大一点，避免布局错乱)
-  const printWin = window.open('', '_blank', 'width=1000,height=800,left=200,top=100')
+  const printWin = window.open('', '_blank', PRINT_WINDOW_FEATURES)
   if (!printWin) {
     console.error('Print Error: Popup blocked')
     return
   }
 
   const doc = printWin.document
-
-  // 3. 写入基础 HTML 结构
-  doc.open()
-  doc.write(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>${options?.title || 'Print'}</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-          /* 基础打印修正 */
-          body {
-            margin: 0;
-            padding: 20px;
-            background: #fff;
-            -webkit-print-color-adjust: exact; /* 强制打印背景色 */
-            print-color-adjust: exact;
-          }
-          /* 隐藏打印窗口中的滚动条 */
-          ::-webkit-scrollbar { display: none; }
-        </style>
-      </head>
-      <body>
-        <div id="print-wrapper">
-          ${targetEl.outerHTML} <!-- 插入目标 HTML -->
-        </div>
-      </body>
-    </html>
-  `)
+  const wrapper = createBaseDocumentStructure(doc, options?.title || 'Print')
+  wrapper.appendChild(targetEl.cloneNode(true))
 
   // 4. 【核心】克隆当前页面的所有样式
   // 这会把 Vue 组件拆分的 CSS、NaiveUI 的 CSS、Tailwind 等全部拷过去
-  const styles = document.querySelectorAll('style, link[rel="stylesheet"]')
-  styles.forEach((node) => {
-    // 使用 cloneNode(true) 深拷贝
-    doc.head.appendChild(node.cloneNode(true))
-  })
-
-  // 确保 link 标签的 href 是绝对路径 (防止相对路径在新窗口失效)
-  doc.querySelectorAll('link').forEach((link) => {
-    if (link.href && !link.href.startsWith('http')) {
-      link.href = new URL(link.getAttribute('href') || '', window.location.origin).href
-    }
-  })
-
-  doc.close()
+  copyPrintStyles(doc)
 
   // 5. 等待资源加载完成后打印
   // 很多时候 CSS 加载需要一点点时间，如果是图片较多，最好用 onload
