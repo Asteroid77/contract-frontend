@@ -34,10 +34,10 @@ work-order/
 │   └── category-repository.ts      # 分类 CRUD API 调用
 │
 └── presentation/           # 展示层
-    ├── WorkOrderListPage.vue       # 工单列表页
-    ├── WorkOrderDetailPage.vue     # 工单详情页
-    ├── WorkOrderCreateModal.vue    # 创建工单弹窗
-    ├── WorkOrderScoreSection.vue   # 评分区块
+    ├── WorkOrderListPage.tsx       # 工单列表页
+    ├── WorkOrderDetailPage.tsx     # 工单详情页
+    ├── WorkOrderCreateModal.tsx    # 创建工单弹窗
+    ├── WorkOrderScoreSection.tsx   # 评分区块
     ├── WorkOrderStatusBadge.tsx    # 状态徽章组件
     └── WorkOrderCategorySelect.tsx # 分类选择器组件
 ```
