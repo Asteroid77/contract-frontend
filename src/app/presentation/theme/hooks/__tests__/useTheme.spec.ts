@@ -63,8 +63,16 @@ describe('useTheme', () => {
   })
 
   it('bridges design-system tokens into Naive UI component overrides', async () => {
-    const { colorTokens, componentSizeTokens, semanticColorTokens, typographyTokens } =
-      await import('@/app/presentation/theme/ThemeToken')
+    const {
+      borderTokens,
+      colorTokens,
+      componentSizeTokens,
+      elevationTokens,
+      motionTokens,
+      opacityTokens,
+      semanticColorTokens,
+      typographyTokens,
+    } = await import('@/app/presentation/theme/ThemeToken')
     const { createThemeBridge } = await import('@/app/presentation/theme/hooks/useTheme')
 
     const bridge = createThemeBridge(colorTokens.light)
@@ -72,6 +80,11 @@ describe('useTheme', () => {
     expect(bridge.common?.fontSize).toBe(typographyTokens['font/size/body'])
     expect(bridge.common?.fontSizeMedium).toBe(typographyTokens['font/size/body'])
     expect(bridge.common?.heightMedium).toBe(componentSizeTokens['component/control/height/medium'])
+    expect(bridge.common?.opacityDisabled).toBe(opacityTokens['opacity/disabled'])
+    expect(bridge.common?.boxShadow1).toBe(elevationTokens['elevation/card'])
+    expect(bridge.common?.boxShadow2).toBe(elevationTokens['elevation/popover'])
+    expect(bridge.common?.boxShadow3).toBe(elevationTokens['elevation/modal'])
+    expect(bridge.common?.cubicBezierEaseInOut).toBe(motionTokens['motion/easing/standard'])
     expect(bridge.common?.successColor).toBe(
       semanticColorTokens.light['color/status/approved/text'],
     )
@@ -95,6 +108,13 @@ describe('useTheme', () => {
     )
     expect(bridge.Pagination?.itemColorActive).toBe(
       semanticColorTokens.light['color/interaction/selected'],
+    )
+    expect(bridge.Card?.boxShadow).toBe(elevationTokens['elevation/card'])
+    expect(bridge.Modal?.boxShadow).toBe(elevationTokens['elevation/modal'])
+    expect(bridge.Popover?.boxShadow).toBe(elevationTokens['elevation/popover'])
+    expect(bridge.Spin?.opacitySpinning).toBe(opacityTokens['opacity/loading'])
+    expect(bridge.Select?.peers?.InternalSelection?.border).toBe(
+      `${borderTokens['border/width/default']} ${borderTokens['border/style/default']} ${colorTokens.light.border}`,
     )
   })
 })

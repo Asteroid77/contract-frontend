@@ -2,8 +2,13 @@ import { resolve } from 'node:path'
 import type { ViteDevServer } from 'vite'
 
 import {
+  borderTokens,
   componentSizeTokens,
   commonTokens,
+  elevationTokens,
+  layerTokens,
+  motionTokens,
+  opacityTokens,
   primitiveColorTokens,
   semanticColorTokens,
   spacingScaleTokens,
@@ -73,6 +78,11 @@ export function generateThemeCss() {
   appendCssVars(lines, spacingScaleTokens)
   appendCssVars(lines, typographyTokens)
   appendCssVars(lines, componentSizeTokens)
+  appendCssVars(lines, motionTokens)
+  appendCssVars(lines, layerTokens)
+  appendCssVars(lines, opacityTokens)
+  appendCssVars(lines, elevationTokens)
+  appendCssVars(lines, borderTokens)
   appendCssVars(lines, primitiveColorTokens, 'color-primitive-')
   appendCssVars(lines, semanticColorTokens.light)
   lines.push('  --color-primary: var(--color-primary-default);')

@@ -2,9 +2,13 @@ import { $t } from '@/_utils/i18n'
 import { useStorage } from '@vueuse/core'
 import { computed, watchEffect } from 'vue'
 import {
+  borderTokens,
   commonTokens,
   colorTokens,
   componentSizeTokens,
+  elevationTokens,
+  motionTokens,
+  opacityTokens,
   semanticColorTokens,
   type ColorTokens,
   type SemanticColorTokenKey,
@@ -24,6 +28,13 @@ export const themes: ThemeOption[] = [
   { key: 'dark', label: $t('layout.theme.dark') },
   { key: 'sakura', label: $t('layout.theme.sakura') },
 ]
+
+const createBorder = (color: string) =>
+  `${borderTokens['border/width/default']} ${borderTokens['border/style/default']} ${color}`
+
+const createFocusRing = (color: string) =>
+  `0 0 0 ${borderTokens['border/focus-ring-width']} ${color}33`
+
 export const createThemeBridge = (
   colors: ColorTokens,
   semanticColors: Record<SemanticColorTokenKey, string> = semanticColorTokens.light,
@@ -90,6 +101,13 @@ export const createThemeBridge = (
     heightSmall: componentSizeTokens['component/control/height/small'],
     heightMedium: componentSizeTokens['component/control/height/medium'],
     heightLarge: componentSizeTokens['component/control/height/large'],
+    opacityDisabled: opacityTokens['opacity/disabled'],
+    boxShadow1: elevationTokens['elevation/card'],
+    boxShadow2: elevationTokens['elevation/popover'],
+    boxShadow3: elevationTokens['elevation/modal'],
+    cubicBezierEaseInOut: motionTokens['motion/easing/standard'],
+    cubicBezierEaseOut: motionTokens['motion/easing/enter'],
+    cubicBezierEaseIn: motionTokens['motion/easing/exit'],
   },
 
   // --- 组件特定覆盖 ---
@@ -97,6 +115,7 @@ export const createThemeBridge = (
   Card: {
     borderRadius: commonTokens.radiusLg, // 卡片使用大圆角
     paddingMedium: commonTokens.paddingCard, // 统一卡片内边距
+    boxShadow: elevationTokens['elevation/card'],
   },
 
   // 弹窗 (Dialog) 应该和 Card 保持一致的设计语言
@@ -111,6 +130,7 @@ export const createThemeBridge = (
     borderRadiusSmall: commonTokens.radiusSm,
     // 按钮文字粗细，高级灰风格通常用 500
     fontWeight: '500',
+    opacityDisabled: opacityTokens['opacity/disabled'],
   },
 
   Layout: {
@@ -193,23 +213,23 @@ export const createThemeBridge = (
     fontWeightStrong: typographyTokens['font/weight/medium'],
     textColor: semanticColors['color/status/draft/text'],
     color: semanticColors['color/status/draft/background'],
-    border: `1px solid ${semanticColors['color/status/draft/border']}`,
+    border: createBorder(semanticColors['color/status/draft/border']),
     textColorInfo: colors.link,
     colorInfo: semanticColors['color/status/draft/background'],
-    borderInfo: `1px solid ${colors.border}`,
+    borderInfo: createBorder(colors.border),
     textColorSuccess: semanticColors['color/status/approved/text'],
     colorSuccess: semanticColors['color/status/approved/background'],
-    borderSuccess: `1px solid ${semanticColors['color/status/approved/border']}`,
+    borderSuccess: createBorder(semanticColors['color/status/approved/border']),
     textColorWarning: semanticColors['color/status/pending/text'],
     colorWarning: semanticColors['color/status/pending/background'],
-    borderWarning: `1px solid ${semanticColors['color/status/pending/border']}`,
+    borderWarning: createBorder(semanticColors['color/status/pending/border']),
     textColorError: semanticColors['color/status/rejected/text'],
     colorError: semanticColors['color/status/rejected/background'],
-    borderError: `1px solid ${semanticColors['color/status/rejected/border']}`,
+    borderError: createBorder(semanticColors['color/status/rejected/border']),
   },
 
   Select: {
-    menuBoxShadow: commonTokens.shadowLg,
+    menuBoxShadow: elevationTokens['elevation/popover'],
     peers: {
       InternalSelection: {
         heightMedium: componentSizeTokens['component/control/height/medium'],
@@ -217,10 +237,10 @@ export const createThemeBridge = (
         textColor: colors.textBody,
         placeholderColor: colors.textLight,
         color: colors.bgCard,
-        border: `1px solid ${colors.border}`,
-        borderHover: `1px solid ${colors.primaryHover}`,
-        borderFocus: `1px solid ${colors.primary}`,
-        boxShadowFocus: `0 0 0 2px ${semanticColors['color/interaction/focus-ring']}33`,
+        border: createBorder(colors.border),
+        borderHover: createBorder(colors.primaryHover),
+        borderFocus: createBorder(colors.primary),
+        boxShadowFocus: createFocusRing(semanticColors['color/interaction/focus-ring']),
       },
       InternalSelectMenu: {
         borderRadius: commonTokens.radiusMd,
@@ -242,14 +262,14 @@ export const createThemeBridge = (
     itemTextColorActive: colors.link,
     itemColorHover: semanticColors['color/interaction/hover'],
     itemColorActive: semanticColors['color/interaction/selected'],
-    itemBorder: `1px solid ${colors.border}`,
-    itemBorderActive: `1px solid ${colors.link}`,
+    itemBorder: createBorder(colors.border),
+    itemBorderActive: createBorder(colors.link),
   },
 
   Modal: {
     color: semanticColors['color/surface/overlay'],
     textColor: colors.textBody,
-    boxShadow: commonTokens.shadowXl,
+    boxShadow: elevationTokens['elevation/modal'],
   },
 
   Notification: {
@@ -265,7 +285,7 @@ export const createThemeBridge = (
     iconColorSuccess: semanticColors['color/status/approved/text'],
     iconColorWarning: semanticColors['color/status/pending/text'],
     iconColorError: semanticColors['color/status/rejected/text'],
-    boxShadow: commonTokens.shadowLg,
+    boxShadow: elevationTokens['elevation/popover'],
   },
 
   Popover: {
@@ -274,7 +294,11 @@ export const createThemeBridge = (
     color: semanticColors['color/surface/overlay'],
     dividerColor: colors.border,
     textColor: colors.textBody,
-    boxShadow: commonTokens.shadowLg,
+    boxShadow: elevationTokens['elevation/popover'],
+  },
+
+  Spin: {
+    opacitySpinning: opacityTokens['opacity/loading'],
   },
 })
 const themeOverridesMap = new Map(

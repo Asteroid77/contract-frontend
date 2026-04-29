@@ -138,6 +138,53 @@ export const componentSizeTokens = {
   'component/interactive/min-target': '1.5rem',
 } as const
 
+export const motionTokens = {
+  'motion/duration/fast': '120ms',
+  'motion/duration/base': '180ms',
+  'motion/duration/slow': '240ms',
+  'motion/easing/standard': 'cubic-bezier(0.4, 0, 0.2, 1)',
+  'motion/easing/enter': 'cubic-bezier(0, 0, 0.2, 1)',
+  'motion/easing/exit': 'cubic-bezier(0.4, 0, 1, 1)',
+  'motion/transition/fast': '120ms cubic-bezier(0.4, 0, 0.2, 1)',
+  'motion/transition/base': '180ms cubic-bezier(0.4, 0, 0.2, 1)',
+  'motion/transition/slow': '240ms cubic-bezier(0.4, 0, 0.2, 1)',
+} as const
+
+export const layerTokens = {
+  'layer/base': '0',
+  'layer/sticky': '100',
+  'layer/dropdown': '1000',
+  'layer/popover': '1100',
+  'layer/modal': '1200',
+  'layer/notification': '1300',
+  'layer/tooltip': '1400',
+  'layer/loading': '1500',
+} as const
+
+export const opacityTokens = {
+  'opacity/disabled': '0.48',
+  'opacity/muted': '0.64',
+  'opacity/overlay': '0.72',
+  'opacity/loading': '0.72',
+  'opacity/dragging': '0.8',
+} as const
+
+export const elevationTokens = {
+  'elevation/surface': 'none',
+  'elevation/card': commonTokens.shadowSm,
+  'elevation/floating': commonTokens.shadowMd,
+  'elevation/popover': commonTokens.shadowLg,
+  'elevation/modal': commonTokens.shadowXl,
+} as const
+
+export const borderTokens = {
+  'border/width/default': '1px',
+  'border/width/focus': '0.125rem',
+  'border/style/default': 'solid',
+  'border/style/focus': 'solid',
+  'border/focus-ring-width': '0.125rem',
+} as const
+
 export const primitiveColorTokens = {
   'slate-50': '#F8FAFC',
   'slate-100': '#F1F5F9',

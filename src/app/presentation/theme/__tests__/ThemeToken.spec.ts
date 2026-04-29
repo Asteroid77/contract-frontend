@@ -1,8 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
+  borderTokens,
   colorTokens,
   componentSizeTokens,
   commonTokens,
+  elevationTokens,
+  layerTokens,
+  motionTokens,
+  opacityTokens,
   primitiveColorTokens,
   semanticColorTokens,
   spacingScaleTokens,
@@ -89,6 +94,27 @@ describe('ThemeToken', () => {
     expect(componentSizeTokens['component/control/height/medium']).toBe('2.25rem')
     expect(componentSizeTokens['component/table/row-height']).toBe('3rem')
     expect(componentSizeTokens['component/interactive/min-target']).toBe('1.5rem')
+  })
+
+  it('contains motion, layer, opacity, elevation and border tokens for shared interaction primitives', () => {
+    expect(motionTokens['motion/duration/fast']).toBe('120ms')
+    expect(motionTokens['motion/easing/standard']).toBe('cubic-bezier(0.4, 0, 0.2, 1)')
+    expect(motionTokens['motion/transition/base']).toBe('180ms cubic-bezier(0.4, 0, 0.2, 1)')
+
+    expect(layerTokens['layer/dropdown']).toBe('1000')
+    expect(layerTokens['layer/modal']).toBe('1200')
+    expect(layerTokens['layer/tooltip']).toBe('1400')
+
+    expect(opacityTokens['opacity/disabled']).toBe('0.48')
+    expect(opacityTokens['opacity/overlay']).toBe('0.72')
+
+    expect(elevationTokens['elevation/card']).toBe(commonTokens.shadowSm)
+    expect(elevationTokens['elevation/popover']).toBe(commonTokens.shadowLg)
+    expect(elevationTokens['elevation/modal']).toBe(commonTokens.shadowXl)
+
+    expect(borderTokens['border/width/default']).toBe('1px')
+    expect(borderTokens['border/style/default']).toBe('solid')
+    expect(borderTokens['border/focus-ring-width']).toBe('0.125rem')
   })
 
   it('contains status semantic tokens for every theme and status tone', () => {

@@ -35,6 +35,12 @@ describe('ThemeGeneratorVitePlugin', () => {
       ].join('\n'),
     )
     expect(css).toContain('  --color-primitive-slate-50: #f8fafc;')
+    expect(css).toContain('  --motion-duration-fast: 120ms;')
+    expect(css).toContain('  --motion-easing-standard: cubic-bezier(0.4, 0, 0.2, 1);')
+    expect(css).toContain('  --layer-modal: 1200;')
+    expect(css).toContain('  --opacity-disabled: 0.48;')
+    expect(css).toContain('  --elevation-modal: 0 16px 32px rgba(0, 0, 0, 0.16);')
+    expect(css).toContain('  --border-width-default: 1px;')
     expect(css).not.toContain('#F8FAFC')
     expect(css).not.toMatch(/\n\n$/)
   })

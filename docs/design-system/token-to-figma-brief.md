@@ -16,7 +16,8 @@ The implementation follows the mainstream token layering used by design systems:
 1. Primitive tokens: raw palette and base dimensions.
 2. Semantic tokens: surface, text, border, status, interaction, and link meaning.
 3. Component tokens: control height, table row height, navigation item height, minimum target.
-4. Implementation bridge: Naive UI theme overrides and Tailwind CSS variables.
+4. Interaction and depth tokens: motion, layer, opacity, elevation, and border structure.
+5. Implementation bridge: Naive UI theme overrides and Tailwind CSS variables.
 
 ## Current Token Scope
 
@@ -44,6 +45,14 @@ Mockups must explicitly show these component categories:
 - Form controls: input, select, date picker, validation error, disabled.
 - Status tags: draft, pending, approved, rejected, archived.
 - Overlay feedback: modal, popover, notification.
+
+### Interaction, Depth And Layering
+
+- Use the shared motion scale: 120ms for quick feedback, 180ms for regular state changes, 240ms for larger overlays.
+- Keep overlay order inferable: dropdown below popover, popover below modal, modal below notification and tooltip.
+- Disabled, loading, overlay and dragging states should use the shared opacity meanings.
+- Use semantic elevation: card, floating, popover and modal should have progressively stronger depth.
+- Borders should use the shared 1px solid default structure unless a focus ring needs the 0.125rem focus width.
 
 ### Accessibility
 
