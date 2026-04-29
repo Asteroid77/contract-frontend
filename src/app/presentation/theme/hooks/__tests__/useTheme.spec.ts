@@ -61,4 +61,40 @@ describe('useTheme', () => {
 
     expect(document.documentElement.getAttribute('data-theme')).toBeNull()
   })
+
+  it('bridges design-system tokens into Naive UI component overrides', async () => {
+    const { colorTokens, componentSizeTokens, semanticColorTokens, typographyTokens } =
+      await import('@/app/presentation/theme/ThemeToken')
+    const { createThemeBridge } = await import('@/app/presentation/theme/hooks/useTheme')
+
+    const bridge = createThemeBridge(colorTokens.light)
+
+    expect(bridge.common?.fontSize).toBe(typographyTokens['font/size/body'])
+    expect(bridge.common?.fontSizeMedium).toBe(typographyTokens['font/size/body'])
+    expect(bridge.common?.heightMedium).toBe(componentSizeTokens['component/control/height/medium'])
+    expect(bridge.common?.successColor).toBe(
+      semanticColorTokens.light['color/status/approved/text'],
+    )
+    expect(bridge.common?.warningColor).toBe(semanticColorTokens.light['color/status/pending/text'])
+    expect(bridge.common?.errorColor).toBe(semanticColorTokens.light['color/status/rejected/text'])
+
+    expect(bridge.DataTable?.thColor).toBe(semanticColorTokens.light['color/surface/subtle'])
+    expect(bridge.DataTable?.tdColorHover).toBe(
+      semanticColorTokens.light['color/interaction/hover'],
+    )
+    expect(bridge.DataTable?.thFontWeight).toBe(typographyTokens['font/weight/semibold'])
+    expect(bridge.Menu?.itemHeight).toBe(componentSizeTokens['component/navigation/item-height'])
+    expect(bridge.Menu?.itemColorActive).toBe(
+      semanticColorTokens.light['color/interaction/selected'],
+    )
+    expect(bridge.Tag?.colorWarning).toBe(
+      semanticColorTokens.light['color/status/pending/background'],
+    )
+    expect(bridge.Tag?.textColorSuccess).toBe(
+      semanticColorTokens.light['color/status/approved/text'],
+    )
+    expect(bridge.Pagination?.itemColorActive).toBe(
+      semanticColorTokens.light['color/interaction/selected'],
+    )
+  })
 })

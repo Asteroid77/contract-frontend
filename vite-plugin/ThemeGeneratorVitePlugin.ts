@@ -2,10 +2,12 @@ import { resolve } from 'node:path'
 import type { ViteDevServer } from 'vite'
 
 import {
+  componentSizeTokens,
   commonTokens,
   primitiveColorTokens,
   semanticColorTokens,
   spacingScaleTokens,
+  typographyTokens,
 } from '../src/app/presentation/theme/ThemeToken'
 import { createGeneratedAsset, writeGeneratedAssetIfChanged } from './shared/generated-asset'
 
@@ -18,6 +20,10 @@ type GenerateThemeCssAssetOptions = {
 
 type ThemeGeneratorPluginOptions = Omit<GenerateThemeCssAssetOptions, 'check'>
 
+const CSS_PRINT_WIDTH = 100
+const CSS_VAR_INDENT = '  '
+const CSS_VAR_VALUE_INDENT = '    '
+
 function toKebabCase(str: string): string {
   return str
     .replace(/[/.]/g, '-')
@@ -27,23 +33,27 @@ function toKebabCase(str: string): string {
     .toLowerCase()
 }
 
-function normalizeCssValue(value: string) {
-  return value.replace(/#[\da-f]{3,8}\b/gi, (color) => color.toLowerCase())
+function normalizeCssValue(value: string): string {
+  return value.replace(/#[\dA-Fa-f]{3,8}\b/g, (color) => color.toLowerCase())
+}
+
+function appendCssVar(lines: string[], key: string, value: string, prefix = ''): void {
+  const variableName = `--${prefix}${toKebabCase(key)}`
+  const normalizedValue = normalizeCssValue(value)
+  const singleLine = `${CSS_VAR_INDENT}${variableName}: ${normalizedValue};`
+
+  if (singleLine.length <= CSS_PRINT_WIDTH) {
+    lines.push(singleLine)
+    return
+  }
+
+  lines.push(`${CSS_VAR_INDENT}${variableName}:`)
+  lines.push(`${CSS_VAR_VALUE_INDENT}${normalizedValue};`)
 }
 
 function appendCssVars(lines: string[], values: Record<string, string>, prefix = ''): void {
   for (const [key, value] of Object.entries(values)) {
-    const name = `--${prefix}${toKebabCase(key)}`
-    const normalizedValue = normalizeCssValue(value)
-    const line = `  ${name}: ${normalizedValue};`
-
-    if (line.length > 100 && normalizedValue.includes(',')) {
-      lines.push(`  ${name}:`)
-      lines.push(`    ${normalizedValue};`)
-      continue
-    }
-
-    lines.push(line)
+    appendCssVar(lines, key, value, prefix)
   }
 }
 
@@ -61,6 +71,8 @@ export function generateThemeCss() {
 
   appendCssVars(lines, commonTokens)
   appendCssVars(lines, spacingScaleTokens)
+  appendCssVars(lines, typographyTokens)
+  appendCssVars(lines, componentSizeTokens)
   appendCssVars(lines, primitiveColorTokens, 'color-primitive-')
   appendCssVars(lines, semanticColorTokens.light)
   lines.push('  --color-primary: var(--color-primary-default);')
@@ -83,7 +95,11 @@ export function generateThemeCss() {
     lines.push('')
   }
 
-  return `${lines.join('\n').trimEnd()}\n`
+  if (lines[lines.length - 1] === '') {
+    lines.pop()
+  }
+
+  return `${lines.join('\n')}\n`
 }
 
 function resolveThemeGeneratorOptions(options: GenerateThemeCssAssetOptions = {}) {
