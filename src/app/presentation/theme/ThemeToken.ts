@@ -14,7 +14,20 @@ export type ColorTokens = {
   accentPressed: string
   accentSuppl: string
   border: string
+  surfaceRaised: string
+  surfaceSubtle: string
+  surfaceOverlay: string
+  fillHover: string
+  fillSelected: string
+  focusRing: string
+  link: string
+  linkHover: string
+  warning: string
 }
+
+export const statusToneNames = ['draft', 'pending', 'approved', 'rejected', 'archived'] as const
+export type StatusTone = (typeof statusToneNames)[number]
+export type StatusTonePart = 'text' | 'background' | 'border'
 
 export type SemanticColorTokenKey =
   | 'color/primary/default'
@@ -34,6 +47,16 @@ export type SemanticColorTokenKey =
   | 'color/border/default'
   | 'color/semantic/error'
   | 'color/semantic/success'
+  | 'color/semantic/warning'
+  | 'color/surface/raised'
+  | 'color/surface/subtle'
+  | 'color/surface/overlay'
+  | 'color/interaction/hover'
+  | 'color/interaction/selected'
+  | 'color/interaction/focus-ring'
+  | 'color/link/default'
+  | 'color/link/hover'
+  | `color/status/${StatusTone}/${StatusTonePart}`
 
 export const commonTokens = {
   // 圆角
@@ -91,6 +114,30 @@ export const spacingScaleTokens: Record<`spacing/${number}`, string> = {
   'spacing/120': commonTokens.spacing5Xl,
 }
 
+export const typographyTokens = {
+  'font/size/xs': '0.75rem',
+  'font/size/sm': '0.8125rem',
+  'font/size/body': '0.875rem',
+  'font/size/title': '1.25rem',
+  'font/size/heading': '1.5rem',
+  'font/weight/regular': '400',
+  'font/weight/medium': '500',
+  'font/weight/semibold': '600',
+  'line-height/tight': '1.25',
+  'line-height/body': '1.6',
+  'line-height/heading': '1.3',
+} as const
+
+export const componentSizeTokens = {
+  'component/control/height/small': '2rem',
+  'component/control/height/medium': '2.25rem',
+  'component/control/height/large': '2.5rem',
+  'component/table/header-height': '2.75rem',
+  'component/table/row-height': '3rem',
+  'component/navigation/item-height': '2.5rem',
+  'component/interactive/min-target': '1.5rem',
+} as const
+
 export const primitiveColorTokens = {
   'slate-50': '#F8FAFC',
   'slate-100': '#F1F5F9',
@@ -103,6 +150,8 @@ export const primitiveColorTokens = {
   'slate-800': '#1E293B',
   'slate-900': '#0F172A',
   'slate-950': '#020617',
+  'blue-50': '#EFF6FF',
+  'blue-100': '#DBEAFE',
   'blue-400': '#60A5FA',
   'blue-500': '#3B82F6',
   'blue-600': '#2563EB',
@@ -114,15 +163,27 @@ export const primitiveColorTokens = {
   'amber-400': '#FBBF24',
   'amber-500': '#F59E0B',
   'amber-600': '#D97706',
+  'amber-700': '#B45309',
+  'amber-50': '#FFFBEB',
+  'amber-200': '#FDE68A',
+  'amber-950': '#451A03',
   'rose-50': '#FFF1F2',
   'rose-200': '#FECDD3',
   'rose-400': '#FB7185',
   'rose-800': '#9F1239',
   'rose-900': '#881337',
+  'red-50': '#FEF2F2',
+  'red-200': '#FECACA',
   'red-400': '#F87171',
   'red-500': '#EF4444',
+  'red-700': '#B91C1C',
+  'red-950': '#450A0A',
+  'green-50': '#F0FDF4',
+  'green-200': '#BBF7D0',
   'green-400': '#4ADE80',
   'green-500': '#22C55E',
+  'green-700': '#15803D',
+  'green-950': '#052E16',
   white: '#FFFFFF',
 } as const
 
@@ -148,6 +209,15 @@ export const colorTokens = {
     textDisabled: '#CBD5E1', // slate-300
     // [边框]
     border: '#E2E8F0', // slate-200
+    surfaceRaised: '#FFFFFF',
+    surfaceSubtle: '#F1F5F9',
+    surfaceOverlay: '#FFFFFF',
+    fillHover: '#F8FAFC',
+    fillSelected: '#EFF6FF',
+    focusRing: '#2563EB',
+    link: '#2563EB',
+    linkHover: '#1D4ED8',
+    warning: '#B45309',
   },
   dark: {
     // [主色] 在暗黑模式下，主色按钮通常反转为白色或极亮灰，以获得最高对比度
@@ -174,6 +244,15 @@ export const colorTokens = {
 
     // [边框]
     border: '#1E293B', // slate-800
+    surfaceRaised: '#0F172A',
+    surfaceSubtle: '#1E293B',
+    surfaceOverlay: '#020617',
+    fillHover: '#1E293B',
+    fillSelected: '#1E3A8A',
+    focusRing: '#60A5FA',
+    link: '#60A5FA',
+    linkHover: '#93C5FD',
+    warning: '#FBBF24',
   },
   sakura: {
     // [主色] 樱花粉
@@ -200,67 +279,168 @@ export const colorTokens = {
 
     // [边框]
     border: '#FBCFE8',
+    surfaceRaised: '#FFFFFF',
+    surfaceSubtle: '#FFF1F2',
+    surfaceOverlay: '#FFFFFF',
+    fillHover: '#FFF1F2',
+    fillSelected: '#FECDD3',
+    focusRing: '#DB2777',
+    link: '#DB2777',
+    linkHover: '#BE185D',
+    warning: '#B45309',
   },
 } as const
 
-type ThemeName = keyof typeof colorTokens
+export type ThemeName = keyof typeof colorTokens
+export const themeNames = ['light', 'dark', 'sakura'] as const satisfies readonly ThemeName[]
 
-export const semanticColorTokens: Record<ThemeName, Record<SemanticColorTokenKey, string>> = {
+export type StatusToneTokens = Record<StatusTonePart, string>
+
+export const statusColorTokens: Record<ThemeName, Record<StatusTone, StatusToneTokens>> = {
   light: {
-    'color/primary/default': colorTokens.light.primary,
-    'color/primary/hover': colorTokens.light.primaryHover,
-    'color/primary/pressed': colorTokens.light.primaryPressed,
-    'color/primary/suppl': colorTokens.light.primarySuppl,
-    'color/accent/default': colorTokens.light.accent,
-    'color/accent/hover': colorTokens.light.accentHover,
-    'color/accent/pressed': colorTokens.light.accentPressed,
-    'color/accent/suppl': colorTokens.light.accentSuppl,
-    'color/background/body': colorTokens.light.bgBody,
-    'color/background/card': colorTokens.light.bgCard,
-    'color/text/main': colorTokens.light.textMain,
-    'color/text/body': colorTokens.light.textBody,
-    'color/text/light': colorTokens.light.textLight,
-    'color/text/disabled': colorTokens.light.textDisabled,
-    'color/border/default': colorTokens.light.border,
-    'color/semantic/error': primitiveColorTokens['red-500'],
-    'color/semantic/success': primitiveColorTokens['green-500'],
+    draft: {
+      text: primitiveColorTokens['slate-700'],
+      background: primitiveColorTokens['slate-100'],
+      border: primitiveColorTokens['slate-200'],
+    },
+    pending: {
+      text: primitiveColorTokens['amber-700'],
+      background: primitiveColorTokens['amber-50'],
+      border: primitiveColorTokens['amber-200'],
+    },
+    approved: {
+      text: primitiveColorTokens['green-700'],
+      background: primitiveColorTokens['green-50'],
+      border: primitiveColorTokens['green-200'],
+    },
+    rejected: {
+      text: primitiveColorTokens['red-700'],
+      background: primitiveColorTokens['red-50'],
+      border: primitiveColorTokens['red-200'],
+    },
+    archived: {
+      text: primitiveColorTokens['slate-600'],
+      background: primitiveColorTokens['slate-100'],
+      border: primitiveColorTokens['slate-300'],
+    },
   },
   dark: {
-    'color/primary/default': colorTokens.dark.primary,
-    'color/primary/hover': colorTokens.dark.primaryHover,
-    'color/primary/pressed': colorTokens.dark.primaryPressed,
-    'color/primary/suppl': colorTokens.dark.primarySuppl,
-    'color/accent/default': colorTokens.dark.accent,
-    'color/accent/hover': colorTokens.dark.accentHover,
-    'color/accent/pressed': colorTokens.dark.accentPressed,
-    'color/accent/suppl': colorTokens.dark.accentSuppl,
-    'color/background/body': colorTokens.dark.bgBody,
-    'color/background/card': colorTokens.dark.bgCard,
-    'color/text/main': colorTokens.dark.textMain,
-    'color/text/body': colorTokens.dark.textBody,
-    'color/text/light': colorTokens.dark.textLight,
-    'color/text/disabled': colorTokens.dark.textDisabled,
-    'color/border/default': colorTokens.dark.border,
-    'color/semantic/error': primitiveColorTokens['red-400'],
-    'color/semantic/success': primitiveColorTokens['green-400'],
+    draft: {
+      text: primitiveColorTokens['slate-300'],
+      background: primitiveColorTokens['slate-800'],
+      border: primitiveColorTokens['slate-700'],
+    },
+    pending: {
+      text: primitiveColorTokens['amber-400'],
+      background: primitiveColorTokens['amber-950'],
+      border: primitiveColorTokens['amber-600'],
+    },
+    approved: {
+      text: primitiveColorTokens['green-400'],
+      background: primitiveColorTokens['green-950'],
+      border: primitiveColorTokens['green-500'],
+    },
+    rejected: {
+      text: primitiveColorTokens['red-400'],
+      background: primitiveColorTokens['red-950'],
+      border: primitiveColorTokens['red-500'],
+    },
+    archived: {
+      text: primitiveColorTokens['slate-400'],
+      background: primitiveColorTokens['slate-900'],
+      border: primitiveColorTokens['slate-700'],
+    },
   },
   sakura: {
-    'color/primary/default': colorTokens.sakura.primary,
-    'color/primary/hover': colorTokens.sakura.primaryHover,
-    'color/primary/pressed': colorTokens.sakura.primaryPressed,
-    'color/primary/suppl': colorTokens.sakura.primarySuppl,
-    'color/accent/default': colorTokens.sakura.accent,
-    'color/accent/hover': colorTokens.sakura.accentHover,
-    'color/accent/pressed': colorTokens.sakura.accentPressed,
-    'color/accent/suppl': colorTokens.sakura.accentSuppl,
-    'color/background/body': colorTokens.sakura.bgBody,
-    'color/background/card': colorTokens.sakura.bgCard,
-    'color/text/main': colorTokens.sakura.textMain,
-    'color/text/body': colorTokens.sakura.textBody,
-    'color/text/light': colorTokens.sakura.textLight,
-    'color/text/disabled': colorTokens.sakura.textDisabled,
-    'color/border/default': colorTokens.sakura.border,
-    'color/semantic/error': primitiveColorTokens['red-500'],
-    'color/semantic/success': primitiveColorTokens['green-500'],
+    draft: {
+      text: primitiveColorTokens['rose-800'],
+      background: primitiveColorTokens['rose-50'],
+      border: primitiveColorTokens['rose-200'],
+    },
+    pending: {
+      text: primitiveColorTokens['amber-700'],
+      background: primitiveColorTokens['amber-50'],
+      border: primitiveColorTokens['amber-200'],
+    },
+    approved: {
+      text: primitiveColorTokens['green-700'],
+      background: primitiveColorTokens['green-50'],
+      border: primitiveColorTokens['green-200'],
+    },
+    rejected: {
+      text: primitiveColorTokens['red-700'],
+      background: primitiveColorTokens['red-50'],
+      border: primitiveColorTokens['red-200'],
+    },
+    archived: {
+      text: primitiveColorTokens['slate-600'],
+      background: primitiveColorTokens['rose-50'],
+      border: primitiveColorTokens['rose-200'],
+    },
   },
+}
+
+function createSemanticColorTokens(
+  colors: ColorTokens,
+  statuses: Record<StatusTone, StatusToneTokens>,
+  signalColors: Pick<Record<'success' | 'error', string>, 'success' | 'error'>,
+): Record<SemanticColorTokenKey, string> {
+  return {
+    'color/primary/default': colors.primary,
+    'color/primary/hover': colors.primaryHover,
+    'color/primary/pressed': colors.primaryPressed,
+    'color/primary/suppl': colors.primarySuppl,
+    'color/accent/default': colors.accent,
+    'color/accent/hover': colors.accentHover,
+    'color/accent/pressed': colors.accentPressed,
+    'color/accent/suppl': colors.accentSuppl,
+    'color/background/body': colors.bgBody,
+    'color/background/card': colors.bgCard,
+    'color/text/main': colors.textMain,
+    'color/text/body': colors.textBody,
+    'color/text/light': colors.textLight,
+    'color/text/disabled': colors.textDisabled,
+    'color/border/default': colors.border,
+    'color/semantic/error': signalColors.error,
+    'color/semantic/success': signalColors.success,
+    'color/semantic/warning': colors.warning,
+    'color/surface/raised': colors.surfaceRaised,
+    'color/surface/subtle': colors.surfaceSubtle,
+    'color/surface/overlay': colors.surfaceOverlay,
+    'color/interaction/hover': colors.fillHover,
+    'color/interaction/selected': colors.fillSelected,
+    'color/interaction/focus-ring': colors.focusRing,
+    'color/link/default': colors.link,
+    'color/link/hover': colors.linkHover,
+    'color/status/draft/text': statuses.draft.text,
+    'color/status/draft/background': statuses.draft.background,
+    'color/status/draft/border': statuses.draft.border,
+    'color/status/pending/text': statuses.pending.text,
+    'color/status/pending/background': statuses.pending.background,
+    'color/status/pending/border': statuses.pending.border,
+    'color/status/approved/text': statuses.approved.text,
+    'color/status/approved/background': statuses.approved.background,
+    'color/status/approved/border': statuses.approved.border,
+    'color/status/rejected/text': statuses.rejected.text,
+    'color/status/rejected/background': statuses.rejected.background,
+    'color/status/rejected/border': statuses.rejected.border,
+    'color/status/archived/text': statuses.archived.text,
+    'color/status/archived/background': statuses.archived.background,
+    'color/status/archived/border': statuses.archived.border,
+  }
+}
+
+export const semanticColorTokens: Record<ThemeName, Record<SemanticColorTokenKey, string>> = {
+  light: createSemanticColorTokens(colorTokens.light, statusColorTokens.light, {
+    error: primitiveColorTokens['red-500'],
+    success: primitiveColorTokens['green-500'],
+  }),
+  dark: createSemanticColorTokens(colorTokens.dark, statusColorTokens.dark, {
+    error: primitiveColorTokens['red-400'],
+    success: primitiveColorTokens['green-400'],
+  }),
+  sakura: createSemanticColorTokens(colorTokens.sakura, statusColorTokens.sakura, {
+    error: primitiveColorTokens['red-500'],
+    success: primitiveColorTokens['green-500'],
+  }),
 }

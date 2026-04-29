@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import {
   colorTokens,
+  componentSizeTokens,
   commonTokens,
   primitiveColorTokens,
   semanticColorTokens,
   spacingScaleTokens,
+  statusToneNames,
+  themeNames,
+  typographyTokens,
 } from '@/app/presentation/theme/ThemeToken'
 
 describe('ThemeToken', () => {
@@ -37,7 +41,6 @@ describe('ThemeToken', () => {
   })
 
   it('contains light/dark/sakura color schemes with required fields', () => {
-    const themes = ['light', 'dark', 'sakura'] as const
     const requiredColorKeys = [
       'primary',
       'primaryHover',
@@ -54,14 +57,50 @@ describe('ThemeToken', () => {
       'textLight',
       'textDisabled',
       'border',
+      'surfaceRaised',
+      'surfaceSubtle',
+      'surfaceOverlay',
+      'fillHover',
+      'fillSelected',
+      'focusRing',
+      'link',
+      'linkHover',
+      'warning',
     ]
 
-    for (const themeKey of themes) {
+    expect(themeNames).toEqual(['light', 'dark', 'sakura'])
+
+    for (const themeKey of themeNames) {
       const token = colorTokens[themeKey]
       expect(token).toBeTruthy()
 
       for (const colorKey of requiredColorKeys) {
         expect(token[colorKey as keyof typeof token]).toBeTruthy()
+      }
+    }
+  })
+
+  it('contains typography and component size tokens aligned to the design contract', () => {
+    expect(typographyTokens['font/size/body']).toBe('0.875rem')
+    expect(typographyTokens['font/size/title']).toBe('1.25rem')
+    expect(typographyTokens['font/weight/medium']).toBe('500')
+    expect(typographyTokens['line-height/body']).toBe('1.6')
+
+    expect(componentSizeTokens['component/control/height/medium']).toBe('2.25rem')
+    expect(componentSizeTokens['component/table/row-height']).toBe('3rem')
+    expect(componentSizeTokens['component/interactive/min-target']).toBe('1.5rem')
+  })
+
+  it('contains status semantic tokens for every theme and status tone', () => {
+    expect(statusToneNames).toEqual(['draft', 'pending', 'approved', 'rejected', 'archived'])
+
+    for (const themeKey of themeNames) {
+      const tokens = semanticColorTokens[themeKey]
+
+      for (const statusTone of statusToneNames) {
+        expect(tokens[`color/status/${statusTone}/text`]).toBeTruthy()
+        expect(tokens[`color/status/${statusTone}/background`]).toBeTruthy()
+        expect(tokens[`color/status/${statusTone}/border`]).toBeTruthy()
       }
     }
   })
