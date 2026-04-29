@@ -34,10 +34,6 @@ done
 unexpected_top_files="$(find docs -maxdepth 1 -type f ! -name index.md -print)"
 [[ -z "$unexpected_top_files" ]] || fail "unexpected top-level docs files:\n$unexpected_top_files"
 
-if ! command -v rg >/dev/null 2>&1; then
-  fail "ripgrep (rg) is required for docs checks"
-fi
-
 obsolete_patterns=(
   "docs/CASL_INTEGRATION.md"
   "docs/LAYOUT_ROUTER_REVIEW.md"
@@ -60,10 +56,8 @@ obsolete_patterns=(
 )
 
 for pattern in "${obsolete_patterns[@]}"; do
-  if matches="$(rg -n -F "$pattern" \
-    README.md AGENTS.md CONTRIBUTING.md SECURITY.md SUPPORT.md Rule.md docs scripts/check-px-whitelist.mjs \
-    --glob '*.md' \
-    --glob '*.mjs' || true)"; then
+  if matches="$(git grep -n -F -- "$pattern" \
+    -- README.md AGENTS.md CONTRIBUTING.md SECURITY.md SUPPORT.md Rule.md docs scripts/check-px-whitelist.mjs || true)"; then
     [[ -z "$matches" ]] || fail "obsolete doc path found: $pattern\n$matches"
   fi
 done
