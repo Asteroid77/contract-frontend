@@ -1,7 +1,9 @@
 .work-order-detail-page {
+  box-sizing: border-box;
   width: 100%;
   max-width: var(--layout-content-max-width);
   margin: 0 auto;
+  padding-block: var(--spacing-md);
   padding-inline: var(--spacing-md);
 }
 
@@ -25,6 +27,7 @@
 
 @media (min-width: 768px) {
   .work-order-detail-page {
+    padding-block: var(--spacing-lg);
     padding-inline: var(--spacing-lg);
   }
 }

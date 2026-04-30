@@ -46,4 +46,17 @@ describe('work-order presentation TSX boundary', () => {
 
     expect(vuePresentationImports).toEqual([])
   })
+
+  it('keeps detail page shell padding on both axes', () => {
+    const css = readFileSync(join(presentationDir, 'styles/WorkOrderDetailPage.css'), 'utf8')
+    const baseRule = css.match(/\.work-order-detail-page\s*{(?<body>[^}]*)}/)?.groups?.body ?? ''
+    const mediaRule = css.split('@media').at(1) ?? ''
+
+    expect(baseRule).toContain('box-sizing: border-box;')
+    expect(baseRule).toContain('padding-block: var(--spacing-md);')
+    expect(baseRule).toContain('padding-inline: var(--spacing-md);')
+
+    expect(mediaRule).toContain('padding-block: var(--spacing-lg);')
+    expect(mediaRule).toContain('padding-inline: var(--spacing-lg);')
+  })
 })
