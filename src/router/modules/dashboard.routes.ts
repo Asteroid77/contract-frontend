@@ -15,7 +15,7 @@ export const dashboardRoutes: AppRouteRecord[] = [
     component: () => import('@/views/auth/AgentAggregateDashboardView.vue'),
     meta: {
       name: 'layout.menu.home',
-      icon: 'MapsHomeWorkOutlined',
+      icon: 'nav.dashboard',
       layout: 'auth',
     },
   },
@@ -25,7 +25,7 @@ export const dashboardRoutes: AppRouteRecord[] = [
     component: () => import('@/views/auth/DashboardView.vue'),
     meta: {
       name: 'layout.menu.docs',
-      icon: 'MenuBookTwotone',
+      icon: 'nav.docs',
       layout: 'auth',
     },
   },

@@ -18,7 +18,7 @@ export const manageRoutes: AppRouteRecord[] = [
     component: DashboardView,
     meta: {
       name: 'layout.menu.manage',
-      icon: 'ManageAccountsOutlined',
+      icon: 'nav.manage',
       isTransition: true,
     },
   },
@@ -28,7 +28,7 @@ export const manageRoutes: AppRouteRecord[] = [
     component: () => import('@/views/auth/ManageUserListView'),
     meta: {
       name: 'layout.menu.users',
-      icon: 'UserMultiple',
+      icon: 'user.manage',
       parent: 'manage',
       ability: {
         action: 'read',
@@ -42,7 +42,7 @@ export const manageRoutes: AppRouteRecord[] = [
     component: () => import('@/views/auth/ManageUserDetailView'),
     meta: {
       name: 'layout.menu.users',
-      icon: 'UserMultiple',
+      icon: 'user.manage',
       parent: 'manage-user-list',
       hideInMenu: true,
       ability: {
@@ -61,7 +61,7 @@ export const manageRoutes: AppRouteRecord[] = [
     component: () => import('@/views/auth/ManageUserDetailView'),
     meta: {
       name: 'layout.menu.users',
-      icon: 'UserMultiple',
+      icon: 'user.manage',
       parent: 'manage-user-list',
       hideInMenu: true,
       ability: {

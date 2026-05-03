@@ -11,7 +11,7 @@ export const userRoutes: AppRouteRecord[] = [
     component: DashboardView,
     meta: {
       name: 'layout.menu.profile',
-      icon: 'UserSwitchOutlined',
+      icon: 'nav.user',
       isTransition: true,
     },
   },
@@ -21,7 +21,7 @@ export const userRoutes: AppRouteRecord[] = [
     component: () => import('@/views/auth/UserProfileView.vue'),
     meta: {
       name: 'layout.menu.profile',
-      icon: 'UserData',
+      icon: 'user.profile',
       parent: 'user',
       hideInMenu: true,
     },
@@ -32,7 +32,7 @@ export const userRoutes: AppRouteRecord[] = [
     component: () => import('@/views/auth/UserAdditionalInfoView.vue'),
     meta: {
       name: 'layout.menu.additional',
-      icon: 'UserData',
+      icon: 'user.profile',
       parent: 'user',
       hideInMenu: true,
     },
@@ -43,7 +43,7 @@ export const userRoutes: AppRouteRecord[] = [
     component: () => import('@/views/auth/UserAdditionalInfoPendingView.vue'),
     meta: {
       name: 'layout.menu.additional',
-      icon: 'UserData',
+      icon: 'user.profile',
       parent: 'user-additional-info',
       hideInMenu: true,
     },
@@ -54,7 +54,7 @@ export const userRoutes: AppRouteRecord[] = [
     component: () => import('@/views/auth/UserSettingsView.vue'),
     meta: {
       name: 'layout.menu.settings',
-      icon: 'SettingsOutline',
+      icon: 'nav.settings',
       parent: 'user',
       hideInMenu: true,
     },
@@ -65,7 +65,7 @@ export const userRoutes: AppRouteRecord[] = [
     component: DashboardView,
     meta: {
       name: 'layout.menu.agents',
-      icon: 'RealEstateAgentOutlined',
+      icon: 'user.agents',
       parent: 'user',
     },
   },
@@ -75,7 +75,7 @@ export const userRoutes: AppRouteRecord[] = [
     component: DashboardView,
     meta: {
       name: 'layout.menu.mySign',
-      icon: 'AssignmentIndOutlined',
+      icon: 'agreement.selfSign',
       parent: 'user',
     },
   },

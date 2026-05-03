@@ -1,38 +1,5 @@
-import { UserData, UserMultiple, TaskComplete, TaskAssetView } from '@vicons/carbon'
-import { Fluid20Regular, ApprovalsApp16Regular } from '@vicons/fluent'
-import { NodeIndexOutlined, UserSwitchOutlined } from '@vicons/antd'
-import {
-  RealEstateAgentOutlined,
-  AssignmentIndOutlined,
-  ManageAccountsOutlined,
-  ApprovalFilled,
-  FeaturedPlayListOutlined,
-  InsertInvitationOutlined,
-  MenuBookTwotone,
-  MapsHomeWorkOutlined,
-  BusinessCenterOutlined,
-  DesignServicesTwotone,
-} from '@vicons/material'
-import { SettingsOutline } from '@vicons/ionicons5'
+import { appIconRegistry } from '@/_utils/widget/iconRegistry'
 
 export const routeIcons = {
-  UserData,
-  RealEstateAgentOutlined,
-  AssignmentIndOutlined,
-  ManageAccountsOutlined,
-  UserMultiple,
-  ApprovalFilled,
-  TaskComplete,
-  TaskAssetView,
-  Fluid20Regular,
-  NodeIndexOutlined,
-  FeaturedPlayListOutlined,
-  InsertInvitationOutlined,
-  MenuBookTwotone,
-  MapsHomeWorkOutlined,
-  ApprovalsApp16Regular,
-  BusinessCenterOutlined,
-  UserSwitchOutlined,
-  DesignServicesTwotone,
-  SettingsOutline,
+  ...appIconRegistry,
 } as const

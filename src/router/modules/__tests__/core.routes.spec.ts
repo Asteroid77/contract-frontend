@@ -31,8 +31,10 @@ describe('core route modules config', () => {
 
     expect(dashboard?.path).toBe('/dashboard')
     expect(dashboard?.meta?.layout).toBe('auth')
+    expect(dashboard?.meta?.icon).toBe('nav.dashboard')
     expect(document?.path).toBe('/document')
     expect(document?.meta?.layout).toBe('auth')
+    expect(document?.meta?.icon).toBe('nav.docs')
   })
 
   it('approval routes keep root transition and hidden descendants chain', () => {
@@ -42,11 +44,25 @@ describe('core route modules config', () => {
     const taskRoute = approvalRoutes.find((route) => route.name === 'approval-task-list')
 
     expect(approvalRoot?.meta?.isTransition).toBe(true)
+    expect(approvalRoot?.meta?.icon).toBe('nav.approval')
+    expect(
+      approvalRoutes.find((route) => route.name === 'approval-my-approval-instance-page')?.meta
+        ?.icon,
+    ).toBe('approval.instance')
+    expect(approvalRoutes.find((route) => route.name === 'approval-my-task-list')?.meta?.icon).toBe(
+      'approval.reviewing',
+    )
+    expect(approvalRoutes.find((route) => route.name === 'approval-process-list')?.meta?.icon).toBe(
+      'approval.process',
+    )
     expect(detailRoute?.meta?.parent).toBe('approval-my-approval-instance-page')
+    expect(detailRoute?.meta?.icon).toBe('icon-shenpi')
     expect(detailRoute?.meta?.hideInMenu).toBe(true)
     expect(nodeRoute?.meta?.parent).toBe('approval-process-list')
+    expect(nodeRoute?.meta?.icon).toBe('approval.nodes')
     expect(nodeRoute?.meta?.hideInMenu).toBe(true)
     expect(taskRoute?.meta?.parent).toBe('approval-node-list')
+    expect(taskRoute?.meta?.icon).toBe('approval.tasks')
     expect(taskRoute?.meta?.hideInMenu).toBe(true)
   })
 
@@ -57,7 +73,9 @@ describe('core route modules config', () => {
     const manageUserEdit = manageRoutes.find((route) => route.name === 'manage-user-edit')
 
     expect(manageRoot?.meta?.isTransition).toBe(true)
+    expect(manageRoot?.meta?.icon).toBe('nav.manage')
     expect(manageUser?.meta?.parent).toBe('manage')
+    expect(manageUser?.meta?.icon).toBe('user.manage')
     expect(manageUser?.meta?.ability).toEqual({ action: 'read', subject: 'User' })
     expect(manageUserDetail?.meta?.parent).toBe('manage-user-list')
     expect(manageUserDetail?.meta?.hideInMenu).toBe(true)

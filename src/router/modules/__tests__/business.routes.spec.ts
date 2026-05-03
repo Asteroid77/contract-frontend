@@ -4,6 +4,14 @@ import { businessRoutes } from '@/router/modules/business.routes'
 const getRouteByName = (name: string) => businessRoutes.find((route) => route.name === name)
 
 describe('business routes config', () => {
+  it('uses semantic lucide icon keys for navigable menu entries', () => {
+    expect(getRouteByName('business')?.meta?.icon).toBe('nav.business')
+    expect(getRouteByName('invitation')?.meta?.icon).toBe('business.invitation')
+    expect(getRouteByName('sign-page')?.meta?.icon).toBe('agreement.signList')
+    expect(getRouteByName('sign')?.meta?.icon).toBe('icon-qianyue')
+    expect(getRouteByName('sign-result')?.meta?.icon).toBe('icon-qianyueliebiao')
+  })
+
   it('defines sign route with parent sign-page', () => {
     const route = getRouteByName('sign')
 

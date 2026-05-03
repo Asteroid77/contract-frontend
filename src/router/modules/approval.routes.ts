@@ -11,7 +11,7 @@ export const approvalRoutes: AppRouteRecord[] = [
     component: DashboardView,
     meta: {
       name: 'layout.menu.approval',
-      icon: 'ApprovalsApp16Regular',
+      icon: 'nav.approval',
       isTransition: true,
     },
   },
@@ -21,7 +21,7 @@ export const approvalRoutes: AppRouteRecord[] = [
     component: () => import('@/views/auth/ApprovalInstancePageView.vue'),
     meta: {
       name: 'layout.menu.allTasks',
-      icon: 'ApprovalFilled',
+      icon: 'approval.instance',
       parent: 'approval',
     },
   },
@@ -42,7 +42,7 @@ export const approvalRoutes: AppRouteRecord[] = [
     component: DashboardView,
     meta: {
       name: 'layout.menu.reviewing',
-      icon: 'TaskComplete',
+      icon: 'approval.reviewing',
       parent: 'approval',
     },
   },
@@ -52,7 +52,7 @@ export const approvalRoutes: AppRouteRecord[] = [
     component: DashboardView,
     meta: {
       name: 'layout.menu.process',
-      icon: 'Fluid20Regular',
+      icon: 'approval.process',
       parent: 'approval',
     },
   },
@@ -62,7 +62,7 @@ export const approvalRoutes: AppRouteRecord[] = [
     component: DashboardView,
     meta: {
       name: 'layout.menu.nodes',
-      icon: 'NodeIndexOutlined',
+      icon: 'approval.nodes',
       parent: 'approval-process-list',
       hideInMenu: true,
     },
@@ -73,7 +73,7 @@ export const approvalRoutes: AppRouteRecord[] = [
     component: DashboardView,
     meta: {
       name: 'layout.menu.tasks',
-      icon: 'FeaturedPlayListOutlined',
+      icon: 'approval.tasks',
       parent: 'approval-node-list',
       hideInMenu: true,
     },

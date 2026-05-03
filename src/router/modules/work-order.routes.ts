@@ -7,7 +7,7 @@ export const workOrderRoutes: AppRouteRecord[] = [
     component: () => import('@/views/auth/WorkOrderListView.vue'),
     meta: {
       name: 'layout.menu.workOrder',
-      icon: 'TicketOutline',
+      icon: 'workOrder.list',
     },
   },
   {

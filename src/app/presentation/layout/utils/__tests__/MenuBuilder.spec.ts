@@ -15,6 +15,7 @@ vi.mock('@/app/presentation/constants/route-icons', () => ({
   routeIcons: {
     home: 'HomeIconComponent',
     group: 'GroupIconComponent',
+    'nav.settings': 'SettingsIconComponent',
   },
 }))
 
@@ -59,6 +60,14 @@ describe('MenuBuilder', () => {
         },
       },
       {
+        name: 'settings',
+        path: '/settings',
+        meta: {
+          name: 'menu.settings',
+          icon: 'nav.settings',
+        },
+      },
+      {
         name: 'hiddenRoute',
         path: '/hidden',
         meta: {
@@ -75,7 +84,7 @@ describe('MenuBuilder', () => {
 
     const menu = convertRoutesToMenuItems(routes)
 
-    expect(menu.map((item) => item.key)).toEqual(['home', 'group'])
+    expect(menu.map((item) => item.key)).toEqual(['home', 'group', 'settings'])
 
     const homeMenu = menu.find((item) => item.key === 'home')
     expect(homeMenu).toBeTruthy()
@@ -88,9 +97,10 @@ describe('MenuBuilder', () => {
     expect(homeMenu?.label).toBeTypeOf('function')
     expect(groupMenu?.label).toBeTypeOf('function')
 
-    expect(renderIcon).toHaveBeenCalledTimes(2)
+    expect(renderIcon).toHaveBeenCalledTimes(3)
     expect(renderIcon).toHaveBeenCalledWith('HomeIconComponent', 'home')
     expect(renderIcon).toHaveBeenCalledWith('GroupIconComponent', 'group')
+    expect(renderIcon).toHaveBeenCalledWith('SettingsIconComponent', 'nav.settings')
   })
 
   it('removes empty children arrays from leaf menu items', () => {
@@ -112,6 +122,7 @@ describe('MenuBuilder', () => {
 
   it('resolveIcon returns mapped icon or null for unknown key', () => {
     expect(resolveIcon('home' as never)).toBe('HomeIconComponent')
+    expect(resolveIcon('nav.settings' as never)).toBe('SettingsIconComponent')
     expect(resolveIcon('unknown' as never)).toBeNull()
   })
 })

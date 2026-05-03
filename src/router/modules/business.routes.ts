@@ -20,7 +20,7 @@ export const businessRoutes: AppRouteRecord[] = [
     component: DashboardView,
     meta: {
       name: 'layout.menu.business',
-      icon: 'BusinessCenterOutlined',
+      icon: 'nav.business',
       isTransition: true,
     },
   },
@@ -30,7 +30,7 @@ export const businessRoutes: AppRouteRecord[] = [
     component: () => import('@/views/auth/InvitationPageView.vue'),
     meta: {
       name: 'layout.menu.invitation',
-      icon: 'InsertInvitationOutlined',
+      icon: 'business.invitation',
       parent: 'business',
     },
   },
@@ -53,7 +53,7 @@ export const businessRoutes: AppRouteRecord[] = [
     component: () => import('@/views/auth/ServiceAgreementPageView'),
     meta: {
       name: 'layout.menu.signList',
-      icon: 'FeaturedPlayListOutlined',
+      icon: 'agreement.signList',
       parent: 'business',
     },
   },
