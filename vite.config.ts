@@ -40,6 +40,11 @@ const getGitInfo = () => {
 }
 const gitInfo = getGitInfo()
 
+export const resolveDevServerAllowedHosts = (domainUrl: string | undefined) => {
+  const host = domainUrl?.trim()
+  return host ? [host] : []
+}
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
@@ -55,6 +60,7 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: Number(env.VITE_CLIENT_PORT) || 9098,
+      allowedHosts: resolveDevServerAllowedHosts(env.VITE_DOMAIN_URL),
       // SSL 由 Nginx 代理处理，开发服务器使用 HTTP
       hmr: {
         host: env.VITE_DOMAIN_URL,
