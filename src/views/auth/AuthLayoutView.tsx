@@ -2,16 +2,16 @@ import { defineComponent, computed, ref, h, Transition, watch, type Component } 
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { NDropdown, NTooltip, NScrollbar, NDrawer } from 'naive-ui'
 import {
-  ChevronBackOutline,
-  ChevronForwardOutline,
-  CloseOutline,
-  LogOutOutline,
-  MenuOutline,
-  SettingsOutline,
-  MoonOutline,
-  PersonCircleOutline,
-  SunnyOutline,
-} from '@vicons/ionicons5'
+  ChevronLeft,
+  ChevronRight,
+  CircleUserRound,
+  LogOut,
+  Menu,
+  Moon,
+  Settings,
+  Sun,
+  X,
+} from 'lucide-vue-next'
 import { useTheme, type Theme } from '@/app/presentation/theme/hooks/useTheme'
 import { useTabsStore } from '@/app/application/stores/useTabsStore'
 import {
@@ -138,12 +138,12 @@ export default defineComponent({
       {
         label: t('layout.menu.settings'),
         key: 'settings',
-        icon: () => <SettingsOutline style={{ width: actionIconSize, height: actionIconSize }} />,
+        icon: () => <Settings style={{ width: actionIconSize, height: actionIconSize }} />,
       },
       {
         label: t('auth.action.logout'),
         key: 'logout',
-        icon: () => <LogOutOutline style={{ width: actionIconSize, height: actionIconSize }} />,
+        icon: () => <LogOut style={{ width: actionIconSize, height: actionIconSize }} />,
       },
     ])
 
@@ -265,14 +265,14 @@ export default defineComponent({
 
     const renderThemeIcon = () => {
       if (currentTheme.value === 'dark') {
-        return <MoonOutline class="w-5 h-5" />
+        return <Moon class="w-5 h-5" />
       }
 
       if (currentTheme.value === 'sakura') {
         return <span class="text-lg">🌸</span>
       }
 
-      return <SunnyOutline class="w-5 h-5" />
+      return <Sun class="w-5 h-5" />
     }
 
     return () => (
@@ -359,7 +359,7 @@ export default defineComponent({
                   ]}
                   onClick={() => router.push({ name: 'user-settings' })}
                 >
-                  <SettingsOutline
+                  <Settings
                     class="shrink-0"
                     style={{ width: actionIconSize, height: actionIconSize }}
                   />
@@ -421,7 +421,7 @@ export default defineComponent({
                   ]}
                   onClick={() => router.push({ name: 'user-settings' })}
                 >
-                  <SettingsOutline
+                  <Settings
                     class="shrink-0"
                     style={{ width: actionIconSize, height: actionIconSize }}
                   />
@@ -437,9 +437,9 @@ export default defineComponent({
             }}
           >
             {siderCollapsed.value ? (
-              <ChevronForwardOutline class="w-3.5 h-3.5" />
+              <ChevronRight class="w-3.5 h-3.5" />
             ) : (
-              <ChevronBackOutline class="w-3.5 h-3.5" />
+              <ChevronLeft class="w-3.5 h-3.5" />
             )}
           </button>
 
@@ -449,7 +449,7 @@ export default defineComponent({
               mobileMenuOpen.value = false
             }}
           >
-            <CloseOutline class="w-5 h-5" />
+            <X class="w-5 h-5" />
           </button>
         </aside>
 
@@ -465,7 +465,7 @@ export default defineComponent({
                   mobileMenuOpen.value = true
                 }}
               >
-                <MenuOutline class="w-5 h-5" />
+                <Menu class="w-5 h-5" />
               </button>
             )}
 
@@ -533,7 +533,7 @@ export default defineComponent({
 
               <NDropdown options={userOptions.value} onSelect={handleUserAction} trigger="click">
                 <button class="p-1 rounded-lg hover:bg-[var(--color-border)] text-[var(--color-text-body)]">
-                  <PersonCircleOutline class="w-6 h-6" />
+                  <CircleUserRound class="w-6 h-6" />
                 </button>
               </NDropdown>
             </div>
@@ -571,7 +571,7 @@ export default defineComponent({
                             handleTabClose(tab.path)
                           }}
                         >
-                          <CloseOutline class="w-3 h-3" />
+                          <X class="w-3 h-3" />
                         </button>
                       )}
                     </div>
@@ -601,7 +601,7 @@ export default defineComponent({
                   }}
                   data-test="auth-mobile-tabs-close"
                 >
-                  <CloseOutline class="w-4 h-4" />
+                  <X class="w-4 h-4" />
                 </button>
               </div>
               <div class="flex-1 overflow-y-auto p-2">
@@ -629,7 +629,7 @@ export default defineComponent({
                         onClick={(event) => handleMobileTabClose(event, tab.path)}
                         data-test={`auth-mobile-tab-close-${tab.path}`}
                       >
-                        <CloseOutline class="w-3.5 h-3.5" />
+                        <X class="w-3.5 h-3.5" />
                       </button>
                     )}
                   </div>

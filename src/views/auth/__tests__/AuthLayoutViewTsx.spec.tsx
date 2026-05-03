@@ -177,57 +177,57 @@ vi.mock('@/assets/logo.svg?url', () => ({
   default: 'logo-mock-url',
 }))
 
-vi.mock('@vicons/ionicons5', () => ({
-  ChevronBackOutline: defineComponent({
-    name: 'ChevronBackOutline',
+vi.mock('lucide-vue-next', () => ({
+  ChevronLeft: defineComponent({
+    name: 'ChevronLeft',
     setup() {
       return () => h('i', { 'data-test': 'icon-chevron-back' })
     },
   }),
-  ChevronForwardOutline: defineComponent({
-    name: 'ChevronForwardOutline',
+  ChevronRight: defineComponent({
+    name: 'ChevronRight',
     setup() {
       return () => h('i', { 'data-test': 'icon-chevron-forward' })
     },
   }),
-  CloseOutline: defineComponent({
-    name: 'CloseOutline',
+  X: defineComponent({
+    name: 'X',
     setup() {
       return () => h('i', { 'data-test': 'icon-close' })
     },
   }),
-  LogOutOutline: defineComponent({
-    name: 'LogOutOutline',
+  LogOut: defineComponent({
+    name: 'LogOut',
     setup() {
       return () => h('i', { 'data-test': 'icon-logout' })
     },
   }),
-  MenuOutline: defineComponent({
-    name: 'MenuOutline',
+  Menu: defineComponent({
+    name: 'Menu',
     setup() {
       return () => h('i', { 'data-test': 'icon-menu' })
     },
   }),
-  SettingsOutline: defineComponent({
-    name: 'SettingsOutline',
+  Settings: defineComponent({
+    name: 'Settings',
     setup() {
       return () => h('i', { 'data-test': 'icon-settings' })
     },
   }),
-  MoonOutline: defineComponent({
-    name: 'MoonOutline',
+  Moon: defineComponent({
+    name: 'Moon',
     setup() {
       return () => h('i', { 'data-test': 'icon-moon' })
     },
   }),
-  PersonCircleOutline: defineComponent({
-    name: 'PersonCircleOutline',
+  CircleUserRound: defineComponent({
+    name: 'CircleUserRound',
     setup() {
       return () => h('i', { 'data-test': 'icon-user' })
     },
   }),
-  SunnyOutline: defineComponent({
-    name: 'SunnyOutline',
+  Sun: defineComponent({
+    name: 'Sun',
     setup() {
       return () => h('i', { 'data-test': 'icon-sun' })
     },
