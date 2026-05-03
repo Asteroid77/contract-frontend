@@ -17,6 +17,7 @@ export type ColorTokens = {
   surfaceRaised: string
   surfaceSubtle: string
   surfaceOverlay: string
+  overlayScrim: string
   fillHover: string
   fillSelected: string
   focusRing: string
@@ -51,6 +52,7 @@ export type SemanticColorTokenKey =
   | 'color/surface/raised'
   | 'color/surface/subtle'
   | 'color/surface/overlay'
+  | 'color/overlay/scrim'
   | 'color/interaction/hover'
   | 'color/interaction/selected'
   | 'color/interaction/focus-ring'
@@ -60,9 +62,9 @@ export type SemanticColorTokenKey =
 
 export const commonTokens = {
   // 圆角
-  radiusSm: '0.25rem',
-  radiusMd: '0.5rem',
-  radiusLg: '0.75rem',
+  radiusSm: '0.125rem',
+  radiusMd: '0.25rem',
+  radiusLg: '0.375rem',
   radiusFull: '9999px',
 
   // --- 布局尺寸 ---
@@ -92,8 +94,8 @@ export const commonTokens = {
   gapFormItem: '1.5rem', // 表单垂直间距
 
   // --- 字体系统 ---
-  fontSans: "'Inter', 'Noto Sans SC', ui-sans-serif, -apple-system, BlinkMacSystemFont, sans-serif",
-  fontMono: "'SFMono-Regular', Menlo, Consolas, 'PT Mono', 'Liberation Mono', Courier, monospace",
+  fontSans: "'Inter', 'Noto Sans SC', ui-sans-serif, -apple-system, sans-serif",
+  fontMono: "'SFMono-Regular', Menlo, Consolas, monospace",
 
   // --- 阴影系统 ---
   shadowSm: '0 1px 2px rgba(0, 0, 0, 0.05)',
@@ -116,38 +118,39 @@ export const spacingScaleTokens: Record<`spacing/${number}`, string> = {
 
 export const typographyTokens = {
   'font/size/xs': '0.75rem',
-  'font/size/sm': '0.8125rem',
-  'font/size/body': '0.875rem',
+  'font/size/sm': '0.875rem',
+  'font/size/body': '1rem',
   'font/size/title': '1.25rem',
   'font/size/heading': '1.5rem',
   'font/weight/regular': '400',
   'font/weight/medium': '500',
   'font/weight/semibold': '600',
-  'line-height/tight': '1.25',
-  'line-height/body': '1.6',
+  'line-height/tight': '1.2',
+  'line-height/body': '1.5',
   'line-height/heading': '1.3',
 } as const
 
 export const componentSizeTokens = {
-  'component/control/height/small': '2rem',
-  'component/control/height/medium': '2.25rem',
+  'component/control/height/small': '1.75rem',
+  'component/control/height/medium': '2.125rem',
   'component/control/height/large': '2.5rem',
-  'component/table/header-height': '2.75rem',
-  'component/table/row-height': '3rem',
-  'component/navigation/item-height': '2.5rem',
-  'component/interactive/min-target': '1.5rem',
+  'component/table/header-height': '3rem',
+  'component/table/row-height': '2.5rem',
+  'component/navigation/item-height': '2.75rem',
+  'component/interactive/min-target': '2.75rem',
 } as const
 
 export const motionTokens = {
-  'motion/duration/fast': '120ms',
-  'motion/duration/base': '180ms',
-  'motion/duration/slow': '240ms',
+  'motion/duration/fast': '150ms',
+  'motion/duration/normal': '300ms',
+  'motion/duration/slow': '500ms',
   'motion/easing/standard': 'cubic-bezier(0.4, 0, 0.2, 1)',
   'motion/easing/enter': 'cubic-bezier(0, 0, 0.2, 1)',
   'motion/easing/exit': 'cubic-bezier(0.4, 0, 1, 1)',
-  'motion/transition/fast': '120ms cubic-bezier(0.4, 0, 0.2, 1)',
-  'motion/transition/base': '180ms cubic-bezier(0.4, 0, 0.2, 1)',
-  'motion/transition/slow': '240ms cubic-bezier(0.4, 0, 0.2, 1)',
+  'motion/scale/press': '0.98',
+  'motion/transition/fast': '150ms cubic-bezier(0.4, 0, 0.2, 1)',
+  'motion/transition/base': '300ms cubic-bezier(0.4, 0, 0.2, 1)',
+  'motion/transition/slow': '500ms cubic-bezier(0.4, 0, 0.2, 1)',
 } as const
 
 export const layerTokens = {
@@ -212,6 +215,7 @@ export const primitiveColorTokens = {
   'amber-600': '#D97706',
   'amber-700': '#B45309',
   'amber-50': '#FFFBEB',
+  'amber-100': '#FEF3C7',
   'amber-200': '#FDE68A',
   'amber-950': '#451A03',
   'rose-50': '#FFF1F2',
@@ -220,11 +224,18 @@ export const primitiveColorTokens = {
   'rose-800': '#9F1239',
   'rose-900': '#881337',
   'red-50': '#FEF2F2',
+  'red-100': '#FEE2E2',
   'red-200': '#FECACA',
   'red-400': '#F87171',
   'red-500': '#EF4444',
+  'red-600': '#DC2626',
   'red-700': '#B91C1C',
   'red-950': '#450A0A',
+  'emerald-50': '#ECFDF5',
+  'emerald-200': '#D1FAE5',
+  'emerald-400': '#4ADE80',
+  'emerald-500': '#10B981',
+  'emerald-600': '#059669',
   'green-50': '#F0FDF4',
   'green-200': '#BBF7D0',
   'green-400': '#4ADE80',
@@ -239,7 +250,7 @@ export const colorTokens = {
     primary: '#334155', // slate-700
     primaryHover: '#475569', // slate-600
     primaryPressed: '#1E293B', // slate-800
-    primarySuppl: '#334155', // slate-700
+    primarySuppl: '#475569', // slate-600
     // [副色/强调色] 深蓝 (Inter/Royal Blue)
     // 用于链接、选中状态、或者 Info 类型的提示
     accent: '#2563EB', // blue-600
@@ -259,6 +270,7 @@ export const colorTokens = {
     surfaceRaised: '#FFFFFF',
     surfaceSubtle: '#F1F5F9',
     surfaceOverlay: '#FFFFFF',
+    overlayScrim: 'rgba(15, 23, 42, 0.5)',
     fillHover: '#F8FAFC',
     fillSelected: '#EFF6FF',
     focusRing: '#2563EB',
@@ -294,6 +306,7 @@ export const colorTokens = {
     surfaceRaised: '#0F172A',
     surfaceSubtle: '#1E293B',
     surfaceOverlay: '#020617',
+    overlayScrim: 'rgba(15, 23, 42, 0.5)',
     fillHover: '#1E293B',
     fillSelected: '#1E3A8A',
     focusRing: '#60A5FA',
@@ -329,6 +342,7 @@ export const colorTokens = {
     surfaceRaised: '#FFFFFF',
     surfaceSubtle: '#FFF1F2',
     surfaceOverlay: '#FFFFFF',
+    overlayScrim: 'rgba(15, 23, 42, 0.5)',
     fillHover: '#FFF1F2',
     fillSelected: '#FECDD3',
     focusRing: '#DB2777',
@@ -346,29 +360,29 @@ export type StatusToneTokens = Record<StatusTonePart, string>
 export const statusColorTokens: Record<ThemeName, Record<StatusTone, StatusToneTokens>> = {
   light: {
     draft: {
-      text: primitiveColorTokens['slate-700'],
+      text: primitiveColorTokens['slate-600'],
       background: primitiveColorTokens['slate-100'],
       border: primitiveColorTokens['slate-200'],
     },
     pending: {
-      text: primitiveColorTokens['amber-700'],
+      text: primitiveColorTokens['amber-600'],
       background: primitiveColorTokens['amber-50'],
-      border: primitiveColorTokens['amber-200'],
+      border: primitiveColorTokens['amber-100'],
     },
     approved: {
-      text: primitiveColorTokens['green-700'],
-      background: primitiveColorTokens['green-50'],
-      border: primitiveColorTokens['green-200'],
+      text: primitiveColorTokens['emerald-600'],
+      background: primitiveColorTokens['emerald-50'],
+      border: primitiveColorTokens['emerald-200'],
     },
     rejected: {
-      text: primitiveColorTokens['red-700'],
+      text: primitiveColorTokens['red-600'],
       background: primitiveColorTokens['red-50'],
-      border: primitiveColorTokens['red-200'],
+      border: primitiveColorTokens['red-100'],
     },
     archived: {
-      text: primitiveColorTokens['slate-600'],
-      background: primitiveColorTokens['slate-100'],
-      border: primitiveColorTokens['slate-300'],
+      text: primitiveColorTokens['slate-400'],
+      background: primitiveColorTokens['slate-50'],
+      border: primitiveColorTokens['slate-100'],
     },
   },
   dark: {
@@ -454,6 +468,7 @@ function createSemanticColorTokens(
     'color/surface/raised': colors.surfaceRaised,
     'color/surface/subtle': colors.surfaceSubtle,
     'color/surface/overlay': colors.surfaceOverlay,
+    'color/overlay/scrim': colors.overlayScrim,
     'color/interaction/hover': colors.fillHover,
     'color/interaction/selected': colors.fillSelected,
     'color/interaction/focus-ring': colors.focusRing,
@@ -480,7 +495,7 @@ function createSemanticColorTokens(
 export const semanticColorTokens: Record<ThemeName, Record<SemanticColorTokenKey, string>> = {
   light: createSemanticColorTokens(colorTokens.light, statusColorTokens.light, {
     error: primitiveColorTokens['red-500'],
-    success: primitiveColorTokens['green-500'],
+    success: primitiveColorTokens['emerald-500'],
   }),
   dark: createSemanticColorTokens(colorTokens.dark, statusColorTokens.dark, {
     error: primitiveColorTokens['red-400'],

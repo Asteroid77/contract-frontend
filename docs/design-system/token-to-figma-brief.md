@@ -9,7 +9,7 @@ This brief turns the current frontend design token layer into a practical prompt
 - Code tokens: `src/app/presentation/theme/ThemeToken.ts`
 - Naive UI bridge: `src/app/presentation/theme/hooks/useTheme.ts`
 - CSS generation: `vite-plugin/ThemeGeneratorVitePlugin.ts`
-- Design constraints: `docs/design-contract.yaml`
+- Design constraints: `docs/reference/api/design-contract.yaml`
 
 The implementation follows the mainstream token layering used by design systems:
 
@@ -84,7 +84,7 @@ Canvas and layout:
 
 Design tokens:
 - Font: Inter + Noto Sans SC.
-- Radius: 4px, 8px, 12px.
+- Radius: 2px, 4px, 6px.
 - Body background: #f8fafc.
 - Card/surface background: #ffffff.
 - Subtle surface: #f1f5f9.
@@ -94,9 +94,12 @@ Design tokens:
 - Border: #e2e8f0.
 - Primary: #334155.
 - Link/accent: #2563eb.
-- Success: #15803d.
-- Warning: #b45309.
-- Error: #b91c1c.
+- Success: #10b981; status success text uses #059669 on #ecfdf5.
+- Warning: #b45309; status warning text uses #d97706 on #fffbeb.
+- Error: #ef4444; status error text uses #dc2626 on #fef2f2.
+- Scrim overlay: rgba(15, 23, 42, 0.5); keep content overlays on #ffffff.
+- Motion: 150ms / 300ms / 500ms with cubic-bezier(0.4, 0, 0.2, 1).
+- Component heights: controls 28px / 34px / 40px, table row 40px, nav item 44px.
 
 Required components:
 - Sidebar navigation with active item.

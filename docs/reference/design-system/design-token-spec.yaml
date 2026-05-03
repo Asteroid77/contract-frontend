@@ -11,18 +11,61 @@ naming:
   layer: layer/<surface>
   opacity: opacity/<state>
   border: border/<property>/<modifier>
+  component: component/<component>/<property>/<modifier>
 
 colors:
   semantic:
     color/primary/default: '{color/primitive/slate-700}'
     color/primary/hover: '{color/primitive/slate-600}'
+    color/primary/suppl: '{color/primitive/slate-600}'
+    color/accent/default: '{color/primitive/blue-600}'
+    color/background/body: '{color/primitive/slate-50}'
+    color/background/card: '{color/primitive/white}'
+    color/text/main: '{color/primitive/slate-900}'
+    color/text/body: '{color/primitive/slate-700}'
+    color/text/light: '{color/primitive/slate-500}'
+    color/border/default: '{color/primitive/slate-200}'
     color/semantic/error: '{color/primitive/red-500}'
-    color/semantic/success: '{color/primitive/green-500}'
+    color/semantic/success: '{color/primitive/emerald-500}'
+    color/semantic/warning: '{color/primitive/amber-700}'
+    color/overlay/scrim: 'rgba(15, 23, 42, 0.5)'
+    color/status/draft/text: '{color/primitive/slate-600}'
+    color/status/draft/background: '{color/primitive/slate-100}'
+    color/status/draft/border: '{color/primitive/slate-200}'
+    color/status/pending/text: '{color/primitive/amber-600}'
+    color/status/pending/background: '{color/primitive/amber-50}'
+    color/status/pending/border: '{color/primitive/amber-100}'
+    color/status/approved/text: '{color/primitive/emerald-600}'
+    color/status/approved/background: '{color/primitive/emerald-50}'
+    color/status/approved/border: '{color/primitive/emerald-200}'
+    color/status/rejected/text: '{color/primitive/red-600}'
+    color/status/rejected/background: '{color/primitive/red-50}'
+    color/status/rejected/border: '{color/primitive/red-100}'
+    color/status/archived/text: '{color/primitive/slate-400}'
+    color/status/archived/background: '{color/primitive/slate-50}'
+    color/status/archived/border: '{color/primitive/slate-100}'
   primitive:
+    color/primitive/slate-50: '#F8FAFC'
+    color/primitive/slate-100: '#F1F5F9'
+    color/primitive/slate-200: '#E2E8F0'
+    color/primitive/slate-500: '#64748B'
     color/primitive/slate-700: '#334155'
     color/primitive/slate-600: '#475569'
+    color/primitive/slate-900: '#0F172A'
+    color/primitive/blue-600: '#2563EB'
+    color/primitive/amber-50: '#FFFBEB'
+    color/primitive/amber-100: '#FEF3C7'
+    color/primitive/amber-600: '#D97706'
+    color/primitive/amber-700: '#B45309'
+    color/primitive/emerald-50: '#ECFDF5'
+    color/primitive/emerald-200: '#D1FAE5'
+    color/primitive/emerald-500: '#10B981'
+    color/primitive/emerald-600: '#059669'
+    color/primitive/red-50: '#FEF2F2'
+    color/primitive/red-100: '#FEE2E2'
     color/primitive/red-500: '#EF4444'
-    color/primitive/green-500: '#22C55E'
+    color/primitive/red-600: '#DC2626'
+    color/primitive/white: '#FFFFFF'
 
 spacing:
   spacing/4: 0.25rem
@@ -44,15 +87,19 @@ font:
     size: 1rem
     line_height: 1.5rem
     weight: 400
-  font/heading/h1:
-    size: 2.5rem
-    line_height: 3rem
-    weight: 700
+  font/title/default:
+    size: 1.25rem
+    line_height: 1.3
+    weight: 600
+  font/heading/default:
+    size: 1.5rem
+    line_height: 1.3
+    weight: 600
 
 radius:
-  radius/sm: 0.25rem
-  radius/md: 0.5rem
-  radius/lg: 1rem
+  radius/sm: 0.125rem
+  radius/md: 0.25rem
+  radius/lg: 0.375rem
   radius/full: 9999px
 
 elevation:
@@ -68,13 +115,16 @@ elevation:
     elevation/modal: '{elevation/4}'
 
 motion:
-  motion/duration/fast: 120ms
-  motion/duration/base: 180ms
-  motion/duration/slow: 240ms
+  motion/duration/fast: 150ms
+  motion/duration/normal: 300ms
+  motion/duration/slow: 500ms
   motion/easing/standard: 'cubic-bezier(0.4, 0, 0.2, 1)'
   motion/easing/enter: 'cubic-bezier(0, 0, 0.2, 1)'
   motion/easing/exit: 'cubic-bezier(0.4, 0, 1, 1)'
-  motion/transition/base: '180ms cubic-bezier(0.4, 0, 0.2, 1)'
+  motion/scale/press: '0.98'
+  motion/transition/fast: '150ms cubic-bezier(0.4, 0, 0.2, 1)'
+  motion/transition/base: '300ms cubic-bezier(0.4, 0, 0.2, 1)'
+  motion/transition/slow: '500ms cubic-bezier(0.4, 0, 0.2, 1)'
 
 layer:
   layer/base: 0
@@ -99,6 +149,15 @@ border:
   border/style/default: solid
   border/style/focus: solid
   border/focus-ring-width: 0.125rem
+
+component:
+  component/control/height/small: 1.75rem
+  component/control/height/medium: 2.125rem
+  component/control/height/large: 2.5rem
+  component/table/header-height: 3rem
+  component/table/row-height: 2.5rem
+  component/navigation/item-height: 2.75rem
+  component/interactive/min-target: 2.75rem
 
 card_patterns:
   horizontal:

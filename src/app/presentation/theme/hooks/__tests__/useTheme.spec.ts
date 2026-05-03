@@ -66,6 +66,7 @@ describe('useTheme', () => {
     const {
       borderTokens,
       colorTokens,
+      commonTokens,
       componentSizeTokens,
       elevationTokens,
       motionTokens,
@@ -80,6 +81,8 @@ describe('useTheme', () => {
     expect(bridge.common?.fontSize).toBe(typographyTokens['font/size/body'])
     expect(bridge.common?.fontSizeMedium).toBe(typographyTokens['font/size/body'])
     expect(bridge.common?.heightMedium).toBe(componentSizeTokens['component/control/height/medium'])
+    expect(bridge.common?.borderRadius).toBe(commonTokens.radiusMd)
+    expect(bridge.common?.borderRadiusSmall).toBe(commonTokens.radiusSm)
     expect(bridge.common?.opacityDisabled).toBe(opacityTokens['opacity/disabled'])
     expect(bridge.common?.boxShadow1).toBe(elevationTokens['elevation/card'])
     expect(bridge.common?.boxShadow2).toBe(elevationTokens['elevation/popover'])
@@ -96,7 +99,10 @@ describe('useTheme', () => {
       semanticColorTokens.light['color/interaction/hover'],
     )
     expect(bridge.DataTable?.thFontWeight).toBe(typographyTokens['font/weight/semibold'])
+    expect(bridge.Card?.borderRadius).toBe(commonTokens.radiusLg)
+    expect(bridge.Dialog?.borderRadius).toBe(commonTokens.radiusLg)
     expect(bridge.Menu?.itemHeight).toBe(componentSizeTokens['component/navigation/item-height'])
+    expect(bridge.Menu?.borderRadius).toBe(commonTokens.radiusMd)
     expect(bridge.Menu?.itemColorActive).toBe(
       semanticColorTokens.light['color/interaction/selected'],
     )
