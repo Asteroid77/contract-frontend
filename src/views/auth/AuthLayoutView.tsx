@@ -14,13 +14,7 @@ import {
 } from 'lucide-vue-next'
 import { useTheme, type Theme } from '@/app/presentation/theme/hooks/useTheme'
 import { useTabsStore } from '@/app/application/stores/useTabsStore'
-import {
-  dashboardRoutes,
-  businessRoutes,
-  userRoutes,
-  manageRoutes,
-  approvalRoutes,
-} from '@/router/modules'
+import { authRoutes } from '@/router'
 import { findAllParents } from '@/app/presentation/layout/utils/BreadCrumbBuilder'
 import { resolveIcon, type IconNames } from '@/app/presentation/layout/utils/MenuBuilder'
 import { renderIcon } from '@/_utils/widget/renderIcon'
@@ -35,14 +29,6 @@ import logoSvgUrl from '@/assets/logo.svg?url'
 import { useViewportMode } from '@/app/presentation/hooks/useViewportMode'
 
 type LocaleType = AppLocale
-
-const authRoutes: AppRouteRecord[] = [
-  ...dashboardRoutes,
-  ...businessRoutes,
-  ...userRoutes,
-  ...manageRoutes,
-  ...approvalRoutes,
-]
 
 const routeInfoMap: Record<string, AppRouteRecord> = {}
 
@@ -111,6 +97,7 @@ export default defineComponent({
           path: route.path,
           meta: {
             name: route.meta.name,
+            icon: route.meta.icon,
           },
         } as AppRouteRecord)
       }
@@ -120,6 +107,7 @@ export default defineComponent({
         .map((item) => ({
           path: item.path as string,
           title: t(item.meta?.name as string),
+          icon: item.meta?.icon as string | undefined,
         }))
     })
 
@@ -497,10 +485,26 @@ export default defineComponent({
             ) : (
               <div class="flex-1 items-center gap-2 text-sm min-w-0 overflow-x-auto pl-[var(--spacing-sm)] hidden md:flex">
                 {breadcrumbs.value.map((crumb, index) => (
-                  <div class="flex items-center gap-2 shrink-0" key={`${crumb.path}-${index}`}>
+                  <div
+                    class="flex items-center gap-2 shrink-0"
+                    key={`${crumb.path}-${index}`}
+                    data-test={`auth-breadcrumb-item-${crumb.path}-${index}`}
+                  >
                     {index > 0 && (
                       <span class="text-sm font-medium leading-none text-[var(--color-text-light)] shrink-0">
                         {'>'}
+                      </span>
+                    )}
+                    {crumb.icon && (
+                      <span
+                        class={[
+                          'shrink-0 inline-flex items-center',
+                          index === breadcrumbs.value.length - 1
+                            ? 'text-[var(--color-text-main)]'
+                            : 'text-[var(--color-text-light)]',
+                        ]}
+                      >
+                        {renderMenuIcon(crumb.icon)}
                       </span>
                     )}
                     <span
@@ -546,8 +550,9 @@ export default defineComponent({
                   {tabsStore.tabList.map((tab) => (
                     <div
                       key={tab.path}
+                      data-test={`auth-desktop-tab-item-${tab.path}`}
                       class={[
-                        'flex items-center gap-2 px-3 py-1.5 rounded-md text-sm cursor-pointer transition-colors whitespace-nowrap group',
+                        'flex items-center gap-2 px-3 py-1.5 rounded-md text-sm cursor-pointer transition-colors whitespace-nowrap',
                         tabsStore.activeTab === tab.path
                           ? 'bg-[var(--color-primary)] text-[var(--color-bg-card)]'
                           : 'text-[var(--color-text-body)] hover:bg-[var(--color-border)]',
@@ -560,8 +565,9 @@ export default defineComponent({
                       <span class="truncate max-w-40">{`${t(tab.titleKey)}${tab.titleSuffix ?? ''}`}</span>
                       {tabsStore.tabList.length > 1 && (
                         <button
+                          data-test={`auth-desktop-tab-close-${tab.path}`}
                           class={[
-                            'opacity-0 group-hover:opacity-100 p-0.5 rounded transition-opacity',
+                            'p-0.5 rounded transition-colors',
                             tabsStore.activeTab === tab.path
                               ? 'hover:bg-[var(--color-bg-card)]/20'
                               : 'hover:bg-[var(--color-text-light)]/20',
