@@ -261,15 +261,15 @@ vi.mock('naive-ui', () => ({
   }),
 }))
 
-vi.mock('@vicons/ionicons5', () => ({
-  CameraOutline: defineComponent({
-    name: 'CameraOutline',
+vi.mock('lucide-vue-next', () => ({
+  Camera: defineComponent({
+    name: 'Camera',
     setup() {
       return () => h('i', { 'data-test': 'camera-icon' })
     },
   }),
-  LogOutOutline: defineComponent({
-    name: 'LogOutOutline',
+  LogOut: defineComponent({
+    name: 'LogOut',
     setup() {
       return () => h('i', { 'data-test': 'logout-icon' })
     },

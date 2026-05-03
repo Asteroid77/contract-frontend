@@ -38,33 +38,33 @@ vi.mock('vue-router', () => ({
   }),
 }))
 
-vi.mock('@vicons/antd', () => ({
-  InfoCircleFilled: defineComponent({
-    name: 'InfoCircleFilled',
+vi.mock('lucide-vue-next', () => ({
+  Info: defineComponent({
+    name: 'Info',
     setup() {
       return () => h('span')
     },
   }),
-  IdcardOutlined: defineComponent({
-    name: 'IdcardOutlined',
+  IdCard: defineComponent({
+    name: 'IdCard',
     setup() {
       return () => h('span')
     },
   }),
-  KeyOutlined: defineComponent({
-    name: 'KeyOutlined',
+  KeyRound: defineComponent({
+    name: 'KeyRound',
     setup() {
       return () => h('span')
     },
   }),
-  MailOutlined: defineComponent({
-    name: 'MailOutlined',
+  Mail: defineComponent({
+    name: 'Mail',
     setup() {
       return () => h('span')
     },
   }),
-  SendOutlined: defineComponent({
-    name: 'SendOutlined',
+  Send: defineComponent({
+    name: 'Send',
     setup() {
       return () => h('span')
     },

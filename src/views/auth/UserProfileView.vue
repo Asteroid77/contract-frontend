@@ -13,7 +13,7 @@ import {
   NResult,
 } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
-import { CameraOutline, LogOutOutline } from '@vicons/ionicons5'
+import { Camera, LogOut } from 'lucide-vue-next'
 import type { UserAdditionalInfoForm } from '@/modules/user/application/models'
 import { useLatestAdditionalInfoInstanceStatus } from '@/modules/approval/application/hooks/useApprovalService'
 import { useRouter } from 'vue-router'
@@ -146,7 +146,7 @@ const handleViewApproval = () => {
       </div>
       <n-button type="error" ghost @click="handleLogout">
         <template #icon>
-          <LogOutOutline :style="{ width: actionIconSize, height: actionIconSize }" />
+          <LogOut :style="{ width: actionIconSize, height: actionIconSize }" />
         </template>
         {{ $t('auth.action.logout') }}
       </n-button>
@@ -175,7 +175,7 @@ const handleViewApproval = () => {
                 :title="$t('layout.profile.avatar.upload')"
                 @click="handleAvatarUpload"
               >
-                <CameraOutline :style="{ width: actionIconSize, height: actionIconSize }" />
+                <Camera :style="{ width: actionIconSize, height: actionIconSize }" />
               </button>
             </div>
 

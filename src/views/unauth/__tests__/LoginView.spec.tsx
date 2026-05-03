@@ -103,21 +103,21 @@ vi.mock('@/_utils/discrete_naive_api', () => ({
   },
 }))
 
-vi.mock('@vicons/ionicons5', () => ({
-  LogoGithub: defineComponent({
-    name: 'LogoGithub',
+vi.mock('lucide-vue-next', () => ({
+  Github: defineComponent({
+    name: 'Github',
     setup() {
       return () => h('i', { 'data-test': 'icon-github' })
     },
   }),
-  LogoWechat: defineComponent({
-    name: 'LogoWechat',
+  MessageCircle: defineComponent({
+    name: 'MessageCircle',
     setup() {
       return () => h('i', { 'data-test': 'icon-wechat' })
     },
   }),
-  RefreshOutline: defineComponent({
-    name: 'RefreshOutline',
+  RefreshCw: defineComponent({
+    name: 'RefreshCw',
     setup() {
       return () => h('i', { 'data-test': 'icon-refresh' })
     },

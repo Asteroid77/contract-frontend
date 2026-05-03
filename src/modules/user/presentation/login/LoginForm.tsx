@@ -19,7 +19,7 @@ import {
   NSpin,
   NTooltip,
 } from 'naive-ui'
-import { InfoCircleFilled, IdcardOutlined, KeyOutlined, MailOutlined } from '@vicons/antd'
+import { IdCard, Info, KeyRound, Mail } from 'lucide-vue-next'
 import { useCaptcha } from '@/modules/captcha/application/hooks/useCaptcha'
 import clsx from 'clsx'
 import type { SignInForm } from '@/modules/user/application/models'
@@ -84,7 +84,7 @@ export default defineComponent({
               v-slots={{
                 prefix: () => (
                   <NIcon>
-                    <IdcardOutlined></IdcardOutlined>
+                    <IdCard></IdCard>
                   </NIcon>
                 ),
                 suffix: () => (
@@ -94,7 +94,7 @@ export default defineComponent({
                     v-slots={{
                       trigger: () => (
                         <NIcon class={'logiNForm-suffix-icon'}>
-                          <InfoCircleFilled></InfoCircleFilled>
+                          <Info></Info>
                         </NIcon>
                       ),
                       default: () => $t('auth.hint.phoneSupport'),
@@ -118,7 +118,7 @@ export default defineComponent({
               v-slots={{
                 prefix: () => (
                   <NIcon>
-                    <KeyOutlined></KeyOutlined>
+                    <KeyRound></KeyRound>
                   </NIcon>
                 ),
                 suffix: () => (
@@ -128,7 +128,7 @@ export default defineComponent({
                     v-slots={{
                       trigger: () => (
                         <NIcon class="logiNForm-suffix-icon multi-icon">
-                          <InfoCircleFilled></InfoCircleFilled>
+                          <Info></Info>
                         </NIcon>
                       ),
                       default: () => $t('auth.validation.passwordLength'),
@@ -151,7 +151,7 @@ export default defineComponent({
               v-slots={{
                 prefix: () => (
                   <NIcon>
-                    <MailOutlined></MailOutlined>
+                    <Mail></Mail>
                   </NIcon>
                 ),
                 suffix: () => (
@@ -161,7 +161,7 @@ export default defineComponent({
                     v-slots={{
                       trigger: () => (
                         <NIcon class="login-form-suffix-icon">
-                          <InfoCircleFilled></InfoCircleFilled>
+                          <Info></Info>
                         </NIcon>
                       ),
                       default: () => $t('auth.captcha.refreshHint'),

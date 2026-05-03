@@ -2,7 +2,7 @@ import { defineComponent, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { NForm, NFormItem, NInput, NButton } from 'naive-ui'
-import { ArrowBackOutline } from '@vicons/ionicons5'
+import { ArrowLeft } from 'lucide-vue-next'
 import { useSMS } from '@/modules/captcha/application/hooks/useSMS'
 import { message } from '@/_utils/discrete_naive_api'
 import type { PasswordRecoveryForm } from '@/modules/user/application/models'
@@ -76,7 +76,7 @@ export default defineComponent({
           class="flex items-center gap-1 text-[var(--color-text-light)] hover:text-[var(--color-text-main)] mb-6 transition-colors"
           onClick={() => router.push({ name: 'login' })}
         >
-          <ArrowBackOutline style={{ width: 'var(--spacing-16)', height: 'var(--spacing-16)' }} />
+          <ArrowLeft style={{ width: 'var(--spacing-16)', height: 'var(--spacing-16)' }} />
           <span class="text-sm">{t('auth.action.backToLogin')}</span>
         </button>
 

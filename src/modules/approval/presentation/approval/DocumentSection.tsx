@@ -1,6 +1,6 @@
 import { defineComponent, ref } from 'vue'
 import { NIcon } from 'naive-ui'
-import { ChevronDown, ChevronRight } from '@vicons/carbon'
+import { ChevronDown, ChevronRight } from 'lucide-vue-next'
 
 export default defineComponent({
   name: 'DocumentSection',

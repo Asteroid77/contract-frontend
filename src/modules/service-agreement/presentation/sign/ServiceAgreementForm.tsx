@@ -10,7 +10,7 @@ import AttachmentSection from './AttachmentSection'
 import { ServiceAgreementStatusEnum } from '@/modules/service-agreement/application/constants'
 import { $t } from '@/_utils/i18n'
 import { createServiceAgreementModel } from '@/modules/service-agreement/application/ui-mappers'
-import { WarningOutlined } from '@vicons/antd'
+import { TriangleAlert } from 'lucide-vue-next'
 import type { ValidateError } from '@/types/vendor/naive-ui'
 import { createServiceAgreementRules } from '@/modules/service-agreement/application/validation'
 import FormSkeleton from '@/modules/shared/presentation/widget/FormSkeleton'
@@ -76,7 +76,7 @@ export default defineComponent({
             trigger: () => (
               <NText type="error">
                 <NIcon size="18" style={{ verticalAlign: 'middle', marginLeft: '8px' }}>
-                  <WarningOutlined />
+                  <TriangleAlert />
                 </NIcon>
               </NText>
             ),

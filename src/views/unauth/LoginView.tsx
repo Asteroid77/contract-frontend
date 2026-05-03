@@ -2,7 +2,7 @@ import { defineComponent, ref, shallowRef, watch, onMounted, onUnmounted } from 
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { NForm, NFormItem, NInput, NButton, NCheckbox, NDivider } from 'naive-ui'
-import { LogoGithub, LogoWechat, RefreshOutline } from '@vicons/ionicons5'
+import { Github, MessageCircle, RefreshCw } from 'lucide-vue-next'
 import type { SignInForm } from '@/modules/user/application/models'
 import { useLogin } from '@/modules/user/application/hooks/useLogin'
 import { useOauth2AuthorizationUrl } from '@/modules/user/application/hooks/useOauth2AuthorizationUrl'
@@ -149,7 +149,7 @@ export default defineComponent({
                 onClick={() => refreshCaptcha()}
               >
                 {captchaLoading.value || !captchaData.value?.image ? (
-                  <RefreshOutline
+                  <RefreshCw
                     class="animate-spin text-[var(--color-text-light)]"
                     style={{ width: 'var(--spacing-16)', height: 'var(--spacing-16)' }}
                   />
@@ -196,11 +196,11 @@ export default defineComponent({
             class="flex items-center justify-center gap-2 px-6 py-2.5 border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-border)] transition-colors"
             onClick={() => oauth2BtnClick('github')}
           >
-            <LogoGithub class="w-5 h-5" />
+            <Github class="w-5 h-5" />
             <span class="text-sm">GitHub</span>
           </button>
           <button class="flex items-center justify-center gap-2 px-6 py-2.5 border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-border)] transition-colors text-green-600">
-            <LogoWechat class="w-5 h-5" />
+            <MessageCircle class="w-5 h-5" />
             <span class="text-sm">QQ</span>
           </button>
         </div>

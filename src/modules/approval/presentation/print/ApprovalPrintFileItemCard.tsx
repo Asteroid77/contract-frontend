@@ -1,6 +1,6 @@
 import type { OssCallbackView } from '@/modules/file/application/models'
 import { resolveAllowedAccessUrl } from '@/modules/shared/application/security/access-url'
-import { FilePdfOutlined } from '@vicons/antd'
+import { FileText } from 'lucide-vue-next'
 import { NIcon, NImage, NTag } from 'naive-ui'
 import type { PropType } from 'vue'
 import { computed, defineComponent } from 'vue'
@@ -69,7 +69,7 @@ export default defineComponent({
           ) : (
             <div class="file-diff-card__pdf-placeholder" onClick={handlePdfClick}>
               <NIcon size="40">
-                <FilePdfOutlined />
+                <FileText />
               </NIcon>
               <span class="file-diff-card__click-tip">{$t('common.action.preview')}</span>
             </div>

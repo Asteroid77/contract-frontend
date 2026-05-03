@@ -11,7 +11,7 @@ vi.mock('naive-ui', () => ({
   }),
 }))
 
-vi.mock('@vicons/carbon', () => ({
+vi.mock('lucide-vue-next', () => ({
   ChevronDown: defineComponent({
     name: 'MockChevronDown',
     setup() {

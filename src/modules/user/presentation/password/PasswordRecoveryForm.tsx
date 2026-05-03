@@ -1,13 +1,7 @@
 import { defineComponent, ref, useTemplateRef, type PropType, type ShallowRef } from 'vue'
 import { NButton, NForm, NFormItem, NIcon, NInput, NTooltip } from 'naive-ui'
 import { $t } from '@/_utils/i18n'
-import {
-  InfoCircleFilled,
-  IdcardOutlined,
-  KeyOutlined,
-  MailOutlined,
-  SendOutlined,
-} from '@vicons/antd'
+import { IdCard, Info, KeyRound, Mail, Send } from 'lucide-vue-next'
 import clsx from 'clsx'
 import type { PasswordRecoveryForm } from '@/modules/user/application/models'
 import { RouterLink } from 'vue-router'
@@ -83,7 +77,7 @@ export default defineComponent({
               v-slots={{
                 prefix: () => (
                   <NIcon>
-                    <IdcardOutlined></IdcardOutlined>
+                    <IdCard></IdCard>
                   </NIcon>
                 ),
                 suffix: () => (
@@ -93,7 +87,7 @@ export default defineComponent({
                     v-slots={{
                       trigger: () => (
                         <NIcon class={'logiNForm-suffix-icon'}>
-                          <InfoCircleFilled></InfoCircleFilled>
+                          <Info></Info>
                         </NIcon>
                       ),
                       default: () => $t('auth.hint.phoneSupport'),
@@ -117,7 +111,7 @@ export default defineComponent({
               v-slots={{
                 prefix: () => (
                   <NIcon>
-                    <KeyOutlined></KeyOutlined>
+                    <KeyRound></KeyRound>
                   </NIcon>
                 ),
                 suffix: () => (
@@ -127,7 +121,7 @@ export default defineComponent({
                     v-slots={{
                       trigger: () => (
                         <NIcon class="logiNForm-suffix-icon multi-icon">
-                          <InfoCircleFilled></InfoCircleFilled>
+                          <Info></Info>
                         </NIcon>
                       ),
                       default: () => $t('auth.validation.passwordLength'),
@@ -155,7 +149,7 @@ export default defineComponent({
               v-slots={{
                 prefix: () => (
                   <NIcon>
-                    <KeyOutlined></KeyOutlined>
+                    <KeyRound></KeyRound>
                   </NIcon>
                 ),
                 suffix: () => (
@@ -165,7 +159,7 @@ export default defineComponent({
                     v-slots={{
                       trigger: () => (
                         <NIcon class="logiNForm-suffix-icon multi-icon">
-                          <InfoCircleFilled></InfoCircleFilled>
+                          <Info></Info>
                         </NIcon>
                       ),
                       default: () => $t('auth.validation.passwordLength'),
@@ -189,7 +183,7 @@ export default defineComponent({
               v-slots={{
                 prefix: () => (
                   <NIcon>
-                    <MailOutlined></MailOutlined>
+                    <Mail></Mail>
                   </NIcon>
                 ),
               }}
@@ -197,7 +191,7 @@ export default defineComponent({
             <NButton
               type="primary"
               v-slots={{
-                icon: () => <NIcon>{<SendOutlined class="send-icon"></SendOutlined>}</NIcon>,
+                icon: () => <NIcon>{<Send class="send-icon"></Send>}</NIcon>,
               }}
               disabled={
                 formData.value.phone ? getSMSCoolDownSecond(formData.value.phone).value > 0 : true

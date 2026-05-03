@@ -1,5 +1,5 @@
 import { computed, defineComponent } from 'vue'
-import { SearchOutlined } from '@vicons/antd'
+import { Search } from 'lucide-vue-next'
 import { NButton, NIcon, NResult, NSpace } from 'naive-ui'
 import ServiceAgreementPage from '@/modules/service-agreement/presentation/sign/ServiceAgreementPage'
 import { useServiceAgreementPage } from '@/modules/service-agreement/application/hooks/useSignService'
@@ -25,7 +25,7 @@ type ServiceAgreementPageRequest = Parameters<typeof useServiceAgreementPage>[0]
 
 const renderPrimarySearchIcon = () => (
   <NIcon size={40} style={{ color: 'var(--color-primary)' }}>
-    <SearchOutlined />
+    <Search />
   </NIcon>
 )
 

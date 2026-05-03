@@ -6,7 +6,7 @@ import { message } from '@/_utils/discrete_naive_api'
 import { useUploadFileMutation } from '@/modules/service-agreement/application/hooks/useSignService'
 import { useFilesDetailQuery } from '@/modules/file/application/hooks/useFileService'
 import { resolveAllowedAccessUrl } from '@/modules/shared/application/security/access-url'
-import { ImageOutlined } from '@vicons/material'
+import { Image } from 'lucide-vue-next'
 import { $t } from '@/_utils/i18n'
 
 export default defineComponent({
@@ -156,7 +156,7 @@ export default defineComponent({
       )
     }
 
-    const renderUploadIcon = () => h(NIcon, null, { default: () => h(ImageOutlined) })
+    const renderUploadIcon = () => h(NIcon, null, { default: () => h(Image) })
     const createThumbnailUrl = (file: File | null, fileInfo: UploadFileInfo) => {
       if (fileInfo.url) return fileInfo.url
       if (fileInfo.file) return URL.createObjectURL(fileInfo.file)

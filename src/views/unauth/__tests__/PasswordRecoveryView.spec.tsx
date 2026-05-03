@@ -66,9 +66,9 @@ vi.mock('@/_utils/discrete_naive_api', () => ({
   },
 }))
 
-vi.mock('@vicons/ionicons5', () => ({
-  ArrowBackOutline: defineComponent({
-    name: 'ArrowBackOutline',
+vi.mock('lucide-vue-next', () => ({
+  ArrowLeft: defineComponent({
+    name: 'ArrowLeft',
     setup() {
       return () => h('i', { 'data-test': 'icon-arrow-back' })
     },

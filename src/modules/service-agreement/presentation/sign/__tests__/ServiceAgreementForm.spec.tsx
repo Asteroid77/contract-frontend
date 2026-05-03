@@ -84,9 +84,9 @@ vi.mock('naive-ui', () => ({
   }),
 }))
 
-vi.mock('@vicons/antd', () => ({
-  WarningOutlined: defineComponent({
-    name: 'WarningOutlined',
+vi.mock('lucide-vue-next', () => ({
+  TriangleAlert: defineComponent({
+    name: 'TriangleAlert',
     setup() {
       return () => h('span', { 'data-test': 'warning-icon' })
     },

@@ -59,9 +59,9 @@ vi.mock('@/modules/file/application/hooks/useFileService', () => ({
   }),
 }))
 
-vi.mock('@vicons/material', () => ({
-  ImageOutlined: defineComponent({
-    name: 'ImageOutlined',
+vi.mock('lucide-vue-next', () => ({
+  Image: defineComponent({
+    name: 'Image',
     setup() {
       return () => h('span', { 'data-test': 'image-outlined' })
     },

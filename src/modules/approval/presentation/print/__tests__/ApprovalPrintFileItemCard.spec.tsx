@@ -49,9 +49,9 @@ vi.mock('naive-ui', () => ({
   }),
 }))
 
-vi.mock('@vicons/antd', () => ({
-  FilePdfOutlined: defineComponent({
-    name: 'FilePdfOutlined',
+vi.mock('lucide-vue-next', () => ({
+  FileText: defineComponent({
+    name: 'FileText',
     setup() {
       return () => h('span', { 'data-test': 'pdf-icon' })
     },
