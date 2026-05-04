@@ -29,12 +29,17 @@ describe('ThemeGeneratorVitePlugin', () => {
     const css = generateThemeCss()
 
     expect(css).toContain(
-      [
-        '  --font-sans:',
-        "    'Inter', 'Noto Sans SC', ui-sans-serif, -apple-system, BlinkMacSystemFont, sans-serif;",
-      ].join('\n'),
+      "  --font-sans: 'Inter', 'Noto Sans SC', ui-sans-serif, -apple-system, sans-serif;",
     )
     expect(css).toContain('  --color-primitive-slate-50: #f8fafc;')
+    expect(css).toContain('  --motion-duration-fast: 150ms;')
+    expect(css).toContain('  --motion-easing-standard: cubic-bezier(0.4, 0, 0.2, 1);')
+    expect(css).toContain('  --motion-scale-press: 0.98;')
+    expect(css).toContain('  --layer-modal: 1200;')
+    expect(css).toContain('  --opacity-disabled: 0.48;')
+    expect(css).toContain('  --elevation-modal: 0 16px 32px rgba(0, 0, 0, 0.16);')
+    expect(css).toContain('  --border-width-default: 1px;')
+    expect(css).toContain('  --color-overlay-scrim: rgba(15, 23, 42, 0.5);')
     expect(css).not.toContain('#F8FAFC')
     expect(css).not.toMatch(/\n\n$/)
   })

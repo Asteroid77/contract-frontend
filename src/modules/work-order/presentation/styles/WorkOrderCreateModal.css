@@ -1,0 +1,49 @@
+.work-order-create-modal-card {
+  inline-size: 45rem;
+  max-inline-size: 90vw;
+}
+
+.work-order-create-form-grid {
+  container-name: work-order-create-form-grid;
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--spacing-16);
+  row-gap: var(--spacing-16);
+}
+
+.work-order-create-form-grid .n-form-item {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  column-gap: var(--spacing-16);
+  margin-bottom: 0;
+}
+
+.work-order-create-form-grid .n-form-item .n-form-item-label {
+  grid-column: span 4;
+  margin-bottom: 0;
+}
+
+.work-order-create-form-grid .n-form-item .n-form-item-blank {
+  grid-column: span 8;
+  min-width: 0;
+}
+
+.editor-loading-shell {
+  inline-size: 100%;
+}
+
+.editor-loading-placeholder {
+  inline-size: 100%;
+  block-size: 18rem;
+  border-radius: var(--borderRadius-8);
+  background: var(--colorFillQuaternary);
+}
+
+@container work-order-create-form-grid (max-width: 48rem) {
+  .work-order-create-form-grid .n-form-item .n-form-item-label,
+  .work-order-create-form-grid .n-form-item .n-form-item-blank {
+    grid-column: 1 / -1;
+  }
+}

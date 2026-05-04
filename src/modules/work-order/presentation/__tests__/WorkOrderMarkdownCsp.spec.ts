@@ -175,7 +175,7 @@ vi.mock('@/modules/work-order/presentation/WorkOrderStatusBadge', () => ({
   }),
 }))
 
-vi.mock('@/modules/work-order/presentation/WorkOrderScoreSection.vue', () => ({
+vi.mock('@/modules/work-order/presentation/WorkOrderScoreSection', () => ({
   default: defineComponent({
     name: 'WorkOrderScoreSection',
     setup() {
@@ -261,8 +261,8 @@ vi.mock('naive-ui', () => {
   }
 })
 
-import WorkOrderCreateModal from '@/modules/work-order/presentation/WorkOrderCreateModal.vue'
-import WorkOrderDetailPage from '@/modules/work-order/presentation/WorkOrderDetailPage.vue'
+import WorkOrderCreateModal from '@/modules/work-order/presentation/WorkOrderCreateModal'
+import WorkOrderDetailPage from '@/modules/work-order/presentation/WorkOrderDetailPage'
 
 describe('work-order markdown CSP wiring', () => {
   beforeEach(() => {

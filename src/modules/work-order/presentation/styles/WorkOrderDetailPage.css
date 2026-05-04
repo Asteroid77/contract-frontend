@@ -1,0 +1,33 @@
+.work-order-detail-page {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--layout-content-max-width);
+  margin: 0 auto;
+  padding-block: var(--spacing-md);
+  padding-inline: var(--spacing-md);
+}
+
+.markdown-loading-shell {
+  inline-size: 100%;
+}
+
+.markdown-preview-loading-placeholder {
+  inline-size: 100%;
+  block-size: 7rem;
+  border-radius: var(--borderRadius-8);
+  background: var(--colorFillQuaternary);
+}
+
+.markdown-editor-loading-placeholder {
+  inline-size: 100%;
+  block-size: 18rem;
+  border-radius: var(--borderRadius-8);
+  background: var(--colorFillQuaternary);
+}
+
+@media (min-width: 768px) {
+  .work-order-detail-page {
+    padding-block: var(--spacing-lg);
+    padding-inline: var(--spacing-lg);
+  }
+}

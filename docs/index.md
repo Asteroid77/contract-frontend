@@ -37,6 +37,9 @@ Agent 入口：`../AGENTS.md`
   - `reference/api/design-contract.yaml`
 - `reference/design-system/`: 设计 token 与风格契约
   - `reference/design-system/design-token-spec.yaml`
+- `design-system/`: 设计系统说明、设计交付与 token 使用指导
+  - `design-system/design-token-rationale.md`
+  - `design-system/token-to-figma-brief.md`
 - `reference/development/`: 开发脚本与约定
   - `reference/development/scripts-annotations.md`
 - `reference/modules/`: 模块级对接文档与模板

@@ -20,6 +20,7 @@ const {
   languageRef,
   currentThemeRef,
   tabsStoreState,
+  mockSharedAuthRoutes,
 } = vi.hoisted(() => ({
   routeState: {
     name: 'dashboard',
@@ -54,6 +55,24 @@ const {
     clearTabs: vi.fn(),
     setActiveTab: vi.fn(),
   },
+  mockSharedAuthRoutes: [
+    {
+      name: 'dashboard',
+      path: '/dashboard',
+      meta: {
+        name: 'menu.entry',
+        icon: 'icon-dashboard',
+      },
+    },
+    {
+      name: 'work-order',
+      path: '/work-order',
+      meta: {
+        name: 'layout.menu.workOrder',
+        icon: 'workOrder.list',
+      },
+    },
+  ],
 }))
 
 vi.mock('vue-router', () => ({
@@ -138,6 +157,10 @@ vi.mock('@/router/modules', () => ({
   userRoutes: [],
   manageRoutes: [],
   approvalRoutes: [],
+}))
+
+vi.mock('@/router', () => ({
+  authRoutes: mockSharedAuthRoutes,
 }))
 
 vi.mock('@/app/presentation/layout/utils/BreadCrumbBuilder', () => ({
@@ -413,7 +436,7 @@ describe('AuthLayoutView.tsx', () => {
     expect(routerPushSpy).toHaveBeenCalledWith({ name: 'login' })
   })
 
-  it('navigates by sidebar menu and closes active tab to next path', async () => {
+  it('renders desktop tab items with visible close icon and no persistent right border', async () => {
     const wrapper = mountAuthLayoutView()
 
     await findClickableByText(wrapper, 'menu.entry').trigger('click')
@@ -421,19 +444,40 @@ describe('AuthLayoutView.tsx', () => {
 
     routerPushSpy.mockClear()
 
-    const closeTabButton = wrapper.findAll('button').find((buttonItem) => {
-      const hasCloseIcon = buttonItem.find('[data-test="icon-close"]').exists()
-      return hasCloseIcon && buttonItem.classes().includes('opacity-0')
-    })
+    const activeTabItem = wrapper.get('[data-test="auth-desktop-tab-item-/dashboard"]')
+    expect(activeTabItem.classes()).not.toContain('border-r')
+    expect(activeTabItem.classes()).not.toContain('border-[var(--color-border)]')
 
-    if (!closeTabButton) {
-      throw new Error('close tab button not found')
-    }
+    const closeTabButton = wrapper.get('[data-test="auth-desktop-tab-close-/dashboard"]')
+
+    expect(closeTabButton.find('[data-test="icon-close"]').exists()).toBe(true)
+    expect(closeTabButton.classes()).not.toContain('opacity-0')
+    expect(closeTabButton.classes()).not.toContain('group-hover:opacity-100')
 
     await closeTabButton.trigger('click')
 
     expect(removeTabSpy).toHaveBeenCalledWith('/dashboard')
     expect(routerPushSpy).toHaveBeenCalledWith('/after-close')
+  })
+
+  it('renders menu entries from the shared auth route registry', async () => {
+    const wrapper = mountAuthLayoutView()
+
+    expect(wrapper.text()).toContain('layout.menu.workOrder')
+
+    await findClickableByText(wrapper, 'layout.menu.workOrder').trigger('click')
+
+    expect(routerPushSpy).toHaveBeenCalledWith('/work-order')
+  })
+
+  it('renders route icon in desktop breadcrumbs using the same route icon metadata', () => {
+    const wrapper = mountAuthLayoutView()
+
+    const breadcrumbEntry = wrapper.find('[data-test="auth-breadcrumb-item-/dashboard-0"]')
+
+    expect(breadcrumbEntry.exists()).toBe(true)
+    expect(breadcrumbEntry.find('[data-test="resolved-menu-icon"]').exists()).toBe(true)
+    expect(breadcrumbEntry.text()).toContain('menu.entry')
   })
 
   it('switches active tab and routes when tab body is clicked', async () => {

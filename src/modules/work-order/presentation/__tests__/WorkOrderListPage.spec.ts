@@ -71,7 +71,7 @@ vi.mock('@/modules/work-order/presentation/WorkOrderStatusBadge', () => ({
   }),
 }))
 
-vi.mock('@/modules/work-order/presentation/WorkOrderCreateModal.vue', () => ({
+vi.mock('@/modules/work-order/presentation/WorkOrderCreateModal', () => ({
   default: defineComponent({
     name: 'WorkOrderCreateModal',
     setup() {
@@ -136,7 +136,7 @@ vi.mock('naive-ui', () => ({
   }),
 }))
 
-import WorkOrderListPage from '@/modules/work-order/presentation/WorkOrderListPage.vue'
+import WorkOrderListPage from '@/modules/work-order/presentation/WorkOrderListPage'
 
 const setViewportWidth = (width: number) => {
   Object.defineProperty(window, 'innerWidth', {
