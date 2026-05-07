@@ -60,7 +60,7 @@ describe('access ability', () => {
     expect(ability.can('delete', 'user')).toBe(false)
   })
 
-  it('defineAbilityFor rejects legacy subject-first format and alias actions', () => {
+  it('defineAbilityFor silently ignores known legacy permissions without granting access', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     const ability = defineAbilityFor(
@@ -77,7 +77,7 @@ describe('access ability', () => {
     expect(ability.can('read', 'user')).toBe(false)
     expect(ability.can('update', 'user')).toBe(false)
     expect(ability.can('delete', 'user')).toBe(false)
-    expect(warnSpy).toHaveBeenCalledTimes(5)
+    expect(warnSpy).not.toHaveBeenCalled()
 
     warnSpy.mockRestore()
   })

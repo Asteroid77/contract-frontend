@@ -153,6 +153,9 @@ function parsePermission(permissionName: string): { action: Action; subject: Sub
   const subject = parseSubject(parts.slice(1).join(':'))
 
   if (!action || !subject) {
+    if (isKnownLegacyPermission(parts)) {
+      return null
+    }
     console.warn(`[CASL] Invalid permission value: ${permissionName}`)
     return null
   }
@@ -187,6 +190,45 @@ function parseAction(raw: string): Action | null {
 
 function parseSubject(raw: string): Subject | null {
   return isValidSubject(raw) ? raw : null
+}
+
+function isKnownLegacyPermission(parts: string[]): boolean {
+  const [first, ...rest] = parts
+  const legacySubject = first ?? ''
+  const legacyAction = rest[0] ?? ''
+
+  if (isLegacyAction(first ?? '')) {
+    return true
+  }
+
+  return (
+    rest.length === 1 && isRetiredSubject(legacySubject) && isCanonicalOrLegacyAction(legacyAction)
+  )
+}
+
+function isLegacyAction(action: string): boolean {
+  const legacyActions = ['view', 'page', 'list', 'preview', 'edit', 'disabled', 'disable']
+  return legacyActions.includes(action)
+}
+
+function isCanonicalOrLegacyAction(action: string): boolean {
+  return isValidAction(action) || isLegacyAction(action) || action === '*'
+}
+
+function isRetiredSubject(subject: string): boolean {
+  const retiredSubjects = [
+    'permission',
+    'role_permissions',
+    'role',
+    'user',
+    'approval-instance',
+    'approval-history',
+    'service-agreement',
+    'service-agreement-attachments',
+    'agent-dashboard',
+    'work-order-category',
+  ]
+  return retiredSubjects.includes(subject)
 }
 
 /**
