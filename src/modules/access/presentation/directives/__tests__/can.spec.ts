@@ -42,9 +42,21 @@ describe('v-can directive', () => {
 
     const el = createMockEl()
 
-    typedCanDirective.mounted?.(el, makeBinding('read:User'))
+    typedCanDirective.mounted?.(el, makeBinding('read:user'))
 
-    expect(ability.can).toHaveBeenCalledWith('read', 'User')
+    expect(ability.can).toHaveBeenCalledWith('read', 'user')
+    expect(el.remove).not.toHaveBeenCalled()
+    expect(capturePermissionError).not.toHaveBeenCalled()
+  })
+
+  it('keeps element when scoped canonical permission is granted', () => {
+    vi.mocked(ability.can).mockReturnValue(true)
+
+    const el = createMockEl()
+
+    typedCanDirective.mounted?.(el, makeBinding('read:agent-dashboard:global'))
+
+    expect(ability.can).toHaveBeenCalledWith('read', 'agent-dashboard:global')
     expect(el.remove).not.toHaveBeenCalled()
     expect(capturePermissionError).not.toHaveBeenCalled()
   })
@@ -54,38 +66,38 @@ describe('v-can directive', () => {
 
     const el = createMockEl()
 
-    typedCanDirective.mounted?.(el, makeBinding('delete:User'))
+    typedCanDirective.mounted?.(el, makeBinding('delete:user'))
 
-    expect(ability.can).toHaveBeenCalledWith('delete', 'User')
+    expect(ability.can).toHaveBeenCalledWith('delete', 'user')
     expect(el.remove).toHaveBeenCalledTimes(1)
-    expect(capturePermissionError).toHaveBeenCalledWith('delete', 'User', 'Directive check failed')
+    expect(capturePermissionError).toHaveBeenCalledWith('delete', 'user', 'Directive check failed')
   })
 
   it('uses AND logic for permission arrays by default', () => {
     vi.mocked(ability.can).mockImplementation(
-      (action, subject) => action === 'read' && subject === 'User',
+      (action, subject) => action === 'read' && subject === 'user',
     )
 
     const el = createMockEl()
 
-    typedCanDirective.updated?.(el, makeBinding(['read:User', 'update:User']))
+    typedCanDirective.updated?.(el, makeBinding(['read:user', 'update:user']))
 
     expect(el.remove).toHaveBeenCalledTimes(1)
     expect(capturePermissionError).toHaveBeenCalledWith(
       'read, update',
-      'User, User',
+      'user, user',
       'Directive check failed (AND logic)',
     )
   })
 
   it('uses OR logic when arg is any', () => {
     vi.mocked(ability.can).mockImplementation(
-      (action, subject) => action === 'read' && subject === 'User',
+      (action, subject) => action === 'read' && subject === 'user',
     )
 
     const el = createMockEl()
 
-    typedCanDirective.updated?.(el, makeBinding(['read:User', 'delete:User'], 'any'))
+    typedCanDirective.updated?.(el, makeBinding(['read:user', 'delete:user'], 'any'))
 
     expect(el.remove).not.toHaveBeenCalled()
     expect(capturePermissionError).not.toHaveBeenCalled()

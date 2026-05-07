@@ -21,8 +21,6 @@ export interface AppRouteMeta {
   hideInMenu?: boolean
   /** 是否需要认证（默认 true） */
   requiresAuth?: boolean
-  /** 需要的权限列表（旧方式，兼容保留） */
-  permissions?: string[]
   /** CASL 权限规则（推荐使用） */
   ability?: AbilityRule | AbilityRule[]
 }

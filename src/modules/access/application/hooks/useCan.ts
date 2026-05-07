@@ -13,8 +13,8 @@ import { useAbility } from '@casl/vue'
  *
  * @example
  * const { can, cannot } = useCan()
- * const canCreateUser = can('create', 'User')
- * const cannotDeleteUser = cannot('delete', 'User')
+ * const canCreateUser = can('create', 'user')
+ * const cannotDeleteUser = cannot('delete', 'user')
  */
 export function useCan() {
   const $ability = useAbility()
@@ -46,7 +46,7 @@ export function useCan() {
  * 用于在 setup 中进行权限检查
  *
  * @example
- * const canCreate = usePermission('create', 'User')
+ * const canCreate = usePermission('create', 'user')
  * if (canCreate.value) {
  *   // 显示创建按钮
  * }
@@ -60,9 +60,9 @@ export function usePermission(action: Action, subject: Subject): ComputedRef<boo
  *
  * @example
  * const canManageUser = useAnyPermission([
- *   ['create', 'User'],
- *   ['update', 'User'],
- *   ['delete', 'User'],
+ *   ['create', 'user'],
+ *   ['update', 'user'],
+ *   ['delete', 'user'],
  * ])
  */
 export function useAnyPermission(permissions: Array<[Action, Subject]>): ComputedRef<boolean> {
@@ -76,9 +76,9 @@ export function useAnyPermission(permissions: Array<[Action, Subject]>): Compute
  *
  * @example
  * const canFullyManageUser = useAllPermissions([
- *   ['create', 'User'],
- *   ['update', 'User'],
- *   ['delete', 'User'],
+ *   ['create', 'user'],
+ *   ['update', 'user'],
+ *   ['delete', 'user'],
  * ])
  */
 export function useAllPermissions(permissions: Array<[Action, Subject]>): ComputedRef<boolean> {

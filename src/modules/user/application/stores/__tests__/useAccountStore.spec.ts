@@ -67,7 +67,7 @@ const buildSignInResponse = (): SignInResponseComplete => ({
   permissionList: [
     {
       id: 1,
-      name: 'user:read',
+      name: 'read:user',
       description: 'read user',
     },
   ],
@@ -154,8 +154,8 @@ describe('useAccountStore', () => {
     expect(store.hasRole('admin')).toBe(true)
     expect(store.hasRole('auditor')).toBe(false)
 
-    expect(store.hasPermission('user:read')).toBe(true)
-    expect(store.hasPermission('user:write')).toBe(false)
+    expect(store.hasPermission('read:user')).toBe(true)
+    expect(store.hasPermission('update:user')).toBe(false)
 
     expect(store.isOwner(undefined)).toBe(false)
     expect(store.isOwner(99)).toBe(false)

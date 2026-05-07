@@ -32,8 +32,8 @@ export default defineComponent({
     const formRef: Ref<UserAdditionalInfoFormExpose | null> =
       useTemplateRef<UserAdditionalInfoFormExpose>('formRef')
 
-    const canView = usePermission('read', 'User')
-    const canEdit = usePermission('update', 'User')
+    const canView = usePermission('read', 'user')
+    const canEdit = usePermission('update', 'user')
 
     const currentUserId = computed(() => props.userId ?? null)
     const userInfoQuery = useUserInfoById(currentUserId)
