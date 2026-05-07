@@ -48,13 +48,13 @@ describe('setupAbilityGuard', () => {
       meta: {
         ability: {
           action: 'read',
-          subject: 'User',
+          subject: 'user',
         },
       },
     })
 
     expect(result).toBe(true)
-    expect(ability.can).toHaveBeenCalledWith('read', 'User')
+    expect(ability.can).toHaveBeenCalledWith('read', 'user')
   })
 
   it('blocks route when single ability rule fails', () => {
@@ -66,7 +66,7 @@ describe('setupAbilityGuard', () => {
       meta: {
         ability: {
           action: 'read',
-          subject: 'User',
+          subject: 'user',
         },
       },
     })
@@ -74,7 +74,7 @@ describe('setupAbilityGuard', () => {
     expect(result).toEqual({ name: '403' })
     expect(capturePermissionError).toHaveBeenCalledWith(
       'read',
-      'User',
+      'user',
       'Route access denied: user-settings',
     )
   })
@@ -89,11 +89,11 @@ describe('setupAbilityGuard', () => {
         ability: [
           {
             action: 'read',
-            subject: 'User',
+            subject: 'user',
           },
           {
             action: 'manage',
-            subject: 'Permission',
+            subject: 'permission-page',
           },
         ],
       },
@@ -102,7 +102,7 @@ describe('setupAbilityGuard', () => {
     expect(result).toEqual({ name: '403' })
     expect(capturePermissionError).toHaveBeenCalledWith(
       'manage',
-      'Permission',
+      'permission-page',
       'Route access denied: approval-node-list',
     )
   })

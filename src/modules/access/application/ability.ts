@@ -40,27 +40,28 @@ export type Action =
 
 /**
  * 权限主体类型
- * 定义系统中所有可以被权限控制的资源
+ * 使用后端 canonical 权限 subject 原文。
  */
 export type Subject =
-  | 'User' // 用户管理
-  | 'UserRole' // 用户角色关联
-  | 'Role' // 角色管理
-  | 'Permission' // 权限管理
-  | 'Contract' // 合同
-  | 'Approval' // 审批
-  | 'ApprovalInstance' // 审批实例
-  | 'ApprovalHistory' // 审批历史
-  | 'ApprovalTask' // 审批任务
-  | 'Business' // 业务
-  | 'Dashboard' // 仪表盘
-  | 'AgentDashboard' // 代理看板
-  | 'AgentDashboardGlobal' // 代理看板全局权限
-  | 'ServiceAgreement' // 售电协议
-  | 'ServiceAgreementFile' // 售电协议附件
-  | 'ServiceAgreementAttachments' // 售电协议附件预览
-  | 'WorkOrder' // 工单
-  | 'WorkOrderCategory' // 工单分类
+  | 'permission-page' // 权限分页
+  | 'role-permissions-page' // 角色权限分页
+  | 'role-page' // 角色分页
+  | 'role' // 角色管理
+  | 'user-role' // 用户角色关联
+  | 'user-page' // 用户分页
+  | 'user' // 用户管理
+  | 'approval-instance-page' // 审批实例分页
+  | 'approval-instance' // 审批实例
+  | 'approval-history' // 审批历史
+  | 'approval-task' // 审批任务
+  | 'service-agreement-page' // 售电协议分页
+  | 'service-agreement' // 售电协议
+  | 'service-agreement-file' // 售电协议附件
+  | 'service-agreement-attachments' // 售电协议附件预览
+  | 'agent-dashboard' // 代理看板
+  | 'agent-dashboard:global' // 代理看板全局权限
+  | 'work-order-category' // 工单分类
+  | 'work-order:filing-contract' // 归档合同工单
   | 'all' // 所有资源
 
 /**
@@ -96,9 +97,9 @@ export const ability = createAbility()
  * 从后端权限数据构建 CASL 规则
  *
  * 后端权限格式示例：
- * - "user:create" -> can('create', 'User')
- * - "contract:read" -> can('read', 'Contract')
- * - "approval:*" -> can('manage', 'Approval')
+ * - "create:user" -> can('create', 'user')
+ * - "read:user-page" -> can('read', 'user-page')
+ * - "read:agent-dashboard:global" -> can('read', 'agent-dashboard:global')
  *
  * @param permissions 权限列表
  * @param roles 角色列表
@@ -130,16 +131,10 @@ export function defineAbilityFor(permissions: Permission[], roles: RoleVo[]): Ap
 /**
  * 解析权限字符串为 CASL 规则
  *
- * 支持的格式：
- * - "user:create" -> { action: 'create', subject: 'User' }
- * - "create:user" -> { action: 'create', subject: 'User' }
- * - "contract:*" -> { action: 'manage', subject: 'Contract' }
- * - "view:user" -> { action: 'read', subject: 'User' }
- * - "page:user" -> { action: 'read', subject: 'User' }
- * - "edit:user" -> { action: 'update', subject: 'User' }
- * - "disabled:user" -> { action: 'delete', subject: 'User' }
- * - "claim:approval-task" -> { action: 'claim', subject: 'ApprovalTask' }
- * - "view:agent-dashboard:global" -> { action: 'read', subject: 'AgentDashboardGlobal' }
+ * 仅支持后端 canonical 格式：
+ * - "create:user" -> { action: 'create', subject: 'user' }
+ * - "read:user-page" -> { action: 'read', subject: 'user-page' }
+ * - "read:agent-dashboard:global" -> { action: 'read', subject: 'agent-dashboard:global' }
  *
  * @param permissionName 权限名称
  */
@@ -154,18 +149,15 @@ function parsePermission(permissionName: string): { action: Action; subject: Sub
     return null
   }
 
-  const subjectFirst = parsePermissionPair(parts.slice(0, -1).join(':'), parts[parts.length - 1]!)
-  if (subjectFirst) {
-    return subjectFirst
+  const action = parseAction(parts[0]!)
+  const subject = parseSubject(parts.slice(1).join(':'))
+
+  if (!action || !subject) {
+    console.warn(`[CASL] Invalid permission value: ${permissionName}`)
+    return null
   }
 
-  const actionFirst = parsePermissionPair(parts.slice(1).join(':'), parts[0]!)
-  if (actionFirst) {
-    return actionFirst
-  }
-
-  console.warn(`[CASL] Invalid permission value: ${permissionName}`)
-  return null
+  return { action, subject }
 }
 
 /**
@@ -189,88 +181,12 @@ export function clearAbility(): void {
 // 工具函数
 // ============================================================
 
-/**
- * 首字母大写
- */
-function capitalizeFirstLetter(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1)
+function parseAction(raw: string): Action | null {
+  return isValidAction(raw) ? raw : null
 }
 
-/**
- * 权限别名映射
- * - 兼容后端已提交的动作权限字典
- * - 保持现有前端 `read/update/delete` 语义不变
- */
-const ACTION_ALIAS_MAP: Record<string, Action> = {
-  '*': 'manage',
-  view: 'read',
-  page: 'read',
-  list: 'read',
-  preview: 'read',
-  edit: 'update',
-  disabled: 'delete',
-  disable: 'delete',
-}
-
-const SUBJECT_ALIAS_MAP: Record<string, Subject> = {
-  user: 'User',
-  'user-role': 'UserRole',
-  role: 'Role',
-  permission: 'Permission',
-  contract: 'Contract',
-  approval: 'Approval',
-  'approval-instance': 'ApprovalInstance',
-  'approval-history': 'ApprovalHistory',
-  approvaltask: 'ApprovalTask',
-  approval_task: 'ApprovalTask',
-  'approval-task': 'ApprovalTask',
-  business: 'Business',
-  dashboard: 'Dashboard',
-  'agent-dashboard': 'AgentDashboard',
-  'agent-dashboard:global': 'AgentDashboardGlobal',
-  'service-agreement': 'ServiceAgreement',
-  'service-agreement-file': 'ServiceAgreementFile',
-  'service-agreement-attachments': 'ServiceAgreementAttachments',
-  workorder: 'WorkOrder',
-  work_order: 'WorkOrder',
-  'work-order': 'WorkOrder',
-  workordercategory: 'WorkOrderCategory',
-  work_order_category: 'WorkOrderCategory',
-  'work-order-category': 'WorkOrderCategory',
-  all: 'all',
-}
-
-function normalizeAction(raw: string): Action | null {
-  const lowered = raw.trim().toLowerCase()
-  const aliasMapped = ACTION_ALIAS_MAP[lowered] ?? lowered
-  return isValidAction(aliasMapped) ? aliasMapped : null
-}
-
-function normalizeSubject(raw: string): Subject | null {
-  const lowered = raw.trim().toLowerCase()
-  const aliasMapped = SUBJECT_ALIAS_MAP[lowered]
-  if (aliasMapped) {
-    return aliasMapped
-  }
-
-  const byCapitalize = capitalizeFirstLetter(lowered)
-  if (isValidSubject(byCapitalize)) {
-    return byCapitalize
-  }
-
-  return null
-}
-
-function parsePermissionPair(
-  subjectRaw: string,
-  actionRaw: string,
-): { action: Action; subject: Subject } | null {
-  const subject = normalizeSubject(subjectRaw)
-  const action = normalizeAction(actionRaw)
-  if (!subject || !action) {
-    return null
-  }
-  return { action, subject }
+function parseSubject(raw: string): Subject | null {
+  return isValidSubject(raw) ? raw : null
 }
 
 /**
@@ -278,24 +194,25 @@ function parsePermissionPair(
  */
 function isValidSubject(subject: string): subject is Subject {
   const validSubjects: Subject[] = [
-    'User',
-    'UserRole',
-    'Role',
-    'Permission',
-    'Contract',
-    'Approval',
-    'ApprovalInstance',
-    'ApprovalHistory',
-    'ApprovalTask',
-    'Business',
-    'Dashboard',
-    'AgentDashboard',
-    'AgentDashboardGlobal',
-    'ServiceAgreement',
-    'ServiceAgreementFile',
-    'ServiceAgreementAttachments',
-    'WorkOrder',
-    'WorkOrderCategory',
+    'permission-page',
+    'role-permissions-page',
+    'role-page',
+    'role',
+    'user-role',
+    'user-page',
+    'user',
+    'approval-instance-page',
+    'approval-instance',
+    'approval-history',
+    'approval-task',
+    'service-agreement-page',
+    'service-agreement',
+    'service-agreement-file',
+    'service-agreement-attachments',
+    'agent-dashboard',
+    'agent-dashboard:global',
+    'work-order-category',
+    'work-order:filing-contract',
     'all',
   ]
   return validSubjects.includes(subject as Subject)
@@ -333,8 +250,8 @@ function isValidAction(action: string): action is Action {
 /**
  * 检查是否可以执行某个操作
  * @example
- * can('create', 'User') // 是否可以创建用户
- * can('read', 'Contract') // 是否可以读取合同
+ * can('create', 'user') // 是否可以创建用户
+ * can('read', 'service-agreement') // 是否可以读取售电协议
  */
 export function can(action: Action, subject: Subject): boolean {
   return ability.can(action, subject)

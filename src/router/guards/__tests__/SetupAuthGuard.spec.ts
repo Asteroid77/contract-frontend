@@ -47,7 +47,7 @@ type GuardTo = {
   meta: {
     requiresAuth?: boolean
     ability?: unknown
-    permissions?: string[]
+    permissions?: unknown
   }
 }
 
@@ -271,7 +271,7 @@ describe('setupAuthGuards', () => {
     expect(result).toBe(true)
   })
 
-  it('skips legacy permission/role check when ability is defined', async () => {
+  it('ignores legacy permissions metadata when ability is defined', async () => {
     vi.mocked(getStoredAccessToken).mockReturnValue('access-token')
     const accountStore = createAccountStore()
     vi.mocked(useAccountStore).mockReturnValue(accountStore as never)
@@ -283,7 +283,7 @@ describe('setupAuthGuards', () => {
       meta: {
         ability: {
           action: 'read',
-          subject: 'Approval',
+          subject: 'approval-instance-page',
         },
         permissions: ['perm.denied'],
       },
@@ -294,7 +294,7 @@ describe('setupAuthGuards', () => {
     expect(accountStore.hasRole).not.toHaveBeenCalled()
   })
 
-  it('returns 403 when legacy permissions check fails', async () => {
+  it('ignores legacy permissions metadata when ability is absent', async () => {
     vi.mocked(getStoredAccessToken).mockReturnValue('access-token')
 
     const accountStore = createAccountStore()
@@ -310,8 +310,9 @@ describe('setupAuthGuards', () => {
       },
     })
 
-    expect(result).toEqual({ name: '403' })
-    expect(captureError).toHaveBeenCalled()
+    expect(result).toBe(true)
+    expect(accountStore.hasPermission).not.toHaveBeenCalled()
+    expect(captureError).not.toHaveBeenCalled()
   })
 
   it('allows route when no permissions are configured', async () => {

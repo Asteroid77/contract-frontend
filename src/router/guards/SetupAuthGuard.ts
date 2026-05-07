@@ -179,28 +179,6 @@ export function setupAuthGuards(router: Router) {
       return true
     }
 
-    const requirePerms = to.meta.permissions
-
-    if (!requirePerms) {
-      return true
-    }
-
-    if (requirePerms) {
-      const hasAllPerms = requirePerms.every((perm) => accountStore.hasPermission(perm))
-      if (!hasAllPerms) {
-        captureError(new Error('Permission denied'), {
-          source: 'permission',
-          severity: 'warning',
-          context: {
-            route: to.name,
-            requiredPermissions: requirePerms,
-            userPermissions: accountStore.permissionList.map((item) => item.name),
-          },
-        })
-        return { name: '403' }
-      }
-    }
-
     void enablePostLoginEnhancements().catch(() => undefined)
 
     return true

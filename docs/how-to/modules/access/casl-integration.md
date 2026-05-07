@@ -36,20 +36,20 @@ src/modules/access/
 
 ### 1. 权限格式
 
-后端权限格式：`{resource}:{action}`
+后端权限格式：`action:subject[:scope]`，前端直接消费 canonical subject 原文。
 
 示例：
-- `user:create` - 创建用户
-- `contract:read` - 读取合同
-- `approval:*` - 审批的所有操作
+- `read:user-page` - 查询用户分页
+- `read:user` - 读取用户详情
+- `read:agent-dashboard:global` - 读取全局代理看板
 
 ### 2. 在模板中使用
 
 #### 单个权限检查
 ```vue
 <template>
-  <!-- 只有拥有 create:User 权限的用户才能看到此按钮 -->
-  <n-button v-can="'create:User'">创建用户</n-button>
+  <!-- 只有拥有 read:user 权限的用户才能看到此按钮 -->
+  <n-button v-can="'read:user'">查看用户</n-button>
 </template>
 ```
 
@@ -57,8 +57,8 @@ src/modules/access/
 ```vue
 <template>
   <!-- 需要同时拥有两个权限 -->
-  <n-button v-can="['create:User', 'read:Role']">
-    创建用户
+  <n-button v-can="['read:user-page', 'read:role-page']">
+    查看管理数据
   </n-button>
 </template>
 ```
@@ -67,7 +67,7 @@ src/modules/access/
 ```vue
 <template>
   <!-- 拥有任意一个权限即可 -->
-  <n-button v-can:any="['update:User', 'delete:User']">
+  <n-button v-can:any="['update:user', 'delete:user']">
     管理用户
   </n-button>
 </template>
@@ -81,30 +81,30 @@ import { useCan, usePermission } from '@/modules/access'
 
 // 方式 1: 使用 useCan
 const { can, cannot } = useCan()
-const canCreateUser = can('create', 'User')
-const cannotDeleteUser = cannot('delete', 'User')
+const canReadUser = can('read', 'user')
+const cannotDeleteUser = cannot('delete', 'user')
 
 // 方式 2: 使用 usePermission
-const canUpdateContract = usePermission('update', 'Contract')
+const canUpdateUser = usePermission('update', 'user')
 
 // 方式 3: 检查多个权限
 import { useAnyPermission, useAllPermissions } from '@/modules/access'
 
 const canManageUser = useAnyPermission([
-  ['create', 'User'],
-  ['update', 'User'],
-  ['delete', 'User'],
+  ['read', 'user'],
+  ['update', 'user'],
+  ['delete', 'user'],
 ])
 
 const canFullyManage = useAllPermissions([
-  ['create', 'User'],
-  ['read', 'Role'],
+  ['read', 'user-page'],
+  ['read', 'role-page'],
 ])
 </script>
 
 <template>
-  <n-button v-if="canCreateUser" @click="handleCreate">
-    创建用户
+  <n-button v-if="canReadUser" @click="handleView">
+    查看用户
   </n-button>
 </template>
 ```
@@ -127,7 +127,7 @@ export const userRoutes: AppRouteRecord[] = [
       // 使用 CASL 权限规则
       ability: {
         action: 'read',
-        subject: 'User',
+        subject: 'user-page',
       },
     },
   },
@@ -139,27 +139,9 @@ export const userRoutes: AppRouteRecord[] = [
       name: '创建用户',
       // 需要多个权限
       ability: [
-        { action: 'create', subject: 'User' },
-        { action: 'read', subject: 'Role' },
+        { action: 'update', subject: 'user' },
+        { action: 'read', subject: 'role-page' },
       ],
-    },
-  },
-]
-```
-
-#### 方式 2: 使用旧方式（兼容）
-
-```typescript
-export const userRoutes: AppRouteRecord[] = [
-  {
-    path: 'users',
-    name: 'user-list',
-    component: () => import('@/views/user/UserList.vue'),
-    meta: {
-      name: '用户列表',
-      // 旧方式：使用字符串数组
-      permissions: ['user:read'],
-      roles: ['admin'],
     },
   },
 ]
@@ -171,17 +153,17 @@ export const userRoutes: AppRouteRecord[] = [
 import { can, cannot, ability } from '@/modules/access'
 
 // 简单检查
-if (can('create', 'User')) {
-  console.log('可以创建用户')
+if (can('read', 'user')) {
+  console.log('可以查看用户')
 }
 
-if (cannot('delete', 'Contract')) {
-  console.log('不能删除合同')
+if (cannot('delete', 'user')) {
+  console.log('不能删除用户')
 }
 
 // 使用原始 ability 实例
-if (ability.can('approve', 'Approval')) {
-  // 执行审批操作
+if (ability.can('claim', 'approval-task')) {
+  // 领取审批任务
 }
 ```
 
@@ -191,16 +173,16 @@ if (ability.can('approve', 'Approval')) {
 
 | Action | 说明 | 示例 |
 |--------|------|------|
-| `create` | 创建 | `create:User` |
-| `read` | 读取 | `read:Contract` |
-| `update` | 更新 | `update:Role` |
-| `delete` | 删除 | `delete:Permission` |
-| `manage` | 管理（所有操作） | `manage:User` |
-| `approve` | 审批 | `approve:Approval` |
-| `reject` | 拒绝 | `reject:Approval` |
-| `assign` | 分配 | `assign:Role` |
-| `export` | 导出 | `export:Contract` |
-| `import` | 导入 | `import:User` |
+| `create` | 创建 | `create:role` |
+| `read` | 读取 | `read:user-page` |
+| `update` | 更新 | `update:user` |
+| `delete` | 删除 | `delete:user` |
+| `manage` | 管理（所有操作） | `manage:work-order-category` |
+| `approve` | 审批 | `approve:approval-instance` |
+| `reject` | 拒绝 | `reject:approval-instance` |
+| `assign` | 分配 | `assign:user-role` |
+| `export` | 导出 | `export:service-agreement` |
+| `import` | 导入 | `import:service-agreement` |
 
 ## 权限主体 (Subjects)
 
@@ -208,14 +190,15 @@ if (ability.can('approve', 'Approval')) {
 
 | Subject | 说明 |
 |---------|------|
-| `User` | 用户管理 |
-| `Role` | 角色管理 |
-| `Permission` | 权限管理 |
-| `Contract` | 合同 |
-| `Approval` | 审批 |
-| `ApprovalTask` | 审批任务 |
-| `Business` | 业务 |
-| `Dashboard` | 仪表盘 |
+| `user-page` | 用户分页 |
+| `user` | 用户管理 |
+| `role-page` | 角色分页 |
+| `role` | 角色管理 |
+| `permission-page` | 权限分页 |
+| `approval-task` | 审批任务 |
+| `service-agreement` | 售电协议 |
+| `agent-dashboard:global` | 全局代理看板 |
+| `work-order-category` | 工单分类 |
 | `all` | 所有资源 |
 
 ## 高级用法
@@ -240,18 +223,7 @@ function logout() {
 }
 ```
 
-### 2. 管理员权限
-
-如果用户角色是 `admin` 或 `super_admin`，将自动拥有所有权限：
-
-```typescript
-// 在 ability.ts 中的逻辑
-if (roles.some((role) => role.name === 'admin' || role.name === 'super_admin')) {
-  can('manage', 'all') // 拥有所有权限
-}
-```
-
-### 3. 权限拒绝追踪
+### 2. 权限拒绝追踪
 
 所有权限拒绝事件都会自动记录到可观测性系统：
 
@@ -269,12 +241,7 @@ capturePermissionError(action, subject, reason)
 ```typescript
 // ✅ 推荐：使用 CASL
 meta: {
-  ability: { action: 'create', subject: 'User' }
-}
-
-// ⚠️ 不推荐：使用旧方式
-meta: {
-  permissions: ['user:create']
+  ability: { action: 'read', subject: 'user-page' }
 }
 ```
 
@@ -282,12 +249,12 @@ meta: {
 
 ```typescript
 // ✅ 好：细粒度控制
-<n-button v-can="'create:User'">创建</n-button>
-<n-button v-can="'update:User'">编辑</n-button>
-<n-button v-can="'delete:User'">删除</n-button>
+<n-button v-can="'read:user'">查看</n-button>
+<n-button v-can="'update:user'">编辑</n-button>
+<n-button v-can="'delete:user'">删除</n-button>
 
-// ❌ 差：粗粒度控制
-<n-button v-can="'manage:User'">所有操作</n-button>
+// ❌ 差：用管理权限替代明确动作
+<n-button v-can="'manage:all'">所有操作</n-button>
 ```
 
 ### 3. 组合权限检查
@@ -295,17 +262,17 @@ meta: {
 ```typescript
 // ✅ 好：使用组合式函数
 const canManage = useAnyPermission([
-  ['create', 'User'],
-  ['update', 'User'],
-  ['delete', 'User'],
+  ['read', 'user'],
+  ['update', 'user'],
+  ['delete', 'user'],
 ])
 
 // ❌ 差：重复检查
-const canCreate = usePermission('create', 'User')
-const canUpdate = usePermission('update', 'User')
-const canDelete = usePermission('delete', 'User')
+const canRead = usePermission('read', 'user')
+const canUpdate = usePermission('update', 'user')
+const canDelete = usePermission('delete', 'user')
 const canManage = computed(() =>
-  canCreate.value || canUpdate.value || canDelete.value
+  canRead.value || canUpdate.value || canDelete.value
 )
 ```
 
@@ -315,8 +282,8 @@ const canManage = computed(() =>
 
 检查：
 - 用户是否已登录
-- 权限格式是否正确（`action:Subject`）
-- Subject 首字母是否大写
+- 权限格式是否正确（`action:subject[:scope]`）
+- subject 是否使用后端 canonical 原文
 
 ### 2. 路由守卫不工作
 

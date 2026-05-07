@@ -32,7 +32,7 @@ export default defineComponent({
     const updateMutation = useUpdateCategory()
     const deleteMutation = useDeleteCategory()
     const rules = useCategoryRules()
-    const canManage = computed(() => can('manage', 'WorkOrderCategory'))
+    const canManage = computed(() => can('manage', 'work-order-category'))
 
     const options = computed<SelectOption[]>(() =>
       (categories.value ?? []).map((c) => ({ label: c.name, value: c.id })),

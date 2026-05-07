@@ -35,11 +35,11 @@ access/
 
 基于 CASL 的权限系统，支持三种使用方式：
 
-- **命令式**：`can('create', 'User')` / `cannot('delete', 'Contract')`
-- **响应式**：`usePermission('read', 'Dashboard')` 返回 `ComputedRef<boolean>`
-- **模板指令**：`v-can="'create:User'"` 或 `v-can:any="['read:Contract', 'update:Contract']"`
+- **命令式**：`can('create', 'user')` / `cannot('delete', 'service-agreement')`
+- **响应式**：`usePermission('read', 'user-page')` 返回 `ComputedRef<boolean>`
+- **模板指令**：`v-can="'create:user'"` 或 `v-can:any="['read:user', 'update:user']"`
 
-权限规则从后端 `subject:action` 格式的字符串自动解析，支持别名映射（`view` -> `read`、`edit` -> `update`、`*` -> `manage`）。管理员角色（`admin` / `super_admin`）自动获得全部权限。
+权限规则只消费后端 canonical `action:subject[:scope]` 字符串，不再维护动作别名、subject 别名或 `subject:action` 兼容解析。
 
 ### Token 生命周期
 
@@ -64,22 +64,22 @@ access/
 ```typescript
 // 权限检查（命令式）
 import { can, cannot } from '@/modules/access'
-if (can('create', 'Contract')) {
+if (can('record', 'service-agreement')) {
   /* ... */
 }
 
 // 权限检查（组合式函数）
 import { usePermission, useAnyPermission } from '@/modules/access'
-const canEdit = usePermission('update', 'Contract')
+const canEdit = usePermission('update', 'user')
 const canManageUser = useAnyPermission([
-  ['create', 'User'],
-  ['update', 'User'],
+  ['read', 'user'],
+  ['update', 'user'],
 ])
 
 // 模板指令
 import { canDirective } from '@/modules/access'
 // 注册后在模板中使用：
-// <button v-can="'create:Contract'">新建合同</button>
+// <button v-can="'record:service-agreement'">登记协议</button>
 
 // 权限初始化（登录后调用）
 import { updateAbility, clearAbility } from '@/modules/access'
@@ -103,5 +103,5 @@ const { data, isLoading } = useRolePage(params)
 ## 注意事项
 
 - `token-manager` 被 `shared/infrastructure/useRequest` 直接引用，修改时需评估对全局请求流程的影响。
-- 扩展 `Subject` 或 `Action` 类型时，需同步更新 `ability.ts` 中的别名映射表和验证函数。
+- 扩展 `Subject` 或 `Action` 类型时，需同步更新 `ability.ts` 中的 canonical 白名单和后端权限字典文档。
 - `validation.ts` 存在对 `@/modules/user` 表单类型的依赖，这是已知的跨模块耦合。

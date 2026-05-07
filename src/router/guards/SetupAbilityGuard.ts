@@ -11,7 +11,7 @@
  *   meta: {
  *     ability: {
  *       action: 'read',
- *       subject: 'User'
+ *       subject: 'user'
  *     }
  *   }
  * }
@@ -21,8 +21,8 @@
  *   path: '/users/create',
  *   meta: {
  *     ability: [
- *       { action: 'create', subject: 'User' },
- *       { action: 'read', subject: 'Role' }
+ *       { action: 'create', subject: 'user' },
+ *       { action: 'read', subject: 'role' }
  *     ]
  *   }
  * }

@@ -23,9 +23,9 @@ export default defineComponent({
     const { t: $t } = useI18n()
     const router = useRouter()
 
-    const canEdit = usePermission('update', 'User')
-    const canView = usePermission('read', 'User')
-    const canDisable = usePermission('delete', 'User')
+    const canEdit = usePermission('update', 'user')
+    const canView = usePermission('read', 'user')
+    const canDisable = usePermission('delete', 'user')
     const isMobile = useIsMobile(768)
 
     const { draftQueryFilters, appliedQueryFilters, pagination, bindRefetchHandlers } =

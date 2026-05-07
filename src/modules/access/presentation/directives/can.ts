@@ -3,9 +3,9 @@
  * 用于在模板中进行权限控制
  *
  * 使用方式：
- * 1. v-can="'create:User'" - 检查单个权限
- * 2. v-can="['create:User', 'update:User']" - 检查多个权限（AND）
- * 3. v-can:any="['create:User', 'update:User']" - 检查多个权限（OR）
+ * 1. v-can="'create:user'" - 检查单个权限
+ * 2. v-can="['create:user', 'update:user']" - 检查多个权限（AND）
+ * 3. v-can:any="['create:user', 'update:user']" - 检查多个权限（OR）
  */
 
 import type { Directive, DirectiveBinding } from 'vue'
@@ -20,19 +20,19 @@ interface PermissionValue {
 /**
  * 解析权限字符串
  * @example
- * parsePermissionString('create:User') -> { action: 'create', subject: 'User' }
+ * parsePermissionString('read:agent-dashboard:global') -> { action: 'read', subject: 'agent-dashboard:global' }
  */
 function parsePermissionString(permission: string): PermissionValue | null {
   const parts = permission.split(':')
-  if (parts.length !== 2) {
+  if (parts.length < 2) {
     console.warn(`[v-can] Invalid permission format: ${permission}`)
     return null
   }
 
-  const [action, subject] = parts
+  const [action, ...subjectParts] = parts
   return {
     action: action as Action,
-    subject: subject as Subject,
+    subject: subjectParts.join(':') as Subject,
   }
 }
 

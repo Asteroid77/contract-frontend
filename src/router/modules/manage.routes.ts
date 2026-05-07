@@ -32,7 +32,7 @@ export const manageRoutes: AppRouteRecord[] = [
       parent: 'manage',
       ability: {
         action: 'read',
-        subject: 'User',
+        subject: 'user-page',
       },
     },
   },
@@ -47,7 +47,7 @@ export const manageRoutes: AppRouteRecord[] = [
       hideInMenu: true,
       ability: {
         action: 'read',
-        subject: 'User',
+        subject: 'user',
       },
     },
     props: (route: RouteLocation) => ({
@@ -66,7 +66,7 @@ export const manageRoutes: AppRouteRecord[] = [
       hideInMenu: true,
       ability: {
         action: 'update',
-        subject: 'User',
+        subject: 'user',
       },
     },
     props: (route: RouteLocation) => ({

@@ -31,30 +31,30 @@ describe('useCan hooks', () => {
 
     const permission = useCan()
 
-    expect(permission.can('read', 'User').value).toBe(true)
-    expect(permission.cannot('delete', 'User').value).toBe(false)
+    expect(permission.can('read', 'user').value).toBe(true)
+    expect(permission.cannot('delete', 'user').value).toBe(false)
     expect(permission.ability.can).toBe(canSpy)
 
-    expect(canSpy).toHaveBeenCalledWith('read', 'User')
-    expect(cannotSpy).toHaveBeenCalledWith('delete', 'User')
+    expect(canSpy).toHaveBeenCalledWith('read', 'user')
+    expect(cannotSpy).toHaveBeenCalledWith('delete', 'user')
   })
 
   it('usePermission delegates to global ability', () => {
     canSpy.mockReturnValue(true)
 
-    const result = usePermission('update', 'Role')
+    const result = usePermission('update', 'role')
 
     expect(result.value).toBe(true)
-    expect(canSpy).toHaveBeenCalledWith('update', 'Role')
+    expect(canSpy).toHaveBeenCalledWith('update', 'role')
   })
 
   it('useAnyPermission returns true when any permission passes', () => {
-    canSpy.mockImplementation((action, subject) => action === 'read' && subject === 'User')
+    canSpy.mockImplementation((action, subject) => action === 'read' && subject === 'user')
 
     const result = useAnyPermission([
-      ['create', 'User'],
-      ['read', 'User'],
-      ['delete', 'User'],
+      ['create', 'user'],
+      ['read', 'user'],
+      ['delete', 'user'],
     ])
 
     expect(result.value).toBe(true)
@@ -64,9 +64,9 @@ describe('useCan hooks', () => {
     canSpy.mockImplementation((action) => action !== 'delete')
 
     const result = useAllPermissions([
-      ['create', 'User'],
-      ['read', 'User'],
-      ['delete', 'User'],
+      ['create', 'user'],
+      ['read', 'user'],
+      ['delete', 'user'],
     ])
 
     expect(result.value).toBe(false)

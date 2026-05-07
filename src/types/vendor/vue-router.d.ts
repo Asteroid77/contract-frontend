@@ -2,8 +2,6 @@ import 'vue-router'
 
 declare module 'vue-router' {
   interface RouteMeta {
-    // 如果设置，则会根据用户信息判断permission
-    permissions?: string[]
     // 用于面包屑以及菜单展示路由名称
     name?: string
     // 用于面包屑以及菜单展示路由图标
