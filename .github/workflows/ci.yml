@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - 'work/**'
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  release-package-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '9'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify release package
+        run: bash scripts/release/frontend-package.sh
+        env:
+          RELEASE_TAG: v0.0.0-ci
+          RELEASE_ID: v0.0.0-ci
+          VITE_BACKEND_SERVER_URL: /api
+          VITE_OPENREPLAY_ENABLED: 'false'
+          VITE_OTEL_ENDPOINT: /observability/otel
+          VITE_SOURCEMAP_RESOLVER_ENDPOINT: /observability/resolver
