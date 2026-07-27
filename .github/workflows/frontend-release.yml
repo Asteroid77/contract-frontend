@@ -1,0 +1,76 @@
+name: Frontend Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: frontend-release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      RELEASE_TAG: ${{ github.ref_name }}
+      RELEASE_ID: ${{ github.ref_name }}
+      REPO_COMMIT: ${{ github.sha }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '9'
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Package frontend release
+        run: bash scripts/release/frontend-package.sh
+        env:
+          VITE_APP_BUILD_ID: ${{ github.run_id }}
+          VITE_APP_RELEASE: ${{ env.RELEASE_ID }}
+          VITE_GIT_BRANCH: ${{ github.ref_name }}
+          VITE_GIT_COMMIT: ${{ github.sha }}
+          VITE_RELEASE_CHANNEL: prod-like
+          VITE_BACKEND_SERVER_URL: /api
+          VITE_OPENREPLAY_ENABLED: 'false'
+          VITE_OTEL_ENDPOINT: /observability/otel
+          VITE_SOURCEMAP_RESOLVER_ENDPOINT: /observability/resolver
+
+      - name: Publish immutable GitHub Release assets
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "::error::GitHub Release already exists for $RELEASE_TAG; assets are immutable"
+            exit 1
+          fi
+          gh release create "$RELEASE_TAG" \
+            release-artifacts/* \
+            --verify-tag \
+            --title "Frontend $RELEASE_TAG" \
+            --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-release-${{ github.ref_name }}
+          path: release-artifacts/
+          retention-days: 30
+          if-no-files-found: error
